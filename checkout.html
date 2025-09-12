@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="checkout1.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    .success-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: none; /* Hidden by default */
+      justify-content: center;
+      align-items: center;
+      z-index: 1001; /* Ensure it's on top */
+    }
+    .success-modal {
+      background-color: white;
+      padding: 30px 40px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 400px;
+      transform: scale(0.9);
+      animation: scaleUp 0.3s forwards;
+    }
+    @keyframes scaleUp {
+      to {
+        transform: scale(1);
+      }
+    }
+    .success-modal .icon {
+      font-size: 50px;
+      color: #28a745;
+      width: 80px;
+      height: 80px;
+      line-height: 80px;
+      border: 3px solid #28a745;
+      border-radius: 50%;
+      margin: 0 auto 20px auto;
+    }
+    .success-modal h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    .success-modal p {
+      color: #666;
+      font-size: 1.1em;
+      margin-bottom: 25px;
+    }
+    .success-modal .btn-ok {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        font-size: 1em;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .success-modal .btn-ok:hover {
+        background-color: #0056b3;
+    }
+  </style>
+  </head>
+<body>
+  <h1>Your Shopping Cart</h1>
+  <table class="cart-table" id="checkout-table">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Product Name</th>
+        <th>Type</th>
+        <th>Price</th>
+        <th>Quantity</th>
+      </tr>
+    </thead>
+    <tbody>
+      </tbody>
+  </table>
+
+<div class="order-modal-overlay" id="order-modal-overlay">
+  <div class="order-modal">
+    <div class="order-modal-header">
+      <h2>Place Order</h2>
+      <button type="button" class="order-modal-close-btn" onclick="closeOrderModal()">&times;</button>
+    </div>
+    <div class="order-modal-body">
+      <section>
+        <h3>Shipping Information</h3>
+        <div class="form-group">
+          <label for="recipient-name-checkout">Recipient's Name <span class="required">*</span></label>
+          <input type="text" id="recipient-name-checkout" required>
+        </div>
+        <div class="form-group">
+          <label for="recipient-phone-checkout">Phone Number <span class="required">*</span></label>
+          <input type="tel" id="recipient-phone-checkout" required>
+        </div>
+        <div class="form-group">
+          <label for="recipient-address-checkout">Address <span class="required">*</span></label>
+          <input type="text" id="recipient-address-checkout" required>
+        </div>
+        <div class="form-group">
+          <label for="recipient-notes-checkout">Notes</label>
+          <textarea id="recipient-notes-checkout" rows="2"></textarea>
+        </div>
+      </section>
+      <section class="order-summary-section">
+        <h3>Your Order</h3>
+        <div id="order-modal-product-summary-checkout"></div>
+        <div class="order-modal-total">
+          <span>Total Payment</span>
+          <span id="order-modal-total-amount-checkout">$0.00</span>
+        </div>
+      </section>
+      <section>
+        <h3>Payment Method</h3>
+        <div class="payment-option">
+          <input type="radio" id="cod-checkout" name="payment-method" value="cod" checked>
+          <label for="cod-checkout"><i class="fa fa-truck"></i> Cash on Delivery (COD)</label>
+        </div>
+      </section>
+    </div>
+    <div class="order-modal-footer">
+      <button class="btn-place-order" onclick="submitOrderCheckout()">PLACE ORDER</button>
+    </div>
+  </div>
+</div>
+
+ <div class="success-modal-overlay" id="success-modal-overlay">
+    <div class="success-modal">
+        <div class="icon">&#10004;</div>
+        <h2>Order Placed Successfully!</h2>
+        <p>Your order ID is: <strong id="success-order-id"></strong></p>
+        <button class="btn-ok" onclick="closeSuccessModal()">OK</button>
+    </div>
+ </div>
+ <div class="actions">
+  <a href="index.html" class="btn">← Continue Shopping</a>
+  <button class="btn btn-payment-checkout" onclick="openOrderModal()">Checkout</button>
+ </div>
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+   
+    const tbody = document.querySelector('#checkout-table tbody');
+
+    // Các hằng số cho modal đặt hàng (lấy từ HTML của bạn trong checkout.html)
+    const orderModalOverlay = document.getElementById('order-modal-overlay');
+    const orderModalProductSummary = document.getElementById('order-modal-product-summary-checkout');
+    const orderModalTotalAmount = document.getElementById('order-modal-total-amount-checkout');
+    
+    // Get elements for the success modal
+    const successModalOverlay = document.getElementById('success-modal-overlay');
+    const successOrderIdSpan = document.getElementById('success-order-id');
+
+    const recipientNameInput = document.getElementById('recipient-name-checkout');
+    const recipientPhoneInput = document.getElementById('recipient-phone-checkout');
+    const recipientAddressInput = document.getElementById('recipient-address-checkout');
+    const recipientNotesInput = document.getElementById('recipient-notes-checkout');
+    const paymentMethodCOD = document.getElementById('cod-checkout');
+
+    // ==================================================================
+    // HÀM MỚI: Sửa lại giá trị tiền tệ
+    // Giả định rằng giá dưới 1000 là giá trị triệu đồng (ví dụ: 22 -> 22,000,000)
+    // ==================================================================
+    function getCorrectedPrice(originalPrice) {
+        const priceString = String(originalPrice).replace(/[^\d.,]/g, '').replace(',', '.');
+        let itemPriceNumeric = parseFloat(priceString);
+
+        if (!isNaN(itemPriceNumeric) && itemPriceNumeric < 1000) { 
+            itemPriceNumeric *= 1000000;
+        }
+        return itemPriceNumeric;
+    }
+
+    function showError(inputElement, message) {
+        inputElement.classList.add('is-invalid');
+        const errorElement = document.getElementById(inputElement.id.replace('-checkout', '-error'));
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+
+    function clearErrors() {
+        document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    }
+
+    function displayCartItemsInTable() {
+        if (!tbody) { return; }
+        tbody.innerHTML = '';
+        const paymentButton = document.querySelector('.actions .btn-payment-checkout');
+
+        if (cart.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Giỏ hàng của bạn trống.</td></tr>';
+            if (paymentButton) paymentButton.disabled = true;
+        } else {
+            if (paymentButton) paymentButton.disabled = false;
+            cart.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                // SỬA Ở ĐÂY: Dùng hàm mới để lấy giá đã sửa
+                const correctedPrice = getCorrectedPrice(item.price);
+                const formattedPrice = !isNaN(correctedPrice) ? correctedPrice.toLocaleString('vi-VN') + ' ₫' : 'Liên hệ';
+
+                tr.innerHTML = `
+                    <td><img src="${item.image}" alt="${item.name}" style="width: 70px; height: 70px; object-fit: contain; border-radius: 4px;"></td>
+                    <td>${item.name}</td>
+                    <td>${item.category || 'N/A'}</td>
+                    <td>${formattedPrice}</td>
+                    <td>${item.qty}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    function openOrderModal() {
+        if (cart.length === 0) {
+            alert("Giỏ hàng của bạn đang trống. Vui lòng thêm sản phẩm trước khi đặt hàng.");
+            return;
+        }
+        clearErrors();
+        orderModalProductSummary.innerHTML = '';
+        let total = 0;
+
+        cart.forEach(item => {
+            // SỬA Ở ĐÂY: Dùng hàm mới để tính tổng tiền
+            const correctedPrice = getCorrectedPrice(item.price);
+            const itemTotal = !isNaN(correctedPrice) ? (correctedPrice * item.qty) : 0;
+            total += itemTotal;
+
+            const productItemDiv = document.createElement('div');
+            productItemDiv.classList.add('order-modal-product-item');
+            
+            productItemDiv.innerHTML = `
+                <img src="${item.image}" alt="${item.name}">
+                <div class="product-details">
+                    <span class="product-name">${item.name}</span>
+                    <span class="product-quantity">x ${item.qty}</span>
+                </div>
+                <span class="product-price">${itemTotal.toLocaleString('vi-VN')} ₫</span>
+            `;
+            orderModalProductSummary.appendChild(productItemDiv);
+        });
+
+        orderModalTotalAmount.textContent = `${total.toLocaleString('vi-VN')} ₫`;
+        if (orderModalOverlay) orderModalOverlay.classList.add('active');
+    }
+
+    function closeOrderModal() {
+        if (orderModalOverlay) {
+            orderModalOverlay.classList.remove('active');
+        }
+    }
+
+    function submitOrderCheckout() {
+        clearErrors();
+        let isValid = true;
+        if (!recipientNameInput.value.trim()) {
+            showError(recipientNameInput, "Please Type your name.");
+            isValid = false;
+        }
+        if (!recipientPhoneInput.value.trim()) {
+            showError(recipientPhoneInput, "Type your phone number.");
+            isValid = false;
+        } else if (!/^\d{10,11}$/.test(recipientPhoneInput.value.trim())) {
+            showError(recipientPhoneInput, "Phone number error. please type 10 to 11 number .");
+            isValid = false;
+        }
+        if (!recipientAddressInput.value.trim()) {
+            showError(recipientAddressInput, "Please type your address.");
+            isValid = false;
+        }
+        if (!isValid) return;
+
+        const totalAmountString = orderModalTotalAmount.textContent;
+        // SỬA Ở ĐÂY: Dùng hàm mới để tính lại tổng tiền cuối cùng gửi đi
+        const totalAmountNumeric = cart.reduce((sum, item) => {
+            const correctedPrice = getCorrectedPrice(item.price);
+            return sum + (!isNaN(correctedPrice) ? (correctedPrice * item.qty) : 0);
+        }, 0);
+
+        const orderData = {
+            recipientName: recipientNameInput.value.trim(),
+            recipientPhone: recipientPhoneInput.value.trim(),
+            recipientAddress: recipientAddressInput.value.trim(),
+            recipientNotes: recipientNotesInput ? recipientNotesInput.value.trim() : '',
+            paymentMethod: paymentMethodCOD.checked ? paymentMethodCOD.value : null,
+            items: cart.map(item => ({
+                name: item.name,
+                price: item.price,
+                qty: item.qty,
+                image: item.image
+            })),
+            totalAmountString: totalAmountString,
+            totalAmountNumeric: totalAmountNumeric
+        };
+
+       fetch('http://localhost:3000/api/orders', { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errData => {
+                    throw new Error(errData.message || `Lỗi HTTP: ${response.status}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.message && data.message.includes('thành công')) {
+                cart = [];
+                localStorage.removeItem("cart");
+                displayCartItemsInTable();
+                closeOrderModal();
+                showSuccessModal(data.orderId);
+                if(recipientNameInput) recipientNameInput.value = '';
+                if(recipientPhoneInput) recipientPhoneInput.value = '';
+                if(recipientAddressInput) recipientAddressInput.value = '';
+                if(recipientNotesInput) recipientNotesInput.value = '';
+            } else {
+                alert(data.message || 'Đã có lỗi xảy ra khi tạo đơn hàng!');
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi khi gửi dữ liệu thanh toán:', error);
+            alert(`Đã có lỗi xảy ra trong quá trình thanh toán: ${error.message}`);
+        });
+    }
+
+    function showSuccessModal(orderId) {
+        if (successModalOverlay && successOrderIdSpan) {
+            successOrderIdSpan.textContent = orderId;
+            successModalOverlay.style.display = 'flex';
+        }
+    }
+
+    function closeSuccessModal() {
+        if (successModalOverlay) {
+            successModalOverlay.style.display = 'none';
+        }
+    }
+
+    displayCartItemsInTable();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,538 @@
+/* Reset và Biến màu/font (giữ nguyên từ phiên bản trước) */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --text-primary-light: #1d1d1f;
+  --text-secondary-light: #515154;
+  --apple-blue: #0071e3;
+  --background-light: #ffffff;
+  --background-section-light: #f5f5f7;
+  --border-light: #d2d2d7;
+}
+body {
+    font-family: var(--system-font); background-color: var(--background-light);
+    color: var(--text-primary-light); line-height: 1.6;
+    margin-top: 60px; overflow-x: hidden; 
+}
+
+/* Menu (giữ nguyên từ phiên bản trước) */
+.menu {
+  position: fixed; top: 0; left: 0; right: 0; display: flex;
+  justify-content: space-around; align-items: center;
+  background-color: rgba(255, 255, 255, 0.85); backdrop-filter: saturate(180%) blur(20px);
+  padding: 0px 20px; height: 58px; z-index: 1000;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+.menu a {
+  color: #333; text-decoration: none; font-weight: 400;
+  font-size: 14px; padding: 0 10px; transition: color 0.3s ease;
+}
+.menu a.logo { font-size: 20px; color: #1d1d1f; }
+.menu a:hover { color: var(--apple-blue); }
+.menu a.active-link { color: var(--apple-blue); font-weight: 600; }
+.search-container { display: flex; align-items: center; }
+.search-input {
+  border: none; outline: none; padding: 6px 10px; font-size: 14px;
+  border-radius: 15px; background-color: #e9e9ed; color: var(--text-primary-light);
+  width: 150px; transition: width 0.3s ease;
+}
+.search-input:focus { width: 200px; }
+.search-btn {
+  background-color: transparent; color: #555; border: none;
+  font-size: 16px; padding: 8px; cursor: pointer; margin-left: -30px;
+}
+.cart-container { font-size: 18px; color: #333; cursor: pointer; position: relative; margin-left: 15px; }
+.cart-container .cart-count {
+  position: absolute; top: -5px; right: -8px; background-color: var(--apple-blue);
+  color: white; font-size: 10px; padding: 1px 5px; border-radius: 50%;
+}
+.hero#ipad-hero {
+    /* Bỏ background gradient nếu dùng ảnh nền chính */
+    /* background: linear-gradient(135deg, #e8effc 0%, #d8e2f7 100%); */
+    color: var(--text-on-dark-image); /* Chữ màu trắng hoặc sáng để nổi trên ảnh nền tối */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 95vh; /* Hoặc 100vh nếu muốn chiếm toàn bộ màn hình đầu tiên */
+    text-align: center;
+    padding: 60px 20px;
+    position: relative;   /* RẤT QUAN TRỌNG */
+    overflow: hidden;     /* Ngăn ảnh nền tràn ra ngoài nếu có lỗi */
+}
+
+.hero-image-container {
+    position: absolute;     /* Định vị tuyệt đối để làm nền */
+    top: 0;
+    left: 0;
+    width: 100%;            /* Chiếm toàn bộ chiều rộng của .hero#ipad-hero */
+    height: 100%;           /* Chiếm toàn bộ chiều cao của .hero#ipad-hero */
+    z-index: 1;             /* Nằm dưới cùng */
+    opacity: 0;             /* Ban đầu ẩn đi cho hiệu ứng xuất hiện */
+    /* Bỏ transform cũ nếu không cần hiệu ứng trượt từ dưới lên cho ảnh nền */
+    /* transform: translateX(-50%) translateY(15%); */
+    transition: opacity 1.5s ease-out 0.3s; /* Chỉ hiệu ứng opacity cho ảnh nền */
+}
+
+.hero#ipad-hero.loaded .hero-image-container {
+    opacity: 1; /* Hiện ảnh nền ra */
+}
+
+.hero-ipad-img { /* Class cho thẻ <img> của iPad */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;  /* RẤT QUAN TRỌNG: Ảnh sẽ lấp đầy container, có thể bị cắt */
+                        /* Bạn có thể thử 'contain' nếu muốn thấy toàn bộ ảnh nhưng có thể có khoảng trống */
+    display: block;
+    /* Bỏ filter drop-shadow nếu không hợp với ảnh nền lớn */
+    /* filter: drop-shadow(0px 25px 35px rgba(0,0,0,0.15)); */
+}
+
+.hero-content-ipad {
+    position: relative;   /* Quan trọng */
+    z-index: 2;           /* Nằm trên hình ảnh */
+    max-width: 700px;
+    /* Thêm hiệu ứng đổ bóng cho chữ để dễ đọc hơn trên nền ảnh phức tạp */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.hero#ipad-hero h1 {
+    font-size: 5.5rem; /* Có thể tăng thêm nếu muốn */
+    font-weight: 700;
+    margin-bottom: 15px;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    color: var(--text-on-dark-image); /* Chữ màu trắng hoặc sáng */
+}
+
+.hero#ipad-hero p {
+    font-size: 2rem; /* Tăng kích thước */
+    color: var(--text-secondary-on-dark-image); /* Chữ phụ màu sáng hơn */
+    margin-bottom: 40px;
+    font-weight: 400;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.animate-text-reveal {
+    opacity: 0;
+    transform: translateY(30px); /* Trượt lên từ dưới */
+    transition: opacity 0.9s cubic-bezier(0.215, 0.61, 0.355, 1) 0.5s, transform 0.9s cubic-bezier(0.215, 0.61, 0.355, 1) 0.5s; /* Tăng nhẹ duration, điều chỉnh delay */
+}
+.hero#ipad-hero.loaded .animate-text-reveal {
+    opacity: 1;
+    transform: translateY(0);
+    color:#fff
+}
+.hero#ipad-hero.loaded .animate-text-reveal.delay-1 { transition-delay: 0.7s; } 
+.hero#ipad-hero.loaded .animate-text-reveal.delay-2 { transition-delay: 0.9s; } 
+
+
+/* Nút bấm - Giữ nguyên hoặc điều chỉnh màu cho phù hợp với nền ảnh mới */
+.btn {
+    padding: 15px 40px; text-decoration: none; color: white; font-weight: 500; font-size: 17px;
+    border-radius: 980px;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: inline-block;
+    box-shadow: 0 4px 15px rgba(0, 113, 227, 0.2);
+}
+.btn-hero-ipad { 
+    background-color: var(--apple-blue); 
+   background-color: rgba(255, 255, 255, 0.2); 
+    backdrop-filter: blur(10px); 
+    border: 1px solid rgba(255, 255, 255, 0.3); 
+  color: #fff;
+}
+.btn-hero-ipad:hover {
+    background-color: #005bb5; transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 113, 227, 0.3);
+}
+.animate-on-scroll {
+    opacity: 0;
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    will-change: opacity, transform;
+}
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1) !important;
+}
+.animate-on-scroll.fade-in { transform: translateY(50px); }
+.animate-on-scroll.fade-in-up { transform: translateY(60px); }
+.animate-on-scroll.slide-in-left { transform: translateX(-80px); }
+.animate-on-scroll.slide-in-right { transform: translateX(80px); }
+.animate-on-scroll.zoom-in { transform: scale(0.9); }
+.animate-on-scroll.delay-0 { transition-delay: 0s; }
+.animate-on-scroll.delay-1 { transition-delay: 0.2s; }
+.animate-on-scroll.delay-2 { transition-delay: 0.4s; }
+.animate-on-scroll.delay-3 { transition-delay: 0.6s; }
+/* Nút bấm (giữ nguyên hoặc tinh chỉnh) */
+.btn { /* Style chung cho nút */
+        padding: 15px 40px; text-decoration: none; color: white; font-weight: 500; font-size: 17px;
+    border-radius: 980px;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    display: inline-block;
+    box-shadow: 0 4px 15px rgba(0, 113, 227, 0.2);
+}
+.btn-hero-ipad { background-color: var(--apple-blue); }
+.btn-hero-ipad:hover {
+    background-color: #005bb5; transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 113, 227, 0.3);
+}
+.btn-secondary-ipad {
+    background-color: #e9e9ed; color: var(--text-primary-light); border: 1px solid transparent;
+}
+.btn-secondary-ipad:hover {
+    background-color: #dcdce1; transform: scale(1.03); border-color: var(--border-light);
+}
+
+/* --- Sections Chung và Hiệu ứng Cuộn Nâng Cao --- */
+.ipad-section {
+    padding: 100px 40px; /* Tăng padding */
+    overflow: hidden; /* Quan trọng cho các hiệu ứng trượt vào */
+}
+.ipad-section:nth-child(even) { background-color: var(--background-section-light); }
+
+.ipad-section .section-content {
+    max-width: 1100px; margin: 0 auto; display: flex;
+    align-items: center; gap: 60px;
+}
+.ipad-section .section-content.reverse { flex-direction: row-reverse; }
+
+.ipad-section .text-content h2 {
+    font-size: 3rem; font-weight: 600; margin-bottom: 20px;
+    color: var(--text-primary-light); line-height: 1.2; letter-spacing: -0.01em;
+}
+.ipad-section .text-content h3 {
+    font-size: 1.6rem; font-weight: 500; color: var(--text-secondary-light);
+    margin-bottom: 25px;
+}
+.ipad-section .text-content p {
+    font-size: 1.15rem; line-height: 1.75; margin-bottom: 30px; color: #33373a;
+}
+.ipad-section .image-content img {
+    max-width: 100%; height: auto; border-radius: 24px; /* Bo góc lớn hơn */
+    box-shadow: 0 20px 45px rgba(0,0,0,0.12); /* Bóng đổ rõ hơn */
+}
+
+/* --- Hiệu ứng cuộn chung (Animate on Scroll) --- */
+.animate-on-scroll {
+    opacity: 0;
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1) !important; /* Đảm bảo reset transform */
+}
+
+/* Các hiệu ứng cụ thể */
+.animate-on-scroll.fade-in { transform: translateY(50px); }
+.animate-on-scroll.fade-in-up { transform: translateY(60px); }
+.animate-on-scroll.slide-in-left { transform: translateX(-80px); }
+.animate-on-scroll.slide-in-right { transform: translateX(80px); }
+.animate-on-scroll.zoom-in { transform: scale(0.9); }
+
+/* Delay cho các animation (dùng class) */
+.animate-on-scroll.delay-0 { transition-delay: 0s; }
+.animate-on-scroll.delay-1 { transition-delay: 0.2s; }
+.animate-on-scroll.delay-2 { transition-delay: 0.4s; }
+.animate-on-scroll.delay-3 { transition-delay: 0.6s; }
+
+
+/* --- Section Versatility - Nâng Cấp --- */
+.ipad-versatility { text-align: center; }
+.ipad-versatility h2 { /* Tiêu đề section */
+    font-size: 3rem; font-weight: 600; margin-bottom: 60px;
+    color: var(--text-primary-light);
+}
+.features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px; max-width: 1200px; margin: 0 auto;
+}
+.feature-item {
+    background-color: var(--background-light); padding: 35px; border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.07);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    text-align: center; /* Căn giữa nội dung feature item */
+}
+.feature-item:hover {
+    transform: translateY(-12px) scale(1.02); /* Hiệu ứng nổi bật hơn khi hover */
+    box-shadow: 0 18px 45px rgba(0,0,0,0.12);
+}
+.feature-icon {
+    font-size: 2.5rem;
+    color: var(--apple-blue);
+    margin-bottom: 20px;
+    display: inline-block;
+    background-color: rgba(0, 113, 227, 0.1);
+    width: 70px;
+    height: 70px;
+    line-height: 70px;
+    border-radius: 50%;
+}
+.feature-item img {
+    width: 100%; max-height: 220px; object-fit: cover;
+    border-radius: 16px; margin-bottom: 25px;
+}
+.feature-item h4 {
+    font-size: 1.5rem; font-weight: 600; margin-bottom: 12px;
+    color: var(--text-primary-light);
+}
+.feature-item p {
+    font-size: 1rem; color: var(--text-secondary-light); line-height: 1.65;
+}
+
+/* --- Video Showcase - BAO QUÁT TOÀN MÀN HÌNH --- */
+.ipad-video-showcase {
+    width: 100vw;       /* Chiếm toàn bộ chiều rộng viewport */
+    height: 100vh;      /* Chiếm toàn bộ chiều cao viewport */
+    position: relative;   /* Làm gốc cho định vị tuyệt đối của tiêu đề */
+    display: flex;        /* Sử dụng flex để căn chỉnh tiêu đề */
+    flex-direction: column;
+    justify-content: center; /* Căn giữa tiêu đề theo chiều dọc */
+    align-items: center;    /* Căn giữa tiêu đề theo chiều ngang */
+    padding: 0 !important;  /* Bỏ hết padding của section */
+    margin-left: calc(-50vw + 50%); /* Căn giữa section nếu body có padding */
+    margin-right: calc(-50vw + 50%);
+    overflow: hidden; /* Đảm bảo không có gì tràn ra ngoài */
+}
+
+.ipad-video-showcase h2 {
+    position: absolute; /* Định vị tuyệt đối để nổi lên trên video */
+    top: 10%;           /* Khoảng cách từ trên xuống (có thể điều chỉnh) */
+    left: 50%;
+    transform: translateX(-50%); /* Căn giữa tiêu đề */
+    z-index: 10;        /* Đảm bảo tiêu đề nằm trên video */
+    color: #fff;        /* Màu chữ trắng (hoặc màu tương phản với video của bạn) */
+    background-color: rgba(0, 0, 0, 0.3); /* Nền mờ cho chữ dễ đọc hơn */
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-size: 2.5rem;  /* Điều chỉnh kích thước nếu cần */
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    margin-bottom: 0; /* Reset margin bottom */
+}
+
+.video-container-ipad {
+    position: absolute; /* Thay vì relative, để video có thể làm nền */
+    top: 0;
+    left: 0;
+    width: 100%;        /* Chiếm 100% chiều rộng của .ipad-video-showcase */
+    height: 100%;       /* Chiếm 100% chiều cao của .ipad-video-showcase */
+    padding-top: 0 !important; /* Bỏ padding-top giữ tỷ lệ cũ */
+    max-width: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    /* overflow: hidden; không cần thiết ở đây nữa vì section cha đã có */
+}
+
+.video-container-ipad video {
+    position: absolute; /* Giữ nguyên */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* RẤT QUAN TRỌNG: Video sẽ lấp đầy, có thể bị cắt để giữ tỷ lệ */
+    border: 0;
+    z-index: 1; /* Nằm dưới tiêu đề */
+}
+
+/* Footer (giữ nguyên hoặc tinh chỉnh) */
+
+@media (max-width: 992px) {
+    .hero#ipad-hero h1 { font-size: 3.8rem; }
+    .hero#ipad-hero p { font-size: 1.6rem; }
+    .ipad-section .text-content h2, .ipad-versatility h2 { font-size: 2.5rem; }
+}
+@media (max-width: 768px) {
+    body { margin-top: 58px; }
+    .hero#ipad-hero { min-height: auto; padding: 60px 20px 80px; } /* Giảm chiều cao hero trên mobile, thêm padding bottom cho ảnh */
+    .hero-image-container { max-width: 80%; position: relative; transform: translateX(-50%) translateY(0); margin-top: 30px; } /* Ảnh nằm trong luồng */
+    .hero#ipad-hero h1 { font-size: 2.8rem; }
+    .hero#ipad-hero p { font-size: 1.3rem; }
+
+    .ipad-section { padding: 60px 20px; }
+    .ipad-section .section-content,
+    .ipad-section .section-content.reverse { flex-direction: column; gap: 30px; }
+    .ipad-section .text-content,
+    .ipad-section .image-content { flex: none; width: 100%; }
+    .ipad-section .text-content h2, .ipad-versatility h2 { font-size: 2rem; text-align: center; }
+    .ipad-section .text-content h3 { font-size: 1.3rem; text-align: center;}
+    .ipad-section .text-content p { text-align: center; }
+    .ipad-section .text-content .btn { display: block; width: fit-content; margin-left: auto; margin-right: auto; }
+
+
+    .features-grid { grid-template-columns: 1fr; }
+    .feature-item h4 { font-size: 1.3rem;}
+}
+/* ---- iPad Store Section (Chuyên nghiệp & hiện đại) ---- */
+.ipad-store-section {
+    background: linear-gradient(120deg, #f7f9fc 70%, #e6ecfa 100%);
+    padding: 80px 30px 60px 30px;
+    margin-top: 80px;
+    border-radius: 32px 32px 0 0;
+    box-shadow: 0 8px 40px 0 rgba(0, 70, 140, 0.08);
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.store-title {
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #222e48;
+    letter-spacing: -0.03em;
+    text-align: center;
+    margin-bottom: 46px;
+    background: linear-gradient(90deg,#0071e3,#0f6fff 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.ipad-product-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 38px;
+    padding: 0;
+    list-style: none;
+    margin: 0 auto;
+}
+
+.ipad-product-card {
+    background: #fff;
+    border-radius: 22px;
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.10);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 34px 24px 32px 24px;
+    transition: transform 0.25s cubic-bezier(.4,2.2,.6,.9), box-shadow 0.3s;
+    border: 1px solid #edf1fc;
+    position: relative;
+}
+
+.ipad-product-card:hover {
+    transform: translateY(-12px) scale(1.04);
+    box-shadow: 0 20px 50px rgba(0,113,227,0.18),0 2px 4px rgba(0,0,0,0.10);
+    z-index: 2;
+}
+
+.ipad-card-image img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 22px;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(0,113,227,0.05);
+    background: #f3f7fc;
+}
+
+.ipad-card-content h3 {
+    font-size: 1.22rem;
+    font-weight: 700;
+    color: #073a7d;
+    margin-bottom: 10px;
+}
+
+.ipad-card-desc {
+    font-size: 1.08rem;
+    color: #23252c;
+    margin-bottom: 13px;
+    min-height: 40px;
+}
+
+.ipad-card-spec {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 12px;
+}
+.ipad-card-spec li {
+    font-size: 0.98rem;
+    color: #626e7c;
+    margin-bottom: 3px;
+    padding-left: 1em;
+    text-indent: -0.9em;
+    position: relative;
+}
+.ipad-card-spec li:before {
+    content: "•";
+    color: #3f85ff;
+    font-weight: bold;
+    margin-right: 7px;
+}
+
+.ipad-card-price {
+    font-size: 1.25rem;
+    color: #e53935;
+    font-weight: bold;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+}
+
+.btn-buy-ipad {
+    background: linear-gradient(95deg,#0071e3 55%,#59a9fa 100%);
+    color: #fff;
+    border: none;
+    padding: 13px 38px;
+    border-radius: 999px;
+    font-size: 1.08rem;
+    font-weight: 600;
+    box-shadow: 0 2px 16px rgba(0,113,227,0.10);
+    transition: background 0.18s, transform 0.18s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-buy-ipad:hover {
+    background: linear-gradient(95deg,#005bb5 60%,#2e8beb 100%);
+    transform: scale(1.06);
+    box-shadow: 0 8px 32px rgba(0,113,227,0.14);
+}
+@media (max-width: 900px) {
+    .ipad-product-list {
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+    }
+    .ipad-store-section {
+        padding: 45px 10px 40px 10px;
+    }
+}
+@media (max-width: 600px) {
+    .ipad-product-list {
+        grid-template-columns: 1fr;
+    }
+    .ipad-store-section {
+        padding: 32px 3vw 28px 3vw;
+    }
+}
+.order-modal-overlay {
+  position: fixed; top:0; left:0; width:100vw; height:100vh;
+  background: rgba(40,50,80,0.45); z-index: 10000;
+  display: none; align-items: center; justify-content: center;
+}
+.order-modal-overlay.active { display: flex; }
+.order-modal {
+  background: #fff; border-radius: 18px; max-width: 410px; width:95vw;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15); padding: 30px 24px 18px 24px;
+  position: relative; animation: popupfadein .28s cubic-bezier(.4,2.2,.5,.95);
+}
+@keyframes popupfadein {
+  from { opacity: 0; transform: translateY(40px) scale(.93);}
+  to   { opacity: 1; transform: none;}
+}
+.order-modal-product {
+  display: flex; gap:16px; align-items:center; margin-bottom: 16px;
+}
+.modal-close-top {
+  position: absolute; top:10px; right:18px; font-size:30px; color:#999;
+  background: none; border: none; cursor: pointer; font-weight: 600;
+  transition: color .23s;
+}
+.modal-close-top:hover { color: #e53935; }
+.order-input {
+  width:100%;padding:9px 11px; border-radius: 8px; border: 1px solid #c5c8d3;
+  font-size:1rem;margin-bottom:10px; background: #f6f8fb;
+  transition: border .23s;
+}
+.order-input:focus { border:1.5px solid #0071e3; background: #fff;}
+#order-success-msg { font-size: 1.04rem; text-align: center;}

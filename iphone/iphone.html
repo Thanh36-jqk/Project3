@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iPhone - Apple</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="iphone1.css">
+</head>
+<body>
+    <header>
+         <nav class="menu">
+            <a href="#" class="logo"><i class="fab fa-apple"></i></a>
+            <a href="../index.html">Store</a>
+            <a href="../Mac/mac.html">Mac</a>
+            <a href="../ipad/ipad.html">iPad</a>
+            <a href="iphone.html">iPhone</a>
+            <a href="#">Watch</a>
+            <a href="#">AirPods</a>
+            <a href="#">TV & Home</a>
+            <a href="#">Accessories</a>
+            <a href="#">Support</a>
+            <div class="search-container">
+              <input type="text" class="search-input" placeholder="Search...">
+            </div>
+            <div class="cart-container">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="cart-count">0</span>
+            </div>
+          </nav>
+    </header>
+
+    <section class="hero" id="iphone">
+        <div class="hero-content">
+            <h1>iPhone 16 Pro Max</h1>
+            <p>Peak performance. A class apart.</p>
+            <a href="#iphone-store-section" class="btn">Discover Now</a>
+        </div>
+        <img src="../images/hero_ios18__gf6c1cf1m1yu_xlarge.jpg" alt="iPhone 16 Pro Max" class="hero-img">
+    </section>
+
+    <section class="features" id="features">
+        <div class="feature">
+            <img src="../images/camera.png" alt="Camera Feature">
+            <h3>Advanced Camera</h3>
+            <p>Capture the most beautiful moments in videos and photos.</p>
+        </div>
+        <div class="feature">
+            <img src="../images/a18 chip.jpg" alt="A18 Chip Feature">
+            <h3>A18 Pro Chip</h3>
+            <p>Fast. And fast to last.</p>
+        </div>
+        <div class="feature">
+            <img src="../images/inte.jpg" alt="Intelligence Feature">
+            <h3>Apple Intelligence</h3>
+            <p>Unleash powerful potential.</p>
+        </div>
+    </section>
+
+    <section class="video">
+        <h2>Stunning high-quality video.</h2>
+        <div class="video-container">
+            <video loop autoplay muted playsinline controls>
+                <source src="../images/xlarge.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </section>
+
+    <section class="iphone-sale-section" id="iphone-store-section">
+        <h2 class="iphone-sale-title">The latest iPhone generation</h2>
+        <ul class="iphone-sale-list" id="iphone-sale-list">
+            </ul>
+    </section>
+
+    <footer id="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 Apple Inc. All rights reserved.</p>
+            <a href="mailto:contact@apple.com" class="contact-btn">Contact Us</a>
+        </div>
+    </footer>
+
+    <div id="iphone-order-modal" class="order-modal-overlay">
+      <div class="order-modal">
+        <button class="modal-close-top" onclick="closeIphoneOrderModal()">&times;</button>
+        <h2>Confirm Your iPhone Order</h2>
+        <div class="order-modal-product">
+          <img id="order-iphone-img" src="" alt="" style="width:90px;height:90px;border-radius:14px;object-fit:cover;">
+          <div>
+            <div id="order-iphone-name" style="font-weight:600;font-size:1.2rem;"></div>
+            <div id="order-iphone-desc" style="color:#444;font-size:1rem;"></div>
+            <div id="order-iphone-price" style="color:#e53935;font-weight:600;margin-top:7px;"></div>
+          </div>
+        </div>
+        <form id="iphone-order-form" style="margin-top:15px;">
+          <input required name="recipientName" type="text" placeholder="Full Name" class="order-input"><br>
+          <input required name="recipientPhone" type="tel" placeholder="Phone Number" class="order-input"><br>
+          <input required name="recipientAddress" type="text" placeholder="Shipping Address" class="order-input"><br>
+          <textarea name="recipientNotes" placeholder="Notes (optional)" class="order-input"></textarea><br>
+          <select required name="paymentMethod" class="order-input">
+            <option value="">Select a payment method</option>
+            <option value="COD">Cash on Delivery (COD)</option>
+            <option value="bank">Bank Transfer</option>
+          </select>
+          <input type="hidden" name="productName">
+          <input type="hidden" name="productPrice">
+          <input type="hidden" name="productImage">
+          <button type="submit" class="btn-buy-iphone-submit">Order Now</button>
+        </form>
+        <div id="order-success-iphone" style="display:none;margin-top:10px;font-weight:600;color:#1abc9c;text-align:center;"></div>
+      </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const iphoneProducts = [
+    { name: "iPhone 16 Pro Max", desc: "Larger display, powerful A18 Pro chip", price: "31,000,000₫", img: "../images/iphone-16-pro-finish-select-202409-6-9inch-blacktitanium_AV1.jpg" },
+    { name: "iPhone 15 Pro Max", desc: "Titanium frame, A17 Pro chip, 5x optical zoom", price: "27,500,000₫", img: "../images/iPhone-15-Promax-Titanium-Natural.jpg" },
+    { name: "iPhone 15 Plus", desc: "6.7-inch display, Dynamic Island, 48MP camera", price: "23,000,000₫", img: "../images/iphone 15 plus blue.jpg" },
+    { name: "iPhone 15", desc: "A16 Bionic chip, 48MP Camera, Dynamic Island", price: "24,000,000₫", img: "../images/iPhone 15 Plus.jpg" },
+    { name: "iPhone 14 Pro Max", desc: "Dynamic Island, A16 Bionic chip, ProMotion display", price: "26,500,000₫", img: "../images/iphone14promax.webp" },
+    { name: "iPhone 14", desc: "Crash Detection, improved camera, A15 chip", price: "17,000,000₫", img: "../images/iphone 14 grey.jpg" },
+    { name: "iPhone 13", desc: "A15 Bionic chip, dual camera, great battery life", price: "15,000,000₫", img: "../images/iphone13 rose.webp" },
+    { name: "iPhone SE (3rd gen)", desc: "Powerful performance in a compact design, A15 Bionic chip", price: "10,000,000₫", img: "../images/iphone se 3rd black.jpg" }
+  ];
+
+  const productList = document.getElementById('iphone-sale-list');
+  iphoneProducts.forEach(prod => {
+    const li = document.createElement('li');
+    li.className = 'iphone-sale-card';
+    li.innerHTML = `
+      <div class="iphone-sale-image">
+        <img src="${prod.img}" alt="${prod.name}">
+      </div>
+      <div class="iphone-sale-content">
+        <h3>${prod.name}</h3>
+        <p class="iphone-sale-desc">${prod.desc}</p>
+        <div class="iphone-sale-price">${prod.price}</div>
+        <a href="#" class="btn-buy-iphone">Buy Now</a>
+      </div>
+    `;
+    productList.appendChild(li);
+  });
+
+  document.querySelectorAll('.iphone-sale-card .btn-buy-iphone').forEach(btn => {
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      const name = this.closest('.iphone-sale-card').querySelector('h3').textContent.trim();
+      openIphoneOrderModal(name);
+    });
+  });
+
+  window.openIphoneOrderModal = function(productName) {
+    const prod = iphoneProducts.find(p => p.name === productName);
+    if (!prod) return;
+    document.getElementById('order-iphone-img').src = prod.img;
+    document.getElementById('order-iphone-name').textContent = prod.name;
+    document.getElementById('order-iphone-desc').textContent = prod.desc;
+    document.getElementById('order-iphone-price').textContent = prod.price;
+    document.getElementById('order-success-iphone').style.display = 'none';
+    document.getElementById('iphone-order-form').reset();
+    document.querySelector('input[name=productName]').value = prod.name;
+    document.querySelector('input[name=productPrice]').value = prod.price;
+    document.querySelector('input[name=productImage]').value = prod.img;
+    document.getElementById('iphone-order-modal').classList.add('active');
+  }
+
+  window.closeIphoneOrderModal = function() {
+    document.getElementById('iphone-order-modal').classList.remove('active');
+  }
+
+  document.getElementById('iphone-order-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    const form = e.target;
+    const data = {
+      recipientName: form.recipientName.value,
+      recipientPhone: form.recipientPhone.value,
+      recipientAddress: form.recipientAddress.value,
+      recipientNotes: form.recipientNotes.value,
+      paymentMethod: form.paymentMethod.value,
+      items: [{
+        name: form.productName.value,
+        price: form.productPrice.value,
+        qty: 1,
+        image: form.productImage.value
+      }],
+      totalAmountString: form.productPrice.value,
+      totalAmountNumeric: Number(form.productPrice.value.replace(/[^\d]/g, ''))
+    };
+    try {
+      const res = await fetch('http://localhost:3000/api/orders', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (res.ok) {
+        form.style.display = 'none';
+        document.getElementById('order-success-iphone').textContent = "Order successful! We will contact you for confirmation.";
+        document.getElementById('order-success-iphone').style.display = 'block';
+        setTimeout(() => {
+          window.closeIphoneOrderModal();
+          form.style.display = 'block';
+        }, 2000);
+      } else {
+        document.getElementById('order-success-iphone').textContent = result.message || "Order failed!";
+        document.getElementById('order-success-iphone').style.display = 'block';
+      }
+    } catch (err) {
+      document.getElementById('order-success-iphone').textContent = "Server connection error!";
+      document.getElementById('order-success-iphone').style.display = 'block';
+    }
+  });
+});
+
+document.querySelector('.hero .btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('iphone-store-section').scrollIntoView({ behavior: 'smooth' });
+});
+</script>
+
+</body>
+</html>

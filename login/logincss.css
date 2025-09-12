@@ -1,0 +1,208 @@
+/* === css/login.css (Cải tiến) === */
+
+:root {
+    --apple-blue: #007aff;
+    --apple-blue-darker: #005ecb;
+    --apple-link-color: #0066cc; /* Màu link hơi khác */
+    --apple-grey-background: #f5f5f7;
+    --apple-input-border: #d2d2d7;
+    --apple-input-focus-border: #8e8e93; /* Màu border focus tinh tế hơn */
+    --apple-text-primary: #1d1d1f;
+    --apple-text-secondary: #6e6e73;
+    --apple-error-red: #ff3b30;
+}
+
+body.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--apple-grey-background);
+    /* Thêm một gradient nền rất nhẹ nếu muốn */
+    /* background-image: linear-gradient(to bottom, #fdfdfd, var(--apple-grey-background)); */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    -webkit-font-smoothing: antialiased; /* Làm chữ mượt hơn trên Webkit */
+    -moz-osx-font-smoothing: grayscale; /* Làm chữ mượt hơn trên Firefox */
+}
+
+.auth-container {
+    background-color: #ffffff;
+    padding: 50px 55px; /* Tăng padding */
+    border-radius: 24px; /* Bo góc nhiều hơn */
+    box-shadow: 0px 15px 45px rgba(0, 0, 0, 0.1); /* Bóng đổ mềm mại hơn */
+    max-width: 410px;
+    width: 90%;
+    text-align: center;
+    box-sizing: border-box;
+    border: 1px solid #eaeaec; /* Border rất nhẹ */
+    /* Thêm hiệu ứng nổi nhẹ */
+    /* transition: transform 0.3s ease, box-shadow 0.3s ease; */
+}
+/* Optional hover effect for container
+.auth-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 20px 50px rgba(0, 0, 0, 0.12);
+}
+*/
+
+/* Thêm chỗ cho logo nếu muốn */
+.auth-logo {
+    width: 50px; /* Điều chỉnh kích thước logo */
+    height: auto;
+    margin-bottom: 25px;
+    opacity: 0.8;
+}
+
+.auth-container h2 {
+    margin-bottom: 35px;
+    color: var(--apple-text-primary);
+    font-size: 28px;
+    font-weight: 600; /* Đậm vừa phải */
+    letter-spacing: 0.3px;
+}
+
+.auth-container form label {
+    display: block;
+    text-align: left;
+    margin-bottom: 10px; /* Tăng khoảng cách */
+    font-weight: 500; /* Mỏng hơn một chút */
+    color: var(--apple-text-secondary); /* Màu xám */
+    font-size: 15px; /* To hơn một chút */
+}
+
+.auth-container form .input-wrapper {
+    position: relative; /* Để chứa icon nếu có */
+    margin-bottom: 28px; /* Tăng khoảng cách */
+}
+
+/* Tùy chọn: Thêm icon vào input (cần sửa HTML)
+.auth-container form .input-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--apple-text-secondary);
+    opacity: 0.6;
+    pointer-events: none;
+}
+.auth-container form input {
+    padding-left: 45px; // Nếu có icon
+}
+*/
+
+.auth-container form input {
+    width: 100%;
+    padding: 16px 20px; /* Tăng padding input */
+    border: 1px solid var(--apple-input-border);
+    border-radius: 14px; /* Bo góc input */
+    box-sizing: border-box;
+    font-size: 17px; /* To hơn */
+    font-weight: 400;
+    color: var(--apple-text-primary);
+    background-color: #fcfcfd; /* Màu nền input hơi khác */
+    transition: border-color 0.25s ease-out, box-shadow 0.25s ease-out, background-color 0.25s ease-out;
+}
+
+.auth-container form input:focus {
+    border-color: var(--apple-input-focus-border); /* Border đậm hơn khi focus */
+    background-color: #fff; /* Nền trắng khi focus */
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); /* Shadow xanh dương nhạt hơn */
+}
+
+/* Nút Đăng nhập */
+.auth-container form button[type="submit"] {
+    width: 100%;
+    padding: 17px; /* Tăng padding nút */
+    /* Gradient nhẹ nhàng */
+    background-image: linear-gradient(to bottom, var(--apple-blue), #0070e0);
+    color: white;
+    border: none;
+    border-radius: 14px; /* Đồng bộ với input */
+    cursor: pointer;
+    font-size: 18px; /* To hơn */
+    font-weight: 500; /* Mỏng hơn một chút */
+    letter-spacing: 0.5px;
+    transition: all 0.25s ease-out;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.2); /* Thêm bóng đổ cho nút */
+}
+
+.auth-container form button[type="submit"]:hover {
+     /* Sáng hơn một chút và nổi lên */
+     background-image: linear-gradient(to bottom, #0081ff, var(--apple-blue));
+     box-shadow: 0 6px 20px rgba(0, 122, 255, 0.3);
+     transform: translateY(-2px);
+}
+
+.auth-container form button[type="submit"]:active {
+     /* Thu nhỏ lại và tối hơn */
+     transform: translateY(0px) scale(0.98);
+     background-image: linear-gradient(to bottom, var(--apple-blue-darker), #0056b3);
+     box-shadow: 0 2px 10px rgba(0, 122, 255, 0.2);
+}
+
+/* Liên kết phụ */
+.auth-container .form-link {
+    display: block;
+    margin-top: 30px; /* Tăng khoảng cách */
+    color: var(--apple-link-color);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 400;
+    transition: color 0.2s ease;
+}
+
+.auth-container .form-link:hover {
+    color: var(--apple-blue); /* Đổi màu khi hover */
+    text-decoration: underline;
+}
+
+/* Thông báo lỗi */
+.error-message {
+    color: var(--apple-error-red);
+    margin-top: -15px; /* Kéo lên gần input hơn */
+    margin-bottom: 20px;
+    font-size: 14px;
+    text-align: left;
+    min-height: 1.2em;
+    padding-left: 5px;
+    font-weight: 400;
+    /* Thêm icon lỗi nếu muốn (dùng ::before) */
+}
+/* Tùy chọn icon lỗi
+.error-message::before {
+    content: "⚠️ "; // Hoặc dùng FontAwesome
+    display: inline-block;
+    margin-right: 4px;
+}
+*/
+
+/* Xóa class success-message nếu không cần ở trang login */
+.success-message {
+    display: none;
+}
+/* Thêm vào cuối file css/login.css */
+.password-wrapper {
+    position: relative; /* Để định vị icon */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 18px; /* Căn phải trong input wrapper */
+    top: calc(50% + 8px); /* Căn giữa theo chiều dọc (điều chỉnh nếu label ở trên) */
+    /* Nếu label cùng dòng với input thì dùng top: 50% */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--apple-text-secondary); /* Màu xám */
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.toggle-password:hover {
+    opacity: 1;
+}
+
+.toggle-password i {
+    font-size: 16px; /* Kích thước icon */
+}

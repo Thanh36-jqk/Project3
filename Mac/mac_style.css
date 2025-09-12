@@ -1,0 +1,352 @@
+/* Reset các thuộc tính mặc định */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Biến màu và font (Tương tự z.css hoặc iphone1.css để đồng bộ) */
+:root {
+  --system-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --text-primary-darkbg: #f5f5f7; /* Chữ trắng ngà trên nền tối */
+  --text-secondary-darkbg: #a1a1a6; /* Chữ xám nhạt trên nền tối */
+  --apple-blue: #0071e3;
+  --background-dark: #000000;
+  --background-section-dark: #111111; /* Nền tối hơn một chút cho section */
+  --background-light: #f5f5f7;
+  --text-primary-lightbg: #1d1d1f;
+}
+
+body {
+    font-family: var(--system-font);
+    background-color: var(--background-dark); /* Giữ theme tối như iphone1.css */
+    color: var(--text-primary-darkbg);
+    line-height: 1.6;
+    margin-top: 70px; /* Đảm bảo nội dung không bị menu che, điều chỉnh theo chiều cao menu */
+}
+
+/* Menu - Copy từ iphone1.css hoặc z.css để đồng nhất */
+.menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around; /* Hoặc space-between tùy ý */
+  align-items: center;
+  background-color: rgba(26, 26, 26, 0.8); /* Nền tối, hơi trong suốt */
+  backdrop-filter: saturate(180%) blur(20px);
+  padding: 0px 20px; /* Điều chỉnh padding cho menu */
+  height: 58px; /* Chiều cao menu */
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.menu a {
+  color: #e0e0e0; /* Màu chữ sáng hơn cho menu */
+  text-decoration: none;
+  font-weight: 400; /* Apple thường dùng font weight thường cho menu text */
+  font-size: 14px;
+  padding: 0 10px;
+  transition: color 0.3s ease;
+}
+.menu a.logo {
+    font-size: 20px; /* Kích thước logo Apple */
+    color: #f5f5f7;
+}
+.menu a:hover {
+  color: var(--apple-blue);
+  text-decoration: none;
+  transform: none; /* Bỏ scale để giữ menu ổn định */
+}
+.menu a.active-link {
+    color: #fff; /* Màu cho link active */
+    font-weight: 600;
+}
+
+.search-container, .cart-container {
+    
+    margin-left: 15px;
+}
+.search-container {
+  display: flex;
+  align-items: center;
+  width: auto; /* Tự động theo nội dung */
+}
+.search-input {
+  border: none;
+  outline: none;
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 15px;
+  background-color: rgba(100,100,100,0.3);
+  color: var(--text-primary-darkbg);
+  width: 150px; /* Chiều rộng ban đầu */
+  transition: width 0.3s ease;
+}
+.search-input:focus {
+    width: 200px; /* Mở rộng khi focus */
+}
+.search-btn {
+  background-color: transparent;
+  color: #e0e0e0;
+  border: none;
+  font-size: 16px;
+  padding: 8px;
+  cursor: pointer;
+  margin-left: -30px; /* Để icon nằm trên input */
+}
+.cart-container {
+  font-size: 18px;
+  color: #e0e0e0;
+  cursor: pointer;
+  position: relative;
+}
+.cart-container .cart-count {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: var(--apple-blue);
+  color: white;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 50%;
+}
+
+
+/* Hero Section - Tương tự iphone1.css nhưng có thể tùy chỉnh ảnh */
+.hero {
+    background-color: var(--background-dark);
+    color: var(--text-primary-darkbg);
+    display: flex; /* Sử dụng flex để căn chỉnh nội dung */
+    flex-direction: column; /* Xếp nội dung theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều dọc */
+    align-items: center; /* Căn giữa theo chiều ngang */
+    height: 90vh; /* Chiều cao có thể tùy chỉnh */
+    text-align: center;
+    position: relative; /* Để định vị tuyệt đối cho hero-img nếu cần */
+    overflow: hidden;
+}
+
+.hero-content {
+    z-index: 2; /* Đảm bảo text nổi lên trên ảnh */
+    max-width: 700px; /* Giới hạn chiều rộng của text */
+    padding: 0 20px;
+}
+
+.hero h1 {
+    font-size: 3.5rem; /* Có thể lớn hơn cho Mac */
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    font-size: 1.5rem;
+    color: var(--text-secondary-darkbg);
+    margin-bottom: 30px;
+}
+
+.btn { /* Style chung cho nút */
+    padding: 12px 30px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500; /* Medium weight */
+    font-size: 17px;
+    border-radius: 980px; /* Nút bo tròn kiểu Apple */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
+}
+
+.btn-hero-mac { /* Nút "Khám Phá Sức Mạnh" trong hero */
+    background-color: var(--apple-blue);
+}
+.btn-hero-mac:hover {
+    background-color: #0056b3; /* Đậm hơn khi hover */
+    transform: scale(1.03);
+}
+
+.btn-secondary { /* Nút phụ trong các section */
+    background-color: rgba(100, 100, 100, 0.3);
+    color: var(--text-primary-darkbg);
+}
+.btn-secondary:hover {
+    background-color: rgba(120, 120, 120, 0.4);
+    transform: scale(1.03);
+}
+
+
+.hero-img {
+    position: absolute;
+    bottom: 0; /* Đặt ảnh ở dưới cùng của hero */
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto; /* Cho phép ảnh giữ tỷ lệ */
+    max-width: 80%; /* Giới hạn chiều rộng tối đa */
+    max-height: 70%; /* Giới hạn chiều cao tối đa, để không che text */
+    object-fit: contain; /* Hiển thị toàn bộ ảnh */
+    z-index: 1;
+}
+
+
+
+.mac-section {
+    padding: 80px 40px;
+    background-color: var(--background-section-dark); /* Màu nền cho các section này */
+    border-bottom: 1px solid rgba(255,255,255,0.1); /* Đường kẻ mờ giữa các section */
+}
+.mac-section:nth-child(odd) {  background-color: #0a0a0a
+}
+
+.mac-section .section-content {
+    max-width: 1100px; /* Giới hạn chiều rộng nội dung */
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 50px; /* Khoảng cách giữa text và image */
+}
+
+.mac-section .section-content.reverse {
+    flex-direction: row-reverse; /* Đảo vị trí ảnh và text */
+}
+
+.mac-section .text-content {
+    flex: 1;
+}
+
+.mac-section .text-content h2 {
+    font-size: 2.8rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-primary-darkbg);
+}
+
+.mac-section .text-content h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text-secondary-darkbg);
+    margin-bottom: 20px;
+}
+
+.mac-section .text-content p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 30px;
+    color: #c0c0c0; /* Màu chữ cho đoạn văn */
+}
+
+.mac-section .image-content {
+    flex: 1;
+    text-align: center; /* Căn giữa ảnh nếu nó không chiếm hết flex item */
+}
+
+.mac-section .image-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px; /* Bo góc nhẹ cho ảnh */
+    /* box-shadow: 0 10px 30px rgba(0,0,0,0.2); */ /* Bóng đổ cho ảnh nếu muốn */
+}
+
+/* Video Showcase Section */
+.mac-video-showcase {
+    padding: 80px 20px;
+    text-align: center;
+    background-color: var(--background-dark); /* Nền tối cho video nổi bật */
+}
+.mac-video-showcase h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    color: var(--text-primary-darkbg);
+}
+.video-container-mac { /* Đặt tên khác để tránh xung đột với video-container của iphone1.css nếu dùng chung */
+    position: relative;
+    width: 100%;
+    max-width: 900px; /* Giới hạn chiều rộng video */
+    margin: 0 auto;
+    padding-top: 56.25%; /* Tỷ lệ 16:9 */
+    overflow: hidden;
+    border-radius: 12px; /* Bo góc cho video container */
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+}
+.video-container-mac video { /* Áp dụng cho thẻ video */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Ecosystem Section */
+.mac-ecosystem {
+    padding: 80px 40px;
+    text-align: center;
+    background-color: var(--background-section-dark);
+}
+.mac-ecosystem h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: var(--text-primary-darkbg);
+}
+.mac-ecosystem p {
+    font-size: 1.2rem;
+    color: var(--text-secondary-darkbg);
+    max-width: 700px;
+    margin: 0 auto 30px auto;
+}
+
+/* Footer - Copy từ iphone1.css hoặc z.css */
+footer {
+    background-color: var(--background-dark);
+    color: var(--text-secondary-darkbg);
+    padding: 40px 20px;
+    text-align: center;
+    border-top: 1px solid rgba(255,255,255,0.1);
+
+}
+.footer .contact-btn {
+    background-color: var(--apple-blue);
+    padding: 10px 20px;
+    color: white;
+    text-decoration: none;
+    border-radius: 980px;
+    margin-top: 15px;
+    display: inline-block;
+}
+.footer .contact-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive adjustments (ví dụ) */
+@media (max-width: 768px) {
+    body {
+        margin-top: 58px; /* Điều chỉnh theo chiều cao menu mobile nếu menu thay đổi */
+    }
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    .hero p {
+        font-size: 1.2rem;
+    }
+    .mac-section .section-content,
+    .mac-section .section-content.reverse {
+        flex-direction: column; /* Xếp chồng trên mobile */
+        gap: 30px;
+    }
+    .mac-section .text-content,
+    .mac-section .image-content {
+        flex: none; /* Reset flex-basis */
+        width: 100%;
+    }
+    .mac-section .section-content.reverse .text-content {
+        padding-right: 0; /* Reset padding khi xếp chồng */
+    }
+    .mac-section .text-content h2 {
+        font-size: 2rem;
+    }
+    .mac-section .text-content h3 {
+        font-size: 1.2rem;
+    }
+    .mac-video-showcase h2, .mac-ecosystem h2 {
+        font-size: 2rem;
+    }
+}

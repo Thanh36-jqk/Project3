@@ -1,0 +1,1831 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple</title>
+    <link rel="stylesheet" href="z.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+     <div class="flyout-sidebar-container">
+        <div class="filter-trigger-bar">
+            <i class="fas fa-bars"></i>
+            <i class="fas fa-filter"></i>
+            <i class="fas fa-cog"></i>
+        </div>
+        <aside class="filter-panel">
+            <h3><i class="fas fa-filter"></i> Filtering product</h3>
+            <form id="filterForm">
+                <div class="filter-group">
+                    <h4> Price Range </h4>
+                    <ul>
+                        <li><label><input type="checkbox" name="price" value="0-5000000"> Under 5 million </label></li>
+                        <li><label><input type="checkbox" name="price" value="5000000-10000000"> 5 - 10 million </label></li>
+                        <li><label><input type="checkbox" name="price" value="10000000-20000000"> 10 - 20 million </label></li>
+                        <li><label><input type="checkbox" name="price" value="20000000-999999999"> Over 20 million </label></li>
+                    </ul>
+                </div>
+                <div class="filter-group">
+                    <h4> Product Category </h4>
+                    <ul>
+                        <li><label><input type="checkbox" name="category" value="Phone"> Phone </label></li>
+                        <li><label><input type="checkbox" name="category" value="Laptop"> Laptop </label></li>
+                        <li><label><input type="checkbox" name="category" value="iPad"> iPad </label></li>
+                        <li><label><input type="checkbox" name="category" value="Watch"> Watch </label></li>
+                        <li><label><input type="checkbox" name="category" value="HeadPhone"> Headphones </label></li>
+                        <li><label><input type="checkbox" name="category" value="Desktop"> Desktop </label></li>
+                        <li><label><input type="checkbox" name="category" value="TV & Home"> TV & Home </label></li>
+                    </ul>
+                </div>
+                <button type="reset" class="filter-reset-btn"> Clear Filters </button>
+            </form>
+        </aside>
+    </div>
+    
+    <script>
+        let allProducts = [];
+
+        async function fetchAllProducts() {
+            try {
+                const imagePrefix = 'http://localhost:3000/';
+
+              const rawProducts = [
+    // Phone (Phone)
+    { name: 'iPhone 7 Plus', category: 'Phone', price: 22000000, image: 'images/iphone7plus.jpeg' },
+    { name: 'iPhone 8 Plus', category: 'Phone', price: 5000000, image: 'images/iphone8plus.webp' },
+    { name: 'iPhone 11', category: 'Phone', price: 10000000, image: 'images/iphone11.jpg' },
+    { name: 'iPhone SE (3rd gen)', category: 'Phone', price: 10000000, image: 'images/iphone se 3rd gold.webp' },
+    { name: 'iPhone 12', category: 'Phone', price: 20000000, image: 'images/iphone 12 black.png' },
+    { name: 'iPhone 12 Pro', category: 'Phone', price: 25000000, image: 'images/12 gold.webp' },
+    { name: 'iPhone 13', category: 'Phone', price: 15000000, image: 'images/iphone 13 blue.jpg' },
+    { name: 'iPhone 14', category: 'Phone', price: 17000000, image: 'images/iphone 14 red.jpg' },
+    { name: 'iPhone 14 Pro Max', category: 'Phone', price: 26500000, image: 'images/iphone14promax.webp' },
+    { name: 'iPhone 15 Plus', category: 'Phone', price: 23000000, image: 'images/iphonee15 plus black.png' },
+    { name: 'iPhone 15 Pro Max', category: 'Phone', price: 27500000, image: 'images/iphone15promax.webp' },
+    { name: 'iPhone 16 Pro Max', category: 'Phone', price: 31000000, image: 'images/16 pro max đen.webp' },
+
+    // Headphones (HeadPhone)
+    { name: 'AirPods (3rd gen)', category: 'HeadPhone', price: 4000000, image: 'images/AirPods (3rd gen).jpg' },
+    { name: 'Airpods Pro 2', category: 'HeadPhone', price: 5000000, image: 'images/airpod2.jpg' },
+    { name: 'AirPods Max', category: 'HeadPhone', price: 13000000, image: 'images/airpodmax.png' },
+
+    // Watches
+    { name: 'Apple Watch SE (2nd gen)', category: 'Watch', price: 6000000, image: 'images/se black.jpg' },
+    { name: 'Apple Watch Series 9', category: 'Watch', price: 10000000, image: 'images/watch series 9 rose.webp' },
+    { name: 'Apple Watch Ultra 2', category: 'Watch', price: 20000000, image: 'images/black.webp' },
+
+    // iPad
+    { name: 'iPad Air (M2)', category: 'iPad', price: 15000000, image: 'images/ipad air m2 gold.jpg' },
+    { name: 'iPad Pro (M4)', category: 'iPad', price: 25000000, image: 'images/ipadprom4.jpg' },
+
+    // Laptop (Mac)
+    { name: 'MacBook Air 15" M3', category: 'Laptop', price: 32000000, image: 'images/air15 black.webp' },
+
+    // Desktop computers
+    { name: 'iMac 24" M3', category: 'Desktop', price: 33000000, image: 'images/imac24.jpg' },
+    { name: 'Mac mini M2', category: 'Desktop', price: 15000000, image: 'images/Mac mini M2.jpg' },
+
+    // TV & Home
+    { name: 'Apple TV 4K (3rd gen)', category: 'TV & Home', price: 3500000, image: 'images/appletv4k.jpg' },
+    { name: 'HomePod (2nd gen)', category: 'TV & Home', price: 7500000, image: 'images/homepod2.jpg' }
+];
+
+                allProducts = rawProducts.map(product => ({...product,image: imagePrefix + product.image}));
+            } catch (error) {
+                console.error("Lỗi khi tải danh sách sản phẩm:", error);
+                const productList = document.getElementById('search-results-list');
+                if (productList) productList.innerHTML = '<p> Unable to load products. </p>';
+            }
+        }
+
+        function displayProducts(productsToDisplay) {
+            const productList = document.getElementById('search-results-list');
+            const searchResultsSection = document.getElementById('search-results-section');
+            const mainContentElements = [
+                document.querySelector('.hero'),
+                document.querySelector('.new-accordion-design'),
+                document.querySelector('.iphone-comparison-2'),
+                document.querySelector('.item')
+            ];
+
+            if (!productList || !searchResultsSection) {
+                 console.error("Search result container not found!");
+                 return;
+            }
+
+            productList.innerHTML = ''; 
+
+            mainContentElements.forEach(el => {
+                if (el) el.style.display = 'none';
+            });
+            searchResultsSection.style.display = 'block';
+
+            if (productsToDisplay.length === 0) {
+                productList.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;"> No matching products found. </p>';
+                return;
+            }
+
+            productsToDisplay.forEach(product => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="product-item">
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.name}">
+                        </div>
+                        <div class="product-info">
+                            <a href="#" class="product-cat">${product.category}</a>
+                            <a href="#" class="product-name">${product.name}</a>
+                            <div class="product-price">${product.price.toLocaleString('vi-VN')}₫</div>
+                            <button>Add to cart</button>
+                        </div>
+                    </div>
+                `;
+                li.querySelector('button').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    addToCart(product.name, product.category, product.price.toLocaleString('vi-VN') + '₫', product.image);
+                });
+                
+                productList.appendChild(li);
+            });
+        }
+
+        function applyFilters() {
+            const form = document.getElementById('filterForm');
+            const formData = new FormData(form);
+    // 1. Lấy tất cả các giá trị category và price đã được check
+            const selectedCategories = formData.getAll('category');
+            const selectedPrices = formData.getAll('price');
+            let filteredProducts = allProducts;
+    // 2. Lọc theo Danh mục sản phẩm (nếu có lựa chọn)
+
+            if (selectedCategories.length > 0) {
+                filteredProducts = filteredProducts.filter(product => 
+                    selectedCategories.includes(product.category)
+                );
+            }
+    // 3. Lọc tiếp theo Khoảng giá (nếu có lựa chọn)
+ 
+            if (selectedPrices.length > 0) {
+                filteredProducts = filteredProducts.filter(product => {
+                    return selectedPrices.some(range => {
+                        const [min, max] = range.split('-').map(Number);
+                        return product.price >= min && product.price <= max;
+                    });
+                });
+            }
+            
+            displayProducts(filteredProducts);
+        }
+
+        function resetFiltersAndShowMainContent() {
+            const searchResultsSection = document.getElementById('search-results-section');
+            const mainContentElements = [
+                document.querySelector('.hero'),
+                document.querySelector('.new-accordion-design'),
+                document.querySelector('.iphone-comparison-2'),
+                document.querySelector('.item')
+            ];
+
+            if (searchResultsSection) searchResultsSection.style.display = 'none';
+            mainContentElements.forEach(el => {
+                if (el) el.style.display = ''; 
+            });
+        }
+        
+        const filterForm = document.getElementById('filterForm');
+        if (filterForm) {
+            filterForm.addEventListener('change', applyFilters);
+            filterForm.addEventListener('reset', () => {
+                setTimeout(() => {
+                    resetFiltersAndShowMainContent();
+                }, 0);
+            });
+        }
+        
+        fetchAllProducts();
+        
+    </script>
+    <div class="container">
+<header>
+  <nav class="menu">
+    <a href="#" class="logo">
+      <i class="fab fa-apple"></i> 
+    </a>
+    
+    <a href="index.html">Store</a>
+    <a href="Mac/mac.html">Mac</a>
+    <a href="ipad/ipad.html"> iPad </a>
+    <a href="iphone/iphone.html">iPhone</a>
+    <a href="#"> Watch </a>
+    <a href="#">AirPods</a>
+    <a href="#"> TV & Home </a>
+    <a href="#">accessory</a>
+    <a href="support.html">Support</a>
+    
+    <div class="search-container">
+              <input type="text" class="search-input" placeholder="Tìm kiếm...">
+              <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+      <div id="suggestions-container" style="display: none;">
+      <ul id="suggestions-list">
+          </ul>
+    </div>
+    
+    <div class="cart-container">
+      <i class="fas fa-shopping-cart"></i>
+      <span class="cart-count">0</span>
+    </div>
+  </nav>
+</header>
+ <section id="search-results-section" class="product-listings" style="display: none;">
+    <h2>search results</h2>
+    <ul id="search-results-list" class="product-list">
+        </ul>
+</section>
+
+        <div class="hero">
+            <img src="images/apple.webp" alt="iPhone 16 Pro Max" class="background-img">
+            <div class="hero-text">
+                <h1>iPhone 16 Pro Max</h1>
+                <p>Top performance – Exceptional class</p>
+                 <a href="iphone/iphone.html" class="hero-btn">Learn more</a>
+
+            </div>
+        </div>
+<section class="new-accordion-design">
+    <div class="accordion-left-panel">
+        <div class="accordion-item-new" data-image-src="images/ipad_iphone_e15076279.jpg"> <button class="accordion-header-new">iPad and iPhone</button>
+            <div class="accordion-content-new">
+                <p>iPad is the perfect device to bring the content you shoot on your iPhone to life in a creative space. You can shoot videos and photos on your iPhone, then use the iPad's large screen to edit, add visual effects, and more. You can also pick up right where you left off with Handoff.</p>
+            </div>
+        </div>
+
+        <div class="accordion-item-new" data-image-src="images/ipad_mac_ff7009943.jpg"> <button class="accordion-header-new">iPad and Mac</button>
+            <div class="accordion-content-new">
+                <p>The ability to work seamlessly between two devices allows for increased productivity and limitless creativity.
+</p>
+            </div>
+        </div>
+
+        <div class="accordion-item-new" data-image-src="images/ipad_watch_e19064f33.jpg"> <button class="accordion-header-new">iPad and Apple Watch</button>
+            <div class="accordion-content-new">
+                <p>Track your health and fitness with Apple Watch, then view your data visually and in detail on the large iPad screen for a more complete view.
+</p>
+            </div>
+        </div>
+        </div>
+    <div class="accordion-right-panel">
+        <img src="images/ipad_iphone_e15076279.jpg" alt="Hình ảnh hiển thị sản phẩm" id="accordion-main-image"> </div>
+</section>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const newAccordionItems = document.querySelectorAll('.new-accordion-design .accordion-item-new');
+    const mainAccordionImage = document.getElementById('accordion-main-image');
+
+    if (newAccordionItems.length > 0 && mainAccordionImage) {
+        function activateItem(itemToActivate) {
+            if (!itemToActivate) return;
+
+            const newImageSrc = itemToActivate.dataset.imageSrc;
+
+            if (newImageSrc && mainAccordionImage.src !== newImageSrc) {
+                mainAccordionImage.style.opacity = 0;
+                setTimeout(() => {
+                    mainAccordionImage.src = newImageSrc;
+                    mainAccordionImage.alt = itemToActivate.querySelector('.accordion-header-new').textContent.trim();
+                    mainAccordionImage.style.opacity = 1;
+                }, 200);
+            } else if (newImageSrc && mainAccordionImage.src === newImageSrc && mainAccordionImage.style.opacity === "0") {
+                 mainAccordionImage.style.opacity = 1;
+            }
+
+
+            newAccordionItems.forEach(item => {
+                const content = item.querySelector('.accordion-content-new');
+                if (item === itemToActivate) {
+                    item.classList.add('active');
+                    if (content) content.style.display = 'block';
+                } else {
+                    item.classList.remove('active');
+                    if (content) content.style.display = 'none';
+                }
+            });
+        }
+
+        const firstItem = newAccordionItems[0];
+        if (firstItem) {
+            mainAccordionImage.style.opacity = 0;
+            const firstImageSrc = firstItem.dataset.imageSrc;
+            if (firstImageSrc) {
+                mainAccordionImage.src = firstImageSrc; 
+                setTimeout(() => {
+                    activateItem(firstItem);
+                }, 50);
+            } else {
+                 activateItem(firstItem); 
+            }
+        }
+
+
+        newAccordionItems.forEach(item => {
+            const header = item.querySelector('.accordion-header-new');
+            if (header) {
+                header.addEventListener('click', () => {
+                    activateItem(item);
+                });
+            }
+        });
+    } else {
+        if (newAccordionItems.length === 0) console.warn("Không tìm thấy '.accordion-item-new' nào.");
+        if (!mainAccordionImage) console.warn("Không tìm thấy phần tử ảnh với ID 'accordion-main-image'.");
+    }
+});
+    </script>
+</section>
+<section class="iphone-comparison-2">
+    <h2 class="section-title">Live iPhone Comparison Mode</h2>
+    
+    <div class="iphone-selection-container">
+        <div class="iphone-selection">
+            <h3>Select iPhone model 1:</h3>
+            <select id="modelSelect1" onchange="updatePreview()">
+                <option value="iphone16ProMax">iPhone 16 Pro Max</option>
+                <option value="iphone15ProMax">iPhone 15 Pro Max</option>
+                <option value="iphone14ProMax">iPhone 14 Pro Max</option>
+                <option value="iphone13">iPhone 13</option>
+            </select>
+        </div>
+
+        <div class="iphone-selection">
+            <h3>Select iPhone model 2:</h3>
+            <select id="modelSelect2" onchange="updatePreview()">
+                <option value="iphone16ProMax">iPhone 16 Pro Max</option>
+                <option value="iphone15ProMax">iPhone 15 Pro Max</option>
+                <option value="iphone14ProMax">iPhone 14 Pro Max</option>
+                <option value="iphone13">iPhone 13</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="comparison-area">
+        <div class="iphone-details" id="iphone1">
+            <h3 id="iphone1Title">iPhone 16 Pro Max</h3>
+            <p id="iphone1Details">Detailed specifications of iPhone 16 Pro Max.</p>
+            <div id="iphone1Model" class="iphone-3d-container"></div> </div>
+
+        <div class="iphone-details" id="iphone2">
+            <h3 id="iphone2Title">iPhone 15 Pro Max</h3>
+            <p id="iphone2Details">Detailed specifications of iPhone 15 Pro Max.</p>
+            <div id="iphone2Model" class="iphone-3d-container"></div> </div>
+    </div>
+</section>
+
+
+        <div class="item">
+            <h2>Best Selling Products</h2>
+          <ul  class="product-list">
+             <li>
+  <div class="product-item"
+       onclick="showProductDetails(this)"
+       data-name="Airpods Pro 2"
+       data-price="5,000,000₫"
+       data-desc="Noise-cancelling wireless earbuds, H2 chip"
+       data-spec="H2 chip, ANC, Bluetooth 5.3, MagSafe Charging"
+       data-img="images/airpod2.jpg">
+    <div class="product-image">
+      <img src="images/airpod2.jpg" alt="AirPods Pro 2">
+    </div>
+    <div class="product-info">
+      <a href="#" class="product-cat">HeadPhone</a>
+      <a href="#" class="product-name">AirPods Pro 2</a>
+      <div class="product-price">5,000,000₫</div>
+      <div class="product-rating">
+        <span>★★★★★</span>
+        <span class="sold">Sold 2K</span>
+      </div>
+      <button onclick="event.stopPropagation(); addToCart('AirPods Pro 2','HeadPhone','5,000,000₫','images/airpod2.jpg')">Add to cart</button>
+      
+      <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('AirPods Pro 2', '5,000,000₫')">Buy</button>
+    </div>
+  </div>
+</li>
+
+  
+   <li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 7 Plus"
+         data-price="22,000,000₫"
+         data-desc="iPhone 7 Plus with dual camera, smooth performance"
+         data-spec="5.5in Display, 3GB RAM, A10 Fusion, 2900mAh Battery"
+         
+         data-images="images/iphone7plus.jpeg,images/7plusgold.webp,images/7plus_silver.jpeg,images/7plus_black.jpg,images/7plus-jetblack.jpg,images/7plus-red.webp"
+         
+         data-color-map='[{"name":"Rose Gold","code":"#E0BFB8","img":"images/iphone7plus.jpeg"},{"name":"Gold","code":"#D4AF37","img":"images/7plusgold.webp"},{"name":"Silver","code":"#C0C0C0","img":"images/7plus_silver.jpeg"},{"name":"Black","code":"#343434","img":"images/7plus_black.jpg"},{"name":"Jet Black","code":"#000000","img":"images/7plus-jetblack.jpg"},{"name":"(PRODUCT)RED","code":"#BF2032","img":"images/7plus-red.webp"}]'>
+        
+        <div class="product-image">
+            <img src="images/iphone7plus.jpeg" alt="iPhone 7 Plus">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 7 Plus</a>
+            <div class="product-price">22,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPhone 7 Plus', 'Phone', '22,000,000₫', 'images/iphone7plus.jpeg')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 7 Plus', '22,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 8 Plus"
+         data-price="5,000,000₫"
+         data-desc="Glass design, wireless charging, stable performance"
+         data-spec="5.5in Retina HD Display, A11 Bionic, 3GB RAM, 2691mAh Battery"
+         
+         data-images="images/iphone8plus.webp,images/8plus-silver.png,images/8plus-grey.png,images/8plus-red.webp"
+         
+         data-color-map='[{"name":"Gold","code":"#F5DEB3","img":"images/iphone8plus.webp"},{"name":"Silver","code":"#EAEAEA","img":"images/8plus-silver.png"},{"name":"Space Gray","code":"#5C5C5E","img":"images/8plus-grey.png"},{"name":"(PRODUCT)RED","code":"#BF2032","img":"images/8plus-red.webp"}]'>
+        
+        <div class="product-image">
+            <img src="images/iphone8plus.webp" alt="iPhone 8 Plus">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 8 Plus</a>
+            <div class="product-price">5,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            
+            <button onclick="event.stopPropagation(); addToCart('iPhone 8 Plus', 'Phone', '5,000,000₫', 'images/iphone8plus.webp')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 8 Plus', '5,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+
+ <li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 11"
+         data-price="10,000,000₫"
+         data-desc="iPhone 11 with dual camera, long battery life, youthful colors"
+         data-spec="6.1in LCD Display, A13 Bionic, 4GB RAM, 3110mAh Battery"
+         
+         data-images="images/iphone11.jpg,images/11 white.jpg,images/iphone11yellow.webp"
+         
+         data-color-map='[{"name":"Green","code":"#D2E7D6","img":"images/iphone11.jpg"},{"name":"White","code":"#F9F6F2","img":"images/11 white.jpg"},{"name":"Yellow","code":"#F3E5AB","img":"images/iphone11yellow.webp"}]'>
+        
+        <div class="product-image">
+            <img src="images/iphone11.jpg" alt="iPhone 11">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 11</a>
+            <div class="product-price">10,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPhone 11','Phone','10,000,000₫','images/iphone11.jpg')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 11', '10,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 12"
+         data-price="20,000,000₫"
+         data-desc="iPhone 12 with 6.1 inch screen, A14 Bionic chip"
+         data-spec="Screen: 6.1 inch OLED, Chip: A14 Bionic, RAM: 4GB, Battery: 2815mAh"
+
+         data-images="images/iphone 12 black.png,images/iphone-12-tim-1-600x600.jpg,images/iphone 12 red.png"
+
+         data-color-map='[{"name":"Black","code":"#3B3B3B","img":"images/iphone 12 black.png"},{"name":"Purple","code":"#B8AFE6","img":"images/iphone-12-tim-1-600x600.jpg"},{"name":"(PRODUCT)RED","code":"#BF2032","img":"images/iphone 12 red.png"}]'>
+
+        <div class="product-image">
+            <img src="images/iphone 12 black.png" alt="iPhone 12">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 12</a>
+            <div class="product-price">20,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPhone 12','Phone','20,000,000₫','images/iphone-12-tim-1-600x600.jpg')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 12', '20,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 12 Pro"
+         data-price="25,000,000₫"
+         data-desc="iPhone 12 Pro with Pro camera, LiDAR"
+         data-spec="Display: 6.1 inch OLED, Chip: A14 Bionic, RAM: 6GB, Camera: 3 lenses, Battery: 2815mAh"
+         
+         data-images="images/12 gold.webp,images/12 pro white.png,images/iphone 12 black.png,images/(600x600)_crop_iphone-12-pro-xtmobile.webp"
+         
+         data-color-map='[{"name":"Gold","code":"#F5E8C8","img":"images/12 gold.webp"},{"name":"White","code":"#EAEAEA","img":"images/12 pro white.png"},{"name":"Black","code":"#5C5C5E","img":"images/iphone 12 black.png"},{"name":"Pacific Blue","code":"#2E4755","img":"images/(600x600)_crop_iphone-12-pro-xtmobile.webp"}]'>
+        
+        <div class="product-image">
+            <img src="images/12 gold.webp" alt="iPhone 12 Pro">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 12 Pro</a>
+            <div class="product-price">25,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPhone 12 Pro','Phone','25,000,000₫','images/(600x600)_crop_iphone-12-pro-xtmobile.webp')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 12 Pro', '25,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+  <li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 14 Pro Max"
+         data-price="26,500,000₫"
+         data-desc="Dynamic Island, chip A16 Bionic"
+         data-spec="Display: 6.7 inch OLED, Chip: A16 Bionic, RAM: 6GB, Camera: 48MP, Pin: 4323mAh"
+         data-img="images/iphone14promax.webp"> 
+        <div class="product-image">
+            <img src="images/iphone14promax.webp" alt="iPhone 14 Pro Max"> 
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 14 Pro Max</a>
+            <div class="product-price">26,500,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart(
+                'iPhone 14 Pro Max','Phone','26,500,000₫','images/iphone14promax.webp')">Add to cart</button>
+<button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 14 Pro Max', '26,500,000₫')">Buy</button>
+
+        </div>
+    </div>
+</li>
+
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 15 Pro Max"
+         data-price="27,500,000₫"
+         data-desc="Khung titan, chip A17 Pro"
+         data-spec="Display: 6.7 inch OLED, Chip: A17 Pro, RAM: 8GB, Camera: 48MP, Pin: 4422mAh"
+         data-images="images/iphone15promax.webp,images/15prmxanh.webp,images/15prmtitantrang.jpg"
+         data-color-map='[{"name":"Titan Tự Nhiên","code":"#8A8A8D","img":"images/iphone15promax.webp"},{"name":"Titan Xanh","code":"#2E3A48","img":"images/15prmxanh.webp"},{"name":"Titan Trắng","code":"#F5F5F7","img":"images/15prmtitantrang.jpg"}]'> 
+        <div class="product-image">
+            <img src="images/iphone15promax.webp" alt="iPhone 15 Pro Max">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 15 Pro Max</a>
+            <div class="product-price">27,500,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart(
+                'iPhone 15 Pro Max','Phone','27,500,000₫','images/iphone15promax.webp')">Add to cart</button>
+<button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 15 Pro Max', '27,500,000₫')">Buy</button>
+
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 16 Pro Max"
+         data-price="31,000,000₫"
+         data-desc="Display bigger, chip A18 Pro"
+         data-spec="Display: 6.9 inch OLED, Chip: A18 Pro, RAM: 8GB, Camera: 48MP, Pin: 4700mAh"
+
+         data-images="images/16 pro max đen.webp,images/16 pro max gold.png,images/16 pro max silver.jpg,images/16 pro max white.webp"
+
+         data-color-map='[{"name":"Space Black","code":"#4A4A4A","img":"images/16 pro max đen.webp"},{"name":"Gold","code":"#D4AF37","img":"images/16 pro max gold.png"},{"name":"Silver","code":"#E3E4E6","img":"images/16 pro max silver.jpg"},{"name":"Titanium White","code":"#F5F5F7","img":"images/16 pro max white.webp"}]'>
+
+        <div class="product-image">
+            <img src="images/16 pro max đen.webp" alt="iPhone 16 Pro Max"> 
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 16 Pro Max</a>
+            <div class="product-price">31,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPhone 16 Pro Max','Phone','31,000,000₫','images/16 pro max đen.webp')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 16 Pro Max', '31,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="MacBook Air 15 M3"
+         data-price="32,000,000₫"
+         data-desc="Display bigger 15 inch, chip M3 strong, thin and light design"
+         data-spec="M3 8-core CPU, 10-core GPU, 8GB RAM (base), 256GB SSD (base), Display 15.3\", Wi-Fi 6E"
+
+         data-images="images/air15 black.webp,images/air 15 gold.webp,images/macbook air 15 grey.webp"
+
+         data-color-map='[{"name":"Midnight","code":"#2E3642","img":"images/air15 black.webp"},{"name":"Starlight","code":"#F0E4D3","img":"images/air 15 gold.webp"},{"name":"Space Gray","code":"#808285","img":"images/macbook air 15 grey.webp"}]'>
+
+        <div class="product-image">
+            <img src="images/air15 black.webp" alt="MacBook Air 15 M3">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> Laptop </a>
+            <a href="#" class="product-name">MacBook Air 15" M3</a>
+            <div class="product-price">32,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('MacBook Air 15 M3', 'Laptop', '32,000,000₫', 'images/air15 black.webp')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('MacBook Air 15 M3', '32,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iMac 24 M3"
+         data-price="33,000,000₫"
+         data-desc="Gorgeous All-in-One Computer, chip M3, Display Retina 4.5K"
+         data-spec="M3 8-core CPU, 8/10-core GPU, 8GB RAM (base), 256GB SSD (base), Display 23.5\" 4.5K Retina"
+         data-img="images/imac24.jpg">
+        <div class="product-image">
+            <img src="images/imac24.jpg" alt="iMac 24 M3">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> Desktop </a>
+            <a href="#" class="product-name">iMac 24" M3</a>
+            <div class="product-price">33,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart(
+                'iMac 24 M3', 'Desktop', '33,000,000₫', 'images/imac24.jpg')">Add to cart</button>
+<button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iMac 24 M3', '33,000,000₫')">Buy</button>
+
+        </div>
+    </div>
+</li>
+
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="Mac mini M2"
+         data-price="15,000,000₫"
+         data-desc="Compact desktop, impressive performance with M2 chip"
+         data-spec="M2 8-core CPU, 10-core GPU, 8GB RAM (base), 256GB SSD (base), Wi-Fi 6E, Thunderbolt 4"
+         data-img="images/Mac mini M2.jpg">
+        <div class="product-image">
+            <img src="images/Mac mini M2.jpg" alt="Mac mini M2">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> Desktop </a>
+            <a href="#" class="product-name">Mac mini M2</a>
+            <div class="product-price">15,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart(
+                'Mac mini M2', 'Desktop', '15,000,000₫', 'images/Mac mini M2.jpg')">Add to cart</button>
+<button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('Mac mini M2', '15,000,000₫')">Buy</button>
+
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone SE (3rd gen)"
+         data-price="10,000,000₫"
+         data-desc="Powerful performance in compact design, chip A15 Bionic"
+         data-spec="Display 4.7\" Retina HD, A15 Bionic, RAM 4GB, Camera 12MP, Touch ID, 5G"
+
+         data-images="images/iphone se 3rd gold.webp,images/iphone se 3rd red.jpg,images/iphone se 3rd black.jpg"
+
+         data-color-map='[{"name":"Gold","code":"#F5DEB3","img":"images/iphone se 3rd gold.webp"},{"name":"(PRODUCT)RED","code":"#BF2032","img":"images/iphone se 3rd red.jpg"},{"name":"Midnight","code":"#3B3B3B","img":"images/iphone se 3rd black.jpg"}]'>
+
+        <div class="product-image">
+            <img src="images/iphone se 3rd gold.webp" alt="iPhone SE 3rd gen">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone SE (3rd gen)</a>
+            <div class="product-price">10,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPhone SE (3rd gen)', 'Phone', '10,000,000₫', 'images/iphone se 3rd gold.webp')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone SE (3rd gen)', '10,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+  <li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 13"
+         data-price="15,000,000₫"
+         data-desc="Powerful A15 Bionic chip, improved dual camera, good battery life"
+         data-spec="Display 6.1\" Super Retina XDR, A15 Bionic, RAM 4GB, Double camera 12MP, Pin 3240mAh"
+         
+         data-images="images/iphone 13 blue.jpg,images/iphone13 rose.webp,images/iphone 13 black.jpg,images/iphone 13 gold.webp"
+         
+         data-color-map='[{"name":"Blue","code":"#2E77A5","img":"images/iphone 13 blue.jpg"},{"name":"Pink","code":"#F7D7D9","img":"images/iphone13 rose.webp"},{"name":"Midnight","code":"#3B3B3B","img":"images/iphone 13 black.jpg"},{"name":"Gold","code":"#FFD700","img":"images/iphone 13 gold.webp"}]'>
+        
+        <div class="product-image">
+            <img src="images/iphone 13 blue.jpg" alt="iPhone 13">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 13</a>
+            <div class="product-price">15,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPhone 13','Phone','15,000,000₫','images/iphone 13 blue.jpg')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 13', '15,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 14"
+         data-price="17,000,000₫"
+         data-desc="Collision detection, upgraded camera, chip A15 Bionic"
+         data-spec="Display 6.1\" Super Retina XDR, A15 Bionic (5-core GPU), RAM 6GB, Double camera, Crash Detection"
+         
+         data-images="images/iphone 14 red.jpg,images/iphone 14 yellow.webp,images/iphone14 black.jpg,images/iphone 14 purple.webp,images/ipone14 gold.jpg,images/iphone 14 grey.jpg"
+         
+         data-color-map='[{"name":"(PRODUCT)RED","code":"#BF2032","img":"images/iphone 14 red.jpg"},{"name":"Yellow","code":"#F3E5AB","img":"images/iphone 14 yellow.webp"},{"name":"Midnight","code":"#3B3B3B","img":"images/iphone14 black.jpg"},{"name":"Purple","code":"#E5DDEA","img":"images/iphone 14 purple.webp"},{"name":"Gold","code":"#FFD700","img":"images/ipone14 gold.jpg"},{"name":"Grey","code":"#808285","img":"images/iphone 14 grey.jpg"}]'>
+        
+        <div class="product-image">
+            <img src="images/iphone 14 red.jpg" alt="iPhone 14">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 14</a>
+            <div class="product-price">17,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPhone 14','Phone','17,000,000₫','images/iphone 14 red.jpg')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 14', '17,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPhone 15 Plus"
+         data-price="23,000,000₫"
+         data-desc="Display lớn 6.7 inch, Dynamic Island, camera 48MP, USB-C"
+         data-spec="Display 6.7\" Super Retina XDR, A16 Bionic, RAM 6GB, Double camera 48MP, Pin lớn, USB-C"
+
+         data-images="images/iphonee15 plus black.png,images/iphone15 plus green.webp,images/iphone 15 plus rose.webp,images/iphone 15 plus blue.jpg"
+
+         data-color-map='[{"name":"Black","code":"#3B3B3B","img":"images/iphonee15 plus black.png"},{"name":"Green","code":"#D2E7D6","img":"images/iphone15 plus green.webp"},{"name":"Pink","code":"#FADEE4","img":"images/iphone 15 plus rose.webp"},{"name":"Blue","code":"#A7C4DD","img":"images/iphone 15 plus blue.jpg"}]'>
+
+        <div class="product-image">
+            <img src="images/iphonee15 plus black.png" alt="iPhone 15 Plus">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">Phone</a>
+            <a href="#" class="product-name">iPhone 15 Plus</a>
+            <div class="product-price">23,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPhone 15 Plus','Phone','23,000,000₫','images/iphonee15 plus black.png')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPhone 15 Plus', '23,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="AirPods (3rd gen)"
+         data-price="4,000,000₫"
+         data-desc="New design , Spatial sound, Adaptive EQ"
+         data-spec="H1 chip, Spatial Audio, Adaptive EQ, IPX4, 6 hour battery life"
+         data-img="images/AirPods (3rd gen).jpg">
+        <div class="product-image">
+            <img src="images/AirPods (3rd gen).jpg" alt="AirPods 3rd gen">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">HeadPhone</a>
+            <a href="#" class="product-name">AirPods (3rd gen)</a>
+            <div class="product-price">4,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart(
+                'AirPods (3rd gen)','HeadPhone','4,000,000₫','images/AirPods (3rd gen).jpg')">Add to cart</button>
+<button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('AirPods (3rd gen)', '4,000,000₫')">Buy</button>
+
+        </div>
+    </div>
+</li>
+
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="AirPods Max"
+         data-price="13,000,000₫"
+         data-desc="Premium over-ear headphones, active noise cancellation, Hi-Fi sound"
+         data-spec="H1 chip (each side), ANC, Transparency Mode, Spatial Audio, Digital Crown"
+         data-img="images/airpodmax.png">
+        <div class="product-image">
+            <img src="images/airpodmax.png" alt="AirPods Max">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat">HeadPhone</a>
+            <a href="#" class="product-name">AirPods Max</a>
+            <div class="product-price">13,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart(
+                'AirPods Max','HeadPhone','13,000,000₫','images/airpodmax.png')">Add to cart</button>
+<button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('AirPods Max', '13,000,000₫')">Buy</button>
+
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="Apple Watch Series 9"
+         data-price="10,000,000₫"
+         data-desc="Powerful S9 chip, Double Tap gesture, Brighter display"
+         data-spec="S9 SiP, Double Tap, Display Always-On sáng hơn, ECG, Blood Oxygen, GPS"
+
+         data-images="images/watch series 9 rose.webp,images/watch series 9 gold.jpeg,images/watch series 9 blue.webp,images/watch seris 9 black.jpg"
+
+         data-color-map='[{"name":"Pink","code":"#FADEE4","img":"images/watch series 9 rose.webp"},{"name":"Gold","code":"#F5E8C8","img":"images/watch series 9 gold.jpeg"},{"name":"Blue","code":"#A8C5DD","img":"images/watch series 9 blue.webp"},{"name":"Midnight","code":"#3B3B3B","img":"images/watch seris 9 black.jpg"}]'>
+
+        <div class="product-image">
+            <img src="images/watch series 9 rose.webp" alt="Apple Watch Series 9">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> Watch </a>
+            <a href="#" class="product-name">Apple Watch Series 9</a>
+            <div class="product-price">10,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('Apple Watch Series 9','Watch','10,000,000₫','images/watch series 9 rose.webp')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('Apple Watch Series 9', '10,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="Apple Watch Ultra 2"
+         data-price="20,000,000₫"
+         data-desc="Most durable, longest battery life, professional features for sports"
+         data-spec="S9 SiP, Double Tap, Titanium Case, Dual Frequency GPS, 100m Water Resistant, Dive Computer"
+
+         data-images="images/black.webp,images/ultra green.png,images/orange.jpg"
+
+         data-color-map='[{"name":"Black/Grey Trail Loop","code":"#4B4B4B","img":"images/black.webp"},{"name":"Green Alpine Loop","code":"#3B4A3F","img":"images/ultra green.png"},{"name":"Orange Ocean Band","code":"#F48853","img":"images/orange.jpg"}]'>
+
+        <div class="product-image">
+            <img src="images/black.webp" alt="Apple Watch Ultra 2">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> Watch </a>
+            <a href="#" class="product-name">Apple Watch Ultra 2</a>
+            <div class="product-price">20,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('Apple Watch Ultra 2','Watch','20,000,000₫','images/black.webp')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('Apple Watch Ultra 2', '20,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="Apple Watch SE (2nd gen)"
+         data-price="6,000,000₫"
+         data-desc="Great value, essential features, S8 chip"
+         data-spec="S8 SiP, Crash Detection, Heart Rate Monitor, 50m Water Resistant, Family Setup"
+
+         data-images="images/se black.jpg,images/se gold.jpeg"
+
+         data-color-map='[{"name":"Midnight","code":"#3B3B3B","img":"images/se black.jpg"},{"name":"Starlight","code":"#F0E4D3","img":"images/se gold.jpeg"}]'>
+
+        <div class="product-image">
+            <img src="images/se black.jpg" alt="Apple Watch SE 2nd gen">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> Watch </a>
+            <a href="#" class="product-name">Apple Watch SE (2nd gen)</a>
+            <div class="product-price">6,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('Apple Watch SE (2nd gen)','Watch','6,000,000₫','images/se black.jpg')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('Apple Watch SE (2nd gen)', '6,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPad Air (M2)"
+         data-price="15,000,000₫"
+         data-desc="Powerful M2 chip, thin and light design, supports Apple Pencil Pro"
+         data-spec="M2 chip, Display Liquid Retina 11 13\",horizontal front camera, Touch ID, USB-C"
+         data-images="images/ipad air m2 gold.jpg,images/ipad air m2 blue.jpg"
+         data-color-map='[{"name":"Starlight","code":"#F0E4D3","img":"images/ipad air m2 gold.jpg"},{"name":"Blue","code":"#A8C5DD","img":"images/ipad air m2 blue.jpg"}]'>
+        <div class="product-image">
+            <img src="images/ipad air m2 gold.jpg" alt="iPad Air M2">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> iPad </a>
+            <a href="#" class="product-name">iPad Air (M2)</a>
+            <div class="product-price">15,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPad Air (M2)','iPad','15,000,000₫','images/ipad air m2 gold.jpg')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPad Air (M2)', '15,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="iPad Pro (M4)"
+         data-price="25,000,000₫"
+         data-desc="Breakthrough M4 Chip, Ultra-thin OLED Tandem Display, Top Performance"
+         data-spec="M4 chip, Display Ultra Retina XDR (Tandem OLED) 11 13\", Super thin, Face ID, USB-C (Thunderbolt)"
+         data-images="images/ipadprom4.jpg,images/ipad pro black.webp"
+         data-color-map='[{"name":"White","code":"#F6F6F7","img":"images/ipadprom4.jpg"},{"name":"Black","code":"#242424","img":"images/ipad pro black.webp"}]'>
+        <div class="product-image">
+            <img src="images/ipadprom4.jpg" alt="iPad Pro M4">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> iPad </a>
+            <a href="#" class="product-name">iPad Pro (M4)</a>
+            <div class="product-price">25,000,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart('iPad Pro (M4)','iPad','25,000,000₫','images/ipadprom4.jpg')">Add to cart</button>
+            <button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('iPad Pro (M4)', '25,000,000₫')">Buy</button>
+        </div>
+    </div>
+</li>
+
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="Apple TV 4K (3rd gen)"
+         data-price="3,500,000₫"
+         data-desc="Ultimate 4K HDR entertainment, A15 Bionic chip, new Siri Remote"
+         data-spec="A15 Bionic, 4K Dolby Vision & HDR10+, tvOS, Wi-Fi + Ethernet (model Advanced), Siri Remote (USB-C)"
+         data-img="images/appletv4k.jpg">
+        <div class="product-image">
+            <img src="images/appletv4k.jpg" alt="Apple TV 4K 3rd gen">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> TV & Home </a>
+            <a href="#" class="product-name">Apple TV 4K (3rd gen)</a>
+            <div class="product-price">3,500,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart(
+                'Apple TV 4K (3rd gen)','TV & Home','3,500,000₫','images/appletv4k.jpg')">Add to cart</button>
+<button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('Apple TV 4K (3rd gen)', '3,500,000₫')">Buy</button>
+
+        </div>
+    </div>
+</li>
+
+<li>
+    <div class="product-item"
+         onclick="showProductDetails(this)"
+         data-name="HomePod (2nd gen)"
+         data-price="7,500,000₫"
+         data-desc="Vivid Hi-Fi sound, smart home integration, S7 chip"
+         data-spec="S7 chip, Spatial audio, Temperature/humidity sensor, Thread, Matter, Siri"
+         data-img="images/homepod2.jpg">
+        <div class="product-image">
+            <img src="images/homepod2.jpg" alt="HomePod 2nd gen">
+        </div>
+        <div class="product-info">
+            <a href="#" class="product-cat"> TV & Home </a>
+            <a href="#" class="product-name">HomePod (2nd gen)</a>
+            <div class="product-price">7,500,000₫</div>
+            <div class="product-rating">
+                <span>★★★★★</span>
+                <span class="sold">Sold 2K</span>
+            </div>
+            <button onclick="event.stopPropagation(); addToCart(
+                'HomePod (2nd gen)','TV & Home','7,500,000₫','images/homepod2.jpg')">Add to cart</button>
+<button class="btn-payment" onclick="event.stopPropagation(); openPaymentFormIndex('HomePod (2nd gen)', '7,500,000₫')">Buy</button>
+
+        </div>
+    </div>
+</li>
+
+              </ul>
+            </ul>
+            <div id="payment-modal-overlay-index" class="payment-modal-overlay-index"> <div id="payment-content-modal-index" class="payment-content-modal-index">   <div class="payment-modal-header-index">
+      <h3>Order information </h3>
+      <button type="button" class="payment-modal-close-btn-index" onclick="closePaymentFormIndex()">&times;</button>
+    </div>
+    <div class="payment-modal-body-index">
+      <form id="paymentFormIndex">
+        <section>
+          <h3>Buyer information</h3>
+          <div class="form-group">
+            <label for="recipient-name-index">Buyer's name <span class="required">*</span></label>
+            <input type="text" id="recipient-name-index" required>
+          </div>
+          <div class="form-group">
+            <label for="recipient-phone-index">Phone Number <span class="required">*</span></label>
+            <input type="tel" id="recipient-phone-index" required>
+          </div>
+          <div class="form-group">
+            <label for="recipient-address-index">Addres<span class="required">*</span></label>
+            <input type="text" id="recipient-address-index" required>
+          </div>
+          <div class="form-group">
+            <label for="recipient-notes-index">Detail Note</label>
+            <textarea id="recipient-notes-index" rows="2"></textarea>
+          </div>
+        </section>
+
+        <section>
+          <h3>Payment method</h3>
+          <div class="payment-option">
+            <input type="radio" id="cod-payment-index" name="payment-method-index" value="COD" checked>
+            <label for="cod-payment-index"><i class="fa fa-truck"></i> Shipping COD (COD)</label>
+          </div>
+          <div class="payment-option">
+            <input type="radio" id="credit-payment-index" name="payment-method-index" value="Credit Card">
+            <label for="credit-payment-index"><i class="fa fa-credit-card"></i> Credit card</label>
+          </div>
+        </section>
+
+        <section class="order-summary">
+          <h3>Your order</h3>
+          <div id="payment-product-name-index"></div>   <div id="payment-product-price-index"></div>  <div class="order-total">
+            <span>Total :</span>
+            <span id="total-amount-index">0₫</span>     </div>
+        </section>
+
+        <div class="form-footer">
+          <button type="submit" class="btn-submit-payment">Buy</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+    </div>
+
+            <div id="popup-container" class="popup-container">
+              <div id="popup">
+                <div class="modal-content-left">
+                    <div class="image-gallery">
+                        <img id="modalMainImg" src="" alt="Main Product Image">
+                        <button class="gallery-nav prev" onclick="changeImage(-1)">&#10094;</button>
+                        <button class="gallery-nav next" onclick="changeImage(1)">&#10095;</button>
+                    </div>
+                    <div id="thumbnail-container" class="thumbnail-container">
+                        </div>
+                </div>
+                <div class="modal-content-right">
+                    <h2 id="modalName"></h2>
+                    <p id="modalPrice"></p>
+                    <div id="modalColorSelector" class="color-selector">
+                        </div>
+                    <p id="modalDesc"></p>
+                    <ul id="modalSpec"></ul>
+                 
+
+<button class="btn btn-modal-close" onclick="closeModal()">Close</button>
+
+                </div>
+                <button class="modal-close-top" onclick="closeModal()">&times;</button>
+              </div>
+            </div>
+  <div id="cart-popup" class="cart-popup">
+            <h3>Your cart</h3>
+            <ul id="cart-items">
+                </ul>
+            <button class="btn-checkout" onclick="window.location.href='checkout.html'">PAYMENT</button>
+            
+            <button onclick="closeCart()" class="btn-cart-close">CLOSE</button>
+        </div>
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-main">
+            <div class="footer-column">
+                <h4 class="footer-heading">Shop and Learn</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Store</a></li>
+                    <li><a href="#">Mac</a></li>
+                    <li><a href="#">iPad</a></li>
+                    <li><a href="#">iPhone</a></li>
+                    <li><a href="#">Watch</a></li>
+                    <li><a href="#">AirPods</a></li>
+                    <li><a href="#">TV & Home</a></li>
+                    <li><a href="#">Accessories</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4 class="footer-heading">Services & Support</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Apple Music</a></li>
+                    <li><a href="#">Apple TV+</a></li>
+                    <li><a href="#">iCloud</a></li>
+                    <li><a href="#">Manage Your Apple ID</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+                <h4 class="footer-heading" style="margin-top: 24px;">Policies</h4>
+                 <ul class="footer-links">
+                    <li><a href="#">Warranty Policy</a></li>
+                    <li><a href="#">Return Policy</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Installment Policy</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4 class="footer-heading">About Us</h4>
+                <ul class="footer-links">
+                    <li><a href="#">Newsroom</a></li>
+                    <li><a href="#">Apple Leadership</a></li>
+                    <li><a href="#">Career Opportunities</a></li>
+                    <li><a href="#">Investors</a></li>
+                    <li><a href="#">Contact Apple</a></li>
+                </ul>
+                 <h4 class="footer-heading" style="margin-top: 24px;">Contact</h4>
+                <ul class="footer-links">
+                    <li><i class="fas fa-phone-alt"></i> 0962923329</li>
+                    <li><i class="fas fa-envelope"></i> nthanhtat51@gmail.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i> 123 ABC Street, XYZ City</li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h4 class="footer-heading">Stay Connected</h4>
+                <p>Get the latest on new products, promotions, and more.</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Enter your email">
+                    <button type="submit" aria-label="Submit email"><i class="fas fa-paper-plane"></i></button>
+                </form>
+                <div class="footer-social">
+                    <a href="#" class="social-icon" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-secondary">
+            <div class="footer-legal">
+                <p>© 2025 Apple Clone. All rights reserved.</p>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Use</a>
+                <a href="#">Sales Policy</a>
+                <a href="#">Legal</a>
+                <a href="#">Site Map</a>
+            </div>
+            <div class="footer-payment">
+                <img src="images/payment-methods.png" alt="Accepted Payment Methods">
+            </div>
+        </div>
+    </div>
+</footer>
+            <script>
+                      
+        // PHẦN 3: SCRIPT CHO TÍNH NĂNG GIỎ HÀNG (SHOPPING CART)
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let currentImageIndex = 0;
+let currentImageSet = [];
+let currentColorMap = [];
+
+function addToCart(name, category, price, image) {
+    const existing = cart.find(p => p.name === name);
+    if (existing) {
+        existing.qty += 1;
+    } else {
+        cart.push({ name, category, price, image, qty: 1 });
+    }
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCount();
+    alert(name + " Added to cart!");
+}
+
+function updateCartCount() {
+    const count = cart.reduce((sum, p) => sum + p.qty, 0);
+    const cartCountElement = document.querySelector(".cart-count");
+    if (cartCountElement) cartCountElement.textContent = count;
+}
+
+function openCart() {
+    const popup = document.getElementById("cart-popup");
+    const list = document.getElementById("cart-items");
+    if (!popup || !list) return;
+    list.innerHTML = "";
+
+    if (cart.length === 0) {
+        list.innerHTML = "<li>Empty cart.</li>";
+    } else {
+        cart.forEach((item, index) => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <strong>${item.name}</strong><br>
+                Amount: ${item.qty}<br>
+                Price: ${item.price}<br>
+                <button onclick="removeFromCart(${index})">Delete</button>
+            `;
+            list.appendChild(li);
+        });
+    }
+    if (popup) popup.style.display = "block";
+}
+
+function closeCart() {
+    const popup = document.getElementById("cart-popup");
+    if (popup) popup.style.display = "none";
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCount();
+    openCart();
+}
+
+const cartContainer = document.querySelector(".cart-container");
+if (cartContainer) cartContainer.addEventListener("click", openCart);
+  // PHẦN 4: SCRIPT CHO POPUP CHI TIẾT SẢN PHẨM
+function showProductDetails(el) {
+    const popupContainer = document.getElementById("popup-container");
+    if (!popupContainer) return;
+
+    // --- DATA EXTRACTION ---
+    const name = el.dataset.name || '';
+    const price = el.dataset.price || '';
+    const desc = el.dataset.desc || '';
+    const specs = (el.dataset.spec || '').split(",").map(s => s.trim()).filter(s => s);
+    
+    const imagesAttr = el.dataset.images || el.dataset.img;
+    currentImageSet = imagesAttr.split(',').map(img => img.trim());
+    
+    // --- Color Map Handling ---
+    const colorMapAttr = el.dataset.colorMap;
+    const colorSelector = document.getElementById("modalColorSelector");
+    currentColorMap = []; // Reset
+    if (colorMapAttr && colorSelector) {
+        try {
+            currentColorMap = JSON.parse(colorMapAttr);
+            colorSelector.innerHTML = '<p class="color-selector-label">color</p>'; // Add label
+            const swatchContainer = document.createElement('div');
+            swatchContainer.className = 'swatch-container';
+
+            currentColorMap.forEach(color => {
+                const swatch = document.createElement('span');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = color.code;
+                swatch.title = color.name;
+                swatch.dataset.img = color.img;
+                swatch.onclick = () => {
+                    const imgIndex = currentImageSet.indexOf(color.img);
+                    if (imgIndex !== -1) {
+                        setCurrentImage(imgIndex);
+                    }
+                };
+                swatchContainer.appendChild(swatch);
+            });
+            colorSelector.appendChild(swatchContainer);
+            colorSelector.style.display = 'block';
+
+        } catch (e) {
+            console.error("Invalid JSON in data-color-map:", e);
+            colorSelector.style.display = 'none';
+        }
+    } else if (colorSelector) {
+        colorSelector.style.display = 'none';
+        colorSelector.innerHTML = '';
+    }
+
+
+    // --- UI POPULATION ---
+    const modalName = document.getElementById("modalName");
+    const modalPrice = document.getElementById("modalPrice");
+    const modalDesc = document.getElementById("modalDesc");
+    const modalSpecList = document.getElementById("modalSpec");
+    const thumbnailContainer = document.getElementById("thumbnail-container");
+
+    if (modalName) modalName.textContent = name;
+    if (modalPrice) modalPrice.textContent = price;
+    if (modalDesc) modalDesc.textContent = desc;
+
+    if (modalSpecList) {
+        modalSpecList.innerHTML = "";
+        specs.forEach(spec => {
+            let li = document.createElement("li");
+            li.textContent = spec;
+            modalSpecList.appendChild(li);
+        });
+    }
+
+    if (thumbnailContainer) {
+        thumbnailContainer.innerHTML = '';
+        currentImageSet.forEach((imgSrc, index) => {
+            const thumb = document.createElement('img');
+            thumb.src = imgSrc;
+            thumb.alt = `${name} thumbnail ${index + 1}`;
+            thumb.onclick = () => setCurrentImage(index);
+            thumbnailContainer.appendChild(thumb);
+        });
+    }
+
+    setCurrentImage(0);
+    popupContainer.classList.add("active");
+}
+
+function setCurrentImage(index) {
+    const mainImg = document.getElementById("modalMainImg");
+    const thumbnails = document.querySelectorAll("#thumbnail-container img");
+
+    if (!mainImg || index < 0 || index >= currentImageSet.length) return;
+    
+    currentImageIndex = index;
+    const currentImgSrc = currentImageSet[currentImageIndex];
+    mainImg.src = currentImgSrc;
+
+    thumbnails.forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === currentImageIndex);
+    });
+
+    const swatches = document.querySelectorAll("#modalColorSelector .color-swatch");
+    swatches.forEach(swatch => {
+        swatch.classList.toggle('active', swatch.dataset.img === currentImgSrc);
+    });
+}
+
+
+function changeImage(direction) {
+    let newIndex = currentImageIndex + direction;
+    if (newIndex < 0) {
+        newIndex = currentImageSet.length - 1;
+    } else if (newIndex >= currentImageSet.length) {
+        newIndex = 0;
+    }
+    setCurrentImage(newIndex);
+}
+
+
+function closeModal() {
+    const popupContainer = document.getElementById("popup-container");
+    if (popupContainer) popupContainer.classList.remove("active");
+}
+
+updateCartCount();
+
+        // PHẦN 7: SCRIPT CHO THANH TÌM KIẾM VÀ GỢI Ý
+const heroSection = document.querySelector('.hero');
+const bestSellingSection = document.querySelector('.best-selling-products');
+const newGenerationSection = document.querySelector('.new-generation-products');
+const itemSection = document.querySelector('.item');
+const searchResultsSectionForSearchbar = document.getElementById('search-results-section');
+
+function toggleMainContent(show) {
+    const displayValue = show ? '' : 'none';
+
+    if (heroSection) heroSection.style.display = displayValue;
+    if (bestSellingSection) bestSellingSection.style.display = displayValue;
+    if (newGenerationSection) newGenerationSection.style.display = displayValue;
+    if (itemSection) itemSection.style.display = displayValue;
+
+    if (searchResultsSectionForSearchbar) {
+        searchResultsSectionForSearchbar.style.display = show ? 'none' : 'block';
+    }
+}
+
+function displayProductsForSearchbar(products) {
+    const productListContainer = document.getElementById('search-results-list');
+
+    if (!productListContainer || !searchResultsSectionForSearchbar) {
+        console.error("Search results container or section not found!");
+        return;
+    }
+    productListContainer.innerHTML = '';
+
+    if (!products || products.length === 0) {
+        productListContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; width: 100%;"> No matching products found. </p>';
+        if (searchResultsSectionForSearchbar) searchResultsSectionForSearchbar.style.display = 'block';
+        toggleMainContent(false);
+        return;
+    }
+
+    products.forEach(product => {
+        const productName = product.name || 'Sản phẩm không tên';
+        const productPrice = product.price ? product.price.toLocaleString('vi-VN') + '₫' : 'Giá liên hệ';
+        const productShortDesc = product.short_description || '';
+        const productSpec = product.spec || '';
+        const productImageUrl = product.image_url || 'images/default.jpg';
+        const productCategory = product.category || 'Chung';
+
+        const productHtml = `
+            <li>
+                <div class="product-item"
+                     onclick="showProductDetails(this)"
+                     data-name="${productName}"
+                     data-price="${productPrice}"
+                     data-desc="${productShortDesc}"
+                     data-spec="${productSpec}"
+                     data-img="${productImageUrl}">
+                  <div class="product-image">
+                    <img src="${productImageUrl}" alt="${productName}">
+                  </div>
+                  <div class="product-info">
+                    <a href="#" class="product-cat">${productCategory}</a>
+                    <a href="#" class="product-name">${productName}</a>
+                    <div class="product-price">${productPrice}</div>
+                    <button onclick="event.stopPropagation(); addToCart(
+                        '${productName.replace(/'/g, "\\'")}',
+                        '${productCategory.replace(/'/g, "\\'")}',
+                        '${productPrice.replace(/'/g, "\\'")}',
+                        '${productImageUrl.replace(/'/g, "\\'")}'
+                    )">Add to cart</button>
+                  </div>
+                </div>
+            </li>
+        `;
+        productListContainer.innerHTML += productHtml;
+    });
+    if (searchResultsSectionForSearchbar) searchResultsSectionForSearchbar.style.display = 'block';
+    toggleMainContent(false);
+}
+
+const backendBaseUrl = 'http://localhost:3000';
+
+async function performSearch(searchTerm) {
+    const trimmedSearchTerm = searchTerm.trim();
+    const productListContainer = document.getElementById('search-results-list');
+
+    if (!productListContainer || !searchResultsSectionForSearchbar) {
+        console.error("Search results container or section not found for performSearch!");
+        return;
+    }
+
+    if (!trimmedSearchTerm) {
+        productListContainer.innerHTML = '';
+        if(searchResultsSectionForSearchbar) searchResultsSectionForSearchbar.style.display = 'none';
+        toggleMainContent(true);
+        return;
+    }
+
+    if(searchResultsSectionForSearchbar) searchResultsSectionForSearchbar.style.display = 'block';
+    productListContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; width: 100%;">Searching...</p>';
+    toggleMainContent(false);
+
+    try {
+        const apiUrl = `${backendBaseUrl}/api/products/search?q=${encodeURIComponent(trimmedSearchTerm)}`;
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Lỗi HTTP: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data && Array.isArray(data.products)) {
+            displayProductsForSearchbar(data.products);
+        } else {
+            console.error('Dữ liệu API trả về không đúng cấu trúc:', data);
+            productListContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; width: 100%;">Đã xảy ra lỗi khi xử lý kết quả tìm kiếm (Sai định dạng dữ liệu).</p>';
+        }
+    } catch (error) {
+        console.error('Lỗi khi gọi API tìm kiếm:', error);
+        productListContainer.innerHTML = `<p style="text-align: center; grid-column: 1 / -1; width: 100%;">Đã xảy ra lỗi khi tìm kiếm: ${error.message}</p>`;
+    }
+}
+
+const searchInput = document.querySelector('.search-input');
+const searchBtn = document.querySelector('.search-btn');
+
+if (searchInput && searchBtn) {
+    searchInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            const searchTerm = searchInput.value;
+            performSearch(searchTerm);
+            if (typeof hideSuggestions === 'function') hideSuggestions();
+        }
+    });
+
+    searchBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        const searchTerm = searchInput.value;
+        performSearch(searchTerm);
+        if (typeof hideSuggestions === 'function') hideSuggestions();
+    });
+}
+
+function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+        const context = this;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(context, args);
+        }, delay);
+    };
+}
+
+const suggestionsContainer = document.getElementById('suggestions-container');
+const suggestionsList = document.getElementById('suggestions-list');
+
+function hideSuggestions() {
+    if (suggestionsList) suggestionsList.innerHTML = '';
+    if (suggestionsContainer) suggestionsContainer.style.display = 'none';
+}
+
+function showSuggestions() {
+    if (suggestionsContainer && suggestionsList && suggestionsList.children.length > 0) {
+         suggestionsContainer.style.display = 'block';
+    } else if (suggestionsContainer) {
+        suggestionsContainer.style.display = 'none';
+    }
+}
+
+function displaySuggestions(products) {
+    if (!suggestionsList) return;
+    suggestionsList.innerHTML = '';
+
+    if (!products || products.length === 0) {
+        hideSuggestions();
+        return;
+    }
+
+    products.forEach(product => {
+        const li = document.createElement('li');
+        const productName = product.name || 'Sản phẩm không tên';
+        const productImageUrl = product.image_url || 'images/default.jpg';
+
+        li.innerHTML = `
+            <img src="${productImageUrl}" alt="${productName}" class="suggestion-item-image">
+            <span class="suggestion-item-name">${productName}</span>
+        `;
+
+        li.onclick = () => {
+            if(searchInput) searchInput.value = productName;
+            hideSuggestions();
+            performSearch(productName);
+        };
+        suggestionsList.appendChild(li);
+    });
+    showSuggestions();
+}
+
+const fetchAndDisplaySuggestions = debounce(async (searchTerm) => {
+    const trimmedSearchTerm = searchTerm.trim();
+    if (!trimmedSearchTerm || trimmedSearchTerm.length < 2) { 
+        hideSuggestions();
+        return;
+    }
+    try {
+        const apiUrl = `${backendBaseUrl}/api/products/search?q=${encodeURIComponent(trimmedSearchTerm)}&limit=5`;
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            console.error('Lỗi khi gọi API gợi ý:', response.status);
+            hideSuggestions();
+            return;
+        }
+        const data = await response.json();
+        if (data && Array.isArray(data.products)) {
+            displaySuggestions(data.products);
+        } else {
+            console.error('Dữ liệu API gợi ý trả về không đúng cấu trúc:', data);
+            hideSuggestions();
+        }
+    } catch (error) {
+        console.error('Lỗi fetch gợi ý:', error);
+        hideSuggestions();
+    }
+}, 300);
+
+if (searchInput) {
+    searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value;
+        fetchAndDisplaySuggestions(searchTerm);
+    });
+
+    document.addEventListener('click', (event) => {
+        const searchContainer = document.querySelector('.search-container');
+        if (searchContainer && !searchContainer.contains(event.target) && suggestionsContainer && event.target !== searchInput) {
+            hideSuggestions();
+        }
+    });
+
+    searchInput.addEventListener('blur', () => {
+        setTimeout(hideSuggestions, 150);
+    });
+
+    searchInput.addEventListener('focus', () => {
+        const searchTerm = searchInput.value.trim();
+        if (searchTerm && searchTerm.length >= 2 && suggestionsList && suggestionsList.children.length > 0) {
+            showSuggestions();
+        }
+    });
+}
+</script>
+<script>
+        // PHẦN 5: SCRIPT CHO MODAL THANH TOÁN TRỰC TIẾP (BUY NOW)
+
+function openPaymentFormIndex(productName, productPrice) {
+  const paymentOverlay = document.getElementById('payment-modal-overlay-index'); 
+
+  const productNameEl = document.getElementById('payment-product-name-index');
+  const productPriceEl = document.getElementById('payment-product-price-index');
+  const totalAmountEl = document.getElementById('total-amount-index');
+
+  if (productNameEl) productNameEl.textContent = productName;
+  if (productPriceEl) productPriceEl.textContent = "Giá: " + productPrice;
+  if (totalAmountEl) totalAmountEl.textContent = productPrice; 
+
+  if (paymentOverlay) {
+    paymentOverlay.classList.add('active');
+  } else {
+    console.error("Lỗi: Không tìm thấy phần tử overlay với ID 'payment-modal-overlay-index'!");
+  }
+}
+
+function closePaymentFormIndex() {
+  const paymentOverlay = document.getElementById('payment-modal-overlay-index');
+  if (paymentOverlay) {
+    paymentOverlay.classList.remove('active');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const paymentFormIndexElement = document.getElementById('paymentFormIndex');
+
+  if (paymentFormIndexElement) {
+    paymentFormIndexElement.addEventListener('submit', function(event) {
+      event.preventDefault(); 
+
+      const recipientName = document.getElementById('recipient-name-index')?.value.trim();
+      const recipientPhone = document.getElementById('recipient-phone-index')?.value.trim();
+      const recipientAddress = document.getElementById('recipient-address-index')?.value.trim();
+      const recipientNotes = document.getElementById('recipient-notes-index')?.value.trim();
+      
+      const paymentMethodChecked = document.querySelector('input[name="payment-method-index"]:checked');
+      const paymentMethod = paymentMethodChecked ? paymentMethodChecked.value : null;
+
+      const productName = document.getElementById('payment-product-name-index')?.textContent;
+      const productPriceString = document.getElementById('total-amount-index')?.textContent; 
+      
+      const numericPrice = parseFloat(String(productPriceString).replace(/[^\d]/g, ''));
+
+      if (!recipientName) {
+        alert('Vui lòng nhập tên người nhận.');
+        document.getElementById('recipient-name-index')?.focus();
+        return;
+      }
+      if (!recipientPhone) {
+        alert('Vui lòng nhập số điện thoại.');
+        document.getElementById('recipient-phone-index')?.focus();
+        return;
+      }
+      if (!/^\d{10,11}$/.test(recipientPhone)) {
+          alert('Số điện thoại không hợp lệ. Vui lòng nhập 10 hoặc 11 chữ số.');
+          document.getElementById('recipient-phone-index')?.focus();
+          return;
+      }
+      if (!recipientAddress) {
+        alert('Vui lòng nhập địa chỉ.');
+        document.getElementById('recipient-address-index')?.focus();
+        return;
+      }
+      if (!paymentMethod) {
+        alert('Vui lòng chọn phương thức Buy.');
+        return;
+      }
+
+      const orderData = {
+        recipientName: recipientName,
+        recipientPhone: recipientPhone,
+        recipientAddress: recipientAddress,
+        recipientNotes: recipientNotes,
+        paymentMethod: paymentMethod,
+        items: [{ 
+          name: productName,
+          price: productPriceString,
+          qty: 1,
+        }],
+        totalAmountString: productPriceString,
+        totalAmountNumeric: isNaN(numericPrice) ? 0 : numericPrice
+      };
+
+      console.log('Đang gửi dữ liệu đơn hàng từ index modal:', orderData);
+
+      fetch('http://localhost:3000/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(errData => {
+            throw new Error(errData.message || `Lỗi HTTP: ${response.status}`);
+          }).catch(() => {
+            throw new Error(`Lỗi HTTP: ${response.status}`);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        alert(data.message || 'Đặt hàng thành công!'); 
+        if (data.orderId) {
+            console.log('Đặt hàng thành công! Mã đơn hàng:', data.orderId);
+        }
+        closePaymentFormIndex();
+        
+        document.getElementById('recipient-name-index').value = '';
+        document.getElementById('recipient-phone-index').value = '';
+        document.getElementById('recipient-address-index').value = '';
+        document.getElementById('recipient-notes-index').value = '';
+        if(document.getElementById('cod-payment-index')) document.getElementById('cod-payment-index').checked = true;
+
+      })
+      .catch(error => {
+        console.error('Lỗi khi gửi đơn hàng từ index modal:', error);
+        alert('Đã có lỗi xảy ra trong quá trình đặt hàng: ' + error.message);
+      });
+    });
+  } else {
+      console.error("Lỗi: Không tìm thấy form với ID 'paymentFormIndex' để đính kèm sự kiện submit.");
+  }
+
+  document.addEventListener('keydown', function(event) {
+    const paymentOverlay = document.getElementById('payment-modal-overlay-index');
+    if (event.key === 'Escape' && paymentOverlay && paymentOverlay.classList.contains('active')) {
+        closePaymentFormIndex();
+    }
+  });
+});
+</script>
+    <script src="Three.js"></script>
+</body>
+    </div>
+
+</html>

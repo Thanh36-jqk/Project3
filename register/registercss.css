@@ -1,0 +1,107 @@
+
+/* --- Base Auth Styles (Tương tự login.css nhưng sẽ có điểm khác) --- */
+body.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8f8fa; /* Màu nền hơi khác một chút */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.auth-container {
+    background-color: #ffffff;
+    padding: 45px 50px; /* Padding lớn hơn một chút */
+    border-radius: 20px; /* Bo góc nhiều hơn */
+    box-shadow: 0px 12px 40px rgba(0, 0, 0, 0.09);
+    max-width: 440px; /* Rộng hơn một chút */
+    width: 90%;
+    text-align: center;
+    box-sizing: border-box;
+    border: 1px solid #eaeaea; /* Border mờ hơn */
+}
+
+.auth-container h2 {
+    margin-bottom: 35px; /* Khoảng cách lớn hơn */
+    color: #333; /* Màu chữ hơi khác */
+    font-size: 26px;
+    font-weight: 500; /* Nhẹ hơn login */
+}
+
+.auth-container form label {
+    display: block;
+    text-align: left;
+    margin-bottom: 10px; /* Khoảng cách label lớn hơn */
+    font-weight: 500;
+    color: #444;
+    font-size: 14px;
+}
+
+.auth-container form input {
+    width: 100%;
+    padding: 15px 18px; /* Padding input lớn hơn */
+    margin-bottom: 25px; /* Khoảng cách input lớn hơn */
+    border: 1px solid #dbdbdb; /* Border hơi khác */
+    border-radius: 10px; /* Bo góc input ít hơn */
+    box-sizing: border-box;
+    font-size: 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.auth-container form input:focus {
+    border-color: #34c759; /* Màu xanh lá khi focus (khác biệt) */
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(52, 199, 89, 0.2); /* Bóng xanh lá khi focus */
+}
+
+/* --- Điểm nhấn riêng cho Register --- */
+
+/* Nút Đăng ký màu xanh lá */
+.auth-container form button[type="submit"] {
+    width: 100%;
+    padding: 16px; /* Padding nút lớn hơn */
+    background-color: #34c759; /* Màu xanh lá (khác biệt) */
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-top: 10px; /* Gần hơn input cuối */
+}
+
+.auth-container form button[type="submit"]:hover {
+     background-color: #2aa14a; /* Sẫm hơn khi hover */
+}
+
+.auth-container form button[type="submit"]:active {
+     transform: scale(0.98);
+}
+
+.auth-container .form-link {
+    display: block;
+    margin-top: 28px; /* Khoảng cách lớn hơn */
+    color: #5856d6; /* Liên kết màu tím (khác biệt) */
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.auth-container .form-link:hover {
+    text-decoration: underline;
+}
+
+/* --- Kiểu dáng thông báo lỗi/thành công --- */
+.error-message, .success-message {
+    margin-top: -12px; /* Kéo lên nhiều hơn */
+    margin-bottom: 18px;
+    font-size: 13.5px; /* Cỡ chữ khác */
+    text-align: left;
+    min-height: 1.2em;
+    padding-left: 5px;
+    font-weight: 500; /* Đậm hơn */
+}
+
+.error-message { color: #ff3b30; } /* Giống login */
+.success-message { color: #34c759; } /* Màu xanh lá */

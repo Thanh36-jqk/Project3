@@ -1,0 +1,416 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Variables for a consistent theme */
+:root {
+    --apple-blue: #0071e3;
+    --background-light: #f5f5f7;
+    --background-white: #ffffff;
+    --text-primary: #1d1d1f;
+    --text-secondary: #6e6e73;
+    --card-border-light: #d2d2d7;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--background-white);
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+/* Navigation Menu */
+.menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center; /* Center menu items */
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 10px 30px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+}
+
+.menu a {
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 0 15px;
+    transition: color 0.3s ease;
+}
+
+.menu a:hover {
+    color: var(--apple-blue);
+}
+
+.search-container {
+    margin-left: 20px;
+    position: relative;
+}
+
+.search-input {
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 5px 15px;
+    font-size: 14px;
+}
+
+.cart-container {
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+    position: relative;
+    margin-left: 20px;
+}
+
+.cart-container .cart-count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+
+/* Hero Section */
+.hero {
+    background-color: #000;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content {
+    z-index: 1;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    color: var(--text-secondary);
+}
+
+.btn {
+    background-color: var(--apple-blue);
+    padding: 12px 24px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    border-radius: 25px;
+    transition: background-color 0.3s;
+}
+.btn:hover {
+    background-color: #0077ed;
+}
+
+.hero-img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.7;
+}
+
+/* Features Section */
+.features {
+    display: flex;
+    justify-content: space-around;
+    padding: 60px 20px;
+    background-color: #000;
+    color: #fff;
+}
+
+.feature {
+    text-align: center;
+    width: 30%;
+}
+
+.feature img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+    border-radius: 15px;
+}
+
+.feature h3 {
+    font-size: 1.7rem;
+    margin-bottom: 10px;
+}
+
+/* Video Section */
+.video {
+    background-color: #000;
+    color: white;
+    text-align: center;
+    padding: 80px 0;
+}
+
+.video h2 {
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+}
+
+.video-container {
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 50.625%; /* 16:9 Aspect Ratio */
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.video-container video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+/* Footer */
+footer {
+    background-color: #f5f5f7;
+    color: var(--text-secondary);
+    padding: 40px 20px;
+    text-align: center;
+    border-top: 1px solid #ddd;
+}
+
+.footer-content p {
+    margin-bottom: 15px;
+}
+
+.contact-btn {
+    background-color: #e8e8e8;
+    padding: 10px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.contact-btn:hover {
+    background-color: #dcdcdc;
+}
+
+/* ======================================= */
+/* ===== NEW STYLES FOR iPHONE SECTION ===== */
+/* ======================================= */
+.iphone-sale-section {
+    background-color: var(--background-light); /* Light gray background for the whole section */
+    padding: 80px 40px;
+}
+
+.iphone-sale-title {
+    font-size: 3rem; /* Larger font size */
+    font-weight: 600; /* Bolder */
+    text-align: center;
+    margin-bottom: 60px;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.iphone-sale-list {
+    display: grid;
+    /* Responsive grid: 1 column on small screens, 2 on medium, 4 on large */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+}
+
+.iphone-sale-card {
+    background: var(--background-white); /* White background for cards */
+    border: 1px solid #e8e8e8; /* Lighter border */
+    border-radius: 18px; /* Slightly less rounded corners */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-align: center; /* Center align all content */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.iphone-sale-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.iphone-sale-image {
+    width: 100%;
+    padding: 30px 10px 10px 10px; /* Adjust padding */
+    background-color: var(--background-white); /* Match card background */
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iphone-sale-image img {
+    max-width: 100%;
+    max-height: 240px;
+    height: auto;
+    object-fit: contain; /* Use contain to ensure the whole phone is visible */
+}
+
+.iphone-sale-content {
+    padding: 20px 25px 30px 25px; /* Adjust padding */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.iphone-sale-content h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.iphone-sale-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    min-height: 40px;
+    margin-bottom: 15px;
+}
+
+.iphone-sale-price {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+}
+
+.btn-buy-iphone {
+    display: inline-block;
+    background-color: var(--apple-blue);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    margin-top: auto;
+    align-self: center; /* Center the button */
+}
+
+.btn-buy-iphone:hover {
+    background-color: #005bb5;
+    transform: scale(1.05);
+}
+
+
+/* --- ORDER POPUP --- */
+.order-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+.order-modal-overlay.active {
+    display: flex;
+}
+
+.order-modal {
+    background: #fff;
+    border-radius: 18px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    padding: 25px 30px;
+    position: relative;
+    animation: popup-fade-in .3s ease-out;
+}
+
+@keyframes popup-fade-in {
+    from { opacity: 0; transform: scale(.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.modal-close-top {
+    position: absolute; top: 8px; right: 15px; font-size: 30px; color: #aaa;
+    background: none; border: none; cursor: pointer;
+    transition: color .2s;
+}
+.modal-close-top:hover { color: #e53935; }
+
+.order-modal h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+}
+
+.order-modal-product {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.order-input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    margin-bottom: 12px;
+}
+.order-input:focus {
+    outline: none;
+    border-color: var(--apple-blue);
+    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
+}
+
+.btn-buy-iphone-submit {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    background-color: var(--apple-blue);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .iphone-sale-section {
+        padding: 60px 20px;
+    }
+    .iphone-sale-title {
+        font-size: 2.2rem;
+    }
+}

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - Apple</title>
+    
+    <link rel="stylesheet" href="Support1.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <nav class="menu">
+            <a href="../index.html" class="logo"><i class="fab fa-apple"></i></a>
+            <a href="../index.html">Store</a>
+            <a href="../Mac/mac.html">Mac</a>
+            <a href="../ipad/ipad.html">iPad</a>
+            <a href="../iphone/iphone.html">iPhone</a>
+            <a href="#">Watch</a>
+            <a href="#">AirPods</a>
+            <a href="#">TV & Home</a>
+            <a href="#">Accessories</a>
+            <a href="support.html" class="active">Support</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="support-hero">
+            <h1>Support</h1>
+            <p>How can we help you?</p>
+            <div class="search-support">
+                <input type="text" placeholder="Search support topics">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </section>
+
+        <section class="support-topics">
+            <div class="topic-card">
+                <div class="icon"><i class="fas fa-receipt"></i></div>
+                <h3>Check Your Order</h3>
+                <p>View the status and history of your orders.</p>
+            </div>
+            <div class="topic-card">
+                <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Warranty & Repairs</h3>
+                <p>Information about product warranty policies.</p>
+            </div>
+            <div class="topic-card">
+                <div class="icon"><i class="fas fa-question-circle"></i></div>
+                <h3>FAQ</h3>
+                <p>Find answers to common questions.</p>
+            </div>
+        </section>
+
+        <section class="order-status-checker" id="order-checker">
+            <h2>Check Order Status</h2>
+            <form id="order-status-form">
+                <input type="text" id="order-id-input" placeholder="Enter your Order ID" required>
+                <button type="submit">Check</button>
+            </form>
+            <div id="order-status-result"></div>
+        </section>
+
+        <section class="faq-section">
+            <h2>Frequently Asked Questions (FAQ)</h2>
+            <div class="faq-item">
+                <button class="faq-question">How can I track my order?</button>
+                <div class="faq-answer">
+                    <p>You can use the Order ID provided in your confirmation email and enter it into the "Check Order Status" field above to see detailed information about the shipping process.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">What is the return policy?</button>
+                <div class="faq-answer">
+                    <p>We support returns within 7 days for products with manufacturer defects. The product must be intact, with all accessories and the original invoice. Please contact our hotline for detailed support.</p>
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question">How long does shipping usually take?</button>
+                <div class="faq-answer">
+                    <p>Standard delivery time is 2-3 business days for urban areas and 4-5 business days for other regions.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="contact-info">
+            <h2>Need more help?</h2>
+            <p>Our support team is always ready to assist. Please contact us via:</p>
+            <p><strong>Hotline:</strong> 0962.923.329</p>
+            <p><strong>Email:</strong> nthanhtat51@gmail.com</p>
+            <p><strong>Address:</strong> 123 ABC Street, XYZ City</p>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 XYZ Company. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- FAQ Accordion Logic ---
+            const faqItems = document.querySelectorAll('.faq-item');
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const answer = item.querySelector('.faq-answer');
+                question.addEventListener('click', () => {
+                    const isActive = item.classList.contains('active');
+                    // Close all other items
+                    faqItems.forEach(i => {
+                        i.classList.remove('active');
+                        i.querySelector('.faq-answer').style.maxHeight = 0;
+                    });
+                    // Open the clicked item if it wasn't already active
+                    if (!isActive) {
+                        item.classList.add('active');
+                        answer.style.maxHeight = answer.scrollHeight + "px";
+                    }
+                });
+            });
+
+            // --- Order Status Checker Logic ---
+            const orderStatusForm = document.getElementById('order-status-form');
+            const orderIdInput = document.getElementById('order-id-input');
+            const resultDiv = document.getElementById('order-status-result');
+
+            orderStatusForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const orderId = orderIdInput.value.trim();
+                if (!orderId) {
+                    alert('Please enter an Order ID.');
+                    return;
+                }
+
+                resultDiv.style.display = 'none';
+                resultDiv.textContent = 'Checking...';
+                resultDiv.className = ''; // Reset class
+                resultDiv.style.display = 'block';
+
+                /******************************************************************
+                 * DEVELOPER NOTE (Backend implementation required)
+                 *
+                 * For this feature to work, you need to create a new API endpoint
+                 * in your `server.js` file.
+                 *
+                 * Suggested endpoint: GET /api/orders/:id
+                 ******************************************************************/
+                // ... (phần code ở trên giữ nguyên)
+
+            try {
+                // ---- Dữ liệu giả lập đã được xóa ----
+
+                // Dòng này được bỏ ghi chú để hoạt động thật
+                const response = await fetch(`http://localhost:3000/api/orders/${orderId}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'Unknown server error' }));
+                    throw new Error(errorData.message);
+                }
+
+                const data = await response.json();
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <p>Hi <strong>${data.recipientName}</strong>,</p>
+                    <p>The status of your order is: <strong>${data.status}</strong></p>
+                `;
+
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        });
+    });
+</script>
+</body>
+</html>

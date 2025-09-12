@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Apple</title>
+    <link rel="stylesheet" href="logincss.css">
+</head>
+<body class="auth-page">
+    <div class="auth-container">
+        <h2>Login</h2>
+        <form id="login-form" novalidate>
+            <label for="login-identifier">Email or Username:</label>
+            <input type="text" id="login-identifier" name="identifier" required>
+
+            <label for="login-password">Password:</label>
+            <input type="password" id="login-password" name="password" required>
+
+            <div id="login-error" class="error-message" style="display: none;"></div>
+
+            <button type="submit">Login</button>
+        </form>
+        <a href="../register/register.html" class="form-link">Don't have an account? Register now</a>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginForm = document.getElementById('login-form');
+        const identifierInput = document.getElementById('login-identifier');
+        const passwordInput = document.getElementById('login-password');
+        const errorMessageDiv = document.getElementById('login-error');
+
+        if (!loginForm || !identifierInput || !passwordInput || !errorMessageDiv) {
+            console.error('Error: One or more required login form elements were not found.');
+            return;
+        }
+
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            errorMessageDiv.textContent = '';
+            errorMessageDiv.style.display = 'none';
+
+            const identifier = identifierInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (!identifier || !password) {
+                errorMessageDiv.textContent = 'Please enter both email/username and password.';
+                errorMessageDiv.style.display = 'block';
+                return;
+            }
+
+            const dataToSend = {
+                email: identifier,
+                password: password
+            };
+
+            console.log('Sending login data:', dataToSend);
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataToSend)
+                });
+
+                const result = await response.json(); // Read the JSON result
+                console.log('Response from server:', result);
+
+                // Check for successful login (status 200 OK)
+                if (response.ok && response.status === 200) {
+                    errorMessageDiv.style.display = 'none';
+                    console.log('Login successful, redirecting to homepage...');
+
+
+                    window.location.href = '../index.html';
+
+                } else {
+                    errorMessageDiv.textContent = result.message || 'Login failed. Please try again.';
+                    errorMessageDiv.style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error('Error sending login request:', error);
+                errorMessageDiv.textContent = 'Unable to connect to the server. Please check your connection.';
+                errorMessageDiv.style.display = 'block';
+            }
+        });
+    });
+    </script>
+    </body>
+</html>

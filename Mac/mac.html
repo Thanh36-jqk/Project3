@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introducing MacBook Pro - The Ultimate Power</title>
+    <link rel="stylesheet" href="mac_style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav class="menu">
+            <a href="../index.html" class="logo"> <i class="fab fa-apple"></i>
+            </a>
+            <a href="../index.html">Store</a>
+            <a href="mac.html">Mac</a>
+            <a href="../ipad/ipad.html">iPad</a>
+            <a href="../iphone/iphone.html">iPhone</a>
+            <a href="#">Watch</a>
+            <a href="#">AirPods</a>
+            <a href="#">TV & Home</a>
+            <a href="#">Entertainment</a>
+            <a href="#">Accessories</a>
+            <a href="../Support.html">Support</a>
+            <div class="search-container">
+              <input type="text" class="search-input" placeholder="Search...">
+              <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="cart-container">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="cart-count">0</span>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero" id="mac-hero">
+        <div class="hero-content">
+            <h1>The New MacBook Pro</h1>
+            <p>Pro power. A stunning display.</p>
+            <a href="#mac-power" class="btn btn-hero-mac">Explore the Power</a>
+        </div>
+        <img src="../images/display_startframe__s3kff4jwzhuq_xlarge.jpg" alt="The New MacBook Pro" class="hero-img">
+    </section>
+
+    <main>
+        <section class="mac-section mac-power" id="mac-power">
+            <div class="section-content">
+                <div class="text-content">
+                    <h2>Next-Generation M-Series Chip</h2>
+                    <h3>Performance that pushes the limits.</h3>
+                    <p>Experience incredible processing speed and outstanding graphics performance with the latest M-series chip. Edit 8K video, render complex 3D models, or run professional apps more smoothly than ever before.</p>
+                    <a href="#" class="btn btn-secondary">Learn about the M-Series Chip</a>
+                </div>
+                <div class="image-content">
+                    <img src="../images/m4.jpg" alt="M-Series Chip">
+                </div>
+            </div>
+        </section>
+
+        <section class="mac-section mac-display">
+            <div class="section-content reverse">
+                <div class="text-content">
+                    <h2>Liquid Retina XDR Display</h2>
+                    <h3>Vibrant colors, incredible detail.</h3>
+                    <p>The Liquid Retina XDR display delivers a wide P3 color gamut, extreme brightness, and an impressive contrast ratio. ProMotion technology provides an adaptive refresh rate of up to 120Hz, making every motion unbelievably smooth.</p>
+                    <a href="#" class="btn btn-secondary">Explore the Display</a>
+                </div>
+                <div class="image-content">
+                    <img src="../images/XDR.jpg" alt="Liquid Retina XDR Display">
+                </div>
+            </div>
+        </section>
+
+        <section class="mac-section mac-design-ports">
+            <div class="section-content">
+                 <div class="text-content">
+                    <h2>Design & Connectivity</h2>
+                    <h3>Sophisticated in every detail. Flexible in every connection.</h3>
+                    <p>An elegant unibody aluminum design, thinner and lighter while ensuring durability. A versatile array of ports, including Thunderbolt, HDMI, and an SDXC card slot, helps you work more efficiently.</p>
+                </div>
+                <div class="image-content">
+                    <img src="../images/macbookprodesign.avif" alt="Mac Design and Ports">
+                </div>
+            </div>
+        </section>
+
+        <section class="mac-video-showcase">
+            <h2>Experience Mac Through Video</h2>
+            <div class="video-container-mac">
+                <video loop autoplay muted playsinline controls>
+                    <source src="../images/large.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </section>
+
+        <section class="mac-ecosystem">
+            <h2>The Apple Ecosystem</h2>
+            <p>Mac works seamlessly with your iPhone, iPad, and Apple Watch. Start work on one device and finish on another with Handoff, Universal Clipboard, and more.</p>
+            </section>
+    </main>
+
+
+    <script>
+        // JavaScript for the 'Explore the Power' button smooth scroll
+        const exploreBtn = document.querySelector('.btn-hero-mac');
+        if(exploreBtn) {
+            exploreBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('mac-power').scrollIntoView({ behavior: 'smooth' });
+            });
+        }
+    </script>
+</body>
+</html>
