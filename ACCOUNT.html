@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account - Apple Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f7; /* Màu nền xám đặc trưng của Apple */
+            color: #1d1d1f;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Hiệu ứng kính mờ (Glassmorphism) */
+        .glass-nav {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        /* Card Premium */
+        .apple-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .apple-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Gradient Rank Card */
+        .rank-card-silver { background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%); color: #2d3436; }
+        .rank-card-gold { background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%); color: #795548; }
+        .rank-card-vip { background: linear-gradient(135deg, #232526 0%, #414345 100%); color: #ffffff; }
+
+        /* Button Style */
+        .btn-apple {
+            background-color: #0071e3;
+            color: white;
+            border-radius: 980px; /* Pill shape */
+            transition: all 0.2s ease;
+        }
+        .btn-apple:hover {
+            background-color: #0077ed;
+            transform: scale(1.02);
+        }
+        .btn-apple:active {
+            transform: scale(0.98);
+        }
+
+        /* Tab Active State */
+        .tab-btn.active {
+            color: #1d1d1f;
+            border-bottom: 2px solid #1d1d1f;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 3px; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- 1. NAVIGATION BAR (Dark & Sleek) -->
+    <nav class="glass-nav text-white/90 h-12 fixed w-full top-0 z-50 text-xs font-light tracking-wide">
+        <div class="max-w-7xl mx-auto h-full px-6 flex justify-between items-center">
+            <!-- Left: Logo & Menu -->
+            <div class="flex items-center gap-8">
+                <a href="index.html" class="text-lg hover:text-white transition-colors"><i class="fab fa-apple"></i></a>
+                <div class="hidden md:flex gap-6">
+                    <a href="index.html" class="hover:text-white transition-colors">Store</a>
+                    <a href="Mac/mac.html" class="hover:text-white transition-colors">Mac</a>
+                    <a href="ipad/ipad.html" class="hover:text-white transition-colors">iPad</a>
+                    <a href="iphone/iphone.html" class="hover:text-white transition-colors">iPhone</a>
+                    <a href="#" class="hover:text-white transition-colors">Watch</a>
+                    <a href="#" class="hover:text-white transition-colors">AirPods</a>
+                </div>
+            </div>
+            
+            <!-- Right: User & Cart -->
+            <div class="flex items-center gap-6">
+                <div class="hidden md:flex items-center gap-2 cursor-pointer group relative">
+                    <i class="fas fa-search text-sm opacity-80 group-hover:opacity-100"></i>
+                </div>
+                <a href="#" class="hover:text-white transition-colors">Account</a>
+                <button onclick="logout()" class="text-[#2997ff] hover:underline font-medium">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. HEADER SECTION (Welcome) -->
+    <header class="bg-white pt-24 pb-12 border-b border-[#d2d2d7]">
+        <div class="max-w-5xl mx-auto px-6 flex flex-col md:flex-row justify-between items-end gap-4">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-semibold tracking-tight text-[#1d1d1f]">Account</h1>
+                <p class="text-[#86868b] text-lg mt-2 font-light flex items-center gap-2">
+                    Hello, <span id="header-email" class="text-[#1d1d1f] font-medium">User</span>
+                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                </p>
+            </div>
+            <!-- Rank Badge Mini -->
+            <div id="rank-badge-mini" class="hidden md:flex items-center gap-2 px-4 py-2 bg-[#f5f5f7] rounded-full text-xs font-semibold text-[#1d1d1f]">
+                <i class="fas fa-shield-alt"></i> <span id="rank-text-mini">Member</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3. MAIN CONTENT GRID -->
+    <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+            <!-- LEFT COLUMN (Sidebar Info) -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Membership Card (The "Star" of the page) -->
+                <div id="membership-card" class="rank-card-silver rounded-2xl p-8 shadow-xl relative overflow-hidden group h-64 flex flex-col justify-between">
+                    <div class="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start">
+                            <i class="fab fa-apple text-3xl opacity-80"></i>
+                            <span class="text-xs font-bold uppercase tracking-widest border border-current px-2 py-1 rounded">Rewards</span>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10">
+                        <p class="text-sm opacity-80 mb-1">Your Balance</p>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-5xl font-bold tracking-tighter" id="user-points">0</span>
+                            <span class="text-lg font-medium">pts</span>
+                        </div>
+                        <div class="mt-4 flex items-center gap-2">
+                            <div class="h-1.5 w-full bg-black/10 rounded-full overflow-hidden">
+                                <div class="h-full bg-current w-3/4 rounded-full"></div> <!-- Progress bar giả lập -->
+                            </div>
+                            <span class="text-xs font-bold" id="card-rank-title">Silver</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Info Summary -->
+                <div class="apple-card p-6">
+                    <h3 class="text-lg font-semibold mb-4 border-b border-gray-100 pb-2">Details</h3>
+                    <ul class="space-y-4 text-sm">
+                        <li class="flex justify-between">
+                            <span class="text-[#86868b]">Email</span>
+                            <span class="font-medium truncate w-32 text-right" id="info-email">...</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-[#86868b]">Member Since</span>
+                            <span class="font-medium">2025</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span class="text-[#86868b]">Total Spent</span>
+                            <span class="font-medium text-[#0071e3]" id="info-spent">0₫</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- My Vouchers List (Mini) -->
+                <div class="apple-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">My Wallet</h3>
+                        <span class="text-xs bg-black text-white px-2 py-1 rounded-full" id="voucher-count">0</span>
+                    </div>
+                    <div id="my-vouchers-list" class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                        <p class="text-sm text-gray-400 italic text-center py-4">No vouchers yet.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN (Main Content Tabs) -->
+            <div class="lg:col-span-8">
+                
+                <!-- Tabs Navigation -->
+                <div class="flex gap-8 border-b border-[#d2d2d7] mb-8 text-sm font-medium text-[#86868b]">
+                    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active pb-3 hover:text-[#1d1d1f] transition-colors">Order History</button>
+                    <button onclick="switchTab('rewards')" id="tab-rewards" class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors">Redeem Rewards</button>
+                    <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors">Settings</button>
+                </div>
+
+                <!-- 1. ORDER HISTORY TAB -->
+                <div id="content-orders" class="animate-fade-in">
+                    <div class="apple-card overflow-hidden">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-[#f5f5f7] text-[#86868b] font-medium border-b border-[#d2d2d7]">
+                                <tr>
+                                    <th class="py-4 px-6">Order ID</th>
+                                    <th class="py-4 px-6">Date</th>
+                                    <th class="py-4 px-6">Total</th>
+                                    <th class="py-4 px-6 text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100" id="order-history-body">
+                                <tr><td colspan="4" class="py-8 text-center text-gray-400">Loading orders...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2. REWARDS TAB (Hidden by default) -->
+                <div id="content-rewards" class="hidden animate-fade-in">
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold">Redeem Points</h2>
+                        <p class="text-[#86868b] text-sm">Use your points to get exclusive discounts.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="redeemable-vouchers">
+                        <!-- Voucher Item Example (Will be replaced by JS) -->
+                        <div class="border border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center justify-center text-center text-gray-400 h-48">
+                            <i class="fas fa-gift text-3xl mb-2 opacity-50"></i>
+                            <p>Loading rewards...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. SETTINGS TAB (Placeholder) -->
+                <div id="content-settings" class="hidden animate-fade-in">
+                    <div class="apple-card p-8 text-center text-gray-400">
+                        <i class="fas fa-cog text-4xl mb-4 opacity-20"></i>
+                        <p>Account settings feature is coming soon.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        const token = localStorage.getItem('accessToken');
+
+        if (!token) window.location.href = 'login/login.html';
+
+        // --- UI FUNCTIONS ---
+        function switchTab(tabName) {
+            // Hide all content
+            ['orders', 'rewards', 'settings'].forEach(t => {
+                document.getElementById(`content-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('active');
+            });
+            // Show selected
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // --- DATA FUNCTIONS ---
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_URL}/users/profile`, {
+                    headers: { 'token': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                const user = data.user;
+                const orders = data.orders;
+
+                // 1. Update Header & Info
+                document.getElementById('header-email').innerText = user.email.split('@')[0]; // Just show name part
+                document.getElementById('info-email').innerText = user.email;
+                document.getElementById('info-spent').innerText = user.totalSpending.toLocaleString() + '₫';
+                
+                // 2. Update Rank Card Style
+                const card = document.getElementById('membership-card');
+                const rankTitle = document.getElementById('card-rank-title');
+                const miniRank = document.getElementById('rank-text-mini');
+                
+                rankTitle.innerText = user.rank + " Member";
+                miniRank.innerText = user.rank;
+                document.getElementById('user-points').innerText = user.points;
+
+                // Reset classes first
+                card.className = "rounded-2xl p-8 shadow-xl relative overflow-hidden group h-64 flex flex-col justify-between";
+                
+                if (user.rank === 'Gold') card.classList.add('rank-card-gold');
+                else if (user.rank === 'VIP') card.classList.add('rank-card-vip');
+                else card.classList.add('rank-card-silver');
+
+                // 3. Render Orders
+                const orderBody = document.getElementById('order-history-body');
+                if (orders.length === 0) {
+                    orderBody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-gray-400 italic">You haven\'t placed any orders yet.</td></tr>';
+                } else {
+                    orderBody.innerHTML = orders.map(o => `
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-4 px-6 font-mono text-xs text-[#0071e3]">#${o._id.slice(-6).toUpperCase()}</td>
+                            <td class="py-4 px-6 text-[#1d1d1f]">${new Date(o.createdAt).toLocaleDateString()}</td>
+                            <td class="py-4 px-6 font-medium">${o.totalAmountNumeric.toLocaleString()}₫</td>
+                            <td class="py-4 px-6 text-right">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                ${o.status === 'Completed' ? 'bg-green-100 text-green-800' : 
+                                  o.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                                    ${o.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+
+                // 4. Render My Vouchers (Wallet)
+                const myVouchersList = document.getElementById('my-vouchers-list');
+                document.getElementById('voucher-count').innerText = user.myVouchers.filter(v => !v.isUsed).length;
+                
+                if (user.myVouchers.length === 0) {
+                    myVouchersList.innerHTML = '<p class="text-sm text-gray-400 italic text-center py-2">Empty wallet</p>';
+                } else {
+                    myVouchersList.innerHTML = user.myVouchers.map(v => `
+                        <div class="flex justify-between items-center bg-[#f5f5f7] p-3 rounded-xl border border-transparent hover:border-[#d2d2d7] transition-colors group">
+                            <div>
+                                <p class="font-mono font-bold text-[#1d1d1f] text-sm group-hover:text-[#0071e3] transition-colors">${v.code}</p>
+                                <p class="text-[10px] text-[#86868b] uppercase tracking-wide">Discount</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-green-600 text-sm">-${v.discountAmount.toLocaleString()}₫</p>
+                                <span class="text-[10px] font-medium ${v.isUsed ? 'text-gray-400' : 'text-[#0071e3]'}">
+                                    ${v.isUsed ? 'Redeemed' : 'Active'}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // 5. Load Redeemable Vouchers (Pass points to check eligibility)
+                loadRewards(user.points);
+
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadRewards(userPoints) {
+            try {
+                const res = await fetch(`${API_URL}/vouchers/available`, {
+                    headers: { 'token': `Bearer ${token}` }
+                });
+                const vouchers = await res.json();
+                const container = document.getElementById('redeemable-vouchers');
+
+                if (vouchers.length === 0) {
+                    container.innerHTML = '<div class="col-span-2 py-12 text-center text-gray-400 bg-white rounded-2xl border border-dashed border-gray-200">No rewards available at the moment.</div>';
+                    return;
+                }
+
+                container.innerHTML = vouchers.map(v => {
+                    const canRedeem = userPoints >= v.pointsRequired;
+                    return `
+                        <div class="bg-white border border-[#d2d2d7]/50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 relative overflow-hidden group">
+                            <div class="absolute top-0 right-0 bg-[#1d1d1f] text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl z-10">VOUCHER</div>
+                            <!-- Background Circle Decoration -->
+                            <div class="absolute -bottom-8 -right-8 w-24 h-24 bg-gray-50 rounded-full z-0 group-hover:scale-150 transition-transform duration-500"></div>
+                            
+                            <div class="relative z-10">
+                                <h4 class="font-bold text-2xl mb-1 text-[#1d1d1f]">Save ${v.discountAmount.toLocaleString()}₫</h4>
+                                <p class="text-xs text-[#86868b] mb-6 uppercase tracking-wide">Code: <span class="font-mono text-[#1d1d1f] bg-gray-100 px-1 rounded">${v.code}</span></p>
+                                
+                                <div class="flex justify-between items-end">
+                                    <div>
+                                        <p class="text-xs text-[#86868b] mb-1">Cost</p>
+                                        <span class="font-bold text-[#e67e22] flex items-center gap-1 text-lg">
+                                            <i class="fas fa-star text-xs"></i> ${v.pointsRequired}
+                                        </span>
+                                    </div>
+                                    <button onclick="redeem('${v._id}')" ${!canRedeem ? 'disabled' : ''} 
+                                        class="btn-apple px-6 py-2 text-sm font-medium shadow-md 
+                                        ${canRedeem ? '' : 'bg-gray-200 text-gray-400 cursor-not-allowed hover:bg-gray-200 hover:transform-none'}">
+                                        ${canRedeem ? 'Redeem' : 'Need more pts'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (e) { console.error(e); }
+        }
+
+        async function redeem(voucherId) {
+            if(!confirm("Use your points to get this voucher?")) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/vouchers/redeem`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'token': `Bearer ${token}` 
+                    },
+                    body: JSON.stringify({ voucherId })
+                });
+                
+                const data = await res.json();
+                if (res.ok) {
+                    alert("Successfully redeemed! Check your Wallet.");
+                    loadProfile(); // Reload UI
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (e) { alert("Connection error"); }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // Init
+        loadProfile();
+    </script>
+</body>
+</html>

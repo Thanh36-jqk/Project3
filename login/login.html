@@ -3,92 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Apple</title>
-    <link rel="stylesheet" href="logincss.css">
+    <title>Sign In - Apple Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .banner-image {
+            transition: transform 10s ease;
+        }
+        
+        .right-pane:hover .banner-image {
+            transform: scale(1.05);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .input-focus-effect:focus {
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
+        }
+        
+        .tab-indicator {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
 </head>
-<body class="auth-page">
-    <div class="auth-container">
-        <h2>Login</h2>
-        <form id="login-form" novalidate>
-            <label for="login-identifier">Email or Username:</label>
-            <input type="text" id="login-identifier" name="identifier" required>
+<body class="h-screen overflow-hidden">
 
-            <label for="login-password">Password:</label>
-            <input type="password" id="login-password" name="password" required>
+    <div class="flex h-full w-full">
+        
+        <!-- LEFT PANE: LOGIN FORM -->
+        <div class="flex-1 max-w-[500px] bg-white flex flex-col justify-center px-16 py-10 relative overflow-y-auto">
+            
+            <!-- Header -->
+            <div class="mb-10">
+                <i class="fab fa-apple text-[40px] text-gray-900 mb-5 block"></i>
+                <h2 class="text-4xl font-bold text-gray-900 mb-3 tracking-tight">Welcome Back</h2>
+                <p class="text-gray-500 text-base">
+                    Sign in to continue. 
+                    <a href="../register/register.html" class="text-blue-600 font-medium hover:underline">Create account?</a>
+                </p>
+            </div>
 
-            <div id="login-error" class="error-message" style="display: none;"></div>
+            <!-- Tab Switcher with Modern Design -->
+            <div class="relative mb-8">
+                <div class="bg-gray-100 rounded-2xl p-1 relative">
+                    <!-- Animated Background Indicator -->
+                    <div id="tab-indicator" class="tab-indicator absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-xl shadow-md transition-transform duration-300"></div>
+                    
+                    <div class="relative flex">
+                        <button 
+                            onclick="switchTab('customer')" 
+                            id="tab-customer" 
+                            class="flex-1 py-3 text-sm font-semibold rounded-xl transition-colors duration-200 relative z-10 text-gray-900">
+                            <i class="fas fa-user mr-2"></i>Customer
+                        </button>
+                        <button 
+                            onclick="switchTab('admin')" 
+                            id="tab-admin" 
+                            class="flex-1 py-3 text-sm font-semibold rounded-xl transition-colors duration-200 relative z-10 text-gray-400">
+                            <i class="fas fa-shield-alt mr-2"></i>Admin
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-            <button type="submit">Login</button>
-        </form>
-        <a href="../register/register.html" class="form-link">Don't have an account? Register now</a>
+            <!-- Dynamic Subtitle -->
+            <p id="subtitle" class="text-sm text-gray-400 mb-6 text-center">Welcome back to Apple Store</p>
+
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="event.preventDefault(); handleLogin();">
+                
+                <!-- Error/Success Message -->
+                <div id="login-message" class="hidden mb-5 p-4 rounded-xl text-sm items-center gap-2">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Message here</span>
+                </div>
+
+                <!-- Email Input -->
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                        Email or Username
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="login-identifier" 
+                            class="input-focus-effect w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl text-base outline-none transition-all focus:bg-white focus:border-blue-600" 
+                            placeholder="name@example.com" 
+                            required>
+                        <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            id="login-password" 
+                            class="input-focus-effect w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl text-base outline-none transition-all focus:bg-white focus:border-blue-600" 
+                            placeholder="••••••••" 
+                            required>
+                        <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <button 
+                            type="button" 
+                            onclick="togglePassword()" 
+                            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i id="password-icon" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    class="w-full bg-gray-900 text-white py-4 rounded-xl font-semibold text-base transition-all hover:bg-gray-800 hover:-translate-y-0.5 active:scale-[0.98] mt-2 flex items-center justify-center gap-2">
+                    <span id="btn-text">Sign In</span>
+                    <i class="fas fa-arrow-right text-xs"></i>
+                </button>
+
+            </form>
+
+            <!-- Footer Links -->
+            <div id="customer-links" class="mt-8 text-center">
+                <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+                <p class="text-xs text-gray-400 mt-6">
+                    Protected by industry-standard encryption
+                </p>
+            </div>
+
+            <div id="admin-links" class="hidden mt-8 text-center">
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <i class="fas fa-shield-alt text-amber-600 mr-2"></i>
+                    <span class="text-xs text-amber-800 font-medium">Restricted area. Authorized personnel only.</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT PANE: PROMOTIONAL BANNER -->
+        <div class="right-pane flex-[1.5] bg-black relative overflow-hidden hidden lg:flex items-center justify-center">
+            
+            <!-- Background Image -->
+            <img 
+                src="../images/bannerlogin.png" 
+                alt="Apple Store Banner" 
+                class="banner-image absolute inset-0 w-full h-full object-cover opacity-80">
+            
+            <!-- Gradient Overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            
+            <!-- Content -->
+            <div class="absolute bottom-16 left-16 right-16 text-white z-10">
+                <span class="glass-effect inline-block px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 border border-white/30">
+                    Exclusive Member Benefits
+                </span>
+                <h1 class="text-5xl font-bold leading-tight mb-4">
+                    Your Apple.<br>Your Way.
+                </h1>
+                <p class="text-lg text-white/80 max-w-md leading-relaxed">
+                    Access personalized recommendations, exclusive deals, and seamless checkout experience. All in one place.
+                </p>
+                
+                <!-- Feature Pills -->
+                <div class="flex gap-3 mt-8">
+                    <div class="glass-effect px-4 py-2 rounded-full text-sm border border-white/20">
+                        <i class="fas fa-truck mr-2"></i>Free Shipping
+                    </div>
+                    <div class="glass-effect px-4 py-2 rounded-full text-sm border border-white/20">
+                        <i class="fas fa-credit-card mr-2"></i>Easy Returns
+                    </div>
+                    <div class="glass-effect px-4 py-2 rounded-full text-sm border border-white/20">
+                        <i class="fas fa-headset mr-2"></i>24/7 Support
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decorative Element -->
+            <div class="absolute top-10 right-10 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 left-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl"></div>
+            
+        </div>
+
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const loginForm = document.getElementById('login-form');
-        const identifierInput = document.getElementById('login-identifier');
-        const passwordInput = document.getElementById('login-password');
-        const errorMessageDiv = document.getElementById('login-error');
+        let currentRole = 'customer';
 
-        if (!loginForm || !identifierInput || !passwordInput || !errorMessageDiv) {
-            console.error('Error: One or more required login form elements were not found.');
-            return;
+        function switchTab(role) {
+            currentRole = role;
+            const tabCustomer = document.getElementById('tab-customer');
+            const tabAdmin = document.getElementById('tab-admin');
+            const indicator = document.getElementById('tab-indicator');
+            const customerLinks = document.getElementById('customer-links');
+            const adminLinks = document.getElementById('admin-links');
+            const subtitle = document.getElementById('subtitle');
+            const btnText = document.getElementById('btn-text');
+
+            // Reset inputs
+            document.getElementById('login-identifier').value = '';
+            document.getElementById('login-password').value = '';
+            hideMessage();
+
+            if (role === 'customer') {
+                indicator.style.transform = 'translateX(0)';
+                tabCustomer.classList.remove('text-gray-400');
+                tabCustomer.classList.add('text-gray-900');
+                tabAdmin.classList.remove('text-gray-900');
+                tabAdmin.classList.add('text-gray-400');
+                customerLinks.classList.remove('hidden');
+                adminLinks.classList.add('hidden');
+                subtitle.innerText = "Welcome back to Apple Store";
+                btnText.innerText = "Sign In";
+            } else {
+                indicator.style.transform = 'translateX(calc(100% + 4px))';
+                tabAdmin.classList.remove('text-gray-400');
+                tabAdmin.classList.add('text-gray-900');
+                tabCustomer.classList.remove('text-gray-900');
+                tabCustomer.classList.add('text-gray-400');
+                customerLinks.classList.add('hidden');
+                adminLinks.classList.remove('hidden');
+                subtitle.innerText = "Management Dashboard Access";
+                btnText.innerText = "Access Dashboard";
+            }
         }
 
-        loginForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            errorMessageDiv.textContent = '';
-            errorMessageDiv.style.display = 'none';
-
-            const identifier = identifierInput.value.trim();
-            const password = passwordInput.value.trim();
-
-            if (!identifier || !password) {
-                errorMessageDiv.textContent = 'Please enter both email/username and password.';
-                errorMessageDiv.style.display = 'block';
-                return;
+        function togglePassword() {
+            const passwordInput = document.getElementById('login-password');
+            const icon = document.getElementById('password-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
+        }
 
-            const dataToSend = {
-                email: identifier,
-                password: password
-            };
+        async function handleLogin() {
+            const email = document.getElementById('login-identifier').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const btnText = document.getElementById('btn-text');
 
-            console.log('Sending login data:', dataToSend);
+            btnText.innerText = "Authenticating...";
+            hideMessage();
 
             try {
                 const response = await fetch('http://localhost:3000/api/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(dataToSend)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
                 });
 
-                const result = await response.json(); // Read the JSON result
-                console.log('Response from server:', result);
+                const result = await response.json();
 
-                // Check for successful login (status 200 OK)
-                if (response.ok && response.status === 200) {
-                    errorMessageDiv.style.display = 'none';
-                    console.log('Login successful, redirecting to homepage...');
+                if (response.ok) {
+                    // --- SỬA LỖI Ở ĐÂY: DÙNG LOCALSTORAGE THAY VÌ SESSIONSTORAGE ---
+                    localStorage.setItem('accessToken', result.accessToken);
+                    localStorage.setItem('user', JSON.stringify(result));
 
-
-                    window.location.href = '../index.html';
+                    if (currentRole === 'admin') {
+                        if (result.role === 'admin') {
+                            showSuccess("Access Granted. Redirecting to Dashboard...");
+                            setTimeout(() => window.location.href = '../admin/dashboard.html', 1200);
+                        } else {
+                            showError("Access Denied. You do not have Admin privileges.");
+                            localStorage.clear();
+                        }
+                    } else {
+                        showSuccess("Login Successful! Redirecting...");
+                        setTimeout(() => window.location.href = '../index.html', 1200);
+                    }
 
                 } else {
-                    errorMessageDiv.textContent = result.message || 'Login failed. Please try again.';
-                    errorMessageDiv.style.display = 'block';
+                    showError(result.message || 'Login failed. Please check your credentials.');
                 }
 
             } catch (error) {
-                console.error('Error sending login request:', error);
-                errorMessageDiv.textContent = 'Unable to connect to the server. Please check your connection.';
-                errorMessageDiv.style.display = 'block';
+                showError('Network error. Please try again later.');
+                console.error(error);
+            } finally {
+                if (currentRole === 'customer') {
+                    btnText.innerText = "Sign In";
+                } else {
+                    btnText.innerText = "Access Dashboard";
+                }
             }
-        });
-    });
+        }
+
+        function showError(msg) {
+            const messageDiv = document.getElementById('login-message');
+            messageDiv.className = 'flex mb-5 p-4 rounded-xl text-sm items-center gap-2 bg-red-50 text-red-600 border border-red-200';
+            messageDiv.querySelector('i').className = "fas fa-exclamation-circle";
+            messageDiv.querySelector('span').innerText = msg;
+        }
+
+        function showSuccess(msg) {
+            const messageDiv = document.getElementById('login-message');
+            messageDiv.className = 'flex mb-5 p-4 rounded-xl text-sm items-center gap-2 bg-green-50 text-green-600 border border-green-200';
+            messageDiv.querySelector('i').className = "fas fa-check-circle";
+            messageDiv.querySelector('span').innerText = msg;
+        }
+
+        function hideMessage() {
+            const messageDiv = document.getElementById('login-message');
+            messageDiv.className = 'hidden mb-5 p-4 rounded-xl text-sm items-center gap-2';
+        }
     </script>
-    </body>
+</body>
 </html>

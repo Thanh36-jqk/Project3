@@ -3,29 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Apple</title>
+    <title>Create Account - Apple Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="registercss.css">
-
 </head>
-<body class="auth-page">
-    <div class="auth-container">
-        <h2>Create a new account</h2>
-        <form id="register-form" novalidate>
-            <label for="register-email">Email:</label>
-            <input type="email" id="register-email" name="email" required>
+<body>
 
-            <label for="register-username">Username:</label>
-            <input type="text" id="register-username" name="username" required>
+    <div class="split-screen">
+        
+        <!-- TRÁI: FORM ĐĂNG KÝ -->
+        <div class="left-pane">
+            <div class="auth-header">
+                <i class="fab fa-apple logo-icon"></i>
+                <h2 class="auth-title">Create Account</h2>
+                <p class="auth-subtitle">Join the ecosystem today. <a href="../login/login.html">Log in instead?</a></p>
+            </div>
 
-            <label for="register-password">Password:</label>
-            <input type="password" id="register-password" name="password" required>
+            <form id="register-form" novalidate>
+                <!-- Thông báo lỗi/thành công -->
+                <div id="register-error" class="message-box error-msg">
+                    <i class="fas fa-exclamation-circle"></i> <span>Error text here</span>
+                </div>
+                <div id="register-success" class="message-box success-msg">
+                    <i class="fas fa-check-circle"></i> <span>Success text here</span>
+                </div>
 
-            <div id="register-error" class="error-message" style="display: none;"></div>
-            <div id="register-success" class="success-message" style="display: none;"></div>
+                <div class="form-group">
+                    <label class="input-label">Email Address</label>
+                    <input type="email" id="register-email" class="apple-input" placeholder="name@example.com" required>
+                </div>
 
-            <button type="submit">Register</button>
-        </form>
-        <a href="http://127.0.0.1:8080/login/login.html" class="form-link">Already have an account? Log in</a>
+                <div class="form-group">
+                    <label class="input-label">Full Name</label>
+                    <input type="text" id="register-username" class="apple-input" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="input-label">Password</label>
+                    <input type="password" id="register-password" class="apple-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn-register">Sign Up</button>
+            </form>
+
+            <p style="margin-top: 30px; font-size: 12px; color: #888; text-align: center;">
+                By creating an account, you agree to Apple's <a href="#" style="color:#555">Privacy Policy</a> and <a href="#" style="color:#555">Terms of Use</a>.
+            </p>
+        </div>
+
+        <!-- PHẢI: BANNER QUẢNG CÁO -->
+        <div class="right-pane">
+            <img src="../images/iphone17pro2.jpg" alt="Apple Banner" class="banner-image">
+            
+            <div class="overlay"></div>
+            
+            <div class="banner-content">
+                <span class="banner-tag">New Arrival</span>
+                <h1 class="banner-title">iPhone 17 Pro</h1>
+                <p class="banner-desc">Titanium build. A18 Pro chip. The next evolution of performance. Discover the future with iPhone 17 Pro.</p>
+            </div>
+        </div>
+
     </div>
 
     <script src="register.js" defer></script>
