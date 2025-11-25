@@ -1,14 +1,24 @@
 {
   "version": 2,
   "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "Support.html", "use": "@vercel/static" },
-    { "src": "login/login.html", "use": "@vercel/static" },
-    { "src": "Mac/**/*.html", "use": "@vercel/static" },
-    { "src": "iphone/**/*.html", "use": "@vercel/static" },
-    { "src": "ipad/**/*.html", "use": "@vercel/static" },
-    { "src": "images/**", "use": "@vercel/static" },
-    { "src": "*.css", "use": "@vercel/static" },
-    { "src": "*.js", "use": "@vercel/static" }
+    { "src": "**/*.html", "use": "@vercel/static" },
+    { "src": "**/*.css", "use": "@vercel/static" },
+    { "src": "**/*.js", "use": "@vercel/static" },
+    { "src": "**/*.json", "use": "@vercel/static" },
+    { "src": "**/*.jpg", "use": "@vercel/static" },
+    { "src": "**/*.jpeg", "use": "@vercel/static" },
+    { "src": "**/*.png", "use": "@vercel/static" },
+    { "src": "**/*.gif", "use": "@vercel/static" },
+    { "src": "**/*.webp", "use": "@vercel/static" },
+    { "src": "**/*.svg", "use": "@vercel/static" },
+    { "src": "**/*.mp4", "use": "@vercel/static" },
+    { "src": "**/*.webm", "use": "@vercel/static" },
+    { "src": "**/*.woff", "use": "@vercel/static" },
+    { "src": "**/*.woff2", "use": "@vercel/static" },
+    { "src": "**/*.ttf", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
