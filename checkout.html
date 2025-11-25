@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Checkout - Apple Store</title>
-  <!-- Font & Tailwind (Optional but good for consistent styling) -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="checkout1.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -23,7 +22,7 @@
     }
     @keyframes scaleUp { to { transform: scale(1); } }
     
-    /* --- CSS CHO PHẦN VOUCHER (MỚI) --- */
+    /* --- CSS CHO PHẦN VOUCHER --- */
     .voucher-section {
         margin-top: 15px;
         padding: 15px;
@@ -64,8 +63,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Items injected via JS -->
-        </tbody>
+          </tbody>
       </table>
 
       <div class="actions">
@@ -74,7 +72,6 @@
       </div>
   </div>
 
-<!-- Order Modal -->
 <div class="order-modal-overlay" id="order-modal-overlay">
   <div class="order-modal">
     <div class="order-modal-header">
@@ -83,7 +80,6 @@
     </div>
     <div class="order-modal-body">
       
-      <!-- Column 1: Info -->
       <section>
         <h3>Shipping Details</h3>
         <div class="form-group">
@@ -104,19 +100,14 @@
         </div>
       </section>
 
-      <!-- Column 2: Summary & Voucher -->
       <section class="order-summary-section">
         <h3>Order Summary</h3>
         <div id="order-modal-product-summary-checkout" class="product-summary-list"></div>
         
-        <!-- ========================================== -->
-        <!-- KHU VỰC CHỌN VOUCHER (ĐÃ ĐƯỢC THÊM VÀO) -->
-        <!-- ========================================== -->
         <div class="voucher-section">
             <label for="voucher-select" style="font-weight: 600; font-size: 0.9em;">Apply Voucher</label>
             <select id="voucher-select" class="voucher-select" onchange="applyVoucher()">
                 <option value="0" data-code="">Select a voucher...</option>
-                <!-- Options sẽ được thêm vào bằng Javascript -->
             </select>
         </div>
 
@@ -126,7 +117,6 @@
                 <span id="subtotal-amount">0 ₫</span>
             </div>
             
-            <!-- Dòng hiển thị tiền giảm giá -->
             <div class="discount-row" id="discount-row" style="display: none;">
                 <span>Discount:</span>
                 <span id="discount-amount">-0 ₫</span>
@@ -153,8 +143,7 @@
   </div>
 </div>
 
-<!-- Success Modal -->
- <div class="success-modal-overlay" id="success-modal-overlay">
+<div class="success-modal-overlay" id="success-modal-overlay">
     <div class="success-modal">
         <div class="icon" style="font-size: 50px; color: #28a745; margin-bottom: 10px;">&#10004;</div>
         <h2>Order Successful!</h2>
@@ -165,10 +154,13 @@
  </div>
 
  <script>
+    // --- KHAI BÁO ĐƯỜNG DẪN API CHUẨN (RENDER) ---
+    const API_BASE_URL = 'https://project3-icy1.onrender.com';
+
     let serverCartItems = [];
-    let userVouchers = []; // Biến lưu danh sách voucher của user
-    let currentDiscount = 0; // Biến lưu số tiền đang được giảm
-    let currentSubtotal = 0; // Biến lưu tổng tiền hàng
+    let userVouchers = [];
+    let currentDiscount = 0;
+    let currentSubtotal = 0;
 
     function getAuthToken() {
         return localStorage.getItem('accessToken');
@@ -186,16 +178,15 @@
         }
 
         try {
-            // 1. Tải Giỏ hàng
-            const cartRes = await fetch('http://127.0.0.1:3000/api/cart', { headers: { 'token': `Bearer ${token}` } });
+            // 1. Tải Giỏ hàng từ Render
+            const cartRes = await fetch(`${API_BASE_URL}/api/cart`, { headers: { 'token': `Bearer ${token}` } });
             const cartData = await cartRes.json();
             serverCartItems = cartData.items || [];
             
-            // 2. Tải Profile để lấy Voucher (QUAN TRỌNG)
-            const profileRes = await fetch('http://127.0.0.1:3000/api/users/profile', { headers: { 'token': `Bearer ${token}` } });
+            // 2. Tải Profile từ Render để lấy Voucher
+            const profileRes = await fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'token': `Bearer ${token}` } });
             const profileData = await profileRes.json();
             if (profileData.user && profileData.user.myVouchers) {
-                // Chỉ lấy những voucher chưa sử dụng (isUsed: false)
                 userVouchers = profileData.user.myVouchers.filter(v => !v.isUsed);
             }
 
@@ -203,7 +194,7 @@
 
         } catch (error) {
             console.error("Error loading data:", error);
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Error loading data.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Error loading data from server.</td></tr>`;
         }
     }
 
@@ -221,7 +212,7 @@
                 const tr = document.createElement('tr');
                 const formattedPrice = item.price.toLocaleString('vi-VN') + ' ₫';
                 tr.innerHTML = `
-                    <td><img src="${item.image_url}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: contain;"></td>
+                    <td><img src="${item.image_url}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.src='images/default.jpg'"></td>
                     <td>${item.name}</td>
                     <td>${item.category || '-'}</td>
                     <td>${formattedPrice}</td>
@@ -232,8 +223,6 @@
         }
     }
 
-    // --- LOGIC MỞ MODAL VÀ CHUẨN BỊ VOUCHER ---
-
     function openOrderModal() {
         if (serverCartItems.length === 0) return alert("Cart is empty.");
         
@@ -241,7 +230,6 @@
         summaryDiv.innerHTML = '';
         currentSubtotal = 0;
 
-        // 1. Hiển thị danh sách sản phẩm tóm tắt
         serverCartItems.forEach(item => {
             const itemTotal = item.price * item.quantity;
             currentSubtotal += itemTotal;
@@ -255,15 +243,14 @@
             summaryDiv.appendChild(div);
         });
 
-        // 2. Đổ dữ liệu Voucher vào Dropdown (PHẦN MỚI)
         const voucherSelect = document.getElementById('voucher-select');
         voucherSelect.innerHTML = '<option value="0" data-code="">-- Select a Voucher --</option>';
         
         if (userVouchers.length > 0) {
             userVouchers.forEach(v => {
                 const option = document.createElement('option');
-                option.value = v.discountAmount; // Giá trị của option là số tiền giảm
-                option.dataset.code = v.code;    // Lưu mã voucher vào data-code
+                option.value = v.discountAmount;
+                option.dataset.code = v.code;
                 option.textContent = `${v.code} - Giảm ${v.discountAmount.toLocaleString()}₫`;
                 voucherSelect.appendChild(option);
             });
@@ -274,24 +261,19 @@
             voucherSelect.appendChild(option);
         }
 
-        // Reset lại giá trị tính toán
         document.getElementById('voucher-select').value = "0";
-        applyVoucher(); // Tính lại tổng tiền ban đầu
-
+        applyVoucher();
         document.getElementById('order-modal-overlay').classList.add('active');
     }
 
-    // --- HÀM ÁP DỤNG VOUCHER (TÍNH TOÁN LẠI TIỀN) ---
     function applyVoucher() {
         const select = document.getElementById('voucher-select');
         const discountVal = parseFloat(select.value) || 0;
         currentDiscount = discountVal;
 
-        // Tính tổng tiền cuối cùng
         let finalTotal = currentSubtotal - currentDiscount;
         if (finalTotal < 0) finalTotal = 0;
 
-        // Cập nhật giao diện
         document.getElementById('subtotal-amount').textContent = currentSubtotal.toLocaleString('vi-VN') + ' ₫';
         
         const discountRow = document.getElementById('discount-row');
@@ -305,7 +287,6 @@
         document.getElementById('order-modal-total-amount-checkout').textContent = finalTotal.toLocaleString('vi-VN') + ' ₫';
     }
 
-    // --- GỬI ĐƠN HÀNG ---
     async function submitOrderCheckout() {
         const name = document.getElementById('recipient-name-checkout').value.trim();
         const phone = document.getElementById('recipient-phone-checkout').value.trim();
@@ -314,12 +295,10 @@
         
         if (!name || !phone || !address) return alert("Please fill in shipping details.");
 
-        // Lấy mã voucher đang chọn
         const voucherSelect = document.getElementById('voucher-select');
         const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
         const voucherCode = selectedOption.dataset.code || null;
         
-        // Tính lại lần cuối
         let finalTotal = currentSubtotal - currentDiscount;
         if (finalTotal < 0) finalTotal = 0;
 
@@ -336,13 +315,14 @@
                 image: item.image_url
             })),
             totalAmountString: finalTotal.toLocaleString('vi-VN') + ' ₫',
-            totalAmountNumeric: currentSubtotal, // Giá gốc
-            finalAmount: finalTotal,             // Giá sau khi giảm
-            appliedVoucher: voucherCode          // Mã voucher đã dùng
+            totalAmountNumeric: currentSubtotal,
+            finalAmount: finalTotal,
+            appliedVoucher: voucherCode
         };
 
         try {
-            const res = await fetch('http://127.0.0.1:3000/api/orders', {
+            // Gửi đơn hàng lên Render
+            const res = await fetch(`${API_BASE_URL}/api/orders`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
