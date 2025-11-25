@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Send POST request to backend API using fetch API
         try {
-            const response = await fetch('http://localhost:3000/api/register', {
+            const response = await fetch('https://project3-icy1.onrender.com/api/register', {
                 method: 'POST', // Use POST method
                 headers: {
                     'Content-Type': 'application/json' // Let server know we’re sending JSON

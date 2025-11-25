@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "Support.html", "use": "@vercel/static" },
+    { "src": "login/login.html", "use": "@vercel/static" },
+    { "src": "Mac/**/*.html", "use": "@vercel/static" },
+    { "src": "iphone/**/*.html", "use": "@vercel/static" },
+    { "src": "ipad/**/*.html", "use": "@vercel/static" },
+    { "src": "images/**", "use": "@vercel/static" },
+    { "src": "*.css", "use": "@vercel/static" },
+    { "src": "*.js", "use": "@vercel/static" }
+  ]
+}
