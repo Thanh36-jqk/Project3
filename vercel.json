@@ -15,10 +15,13 @@
     { "src": "**/*.webm", "use": "@vercel/static" },
     { "src": "**/*.woff", "use": "@vercel/static" },
     { "src": "**/*.woff2", "use": "@vercel/static" },
-    { "src": "**/*.ttf", "use": "@vercel/static" }
+    { "src": "**/*.ttf", "use": "@vercel/static" },
+    { "src": "**/*.glb", "use": "@vercel/static" }, 
+    { "src": "**/*.gltf", "use": "@vercel/static" },
+    { "src": "**/*.bin", "use": "@vercel/static" }
   ],
   "routes": [
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/$1" }
   ]
-}   
+}
