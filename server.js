@@ -271,21 +271,28 @@ app.post('/api/orders', async (req, res) => {
         } catch(e) { console.log("Guest checkout"); }
     }
 
-    try {
+try {
         const orderData = {
             ...req.body,
             userId: userId,
-            finalAmount: req.body.finalAmount || req.body.totalAmountNumeric // Use discounted amount if available
+            finalAmount: req.body.finalAmount || req.body.totalAmountNumeric
         };
         const newOrder = new Order(orderData);
         const savedOrder = await newOrder.save();
+
+        // --- [MỚI] LOGIC XÓA GIỎ HÀNG SAU KHI ĐẶT THÀNH CÔNG ---
+        if (userId) {
+            await Cart.findOneAndUpdate(
+                { userId: userId },
+                { $set: { items: [] } } // Set mảng items về rỗng
+            );
+        }
         res.status(201).json({ message: 'Order placed successfully!', orderId: savedOrder._id, order: savedOrder });
     } catch (error) {
         res.status(500).json({ message: 'Failed to place order' });
     }
 });
 
-// --- [MỚI] PUBLIC ORDER TRACKING API (Cho trang Support) ---
 app.get('/api/orders/:id', async (req, res) => {
     try {
         const orderId = req.params.id;
