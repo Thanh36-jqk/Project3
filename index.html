@@ -2586,7 +2586,7 @@ async function openCart() {
                     if(totalDisplay) totalDisplay.textContent = total.toLocaleString('vi-VN') + '₫';
                     if(countDisplay) countDisplay.textContent = `(${totalQty})`;
                 }
-
+                popup.style.display = '';
                 popup.classList.remove('hidden');
                 setTimeout(() => popup.classList.remove('translate-x-full'), 10);
             } catch (error) {
@@ -2642,12 +2642,6 @@ async function openCart() {
                 }
             }
         }
-
-        function closeCart() {
-            const popup = document.getElementById("cart-popup");
-            if (popup) popup.style.display = "none";
-        }
-
         // Event Listeners
         const cartContainer = document.querySelector(".cart-container");
         if(cartContainer) cartContainer.addEventListener("click", openCart);

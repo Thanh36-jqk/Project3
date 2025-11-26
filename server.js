@@ -293,7 +293,7 @@ try {
     }
 });
 
-app.get('/api/orders/:id', async (req, res) => {
+    app.get('/api/orders/:id', async (req, res) => {
     try {
         const orderId = req.params.id;
         
@@ -301,8 +301,6 @@ app.get('/api/orders/:id', async (req, res) => {
         if (!mongoose.Types.ObjectId.isValid(orderId)) {
             return res.status(400).json({ message: 'Mã đơn hàng không hợp lệ' });
         }
-
-        // Không trả về userId để bảo mật thông tin khách hàng nếu tra cứu công khai
         const order = await Order.findById(orderId).select('-userId'); 
         
         if (!order) {
