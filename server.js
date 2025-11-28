@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 // ----- GOOGLE AI CONFIGURATION (CHATBOT) -----
 // ✅ Key này đã đúng (AIzaSyC...)
-const genAI = new GoogleGenerativeAI("AIzaSyC4sIIqOyP3oc_Tl5naSGw0NFtOPWZG5Sg");
+const genAI = new GoogleGenerativeAI("AIzaSyBRLadR-LavA7ff62IwJ7B_2LzUtIhmaog");
 
 // ✅ ĐÃ SỬA LẠI: Dùng 'gemini-2.0-flash' vì Key của bạn hỗ trợ tốt bản này
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
