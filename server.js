@@ -12,8 +12,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ----- GOOGLE AI CONFIGURATION (FIXED) -----
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// ----- GOOGLE AI CONFIGURATION (CHATBOT) -----
+// ✅ SỬ DỤNG KEY CHUẨN TỪ FILE DEBUG CỦA BẠN
+const genAI = new GoogleGenerativeAI("AIzaSyC4sIIqOyP3oc_Tl5naSGw0NFtOPWZG5Sg");
+
+// ✅ MODEL CHUẨN: gemini-1.5-flash (Bản ổn định nhất hiện nay)
+// Nếu vẫn lỗi, hãy thử đổi thành "gemini-pro"
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // ----- MIDDLEWARE -----
@@ -26,7 +30,7 @@ mongoose.connect(process.env.MONGO_URL)
   .then(() => {
     console.log('✅ Connected to MongoDB successfully');
     app.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}`);
+      console.log(`🚀 Server is running at http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
@@ -38,6 +42,7 @@ mongoose.connect(process.env.MONGO_URL)
 // ----- MODEL DEFINITIONS -----
 // ==================================================================
 
+// 1. Voucher Model
 const voucherSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true }, 
     discountAmount: { type: Number, required: true }, 
@@ -47,13 +52,18 @@ const voucherSchema = new mongoose.Schema({
 }, { timestamps: true });
 const Voucher = mongoose.model('Voucher', voucherSchema);
 
+// 2. User Model
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
   role: { type: String, default: 'user' }, 
+  
+  // Member Info
   rank: { type: String, enum: ['Silver', 'Gold', 'VIP'], default: 'Silver' },
   points: { type: Number, default: 0 }, 
   totalSpending: { type: Number, default: 0 }, 
+  
+  // User Vouchers
   myVouchers: [{ 
       code: String,
       discountAmount: Number,
@@ -63,6 +73,7 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 const User = mongoose.model('User', userSchema);
 
+// 3. Product Model
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
     price: { type: Number, required: true },
@@ -75,6 +86,7 @@ const productSchema = new mongoose.Schema({
 productSchema.index({ name: 'text', short_description: 'text', category: 'text' });
 const Product = mongoose.model('Product', productSchema);
 
+// 4. Order Model
 const orderSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     recipientName: { type: String, required: true },
@@ -90,12 +102,15 @@ const orderSchema = new mongoose.Schema({
     }],
     totalAmountString: { type: String, required: true },
     totalAmountNumeric: { type: Number, required: true },
+    
     finalAmount: { type: Number }, 
     appliedVoucher: { type: String, default: null }, 
+    
     status: { type: String, default: 'Pending' } 
 }, { timestamps: true });
 const Order = mongoose.model('Order', orderSchema);
 
+// 5. Cart Model
 const cartSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
     items: [{
@@ -109,6 +124,7 @@ const cartSchema = new mongoose.Schema({
 const Cart = mongoose.model('Cart', cartSchema);
 
 // ----- MIDDLEWARES -----
+
 const verifyToken = (req, res, next) => {
     const authHeader = req.headers.token;
     if (authHeader) {
@@ -316,6 +332,7 @@ app.put('/api/admin/orders/:id/status', verifyAdmin, async (req, res) => {
         order.status = status;
         await order.save();
 
+        // LOGIC: Add points & Update rank if Completed
         if (status === 'Completed' && order.userId) {
             const user = await User.findById(order.userId);
             if (user) {
@@ -411,89 +428,89 @@ app.post('/api/vouchers/redeem', verifyToken, async (req, res) => {
     }
 });
 
-// --- CHATBOT AI (PRODUCTION READY) ---
+// --- CHATBOT AI (FIXED & ROBUST) ---
 app.post('/api/chat', verifyToken, async (req, res) => {
     const userMessage = req.body.message;
-    const userId = req.user ? req.user.id : null;
+    const userId = req.user ? req.user.id : null; // An toàn hơn
 
-    console.log(`📩 Chat from user: ${userId}, Message: ${userMessage}`);
+    console.log(`📩 Chat request from user: ${userId}`);
 
     try {
-        let recentOrders = "Chưa có đơn hàng";
-        let productList = [];
-        let userRank = "Silver";
-        let userPoints = 0;
+        // Dữ liệu mặc định (phòng khi không tìm thấy trong DB)
+        let recentOrders = "No recent orders found.";
+        let products = [];
+        let userInfoStr = "Guest User (Standard Rank, 0 Points)";
 
+        // 1. Cố gắng lấy dữ liệu từ DB (nhưng không để lỗi DB làm sập Chatbot)
         if (userId) {
             try {
+                // Lấy User
                 const user = await User.findById(userId);
                 if (user) {
-                    userRank = user.rank || 'Silver';
-                    userPoints = user.points || 0;
+                    userInfoStr = `ID: ${user._id}, Rank: ${user.rank || 'Silver'}, Points: ${user.points || 0}`;
                 }
 
-                const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(3);
+                // Lấy Đơn hàng
+                const orders = await Order.find({ userId: userId }).sort({ createdAt: -1 }).limit(3);
                 if (orders && orders.length > 0) {
-                    recentOrders = orders.map(o => 
-                        `${o._id}: ${o.status}, ${o.totalAmountString}`
-                    ).join(" | ");
+                    recentOrders = JSON.stringify(orders.map(o => ({
+                        id: o._id,
+                        status: o.status,
+                        total: o.totalAmountString,
+                        items: o.items.map(i => i.name).join(", ")
+                    })));
                 }
-            } catch (e) {
-                console.error("DB Error:", e.message);
+
+                // Lấy Sản phẩm (Chỉ lấy tên và giá để giảm tải token)
+                const prods = await Product.find({}, 'name price');
+                products = prods.map(p => `${p.name} (${p.price} VND)`);
+
+            } catch (dbError) {
+                console.error("⚠️ DB Context Error (Ignored):", dbError.message);
+                // Không throw error ở đây, vẫn tiếp tục chat
             }
         }
 
-        try {
-            const products = await Product.find().limit(30).select('name price category');
-            productList = products.map(p => 
-                `${p.name}=${p.price}đ(${p.category})`
-            );
-        } catch (e) {
-            console.error("Product Error:", e.message);
-        }
+        // 2. Xây dựng Prompt
+        const systemPrompt = `
+        You are a helpful AI support assistant for an Apple Store.
+        
+        CONTEXT DATA:
+        - Customer: ${userInfoStr}
+        - Recent Orders: ${recentOrders}
+        - Available Products: ${JSON.stringify(products)}
 
-        const systemPrompt = `Bạn là nhân viên Apple Store. Trả lời TIẾNG VIỆT ngắn gọn.
+        INSTRUCTIONS:
+        - Answer in Vietnamese (Tiếng Việt).
+        - Be polite and concise.
+        - If asked about orders, check "Recent Orders".
+        - If asked about product price, check "Available Products".
+        - If data is missing, just say you don't know.
 
-KHÁCH: Hạng ${userRank}, ${userPoints} điểm
-ĐƠN GẦN NHẤT: ${recentOrders}
-SẢN PHẨM: ${productList.join(', ')}
+        USER QUESTION: "${userMessage}"
+        `;
 
-QUY TẮC:
-- Hỏi giá → tìm chính xác trong danh sách
-- "Dưới Xtr" → lọc giá<X → liệt kê 3-5 sp
-- "Trên Xtr" → lọc giá>X → liệt kê 3-5 sp
-- Tư vấn → hỏi ngân sách
-- So sánh → làm bảng đơn giản
-- KHÔNG bịa giá
-- Kết thúc bằng "ạ"
-
-CÂU HỎI: "${userMessage}"`;
-
+        // 3. Gọi Google AI
         console.log("🤖 Calling Gemini API...");
         const result = await model.generateContent(systemPrompt);
-        const text = result.response.text();
+        const response = await result.response;
+        const text = response.text();
         
-        console.log("✅ Gemini Success");
+        console.log("✅ Gemini Replied Success");
         res.json({ reply: text });
 
     } catch (error) {
-        console.error("❌ CHATBOT ERROR:", error.message);
-        console.error("Full error:", error);
+        // Đây mới là lỗi thực sự khi gọi Google AI
+        console.error("❌ CRITICAL CHATBOT ERROR:", error);
         
-        if (error.message?.includes("API_KEY") || error.message?.includes("403")) {
-            return res.status(500).json({ 
-                reply: "⚠️ Lỗi API Key. Báo Admin kiểm tra cấu hình." 
-            });
-        }
+        // Trả về lỗi chi tiết để bạn debug (chỉ trong giai đoạn dev)
+        const errorMessage = error.message || "Unknown error";
         
-        if (error.message?.includes("quota") || error.message?.includes("429")) {
-            return res.status(500).json({ 
-                reply: "⚠️ API đã hết lượt gọi. Thử lại sau 1 giờ ạ!" 
-            });
+        // Nếu lỗi do API Key hoặc Quota
+        if (errorMessage.includes("API_KEY") || errorMessage.includes("403")) {
+            res.status(500).json({ reply: "Lỗi hệ thống: API Key không hợp lệ hoặc hết hạn. Vui lòng báo Admin." });
+        } else {
+            res.status(500).json({ reply: "Hiện tại em đang bị mất kết nối với não bộ. Anh/chị thử lại sau nhé!" });
         }
-
-        res.status(500).json({ 
-            reply: "Xin lỗi, em đang gặp sự cố kỹ thuật. Thử lại sau 1 phút ạ!" 
-        });
     }
 });
