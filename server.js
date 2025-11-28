@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 const genAI = new GoogleGenerativeAI("AIzaSyBRLadR-LavA7ff62IwJ7B_2LzUtIhmaog");
 
 // ✅ ĐÃ SỬA LẠI: Dùng 'gemini-2.0-flash' vì Key của bạn hỗ trợ tốt bản này
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // ----- MIDDLEWARE -----
 app.use(cors());
