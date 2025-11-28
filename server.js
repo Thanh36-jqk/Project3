@@ -551,3 +551,30 @@ app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
     console.log(`📡 Deployment Environment: ${process.env.NODE_ENV || 'Development'}`);
 });
+// --- QUẢN LÝ KHO HÀNG (INVENTORY) ---
+
+// 1. Lấy danh sách toàn bộ sản phẩm (Kèm tồn kho)
+app.get('/api/admin/products', verifyAdmin, async (req, res) => {
+    try {
+        // Lấy tất cả, sắp xếp theo tên
+        const products = await Product.find().sort({ name: 1 });
+        res.status(200).json(products);
+    } catch (error) { res.status(500).json({ message: error.message }); }
+});
+
+// 2. Cập nhật số lượng tồn kho (Nhập/Xả hàng)
+app.put('/api/admin/products/:id/stock', verifyAdmin, async (req, res) => {
+    try {
+        const { newStock } = req.body; // Số lượng mới
+        
+        if (newStock < 0) return res.status(400).json({ message: "Tồn kho không thể âm" });
+
+        const product = await Product.findByIdAndUpdate(
+            req.params.id, 
+            { stock: newStock }, 
+            { new: true } // Trả về dữ liệu mới sau khi update
+        );
+        
+        res.status(200).json({ message: "Cập nhật kho thành công", product });
+    } catch (error) { res.status(500).json({ message: error.message }); }
+});
