@@ -13,11 +13,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ----- GOOGLE AI CONFIGURATION (CHATBOT) -----
-// ✅ QUAN TRỌNG: Đã thay bằng Key xịn từ debug-key.js
+// Sử dụng Key từ debug-key.js (AIzaSyC...)
 const genAI = new GoogleGenerativeAI("AIzaSyC4sIIqOyP3oc_Tl5naSGw0NFtOPWZG5Sg");
 
-// ✅ QUAN TRỌNG: Dùng model 1.5 flash để ổn định nhất
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// QUAN TRỌNG: Dùng model 'gemini-pro' vì Key này hỗ trợ tốt nhất
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 // ----- MIDDLEWARE -----
 app.use(cors());
@@ -163,7 +163,6 @@ app.post('/api/register', async (req, res) => {
     if (existingUser) return res.status(400).json({ message: 'Email already exists' });
     
     const hashedPassword = await bcrypt.hash(password, 10);
-    // Default new user: Silver Rank, 0 Points
     const newUser = new User({ email, password: hashedPassword, rank: 'Silver', points: 0 });
     await newUser.save();
     res.status(201).json({ message: 'Registration successful!' });
@@ -283,7 +282,6 @@ app.post('/api/orders', async (req, res) => {
         const newOrder = new Order(orderData);
         const savedOrder = await newOrder.save();
         
-        // Clear cart after successful order
         if(userId) {
              await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
         }
