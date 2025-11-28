@@ -19,7 +19,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Cấu hình Static Files (Lưu ý: Trên Render miễn phí, ảnh upload sẽ mất sau khi redeploy)
+// Cấu hình Static Files
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // ==================================================================
@@ -43,7 +43,6 @@ let model;
 
 if (apiKey) {
     const genAI = new GoogleGenerativeAI(apiKey);
-    // Sử dụng model 2.0-flash như bạn đã test thành công
     model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     console.log('✅ Gemini AI Configured');
 } else {
@@ -54,7 +53,6 @@ if (apiKey) {
 // ----- 4. MODELS (SCHEMAS) -----
 // ==================================================================
 
-// User Model
 const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
@@ -63,15 +61,11 @@ const userSchema = new mongoose.Schema({
     points: { type: Number, default: 0 }, 
     totalSpending: { type: Number, default: 0 }, 
     myVouchers: [{ 
-        code: String,
-        discountAmount: Number,
-        isUsed: { type: Boolean, default: false },
-        redeemedAt: { type: Date, default: Date.now }
+        code: String, discountAmount: Number, isUsed: { type: Boolean, default: false }, redeemedAt: { type: Date, default: Date.now }
     }]
 }, { timestamps: true });
 const User = mongoose.model('User', userSchema);
 
-// Voucher Model
 const voucherSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true }, 
     discountAmount: { type: Number, required: true }, 
@@ -81,7 +75,6 @@ const voucherSchema = new mongoose.Schema({
 }, { timestamps: true });
 const Voucher = mongoose.model('Voucher', voucherSchema);
 
-// Product Model
 const productSchema = new mongoose.Schema({
     name: { type: String, required: true },
     price: { type: Number, required: true },
@@ -91,24 +84,18 @@ const productSchema = new mongoose.Schema({
     category: String,
     stock: { type: Number, default: 100 }
 });
-// Index để tìm kiếm nhanh hơn
 productSchema.index({ name: 'text', category: 'text' });
 const Product = mongoose.model('Product', productSchema);
 
-// Cart Model
 const cartSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
     items: [{
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
-        name: String,
-        quantity: { type: Number, default: 1 },
-        price: Number,
-        image_url: String
+        name: String, quantity: { type: Number, default: 1 }, price: Number, image_url: String
     }]
 }, { timestamps: true });
 const Cart = mongoose.model('Cart', cartSchema);
 
-// Order Model
 const orderSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     recipientName: { type: String, required: true },
@@ -116,15 +103,10 @@ const orderSchema = new mongoose.Schema({
     recipientAddress: { type: String, required: true },
     recipientNotes: String,
     paymentMethod: { type: String, required: true },
-    items: [{
-        name: String,
-        price: String, // Lưu string định dạng (VD: 30.000.000 đ) để hiển thị
-        qty: Number,
-        image: String
-    }],
+    items: [{ name: String, price: String, qty: Number, image: String }],
     totalAmountString: String,
-    totalAmountNumeric: Number, // Giá gốc (chưa trừ voucher)
-    finalAmount: Number,        // Giá cuối cùng (sau khi trừ voucher)
+    totalAmountNumeric: Number,
+    finalAmount: Number,
     appliedVoucher: { type: String, default: null }, 
     status: { type: String, default: 'Pending' } 
 }, { timestamps: true });
@@ -167,22 +149,19 @@ app.get('/', (req, res) => res.send('Apple Store API is Running...'));
 // ---------------- AUTHENTICATION ----------------
 app.post('/api/register', async (req, res) => {
     try {
-        const { email, password, username } = req.body;
+        const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ message: 'Thiếu thông tin' });
         
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'Email đã tồn tại' });
         
         const hashedPassword = await bcrypt.hash(password, 10);
-        // Tự động set admin nếu email chứa "admin" (chỉ dùng cho test/demo)
         const role = email.includes('admin') ? 'admin' : 'user';
         
         const newUser = new User({ email, password: hashedPassword, role, rank: 'Silver' });
         await newUser.save();
         res.status(201).json({ message: 'Đăng ký thành công!' });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    } catch (error) { res.status(500).json({ message: error.message }); }
 });
 
 app.post('/api/login', async (req, res) => {
@@ -194,17 +173,10 @@ app.post('/api/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ message: 'Mật khẩu không đúng' });
 
-        const accessToken = jwt.sign(
-            { id: user._id, role: user.role }, 
-            process.env.JWT_SECRET,
-            { expiresIn: "3d" }
-        );
-        
+        const accessToken = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "3d" });
         const { password: p, ...userInfo } = user._doc;
         res.status(200).json({ ...userInfo, accessToken });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    } catch (error) { res.status(500).json({ message: error.message }); }
 });
 
 app.get('/api/users/profile', verifyToken, async (req, res) => {
@@ -212,9 +184,7 @@ app.get('/api/users/profile', verifyToken, async (req, res) => {
         const user = await User.findById(req.user.id).select('-password');
         const orders = await Order.find({ userId: req.user.id }).sort({ createdAt: -1 });
         res.status(200).json({ user, orders });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    } catch (error) { res.status(500).json({ message: error.message }); }
 });
 
 // ---------------- PRODUCT & SEARCH ----------------
@@ -222,15 +192,9 @@ app.get('/api/products/search', async (req, res) => {
     try {
         const { q, limit } = req.query;
         if (!q) return res.status(200).json({ products: [] });
-        
-        const products = await Product.find({ 
-            name: { $regex: q, $options: 'i' } 
-        }).limit(parseInt(limit) || 20);
-        
+        const products = await Product.find({ name: { $regex: q, $options: 'i' } }).limit(parseInt(limit) || 20);
         res.status(200).json({ products });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    } catch (error) { res.status(500).json({ message: error.message }); }
 });
 
 // ---------------- CART MANAGEMENT ----------------
@@ -245,21 +209,11 @@ app.post('/api/cart/add', verifyToken, async (req, res) => {
     try {
         const { productId, quantity, name, price, image_url } = req.body;
         let cart = await Cart.findOne({ userId: req.user.id });
+        if (!cart) cart = new Cart({ userId: req.user.id, items: [] });
         
-        if (!cart) {
-            cart = new Cart({ userId: req.user.id, items: [] });
-        }
-        
-        // Kiểm tra xem sản phẩm đã có trong giỏ chưa
-        const itemIndex = cart.items.findIndex(p => 
-            (p.productId && p.productId.toString() === productId) || p.name === name
-        );
-
-        if (itemIndex > -1) {
-            cart.items[itemIndex].quantity += quantity;
-        } else {
-            cart.items.push({ productId, quantity, name, price, image_url });
-        }
+        const itemIndex = cart.items.findIndex(p => (p.productId && p.productId.toString() === productId) || p.name === name);
+        if (itemIndex > -1) cart.items[itemIndex].quantity += quantity;
+        else cart.items.push({ productId, quantity, name, price, image_url });
         
         await cart.save();
         res.status(200).json(cart);
@@ -270,12 +224,7 @@ app.delete('/api/cart/item/:productId', verifyToken, async (req, res) => {
     try {
         const cart = await Cart.findOne({ userId: req.user.id });
         if (!cart) return res.status(404).json({ message: "Giỏ hàng trống" });
-        
-        // Lọc bỏ sản phẩm
-        cart.items = cart.items.filter(item => 
-            item.productId && item.productId.toString() !== req.params.productId
-        );
-        
+        cart.items = cart.items.filter(item => item.productId && item.productId.toString() !== req.params.productId);
         await cart.save();
         res.status(200).json(cart);
     } catch (error) { res.status(500).json({ message: error.message }); }
@@ -284,7 +233,6 @@ app.delete('/api/cart/item/:productId', verifyToken, async (req, res) => {
 // ---------------- VOUCHER SYSTEM ----------------
 app.get('/api/vouchers/available', verifyToken, async (req, res) => {
     try {
-        // Chỉ lấy voucher còn active và còn số lượng
         const vouchers = await Voucher.find({ isActive: true, quantity: { $gt: 0 } });
         res.status(200).json(vouchers);
     } catch (error) { res.status(500).json({ message: error.message }); }
@@ -296,27 +244,14 @@ app.post('/api/vouchers/redeem', verifyToken, async (req, res) => {
         const user = await User.findById(req.user.id);
         const voucher = await Voucher.findById(voucherId);
 
-        if (!voucher || !voucher.isActive || voucher.quantity <= 0) {
-            return res.status(400).json({ message: "Voucher không khả dụng" });
-        }
-        if (user.points < voucher.pointsRequired) {
-            return res.status(400).json({ message: "Bạn không đủ điểm thưởng" });
-        }
+        if (!voucher || !voucher.isActive || voucher.quantity <= 0) return res.status(400).json({ message: "Voucher không khả dụng" });
+        if (user.points < voucher.pointsRequired) return res.status(400).json({ message: "Bạn không đủ điểm thưởng" });
+        if (user.myVouchers.some(v => v.code === voucher.code)) return res.status(400).json({ message: "Bạn đã đổi voucher này rồi" });
 
-        // Kiểm tra xem user đã có voucher này chưa
-        const alreadyHas = user.myVouchers.some(v => v.code === voucher.code);
-        if (alreadyHas) return res.status(400).json({ message: "Bạn đã đổi voucher này rồi" });
-
-        // Trừ điểm và thêm voucher
         user.points -= voucher.pointsRequired;
-        user.myVouchers.push({
-            code: voucher.code,
-            discountAmount: voucher.discountAmount,
-            isUsed: false
-        });
+        user.myVouchers.push({ code: voucher.code, discountAmount: voucher.discountAmount, isUsed: false });
         await user.save();
 
-        // Trừ số lượng voucher chung
         voucher.quantity -= 1;
         await voucher.save();
 
@@ -326,39 +261,23 @@ app.post('/api/vouchers/redeem', verifyToken, async (req, res) => {
 
 // ---------------- ORDER & CHECKOUT (SECURE) ----------------
 app.post('/api/orders', async (req, res) => {
-    // Xác thực người dùng thủ công (vì có thể có token hoặc không)
     const authHeader = req.headers.token; 
     let userId = null;
     if (authHeader) {
-        try {
-            const token = authHeader.split(" ")[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            userId = decoded.id;
-        } catch(e) {}
+        try { userId = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET).id; } catch(e) {}
     }
 
     try {
         const { recipientName, recipientPhone, recipientAddress, recipientNotes, paymentMethod, items, appliedVoucher } = req.body;
-
-        // --- BƯỚC 1: TÍNH TOÁN LẠI GIÁ (Server-Side Calculation) ---
         let calculatedTotal = 0;
         let secureItems = [];
 
         for (const item of items) {
-            // Tìm sản phẩm trong DB bằng tên (chính xác nhất là dùng ID, nhưng frontend đang gửi name)
             const product = await Product.findOne({ name: item.name });
-            
-            if (!product) {
-                return res.status(400).json({ message: `Sản phẩm "${item.name}" không còn tồn tại.` });
-            }
-            if (product.stock < item.qty) {
-                return res.status(400).json({ message: `Sản phẩm "${item.name}" chỉ còn lại ${product.stock} chiếc.` });
-            }
+            if (!product) return res.status(400).json({ message: `Sản phẩm "${item.name}" không còn tồn tại.` });
+            if (product.stock < item.qty) return res.status(400).json({ message: `Sản phẩm "${item.name}" chỉ còn lại ${product.stock} chiếc.` });
 
-            // Cộng tiền dựa trên giá gốc trong DB
             calculatedTotal += product.price * item.qty;
-
-            // Trừ tồn kho
             product.stock -= item.qty;
             await product.save();
 
@@ -370,29 +289,21 @@ app.post('/api/orders', async (req, res) => {
             });
         }
 
-        // --- BƯỚC 2: XỬ LÝ VOUCHER ---
         let discountAmount = 0;
         if (appliedVoucher && userId) {
             const user = await User.findById(userId);
-            // Tìm voucher trong ví user
             const voucherIndex = user.myVouchers.findIndex(v => v.code === appliedVoucher && !v.isUsed);
-            
             if (voucherIndex > -1) {
                 discountAmount = user.myVouchers[voucherIndex].discountAmount;
-                // Đánh dấu voucher đã dùng
                 user.myVouchers[voucherIndex].isUsed = true;
                 await user.save();
             }
         }
 
-        // --- BƯỚC 3: TẠO ĐƠN HÀNG ---
         const finalTotal = Math.max(0, calculatedTotal - discountAmount);
-        
         const newOrder = new Order({
-            userId: userId,
-            recipientName, recipientPhone, recipientAddress, recipientNotes,
-            paymentMethod,
-            items: secureItems, // Dùng items đã được verify giá
+            userId, recipientName, recipientPhone, recipientAddress, recipientNotes, paymentMethod,
+            items: secureItems,
             totalAmountString: finalTotal.toLocaleString('vi-VN') + ' ₫',
             totalAmountNumeric: calculatedTotal,
             finalAmount: finalTotal,
@@ -402,35 +313,20 @@ app.post('/api/orders', async (req, res) => {
 
         const savedOrder = await newOrder.save();
 
-        // --- BƯỚC 4: DỌN DẸP & TÍCH ĐIỂM ---
         if(userId) {
-            // Xóa giỏ hàng
             await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
-            
-            // Tích điểm (Ví dụ: 100k = 1 điểm)
             const pointsEarned = Math.floor(finalTotal / 100000);
-            await User.findByIdAndUpdate(userId, { 
-                $inc: { points: pointsEarned, totalSpending: finalTotal } 
-            });
+            await User.findByIdAndUpdate(userId, { $inc: { points: pointsEarned, totalSpending: finalTotal } });
             
-            // Cập nhật Rank (Logic đơn giản)
             const updatedUser = await User.findById(userId);
             let newRank = updatedUser.rank;
             if (updatedUser.totalSpending > 50000000) newRank = 'VIP';
             else if (updatedUser.totalSpending > 20000000) newRank = 'Gold';
-            
-            if (newRank !== updatedUser.rank) {
-                updatedUser.rank = newRank;
-                await updatedUser.save();
-            }
+            if (newRank !== updatedUser.rank) { updatedUser.rank = newRank; await updatedUser.save(); }
         }
 
         res.status(201).json({ message: 'Đặt hàng thành công!', order: savedOrder });
-
-    } catch (error) {
-        console.error("Order Error:", error);
-        res.status(500).json({ message: 'Lỗi server: ' + error.message });
-    }
+    } catch (error) { res.status(500).json({ message: 'Lỗi server: ' + error.message }); }
 });
 
 // ---------------- ADMIN ROUTES ----------------
@@ -471,92 +367,11 @@ app.post('/api/admin/vouchers', verifyAdmin, async (req, res) => {
     } catch (error) { res.status(500).json({ message: error.message }); }
 });
 
-// ---------------- CHATBOT AI (SMART CONTEXT) ----------------
-app.post('/api/chat', verifyToken, async (req, res) => {
-    const userMessage = req.body.message;
-    const userId = req.user ? req.user.id : null;
-
-    if (!model) return res.status(503).json({ reply: "Hệ thống AI đang bảo trì." });
-
-    try {
-        // 1. Chuẩn bị dữ liệu ngữ cảnh
-        let contextData = {
-            customer: "Khách vãng lai",
-            recent_orders: [],
-            available_products: []
-        };
-
-        if (userId) {
-            try {
-                const user = await User.findById(userId);
-                if (user) {
-                    contextData.customer = {
-                        name: user.email.split('@')[0],
-                        rank: user.rank,
-                        points: user.points
-                    };
-                }
-                const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(5);
-                contextData.recent_orders = orders.map(o => ({
-                    id: o._id.toString().slice(-6).toUpperCase(), // Chỉ lấy 6 ký tự cuối cho gọn
-                    status: o.status,
-                    total: (o.finalAmount || 0).toLocaleString('vi-VN') + 'đ',
-                    items: o.items.map(i => i.name).join(", "),
-                    date: o.createdAt.toISOString().split('T')[0]
-                }));
-            } catch (dbError) { console.error("DB Context Error:", dbError); }
-        }
-
-        // Lấy danh sách sản phẩm (chỉ lấy tên và giá để tiết kiệm token)
-        const products = await Product.find({ stock: { $gt: 0 } }).select('name price category').limit(50);
-        contextData.available_products = products.map(p => ({
-            name: p.name,
-            price: p.price.toLocaleString('vi-VN') + 'đ',
-            category: p.category
-        }));
-
-        // 2. System Prompt
-        const systemPrompt = `
-        BẠN LÀ: Trợ lý ảo AI của Apple Store (Backend Admin: Thanh).
-        
-        DỮ LIỆU HIỆN CÓ:
-        - Khách hàng: ${JSON.stringify(contextData.customer)}
-        - Đơn hàng gần đây của họ: ${JSON.stringify(contextData.recent_orders)}
-        - Sản phẩm đang bán: ${JSON.stringify(contextData.available_products)}
-
-        NHIỆM VỤ:
-        1. Trả lời ngắn gọn, thân thiện bằng tiếng Việt.
-        2. Nếu khách hỏi giá, HÃY TRA CỨU trong danh sách sản phẩm và trả lời chính xác.
-        3. Nếu khách hỏi về đơn hàng, HÃY TRA CỨU trong danh sách đơn hàng gần đây.
-        4. Nếu khách hỏi sản phẩm nào dưới X tiền, hãy lọc danh sách và gợi ý.
-        5. Đừng bịa đặt thông tin không có trong dữ liệu.
-
-        User hỏi: "${userMessage}"
-        `;
-
-        const result = await model.generateContent(systemPrompt);
-        const response = await result.response;
-        res.json({ reply: response.text() });
-
-    } catch (error) {
-        console.error("AI Error:", error);
-        res.status(500).json({ reply: "Xin lỗi, AI đang gặp sự cố tạm thời." });
-    }
-});
-
-// ==================================================================
-// ----- 7. SERVER START -----
-// ==================================================================
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running on port ${PORT}`);
-    console.log(`📡 Deployment Environment: ${process.env.NODE_ENV || 'Development'}`);
-});
-// --- QUẢN LÝ KHO HÀNG (INVENTORY) ---
+// --- [FIX] ĐƯA CODE QUẢN LÝ KHO HÀNG LÊN TRƯỚC SERVER START ---
 
 // 1. Lấy danh sách toàn bộ sản phẩm (Kèm tồn kho)
 app.get('/api/admin/products', verifyAdmin, async (req, res) => {
     try {
-        // Lấy tất cả, sắp xếp theo tên
         const products = await Product.find().sort({ name: 1 });
         res.status(200).json(products);
     } catch (error) { res.status(500).json({ message: error.message }); }
@@ -565,16 +380,65 @@ app.get('/api/admin/products', verifyAdmin, async (req, res) => {
 // 2. Cập nhật số lượng tồn kho (Nhập/Xả hàng)
 app.put('/api/admin/products/:id/stock', verifyAdmin, async (req, res) => {
     try {
-        const { newStock } = req.body; // Số lượng mới
-        
+        const { newStock } = req.body; 
         if (newStock < 0) return res.status(400).json({ message: "Tồn kho không thể âm" });
 
-        const product = await Product.findByIdAndUpdate(
-            req.params.id, 
-            { stock: newStock }, 
-            { new: true } // Trả về dữ liệu mới sau khi update
-        );
-        
+        const product = await Product.findByIdAndUpdate(req.params.id, { stock: newStock }, { new: true });
         res.status(200).json({ message: "Cập nhật kho thành công", product });
     } catch (error) { res.status(500).json({ message: error.message }); }
+});
+
+// ---------------- CHATBOT AI ----------------
+app.post('/api/chat', verifyToken, async (req, res) => {
+    const userMessage = req.body.message;
+    const userId = req.user ? req.user.id : null;
+
+    if (!model) return res.status(503).json({ reply: "Hệ thống AI đang bảo trì." });
+
+    try {
+        let contextData = { customer: "Khách vãng lai", recent_orders: [], available_products: [] };
+
+        if (userId) {
+            try {
+                const user = await User.findById(userId);
+                if (user) contextData.customer = { name: user.email.split('@')[0], rank: user.rank, points: user.points };
+                
+                const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(5);
+                contextData.recent_orders = orders.map(o => ({
+                    id: o._id.toString().slice(-6).toUpperCase(),
+                    status: o.status,
+                    total: (o.finalAmount || 0).toLocaleString('vi-VN') + 'đ',
+                    items: o.items.map(i => i.name).join(", "),
+                    date: o.createdAt.toISOString().split('T')[0]
+                }));
+            } catch (dbError) { console.error("DB Context Error:", dbError); }
+        }
+
+        const products = await Product.find({ stock: { $gt: 0 } }).select('name price category').limit(50);
+        contextData.available_products = products.map(p => ({
+            name: p.name, price: p.price.toLocaleString('vi-VN') + 'đ', category: p.category
+        }));
+
+        const systemPrompt = `
+        BẠN LÀ: Trợ lý ảo AI của Apple Store.
+        DỮ LIỆU:
+        - Khách: ${JSON.stringify(contextData.customer)}
+        - Đơn hàng gần đây: ${JSON.stringify(contextData.recent_orders)}
+        - Sản phẩm: ${JSON.stringify(contextData.available_products)}
+        NHIỆM VỤ: Trả lời ngắn gọn, chính xác về giá và đơn hàng.
+        User hỏi: "${userMessage}"
+        `;
+
+        const result = await model.generateContent(systemPrompt);
+        const response = await result.response;
+        res.json({ reply: response.text() });
+    } catch (error) { res.status(500).json({ reply: "Xin lỗi, AI đang gặp sự cố." }); }
+});
+
+// ==================================================================
+// ----- 7. SERVER START -----
+// ==================================================================
+app.listen(PORT, () => {
+    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`📡 Deployment Environment: ${process.env.NODE_ENV || 'Development'}`);
 });
