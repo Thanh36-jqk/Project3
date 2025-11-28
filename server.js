@@ -13,8 +13,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ----- GOOGLE AI CONFIGURATION (CHATBOT) -----
-// Lưu ý: Nên đưa key này vào file .env để bảo mật
-const genAI = new GoogleGenerativeAI("AIzaSyDnvRXmK4esINe9F8Fki631ZOnIySu6weY");
+// SỬ DỤNG KEY TỪ FILE debug-key.js (Key bắt đầu bằng AIzaSyC...)
+const genAI = new GoogleGenerativeAI("AIzaSyC4sIIqOyP3oc_Tl5naSGw0NFtOPWZG5Sg");
+
+// Sử dụng model ổn định nhất hiện tại.
+// Nếu gemini-2.0-flash lỗi, hãy thử đổi thành "gemini-1.5-flash"
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 // ----- MIDDLEWARE -----
@@ -161,6 +164,7 @@ app.post('/api/register', async (req, res) => {
     if (existingUser) return res.status(400).json({ message: 'Email already exists' });
     
     const hashedPassword = await bcrypt.hash(password, 10);
+    // Default new user: Silver Rank, 0 Points
     const newUser = new User({ email, password: hashedPassword, rank: 'Silver', points: 0 });
     await newUser.save();
     res.status(201).json({ message: 'Registration successful!' });
@@ -256,7 +260,7 @@ app.get('/api/products/search', async (req, res) => {
     }
 });
 
-// --- ORDERS (Authenticated) ---
+// --- ORDERS ---
 app.post('/api/orders', async (req, res) => {
     const authHeader = req.headers.token; 
     let userId = null;
@@ -271,42 +275,35 @@ app.post('/api/orders', async (req, res) => {
         } catch(e) { console.log("Guest checkout"); }
     }
 
-try {
+    try {
         const orderData = {
             ...req.body,
             userId: userId,
-            finalAmount: req.body.finalAmount || req.body.totalAmountNumeric
+            finalAmount: req.body.finalAmount || req.body.totalAmountNumeric 
         };
         const newOrder = new Order(orderData);
         const savedOrder = await newOrder.save();
-
-        // --- [MỚI] LOGIC XÓA GIỎ HÀNG SAU KHI ĐẶT THÀNH CÔNG ---
-        if (userId) {
-            await Cart.findOneAndUpdate(
-                { userId: userId },
-                { $set: { items: [] } } // Set mảng items về rỗng
-            );
+        
+        // Xóa giỏ hàng sau khi đặt thành công
+        if(userId) {
+             await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
         }
-        res.status(201).json({ message: 'Order placed successfully!', orderId: savedOrder._id, order: savedOrder });
+
+        res.status(201).json({ message: 'Order placed successfully!', order: savedOrder });
     } catch (error) {
         res.status(500).json({ message: 'Failed to place order' });
     }
 });
-
-    app.get('/api/orders/:id', async (req, res) => {
+app.get('/api/orders/:id', async (req, res) => {
     try {
         const orderId = req.params.id;
-        
-        // Validate MongoDB ObjectId format
         if (!mongoose.Types.ObjectId.isValid(orderId)) {
             return res.status(400).json({ message: 'Mã đơn hàng không hợp lệ' });
         }
         const order = await Order.findById(orderId).select('-userId'); 
-        
         if (!order) {
             return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
         }
-
         res.status(200).json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -314,8 +311,6 @@ try {
 });
 
 // --- ADMIN APIs ---
-
-// Get all orders
 app.get('/api/admin/orders', verifyAdmin, async (req, res) => {
     try {
         const orders = await Order.find().sort({ createdAt: -1 }).populate('userId', 'email rank');
@@ -325,7 +320,6 @@ app.get('/api/admin/orders', verifyAdmin, async (req, res) => {
     }
 });
 
-// Duyệt đơn & Tự động cộng điểm (Core Logic)
 app.put('/api/admin/orders/:id/status', verifyAdmin, async (req, res) => {
     const { status } = req.body;
     try {
@@ -345,12 +339,9 @@ app.put('/api/admin/orders/:id/status', verifyAdmin, async (req, res) => {
             if (user) {
                 const amount = order.finalAmount || order.totalAmountNumeric;
                 user.totalSpending += amount;
-                
-                // 10,000 VND = 1 Point
                 const pointsEarned = Math.floor(amount / 10000);
                 user.points += pointsEarned;
 
-                // Rank Logic
                 let newRank = user.rank;
                 if (user.totalSpending >= 50000000) newRank = 'VIP';
                 else if (user.totalSpending >= 10000000) newRank = 'Gold';
@@ -366,7 +357,6 @@ app.put('/api/admin/orders/:id/status', verifyAdmin, async (req, res) => {
     }
 });
 
-// Create Voucher
 app.post('/api/admin/vouchers', verifyAdmin, async (req, res) => {
     try {
         const newVoucher = new Voucher(req.body);
@@ -377,7 +367,6 @@ app.post('/api/admin/vouchers', verifyAdmin, async (req, res) => {
     }
 });
 
-// Get Vouchers List
 app.get('/api/admin/vouchers', verifyAdmin, async (req, res) => {
     try {
         const vouchers = await Voucher.find().sort({ createdAt: -1 });
@@ -387,19 +376,7 @@ app.get('/api/admin/vouchers', verifyAdmin, async (req, res) => {
     }
 });
 
-// Get All Users (Admin)
-app.get('/api/admin/users', verifyAdmin, async (req, res) => {
-    try {
-        const users = await User.find().select('-password'); 
-        res.status(200).json(users);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-});
-
 // --- LOYALTY APIs FOR USER ---
-
-// Get redeemable vouchers
 app.get('/api/vouchers/available', verifyToken, async (req, res) => {
     try {
         const vouchers = await Voucher.find({ isActive: true, quantity: { $gt: 0 } });
@@ -409,7 +386,6 @@ app.get('/api/vouchers/available', verifyToken, async (req, res) => {
     }
 });
 
-// Redeem Voucher
 app.post('/api/vouchers/redeem', verifyToken, async (req, res) => {
     const { voucherId } = req.body;
     const userId = req.user.id;
@@ -449,43 +425,69 @@ app.post('/api/chat', verifyToken, async (req, res) => {
     const userMessage = req.body.message;
     const userId = req.user.id;
 
+    console.log(`📩 Message from user ${userId}: "${userMessage}"`);
+
     try {
         let recentOrders = [];
         let products = [];
         let userInfo = null;
 
+        // Fetch context data
         try {
              userInfo = await User.findById(userId, 'rank points totalSpending');
              recentOrders = await Order.find({ userId: userId }).sort({ createdAt: -1 }).limit(3);
              products = await Product.find({}, 'name price short_description');
-        } catch (dbError) {}
+        } catch (dbError) {
+            console.error("⚠️ DB Fetch Error:", dbError.message);
+        }
 
+        // System Prompt
         const systemPrompt = `
         You are an intelligent customer support AI for an Apple Store. 
-        Answer briefly and strictly in ENGLISH.
+        Please answer the customer's questions briefly, politely, and strictly in ENGLISH.
         
         CUSTOMER INFO:
         - ID: ${userId}
-        - Rank: ${userInfo ? userInfo.rank : 'Silver'}
-        - Points: ${userInfo ? userInfo.points : 0}
-        - Recent Orders: ${JSON.stringify(recentOrders)}
+        - Membership Rank: ${userInfo ? userInfo.rank : 'Silver'}
+        - Reward Points: ${userInfo ? userInfo.points : 0}
+        - Recent Order History: ${JSON.stringify(recentOrders)}
         
-        PRODUCT LIST: ${JSON.stringify(products)}
+        PRODUCT LIST:
+        ${JSON.stringify(products)}
 
         INSTRUCTIONS:
-        - Order status? Check "Recent Orders".
-        - Product info? Check "PRODUCT LIST".
-        - Rank/Points? Check "CUSTOMER INFO". Points are earned by buying products (10k VND = 1 point).
+        - If they ask about order status, check "Recent Order History".
+        - If they ask about product prices or specs, check "PRODUCT LIST".
+        - If they ask about their rank or points, check "CUSTOMER INFO" and explain that points are earned from purchases.
+        - Keep answers helpful and professional.
         
         CUSTOMER QUESTION: "${userMessage}"
         `;
 
+        console.log("🤖 Sending request to Google AI...");
         const result = await model.generateContent(systemPrompt);
         const response = await result.response;
-        res.json({ reply: response.text() });
+        const text = response.text();
+        console.log("✅ AI Replied:", text);
+        
+        res.json({ reply: text });
 
     } catch (error) {
-        console.error("Chatbot Error:", error);
-        res.status(500).json({ reply: "I'm having trouble connecting right now." });
+        console.error("❌ CHATBOT ERROR:", error);
+        // In lỗi chi tiết ra console server để bạn dễ debug
+        if (error.response) {
+            console.error("Google API Error Response:", error.response);
+        }
+        res.status(500).json({ reply: "I'm having trouble connecting right now. Please try again later.", error: error.message });
+    }
+});
+
+// [MỚI] Lấy danh sách tất cả users (để đếm số lượng)
+app.get('/api/admin/users', verifyAdmin, async (req, res) => {
+    try {
+        const users = await User.find().select('-password'); // Lấy tất cả user trừ mật khẩu
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
