@@ -13,11 +13,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ----- GOOGLE AI CONFIGURATION (CHATBOT) -----
-// Sử dụng Key từ debug-key.js (AIzaSyC...)
+// ✅ UPDATE: Sử dụng Key mới và Model ổn định nhất
 const genAI = new GoogleGenerativeAI("AIzaSyC4sIIqOyP3oc_Tl5naSGw0NFtOPWZG5Sg");
 
-// QUAN TRỌNG: Dùng model 'gemini-pro' vì Key này hỗ trợ tốt nhất
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+// Senior Dev khuyên dùng: gemini-1.5-flash nhanh, rẻ và ổn định hơn cho Chatbot
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // ----- MIDDLEWARE -----
 app.use(cors());
