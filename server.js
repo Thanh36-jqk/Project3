@@ -13,11 +13,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ----- GOOGLE AI CONFIGURATION (CHATBOT) -----
-// ✅ UPDATE: Sử dụng Key mới và Model ổn định nhất
+// ✅ Key này đã đúng (AIzaSyC...)
 const genAI = new GoogleGenerativeAI("AIzaSyC4sIIqOyP3oc_Tl5naSGw0NFtOPWZG5Sg");
 
-// Senior Dev khuyên dùng: gemini-1.5-flash nhanh, rẻ và ổn định hơn cho Chatbot
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// ✅ ĐÃ SỬA LẠI: Dùng 'gemini-2.0-flash' vì Key của bạn hỗ trợ tốt bản này
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 // ----- MIDDLEWARE -----
 app.use(cors());
@@ -291,7 +291,6 @@ app.post('/api/orders', async (req, res) => {
         res.status(500).json({ message: 'Failed to place order' });
     }
 });
-
 app.get('/api/orders/:id', async (req, res) => {
     try {
         const orderId = req.params.id;
@@ -331,7 +330,6 @@ app.put('/api/admin/orders/:id/status', verifyAdmin, async (req, res) => {
         order.status = status;
         await order.save();
 
-        // LOGIC: Add points & Update rank if Completed
         if (status === 'Completed' && order.userId) {
             const user = await User.findById(order.userId);
             if (user) {
@@ -383,7 +381,7 @@ app.get('/api/admin/users', verifyAdmin, async (req, res) => {
     }
 });
 
-// --- LOYALTY APIs FOR USER ---
+// --- LOYALTY APIs ---
 app.get('/api/vouchers/available', verifyToken, async (req, res) => {
     try {
         const vouchers = await Voucher.find({ isActive: true, quantity: { $gt: 0 } });
