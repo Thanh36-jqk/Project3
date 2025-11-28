@@ -18,7 +18,7 @@ const genAI = new GoogleGenerativeAI("AIzaSyC4sIIqOyP3oc_Tl5naSGw0NFtOPWZG5Sg");
 
 // Sử dụng model ổn định nhất hiện tại.
 // Nếu gemini-2.0-flash lỗi, hãy thử đổi thành "gemini-1.5-flash"
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // ----- MIDDLEWARE -----
 app.use(cors());
