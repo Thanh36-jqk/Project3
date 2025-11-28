@@ -263,53 +263,90 @@ app.get('/api/admin/orders', verifyAdmin, async (req, res) => {
 });
 
 // --- CHATBOT AI (ROBUST VERSION) ---
+// --- CHATBOT AI (ROBUST VERSION - IMPROVED) ---
 app.post('/api/chat', verifyToken, async (req, res) => {
     const userMessage = req.body.message;
     const userId = req.user ? req.user.id : null;
 
     try {
-        let recentOrders = "No recent orders found.";
-        let products = [];
-        let userInfoStr = "Guest";
+        // 1. CHUẨN BỊ DỮ LIỆU NGỮ CẢNH (CONTEXT)
+        let contextData = {
+            customer: "Khách vãng lai",
+            recent_orders: [],
+            available_products: []
+        };
 
         if (userId) {
             try {
+                // Lấy thông tin User
                 const user = await User.findById(userId);
-                if (user) userInfoStr = `Rank: ${user.rank}, Points: ${user.points}`;
+                if (user) {
+                    contextData.customer = {
+                        name: user.email.split('@')[0], // Lấy tên từ email cho thân thiện
+                        rank: user.rank,
+                        points: user.points
+                    };
+                }
                 
-                const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(3);
-                if (orders.length) recentOrders = JSON.stringify(orders.map(o => `${o._id}: ${o.status}`));
-                
-                const prods = await Product.find({}, 'name price');
-                products = prods.map(p => `${p.name} (${p.price})`);
-            } catch (dbError) { console.error("DB Context Error (Ignored)"); }
+                // Lấy lịch sử đơn hàng (KÈM GIÁ TIỀN)
+                // Lưu ý: Lấy cả finalAmount để AI biết giá trị đơn
+                const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(5);
+                contextData.recent_orders = orders.map(o => ({
+                    id: o._id,
+                    status: o.status,
+                    total: o.finalAmount || o.totalAmountNumeric, // Ưu tiên lấy giá cuối cùng
+                    items: o.items.map(i => i.name).join(", "),
+                    date: o.createdAt.toISOString().split('T')[0]
+                }));
+            } catch (dbError) { console.error("DB Context Error:", dbError); }
         }
 
+        // Lấy danh sách sản phẩm (Tăng giới hạn lên 100 để AI biết nhiều giá hơn)
+        // Chỉ lấy tên và giá để tiết kiệm token
+        const products = await Product.find({ stock: { $gt: 0 } })
+                                      .select('name price category')
+                                      .limit(100); 
+        
+        contextData.available_products = products.map(p => ({
+            name: p.name,
+            price: p.price,
+            category: p.category
+        }));
+
+        // 2. CẤU HÌNH "NÃO" CHO AI (SYSTEM PROMPT)
         const systemPrompt = `
-        You are an Apple Store AI Assistant. Answer in VIETNAMESE.
-        Context: Customer (${userInfoStr}), Orders (${recentOrders}).
-        Products: ${JSON.stringify(products.slice(0, 20))}... (truncated)
-        User Question: "${userMessage}"
+        BẠN LÀ: Trợ lý ảo chuyên nghiệp của Apple Store.
+        
+        NHIỆM VỤ CỦA BẠN:
+        1. Trả lời ngắn gọn, súc tích, đi thẳng vào vấn đề. KHÔNG dài dòng văn vở.
+        2. KHÔNG lặp lại câu "Với tư cách là khách hàng VIP..." ở mọi tin nhắn. Chỉ nhắc đến ưu đãi khi khách hỏi về giảm giá.
+        3. Tư vấn bán hàng: Nếu khách hỏi sản phẩm dưới X tiền, hãy TỰ ĐỘNG lọc danh sách "Available Products" bên dưới và liệt kê ra (kèm giá).
+        4. Hỗ trợ đơn hàng: Nếu khách hỏi về đơn hàng, hãy tra cứu trong "Recent Orders".
+
+        DỮ LIỆU HIỆN CÓ (CONTEXT):
+        - Khách hàng: ${JSON.stringify(contextData.customer)}
+        - Đơn hàng gần đây: ${JSON.stringify(contextData.recent_orders)}
+        - Danh sách sản phẩm đang bán (Kèm giá): ${JSON.stringify(contextData.available_products)}
+
+        LƯU Ý QUAN TRỌNG:
+        - Đơn vị tiền tệ: VNĐ (Ví dụ: 15.000.000 đ).
+        - Nếu khách hỏi giá "iPhone 15 Pro Max", hãy tìm trong danh sách sản phẩm và trả lời con số cụ thể. Nếu không thấy trong danh sách, hãy nói khéo là "hiện đang cập nhật giá".
+        - Giọng điệu: Thân thiện, tôn trọng nhưng chuyên nghiệp như nhân viên Apple (Genius Bar).
+
+        CÂU HỎI CỦA KHÁCH: "${userMessage}"
         `;
 
+        // 3. GỌI GEMINI
         const result = await model.generateContent(systemPrompt);
         const response = await result.response;
-        res.json({ reply: response.text() });
+        
+        // Xử lý text trả về (Clean up nếu cần)
+        let replyText = response.text();
+        
+        res.json({ reply: replyText });
 
     } catch (error) {
         console.error("❌ AI Error:", error);
-        // Trả về lỗi rõ ràng để Frontend không bị treo
-        res.status(500).json({ reply: "Hệ thống AI đang bận hoặc gặp sự cố API Key. Vui lòng thử lại sau." });
+        res.status(500).json({ reply: "Xin lỗi, hiện tại tôi đang gặp chút trục trặc khi tra cứu dữ liệu. Bạn vui lòng hỏi lại sau nhé!" });
     }
-});
-
-// --- OTHER API ENDPOINTS (USER PROFILE, VOUCHERS...) ---
-// (Giữ nguyên các endpoint khác của bạn ở đây)
-// ...
-app.get('/api/users/profile', verifyToken, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id).select('-password');
-        const orders = await Order.find({ userId: req.user.id }).sort({ createdAt: -1 });
-        res.status(200).json({ user, orders });
-    } catch (error) { res.status(500).json({ message: error.message }); }
 });
