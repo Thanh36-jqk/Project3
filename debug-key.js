@@ -1,4 +1,4 @@
-const API_KEY = "AIzaSyC4sIIqOyP3oc_Tl5naSGw0NFtOPWZG5Sg"; // <-- Thay Key vào đây
+const API_KEY = "AIzaSyA0UMsA1mWUyb3cB7xIaFei30oeK8g1GRM"; // <-- Thay Key vào đây
 
 async function checkAvailableModels() {
   console.log("🔍 Đang kiểm tra quyền hạn của Key...");

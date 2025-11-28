@@ -25,7 +25,7 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 // ✅ KHUYẾN NGHỊ: Dùng 'gemini-1.5-flash' để ổn định và tương thích tốt nhất hiện nay.
 // Bản 2.0-flash là bản thử nghiệm (preview), có thể gây lỗi 404/403 với một số Key.
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 // ----- MIDDLEWARE -----
 app.use(cors());
