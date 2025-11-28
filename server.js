@@ -18,7 +18,8 @@ const genAI = new GoogleGenerativeAI("AIzaSyC4sIIqOyP3oc_Tl5naSGw0NFtOPWZG5Sg");
 
 // ✅ MODEL CHUẨN: gemini-1.5-flash (Bản ổn định nhất hiện nay)
 // Nếu vẫn lỗi, hãy thử đổi thành "gemini-pro"
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", apiVersion: "v1" });
+
 
 
 // ----- MIDDLEWARE -----
