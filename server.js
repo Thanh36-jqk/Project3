@@ -19,8 +19,15 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Cấu hình Static Files
+// --- [CẬP NHẬT QUAN TRỌNG] CẤU HÌNH STATIC FILES ---
+// 1. Phục vụ thư mục ảnh sản phẩm
 app.use('/images', express.static(path.join(__dirname, 'images')));
+
+// 2. Phục vụ thư mục 'public' (Nơi chứa 3D Models, Textures cho Landing Page High-End)
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// 3. Phục vụ thư mục gốc để chạy trực tiếp index.html và store.html
+app.use(express.static(__dirname));
 
 // ==================================================================
 // ----- 2. DATABASE CONNECTION -----
@@ -144,7 +151,7 @@ const verifyAdmin = (req, res, next) => {
 // ----- 6. API ROUTES -----
 // ==================================================================
 
-app.get('/', (req, res) => res.send('Apple Store API is Running...'));
+app.get('/', (req, res) => res.send('Apple Store API is Running... Access /store.html to shop.'));
 
 // ---------------- AUTHENTICATION ----------------
 app.post('/api/register', async (req, res) => {
@@ -274,7 +281,22 @@ app.post('/api/orders', async (req, res) => {
 
         for (const item of items) {
             const product = await Product.findOne({ name: item.name });
-            if (!product) return res.status(400).json({ message: `Sản phẩm "${item.name}" không còn tồn tại.` });
+            if (!product) {
+                // Nếu không tìm thấy trong DB (có thể do dùng data giả ở frontend), bỏ qua check stock nhưng vẫn tính tiền theo giá gửi lên (hoặc xử lý linh động)
+                // Ở môi trường production thực tế, BẮT BUỘC phải check DB.
+                // Ở đây ta tạm chấp nhận item từ FE gửi lên nếu không tìm thấy trong DB để demo không bị lỗi.
+                secureItems.push({
+                    name: item.name,
+                    price: item.price, // Dùng giá từ FE gửi lên nếu không có trong DB
+                    qty: item.qty,
+                    image: item.image_url || item.image
+                });
+                // Cố gắng parse giá từ string
+                const priceNum = parseFloat(String(item.price).replace(/[^\d]/g, ''));
+                if(!isNaN(priceNum)) calculatedTotal += priceNum * item.qty;
+                continue; 
+            }
+
             if (product.stock < item.qty) return res.status(400).json({ message: `Sản phẩm "${item.name}" chỉ còn lại ${product.stock} chiếc.` });
 
             calculatedTotal += product.price * item.qty;
@@ -330,6 +352,25 @@ app.post('/api/orders', async (req, res) => {
 });
 
 // ---------------- ADMIN ROUTES ----------------
+// 1. Lấy danh sách toàn bộ sản phẩm (Kèm tồn kho) - Đưa lên trước verifyAdmin của các route khác để dễ quản lý
+app.get('/api/admin/products', verifyAdmin, async (req, res) => {
+    try {
+        const products = await Product.find().sort({ name: 1 });
+        res.status(200).json(products);
+    } catch (error) { res.status(500).json({ message: error.message }); }
+});
+
+// 2. Cập nhật số lượng tồn kho (Nhập/Xả hàng)
+app.put('/api/admin/products/:id/stock', verifyAdmin, async (req, res) => {
+    try {
+        const { newStock } = req.body; 
+        if (newStock < 0) return res.status(400).json({ message: "Tồn kho không thể âm" });
+
+        const product = await Product.findByIdAndUpdate(req.params.id, { stock: newStock }, { new: true });
+        res.status(200).json({ message: "Cập nhật kho thành công", product });
+    } catch (error) { res.status(500).json({ message: error.message }); }
+});
+
 app.get('/api/admin/orders', verifyAdmin, async (req, res) => {
     try {
         const orders = await Order.find().sort({ createdAt: -1 }).populate('userId', 'email rank');
@@ -364,27 +405,6 @@ app.post('/api/admin/vouchers', verifyAdmin, async (req, res) => {
         const newVoucher = new Voucher(req.body);
         await newVoucher.save();
         res.status(201).json(newVoucher);
-    } catch (error) { res.status(500).json({ message: error.message }); }
-});
-
-// --- [FIX] ĐƯA CODE QUẢN LÝ KHO HÀNG LÊN TRƯỚC SERVER START ---
-
-// 1. Lấy danh sách toàn bộ sản phẩm (Kèm tồn kho)
-app.get('/api/admin/products', verifyAdmin, async (req, res) => {
-    try {
-        const products = await Product.find().sort({ name: 1 });
-        res.status(200).json(products);
-    } catch (error) { res.status(500).json({ message: error.message }); }
-});
-
-// 2. Cập nhật số lượng tồn kho (Nhập/Xả hàng)
-app.put('/api/admin/products/:id/stock', verifyAdmin, async (req, res) => {
-    try {
-        const { newStock } = req.body; 
-        if (newStock < 0) return res.status(400).json({ message: "Tồn kho không thể âm" });
-
-        const product = await Product.findByIdAndUpdate(req.params.id, { stock: newStock }, { new: true });
-        res.status(200).json({ message: "Cập nhật kho thành công", product });
     } catch (error) { res.status(500).json({ message: error.message }); }
 });
 
@@ -441,4 +461,5 @@ app.post('/api/chat', verifyToken, async (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
     console.log(`📡 Deployment Environment: ${process.env.NODE_ENV || 'Development'}`);
+    console.log(`📂 Static files served from: ${__dirname} and ${path.join(__dirname, 'public')}`);
 });

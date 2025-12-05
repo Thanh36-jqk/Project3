@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store - Apple Premium Reseller</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* GIỮ LẠI CSS CƠ BẢN VÀ CSS CHO CÁC MODAL/SẢN PHẨM */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #000; color: #f5f5f7; overflow-x: hidden; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1d1d1f; }
+        ::-webkit-scrollbar-thumb { background: #424245; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #86868b; }
+
+        /* Header Styles (Shared) */
+        header { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; backdrop-filter: blur(20px) saturate(180%); background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .menu { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 48px; gap: 16px; }
+        .menu a { color: #f5f5f7; text-decoration: none; font-size: 12px; transition: all 0.3s; position: relative; white-space: nowrap; }
+        .menu a:hover { color: #fff; }
+        .logo { font-size: 20px; padding: 0 12px !important; }
+
+        /* Search & Cart (Shared) */
+        .search-container { position: relative; display: flex; align-items: center; gap: 4px; }
+        .search-input { width: 0; padding: 6px 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid transparent; border-radius: 20px; color: #f5f5f7; font-size: 13px; outline: none; transition: all 0.4s; opacity: 0; }
+        .search-container:focus-within .search-input, .search-input:not(:placeholder-shown) { width: 180px; opacity: 1; border-color: rgba(255, 255, 255, 0.2); }
+        .search-btn { background: transparent; border: none; color: #f5f5f7; cursor: pointer; padding: 8px; border-radius: 50%; }
+        
+        /* Product Grid Styles (Store Specific) */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; list-style: none; padding: 0; }
+        .product-item { background: rgba(29, 29, 31, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; overflow: hidden; transition: all 0.4s; cursor: pointer; height: 100%; display: flex; flex-direction: column; }
+        .product-item:hover { transform: translateY(-8px); border-color: rgba(0, 113, 227, 0.5); box-shadow: 0 20px 40px rgba(0, 113, 227, 0.2); background: rgba(29, 29, 31, 0.8); }
+        .product-image { position: relative; width: 100%; height: 280px; background: rgba(255, 255, 255, 0.02); display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .product-image img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.4s ease; }
+        .product-item:hover .product-image img { transform: scale(1.1); }
+        .product-info { padding: 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .product-cat { font-size: 11px; color: #86868b; text-transform: uppercase; font-weight: 500; }
+        .product-name { font-size: 18px; font-weight: 600; color: #f5f5f7; margin-bottom: 4px; }
+        .product-price { font-size: 16px; font-weight: 500; color: #0071e3; margin-top: auto; margin-bottom: 12px; }
+        .product-info button { width: 100%; padding: 10px; background: rgba(0, 113, 227, 0.1); border: 1px solid rgba(0, 113, 227, 0.3); border-radius: 10px; color: #0071e3; cursor: pointer; transition: all 0.3s; margin-bottom: 8px; }
+        .product-info button:hover { background: rgba(0, 113, 227, 0.2); transform: scale(1.02); }
+        .btn-payment { background: rgba(0, 113, 227, 0.9) !important; color: white !important; }
+
+        /* Login & Cart UI */
+        .login-link { display: flex; align-items: center; gap: 6px; padding: 6px 12px !important; border-radius: 20px; }
+        .login-link:hover { background: rgba(255, 255, 255, 0.1); }
+        .logged-in-user { display: flex; align-items: center; gap: 8px; padding: 4px 12px; background: rgba(255, 255, 255, 0.08); border-radius: 20px; font-size: 12px; }
+        .cart-container { position: relative; cursor: pointer; padding: 8px; border-radius: 50%; }
+        .cart-container:hover { background: rgba(255, 255, 255, 0.1); }
+        .cart-count { position: absolute; top: 2px; right: 2px; background: #0071e3; color: white; font-size: 9px; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        /* Copy lại CSS của Modal, Footer, Chat từ index.html (Đã được tối ưu ở dưới) */
+        /* ... (CSS cho Modal và Footer được giữ nguyên như file gốc để đảm bảo tính năng) ... */
+    </style>
+    <style>
+        /* Product Detail Modal */
+        .popup-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
+        .popup-container.active { display: flex; }
+        #popup { background: rgba(29, 29, 31, 0.98); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; max-width: 1200px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 40px; position: relative; }
+        .modal-content-left { display: flex; flex-direction: column; align-items: center; }
+        .image-gallery { position: relative; width: 100%; height: 400px; background: rgba(255, 255, 255, 0.02); border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        #modalMainImg { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .thumbnail-container { display: flex; gap: 12px; margin-top: 16px; overflow-x: auto; }
+        .thumbnail-container img { width: 60px; height: 60px; object-fit: contain; background: rgba(255, 255, 255, 0.05); border-radius: 8px; cursor: pointer; }
+        .modal-content-right h2 { font-size: 32px; font-weight: 700; margin-bottom: 12px; }
+        .modal-close-top { position: absolute; top: 20px; right: 20px; color: white; font-size: 24px; cursor: pointer; background: transparent; border: none; }
+        
+        /* Payment Modal */
+        .payment-modal-overlay-index { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; }
+        .payment-modal-overlay-index.active { display: flex; }
+        .payment-content-modal-index { background: #1d1d1f; border-radius: 20px; max-width: 600px; width: 100%; padding: 24px; border: 1px solid rgba(255,255,255,0.1); }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; background: #2d2d2f; border: 1px solid #424245; border-radius: 8px; color: white; margin-bottom: 12px; }
+        .btn-submit-payment { width: 100%; padding: 16px; background: #0071e3; color: white; border-radius: 12px; font-weight: bold; margin-top: 20px; }
+        
+        /* Footer */
+        .footer { background: #1d1d1f; padding: 60px 0 32px; margin-top: 80px; border-top: 1px solid #424245; }
+        .footer-container { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: grid; gap: 40px; }
+        .footer-main { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .footer-column h4 { font-size: 12px; font-weight: 600; color: #f5f5f7; margin-bottom: 10px; }
+        .footer-column ul li a { font-size: 12px; color: #86868b; text-decoration: none; display: block; margin-bottom: 8px; }
+        .footer-column ul li a:hover { color: #f5f5f7; }
+
+        @media(max-width: 768px) {
+            #popup { grid-template-columns: 1fr; padding: 20px; }
+            .footer-main { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+
+    <header>
+        <nav class="menu">
+            <a href="index.html" class="logo"><i class="fab fa-apple"></i></a>
+            
+            <a href="store.html" style="color: #0071e3;">Store</a> <a href="#">Mac</a>
+            <a href="#">iPad</a>
+            <a href="#">iPhone</a>
+            <a href="#">Watch</a>
+            <a href="#">Support</a>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Tìm kiếm...">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            
+            <div id="suggestions-container" class="hidden absolute top-12 right-0 w-80 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50">
+                <ul id="suggestions-list" class="max-h-96 overflow-y-auto"></ul>
+            </div>
+            
+            <a href="login/login.html" class="login-link">
+                <i class="fas fa-user"></i> <span>Đăng nhập</span>
+            </a>
+            
+            <div class="cart-container">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">0</span>
+            </div>
+        </nav>
+    </header>
+
+    <div class="fixed top-24 left-6 z-[9990] flex gap-2 group">
+        <button onclick="document.querySelector('.filter-panel').classList.toggle('-translate-x-full')" 
+                class="w-10 h-10 rounded-full bg-zinc-800/80 backdrop-blur text-white border border-white/10 shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all">
+            <i class="fas fa-filter"></i>
+        </button>
+    </div>
+
+    <aside class="filter-panel fixed top-[48px] left-0 w-80 h-[calc(100vh-48px)] bg-zinc-900/95 backdrop-blur-xl border-r border-white/10 p-8 overflow-y-auto transform -translate-x-full transition-transform duration-300 z-[9997] shadow-2xl">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-xl font-bold text-white flex items-center gap-3"><i class="fas fa-filter text-blue-500"></i> Bộ Lọc</h3>
+            <button onclick="document.querySelector('.filter-panel').classList.add('-translate-x-full')" class="text-zinc-500 hover:text-white"><i class="fas fa-chevron-left"></i></button>
+        </div>
+        <form id="filterForm" class="space-y-8">
+            <div class="filter-group">
+                <h4 class="text-xs font-bold text-zinc-500 uppercase mb-4">Khoảng Giá</h4>
+                <div class="flex flex-wrap gap-2">
+                    <label class="cursor-pointer group"><input type="checkbox" name="price" value="0-5000000" class="peer sr-only"><span class="block px-3 py-2 rounded-lg text-xs bg-zinc-800 peer-checked:bg-blue-600">&lt; 5 triệu</span></label>
+                    <label class="cursor-pointer group"><input type="checkbox" name="price" value="5000000-20000000" class="peer sr-only"><span class="block px-3 py-2 rounded-lg text-xs bg-zinc-800 peer-checked:bg-blue-600">5 - 20 triệu</span></label>
+                    <label class="cursor-pointer group"><input type="checkbox" name="price" value="20000000-999999999" class="peer sr-only"><span class="block px-3 py-2 rounded-lg text-xs bg-zinc-800 peer-checked:bg-blue-600">&gt; 20 triệu</span></label>
+                </div>
+            </div>
+            <div class="filter-group">
+                <h4 class="text-xs font-bold text-zinc-500 uppercase mb-4">Loại Sản Phẩm</h4>
+                <div class="flex flex-col gap-2">
+                    <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" name="category" value="Phone" class="accent-blue-500"> Phone</label>
+                    <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" name="category" value="iPad" class="accent-blue-500"> iPad</label>
+                    <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" name="category" value="Laptop" class="accent-blue-500"> Laptop</label>
+                    <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" name="category" value="Watch" class="accent-blue-500"> Watch</label>
+                </div>
+            </div>
+        </form>
+    </aside>
+
+    <div id="cart-popup" class="hidden fixed top-[48px] right-0 w-full sm:w-[450px] h-[calc(100vh-48px)] bg-zinc-900/95 backdrop-blur-2xl border-l border-white/10 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] z-[9999] flex flex-col transition-all duration-300 translate-x-full">
+        <div class="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-zinc-900/50">
+            <h3 class="text-xl font-bold text-white">Giỏ hàng <span class="text-zinc-500 text-sm cart-count-display">(0)</span></h3>
+            <button onclick="closeCart()" class="text-zinc-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-full"><i class="fas fa-times"></i></button>
+        </div>
+        <ul id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></ul>
+        <div class="p-6 border-t border-white/10 bg-zinc-900/80 mt-auto">
+            <div class="flex justify-between items-end mb-4"><span class="text-zinc-400 text-sm">Tổng:</span><span id="cart-total-display" class="text-2xl font-bold text-blue-500">0₫</span></div>
+            <button onclick="window.location.href='checkout.html'" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2">Thanh Toán <i class="fas fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <div class="w-full pt-20 pb-10">
+        <section id="search-results-section" style="display: none;" class="mb-10 px-6">
+            <h2 class="text-3xl font-bold text-center mb-8">Search Results</h2>
+            <ul id="search-results-list" class="product-grid max-w-7xl mx-auto"></ul>
+        </section>
+
+        <section id="main-store-section" class="max-w-7xl mx-auto px-6">
+            <h1 class="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Apple Store</h1>
+            <p class="text-center text-zinc-400 mb-12">Khám phá công nghệ đỉnh cao.</p>
+            
+            <ul id="product-list-container" class="product-grid">
+                <p class="text-center col-span-full text-zinc-500">Đang tải sản phẩm...</p>
+            </ul>
+        </section>
+    </div>
+
+    <div id="popup-container" class="popup-container">
+        <div id="popup">
+            <div class="modal-content-left">
+                <div class="image-gallery">
+                    <img id="modalMainImg" src="" alt="Main Product">
+                    <button class="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 text-white rounded-full" onclick="changeImage(-1)">❮</button>
+                    <button class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 text-white rounded-full" onclick="changeImage(1)">❯</button>
+                </div>
+                <div id="thumbnail-container" class="thumbnail-container"></div>
+            </div>
+            <div class="modal-content-right">
+                <button class="modal-close-top" onclick="closeModal()">×</button>
+                <h2 id="modalName">Product Name</h2>
+                <p id="modalPrice" class="text-2xl text-blue-500 font-bold mb-4">0₫</p>
+                <div id="modalColorSelector" class="mb-4"></div>
+                <p id="modalDesc" class="text-zinc-400 mb-4 text-sm leading-relaxed"></p>
+                <ul id="modalSpec" class="text-sm text-zinc-300 space-y-2 mb-6"></ul>
+                <button class="w-full py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl mb-3 border border-zinc-700" onclick="addToCartCurrentModal()">Thêm vào giỏ</button>
+                <button class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold" onclick="buyNowCurrentModal()">Mua ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payment-modal-overlay-index" class="payment-modal-overlay-index">
+        <div class="payment-content-modal-index">
+            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+                <h3 class="text-xl font-bold">Thông tin đặt hàng</h3>
+                <button onclick="closePaymentFormIndex()" class="text-zinc-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="paymentFormIndex">
+                <div class="form-group"><label>Người nhận *</label><input type="text" id="recipient-name-index" required></div>
+                <div class="form-group"><label>SĐT *</label><input type="tel" id="recipient-phone-index" required></div>
+                <div class="form-group"><label>Địa chỉ *</label><input type="text" id="recipient-address-index" required></div>
+                <div class="form-group"><label>Ghi chú</label><textarea id="recipient-notes-index" rows="2"></textarea></div>
+                
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm font-semibold">Thanh toán</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer bg-zinc-800 p-3 rounded-lg flex-1"><input type="radio" name="payment-method-index" value="COD" checked> COD</label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-zinc-800 p-3 rounded-lg flex-1"><input type="radio" name="payment-method-index" value="Credit Card"> Thẻ</label>
+                    </div>
+                </div>
+
+                <div class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl mb-4">
+                    <div class="flex justify-between text-sm mb-1"><span>Sản phẩm:</span><span id="payment-product-name-index" class="text-white font-medium"></span></div>
+                    <div class="flex justify-between text-lg font-bold text-blue-400"><span>Tổng:</span><span id="total-amount-index"></span></div>
+                    <div id="payment-product-price-index" class="hidden"></div> </div>
+
+                <button type="submit" class="btn-submit-payment">Xác nhận đặt hàng</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="chat-bubble" onclick="toggleChat()" class="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-transform z-[9998]"><i class="fas fa-comment-dots text-2xl"></i></div>
+    <div id="chat-window" class="hidden fixed bottom-28 right-8 w-80 h-96 bg-zinc-900 border border-zinc-700 rounded-2xl flex-col z-[9999] shadow-2xl">
+        <div class="bg-blue-600 p-4 rounded-t-2xl flex justify-between items-center"><span class="font-bold">Apple Support AI</span><span onclick="toggleChat()" class="cursor-pointer">✕</span></div>
+        <div id="messages-area" class="flex-1 p-4 overflow-y-auto space-y-2">
+            <div class="bg-blue-500/20 p-2 rounded-lg text-sm w-fit">Chào bạn! Tôi có thể giúp gì?</div>
+        </div>
+        <div class="p-3 border-t border-zinc-700 flex gap-2">
+            <input type="text" id="chat-input-text" class="flex-1 bg-zinc-800 rounded px-3 py-2 text-sm outline-none" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendChat()">
+            <button onclick="sendChat()" class="bg-blue-600 px-3 rounded hover:bg-blue-500"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-column"><h4>Shop</h4><ul><li><a href="#">Mac</a></li><li><a href="#">iPhone</a></li></ul></div>
+                <div class="footer-column"><h4>Services</h4><ul><li><a href="#">Apple Music</a></li><li><a href="#">iCloud</a></li></ul></div>
+                <div class="footer-column"><h4>Account</h4><ul><li><a href="#">Manage Your ID</a></li><li><a href="#">Store Account</a></li></ul></div>
+                <div class="footer-column"><h4>About Apple</h4><ul><li><a href="#">Newsroom</a></li><li><a href="#">Investors</a></li></ul></div>
+            </div>
+            <div class="text-center text-zinc-500 text-xs mt-8">© 2025 Apple Clone Store. Designed for Demo.</div>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. CONFIG & AUTH ---
+        const API_URL = 'https://project3-icy1.onrender.com'; // Hoặc localhost nếu dev
+        let allProducts = [];
+        let currentModalProduct = null;
+
+        function getAuthToken() { return localStorage.getItem('accessToken'); }
+        function logout() { localStorage.removeItem('accessToken'); localStorage.removeItem('user'); window.location.reload(); }
+        
+        function updateLoginStatusUI() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const loginLink = document.querySelector('.login-link');
+            if (user && loginLink) {
+                loginLink.innerHTML = `<i class="fas fa-user-circle"></i> <span class="truncate max-w-[100px]">${user.email}</span>`;
+                loginLink.href = "#";
+                loginLink.onclick = (e) => { e.preventDefault(); if(confirm('Đăng xuất?')) logout(); };
+            }
+        }
+
+        // --- 2. FETCH & DISPLAY PRODUCTS ---
+        async function fetchProducts() {
+            try {
+                // Thử gọi API nếu server hỗ trợ, nếu không dùng hardcode list để demo cho chắc
+                // Ở đây ta dùng list hardcode từ file cũ nhưng viết lại dạng JS Object
+const rawProducts = [
+    // --- HEADPHONE ---
+    { 
+        name: 'Airpods Pro 2', 
+        category: 'HeadPhone', 
+        price: 5000000, 
+        image: 'images/airpod2.jpg', 
+        desc: 'Noise-cancelling wireless earbuds, H2 chip', 
+        spec: 'H2 chip, ANC, Bluetooth 5.3, MagSafe Charging' 
+    },
+    { 
+        name: 'AirPods (3rd gen)', 
+        category: 'HeadPhone', 
+        price: 4000000, 
+        image: 'images/AirPods (3rd gen).jpg', 
+        desc: 'New design, Spatial sound, Adaptive EQ', 
+        spec: 'H1 chip, Spatial Audio, Adaptive EQ, IPX4, 6 hour battery life' 
+    },
+    { 
+        name: 'AirPods Max', 
+        category: 'HeadPhone', 
+        price: 13000000, 
+        image: 'images/airpodmax.png', 
+        desc: 'Premium over-ear headphones, active noise cancellation, Hi-Fi sound', 
+        spec: 'H1 chip (each side), ANC, Transparency Mode, Spatial Audio, Digital Crown' 
+    },
+
+    // --- PHONE ---
+    { 
+        name: 'iPhone 7 Plus', 
+        category: 'Phone', 
+        price: 22000000, 
+        image: 'images/iphone7plus.jpeg', 
+        desc: 'iPhone 7 Plus with dual camera, smooth performance', 
+        spec: '5.5in Display, 3GB RAM, A10 Fusion, 2900mAh Battery' 
+    },
+    { 
+        name: 'iPhone 8 Plus', 
+        category: 'Phone', 
+        price: 5000000, 
+        image: 'images/iphone8plus.webp', 
+        desc: 'Glass design, wireless charging, stable performance', 
+        spec: '5.5in Retina HD Display, A11 Bionic, 3GB RAM, 2691mAh Battery' 
+    },
+    { 
+        name: 'iPhone 11', 
+        category: 'Phone', 
+        price: 10000000, 
+        image: 'images/iphone11.jpg', 
+        desc: 'iPhone 11 with dual camera, long battery life, youthful colors', 
+        spec: '6.1in LCD Display, A13 Bionic, 4GB RAM, 3110mAh Battery' 
+    },
+    { 
+        name: 'iPhone 12', 
+        category: 'Phone', 
+        price: 20000000, 
+        image: 'images/iphone 12 black.png', 
+        desc: 'iPhone 12 with 6.1 inch screen, A14 Bionic chip', 
+        spec: 'Screen: 6.1 inch OLED, Chip: A14 Bionic, RAM: 4GB, Battery: 2815mAh' 
+    },
+    { 
+        name: 'iPhone 12 Pro', 
+        category: 'Phone', 
+        price: 25000000, 
+        image: 'images/12 gold.webp', 
+        desc: 'iPhone 12 Pro with Pro camera, LiDAR', 
+        spec: 'Display: 6.1 inch OLED, Chip: A14 Bionic, RAM: 6GB, Camera: 3 lenses, Battery: 2815mAh' 
+    },
+    { 
+        name: 'iPhone 14 Pro Max', 
+        category: 'Phone', 
+        price: 26500000, 
+        image: 'images/iphone14promax.webp', 
+        desc: 'Dynamic Island, chip A16 Bionic', 
+        spec: 'Display: 6.7 inch OLED, Chip: A16 Bionic, RAM: 6GB, Camera: 48MP, Pin: 4323mAh' 
+    },
+    { 
+        name: 'iPhone 15 Pro Max', 
+        category: 'Phone', 
+        price: 27500000, 
+        image: 'images/iphone15promax.webp', 
+        desc: 'Khung titan, chip A17 Pro', 
+        spec: 'Display: 6.7 inch OLED, Chip: A17 Pro, RAM: 8GB, Camera: 48MP, Pin: 4422mAh' 
+    },
+    { 
+        name: 'iPhone 16 Pro Max', 
+        category: 'Phone', 
+        price: 31000000, 
+        image: 'images/16 pro max đen.webp', 
+        desc: 'Display bigger, chip A18 Pro', 
+        spec: 'Display: 6.9 inch OLED, Chip: A18 Pro, RAM: 8GB, Camera: 48MP, Pin: 4700mAh' 
+    },
+    { 
+        name: 'iPhone SE (3rd gen)', 
+        category: 'Phone', 
+        price: 10000000, 
+        image: 'images/iphone se 3rd gold.webp', 
+        desc: 'Powerful performance in compact design, chip A15 Bionic', 
+        spec: 'Display 4.7\" Retina HD, A15 Bionic, RAM 4GB, Camera 12MP, Touch ID, 5G' 
+    },
+    { 
+        name: 'iPhone 13', 
+        category: 'Phone', 
+        price: 15000000, 
+        image: 'images/iphone 13 blue.jpg', 
+        desc: 'Powerful A15 Bionic chip, improved dual camera, good battery life', 
+        spec: 'Display 6.1\" Super Retina XDR, A15 Bionic, RAM 4GB, Double camera 12MP, Pin 3240mAh' 
+    },
+    { 
+        name: 'iPhone 14', 
+        category: 'Phone', 
+        price: 17000000, 
+        image: 'images/iphone 14 red.jpg', 
+        desc: 'Collision detection, upgraded camera, chip A15 Bionic', 
+        spec: 'Display 6.1\" Super Retina XDR, A15 Bionic (5-core GPU), RAM 6GB, Double camera, Crash Detection' 
+    },
+    { 
+        name: 'iPhone 15 Plus', 
+        category: 'Phone', 
+        price: 23000000, 
+        image: 'images/iphonee15 plus black.png', 
+        desc: 'Display lớn 6.7 inch, Dynamic Island, camera 48MP, USB-C', 
+        spec: 'Display 6.7\" Super Retina XDR, A16 Bionic, RAM 6GB, Double camera 48MP, Pin lớn, USB-C' 
+    },
+
+    // --- LAPTOP / DESKTOP ---
+    { 
+        name: 'MacBook Air 15 M3', 
+        category: 'Laptop', 
+        price: 32000000, 
+        image: 'images/air15 black.webp', 
+        desc: 'Display bigger 15 inch, chip M3 strong, thin and light design', 
+        spec: 'M3 8-core CPU, 10-core GPU, 8GB RAM (base), 256GB SSD (base), Display 15.3\", Wi-Fi 6E' 
+    },
+    { 
+        name: 'iMac 24 M3', 
+        category: 'Desktop', 
+        price: 33000000, 
+        image: 'images/imac24.jpg', 
+        desc: 'Gorgeous All-in-One Computer, chip M3, Display Retina 4.5K', 
+        spec: 'M3 8-core CPU, 8/10-core GPU, 8GB RAM (base), 256GB SSD (base), Display 23.5\" 4.5K Retina' 
+    },
+    { 
+        name: 'Mac mini M2', 
+        category: 'Desktop', 
+        price: 15000000, 
+        image: 'images/Mac mini M2.jpg', 
+        desc: 'Compact desktop, impressive performance with M2 chip', 
+        spec: 'M2 8-core CPU, 10-core GPU, 8GB RAM (base), 256GB SSD (base), Wi-Fi 6E, Thunderbolt 4' 
+    },
+
+    // --- WATCH ---
+    { 
+        name: 'Apple Watch Series 9', 
+        category: 'Watch', 
+        price: 10000000, 
+        image: 'images/watch series 9 rose.webp', 
+        desc: 'Powerful S9 chip, Double Tap gesture, Brighter display', 
+        spec: 'S9 SiP, Double Tap, Display Always-On sáng hơn, ECG, Blood Oxygen, GPS' 
+    },
+    { 
+        name: 'Apple Watch Ultra 2', 
+        category: 'Watch', 
+        price: 20000000, 
+        image: 'images/black.webp', 
+        desc: 'Most durable, longest battery life, professional features for sports', 
+        spec: 'S9 SiP, Double Tap, Titanium Case, Dual Frequency GPS, 100m Water Resistant, Dive Computer' 
+    },
+    { 
+        name: 'Apple Watch SE (2nd gen)', 
+        category: 'Watch', 
+        price: 6000000, 
+        image: 'images/se black.jpg', 
+        desc: 'Great value, essential features, S8 chip', 
+        spec: 'S8 SiP, Crash Detection, Heart Rate Monitor, 50m Water Resistant, Family Setup' 
+    },
+
+    // --- IPAD ---
+    { 
+        name: 'iPad Air (M2)', 
+        category: 'iPad', 
+        price: 15000000, 
+        image: 'images/ipad air m2 gold.jpg', 
+        desc: 'Powerful M2 chip, thin and light design, supports Apple Pencil Pro', 
+        spec: 'M2 chip, Display Liquid Retina 11 13\",horizontal front camera, Touch ID, USB-C' 
+    },
+    { 
+        name: 'iPad Pro (M4)', 
+        category: 'iPad', 
+        price: 25000000, 
+        image: 'images/ipadprom4.jpg', 
+        desc: 'Breakthrough M4 Chip, Ultra-thin OLED Tandem Display, Top Performance', 
+        spec: 'M4 chip, Display Ultra Retina XDR (Tandem OLED) 11 13\", Super thin, Face ID, USB-C (Thunderbolt)' 
+    },
+
+    // --- TV & HOME ---
+    { 
+        name: 'Apple TV 4K (3rd gen)', 
+        category: 'TV & Home', 
+        price: 3500000, 
+        image: 'images/appletv4k.jpg', 
+        desc: 'Ultimate 4K HDR entertainment, A15 Bionic chip, new Siri Remote', 
+        spec: 'A15 Bionic, 4K Dolby Vision & HDR10+, tvOS, Wi-Fi + Ethernet (model Advanced), Siri Remote (USB-C)' 
+    },
+    { 
+        name: 'HomePod (2nd gen)', 
+        category: 'TV & Home', 
+        price: 7500000, 
+        image: 'images/homepod2.jpg', 
+        desc: 'Vivid Hi-Fi sound, smart home integration, S7 chip', 
+        spec: 'S7 chip, Spatial audio, Temperature/humidity sensor, Thread, Matter, Siri' 
+    }
+];
+                
+                // Giả lập thêm dữ liệu prefix URL nếu cần
+                allProducts = rawProducts.map(p => ({...p, image: p.image.startsWith('http') ? p.image : API_URL + '/' + p.image}));
+                displayProducts(allProducts);
+            } catch (e) {
+                console.error("Lỗi tải SP:", e);
+                document.getElementById('product-list-container').innerHTML = '<p class="text-center text-red-500">Lỗi tải sản phẩm.</p>';
+            }
+        }
+
+        function displayProducts(products) {
+            const container = document.getElementById('product-list-container');
+            container.innerHTML = '';
+            if(products.length === 0) { container.innerHTML = '<p class="col-span-full text-center">Không tìm thấy sản phẩm.</p>'; return; }
+
+            products.forEach(p => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="product-item h-full">
+                        <div class="product-image"><img src="${p.image}" alt="${p.name}" loading="lazy"></div>
+                        <div class="product-info">
+                            <span class="product-cat">${p.category}</span>
+                            <h3 class="product-name">${p.name}</h3>
+                            <div class="product-price">${p.price.toLocaleString('vi-VN')}₫</div>
+                            <button onclick="event.stopPropagation(); addToCart('${p.name}', ${p.price}, '${p.image}')">Thêm vào giỏ</button>
+                            <button class="btn-payment py-2 rounded-lg font-medium" onclick="event.stopPropagation(); openPaymentModal('${p.name}', '${p.price}')">Mua ngay</button>
+                        </div>
+                    </div>
+                `;
+                li.onclick = () => showProductDetails(p);
+                container.appendChild(li);
+            });
+        }
+
+        // --- 3. CART FUNCTIONS ---
+        async function addToCart(name, price, img) {
+            const token = getAuthToken();
+            if (!token) { alert("Vui lòng đăng nhập!"); return; }
+            try {
+                // Giả lập call API (Thay bằng fetch thật như file cũ nếu server online)
+                const res = await fetch(`${API_URL}/api/cart/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    body: JSON.stringify({ productId: 'dummy_id', name, price, image_url: img, quantity: 1 })
+                });
+                if(res.ok) {
+                    alert(`Đã thêm ${name} vào giỏ!`);
+                    loadCart(); // Reload cart
+                } else alert("Lỗi thêm vào giỏ");
+            } catch (e) { console.error(e); alert("Có lỗi xảy ra"); }
+        }
+
+        async function loadCart() {
+            const token = getAuthToken();
+            if (!token) return;
+            try {
+                const res = await fetch(`${API_URL}/api/cart`, { headers: { 'token': `Bearer ${token}` } });
+                const cart = await res.json();
+                renderCart(cart.items || []);
+            } catch (e) { console.error("Lỗi load giỏ:", e); }
+        }
+
+        function renderCart(items) {
+            const list = document.getElementById("cart-items");
+            const countEl = document.querySelector(".cart-count");
+            const countDisplay = document.querySelector(".cart-count-display");
+            const totalEl = document.getElementById("cart-total-display");
+            
+            list.innerHTML = "";
+            let total = 0, qty = 0;
+
+            items.forEach(item => {
+                total += item.price * item.quantity;
+                qty += item.quantity;
+                list.innerHTML += `
+                    <li class="flex gap-4 p-3 bg-white/5 rounded-lg relative group">
+                        <img src="${item.image_url}" class="w-16 h-16 object-contain bg-white rounded-md">
+                        <div>
+                            <h4 class="font-medium text-sm text-white">${item.name}</h4>
+                            <div class="text-blue-400 text-sm font-bold">${item.price.toLocaleString('vi-VN')}₫ <span class="text-zinc-500 font-normal">x${item.quantity}</span></div>
+                        </div>
+                        <button onclick="removeFromCart('${item.productId}')" class="absolute top-2 right-2 text-zinc-600 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                    </li>
+                `;
+            });
+
+            if(countEl) countEl.innerText = qty;
+            if(countDisplay) countDisplay.innerText = `(${qty})`;
+            if(totalEl) totalEl.innerText = total.toLocaleString('vi-VN') + '₫';
+        }
+        
+        // Mở/Đóng Cart Sidebar
+        const cartIcon = document.querySelector('.cart-container');
+        if(cartIcon) cartIcon.onclick = () => {
+            document.getElementById('cart-popup').classList.remove('hidden');
+            setTimeout(() => document.getElementById('cart-popup').classList.remove('translate-x-full'), 10);
+            loadCart();
+        };
+        function closeCart() {
+            const popup = document.getElementById('cart-popup');
+            popup.classList.add('translate-x-full');
+            setTimeout(() => popup.classList.add('hidden'), 300);
+        }
+
+        // --- 4. MODAL FUNCTIONS ---
+        function showProductDetails(product) {
+            currentModalProduct = product;
+            document.getElementById('modalName').innerText = product.name;
+            document.getElementById('modalPrice').innerText = product.price.toLocaleString('vi-VN') + '₫';
+            document.getElementById('modalDesc').innerText = product.desc || 'No description';
+            document.getElementById('modalSpec').innerHTML = (product.spec || '').split(',').map(s => `<li>• ${s.trim()}</li>`).join('');
+            document.getElementById('modalMainImg').src = product.image;
+            document.getElementById('popup-container').classList.add('active');
+        }
+        function closeModal() { document.getElementById('popup-container').classList.remove('active'); }
+        function addToCartCurrentModal() { if(currentModalProduct) addToCart(currentModalProduct.name, currentModalProduct.price, currentModalProduct.image); }
+        function buyNowCurrentModal() { 
+            closeModal();
+            if(currentModalProduct) openPaymentModal(currentModalProduct.name, currentModalProduct.price);
+        }
+
+        // --- 5. PAYMENT FUNCTIONS ---
+        function openPaymentModal(name, price) {
+            document.getElementById('payment-product-name-index').innerText = name;
+            document.getElementById('total-amount-index').innerText = (typeof price === 'number' ? price.toLocaleString('vi-VN') + '₫' : price);
+            document.getElementById('payment-modal-overlay-index').classList.add('active');
+        }
+        function closePaymentFormIndex() { document.getElementById('payment-modal-overlay-index').classList.remove('active'); }
+
+        document.getElementById('paymentFormIndex').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alert("Demo: Đặt hàng thành công! (API sẽ được gọi tại đây)");
+            closePaymentFormIndex();
+        });
+
+        // --- 6. FILTER & SEARCH ---
+        document.getElementById('filterForm').addEventListener('change', () => {
+            const formData = new FormData(document.getElementById('filterForm'));
+            const cats = formData.getAll('category');
+            const prices = formData.getAll('price');
+            
+            let filtered = allProducts;
+            if (cats.length > 0) filtered = filtered.filter(p => cats.includes(p.category));
+            if (prices.length > 0) filtered = filtered.filter(p => prices.some(range => {
+                const [min, max] = range.split('-').map(Number);
+                return p.price >= min && p.price <= max;
+            }));
+            displayProducts(filtered);
+        });
+
+        // Search logic cơ bản
+        document.querySelector('.search-input').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term));
+            displayProducts(filtered);
+            if(term) {
+                document.getElementById('search-results-section').style.display = 'block';
+                document.getElementById('main-store-section').style.display = 'none';
+                document.getElementById('search-results-list').innerHTML = ''; 
+                // Render search result logic here (tương tự displayProducts)
+                filtered.forEach(p => {
+                    document.getElementById('search-results-list').innerHTML += `
+                        <li class="product-item p-4">
+                            <img src="${p.image}" class="h-40 w-full object-contain mb-2">
+                            <h3 class="text-white font-bold">${p.name}</h3>
+                            <div class="text-blue-500">${p.price.toLocaleString('vi-VN')}₫</div>
+                        </li>`;
+                });
+            } else {
+                document.getElementById('search-results-section').style.display = 'none';
+                document.getElementById('main-store-section').style.display = 'block';
+            }
+        });
+
+        // --- 7. CHATBOT ---
+        function toggleChat() { 
+            const win = document.getElementById('chat-window'); 
+            win.classList.toggle('hidden'); 
+            if(!win.classList.contains('hidden')) document.getElementById('chat-input-text').focus();
+        }
+        async function sendChat() {
+            const input = document.getElementById('chat-input-text');
+            const msg = input.value.trim();
+            if(!msg) return;
+            const area = document.getElementById('messages-area');
+            area.innerHTML += `<div class="bg-zinc-700 p-2 rounded-lg text-sm w-fit self-end ml-auto">${msg}</div>`;
+            input.value = '';
+            // Demo reply
+            setTimeout(() => {
+                area.innerHTML += `<div class="bg-blue-500/20 p-2 rounded-lg text-sm w-fit">AI đang bảo trì (Demo mode).</div>`;
+                area.scrollTop = area.scrollHeight;
+            }, 1000);
+        }
+
+        // INIT
+        window.addEventListener('DOMContentLoaded', () => {
+            updateLoginStatusUI();
+            fetchProducts();
+            loadCart();
+        });
+    </script>
+</body>
+</html>
