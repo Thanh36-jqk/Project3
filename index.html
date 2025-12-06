@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apple iPhone 16 Pro - Titanium</title>
+    <title>Apple iPhone 16 Pro - Titanium Experience</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -22,7 +21,7 @@
     </script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
@@ -32,243 +31,239 @@
             overflow-x: hidden;
         }
 
-        /* Ẩn thanh cuộn để tăng thẩm mỹ */
         ::-webkit-scrollbar { width: 0px; background: transparent; }
-
-        /* Canvas 3D nằm dưới cùng */
-        #webgl-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            outline: none;
+        
+        /* Canvas nền 3D */
+        #webgl-canvas { 
+            position: fixed; top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
+            z-index: -1; outline: none; 
         }
 
-        /* Màn hình Loading sang trọng */
+        /* Loading Screen Mới */
         #loader {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.8s ease-out;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; transition: opacity 0.8s ease-out;
         }
-        
-        .loader-bar {
-            width: 200px;
-            height: 2px;
-            background: rgba(255,255,255,0.2);
-            margin-top: 20px;
-            position: relative;
-            overflow: hidden;
-            border-radius: 2px;
-        }
-        
-        .loader-progress {
-            position: absolute;
-            top: 0; left: 0; height: 100%;
-            width: 0%;
-            background: #0071e3;
-            transition: width 0.2s ease;
-            box-shadow: 0 0 10px #0071e3;
-        }
+        .loader-bar { width: 200px; height: 2px; background: rgba(255,255,255,0.2); margin-top: 20px; overflow: hidden; border-radius: 2px; }
+        .loader-progress { height: 100%; width: 0%; background: #2997ff; transition: width 0.2s ease; box-shadow: 0 0 15px #2997ff; }
 
-        /* Hiệu ứng Header mờ (Glassmorphism) */
-        header {
-            transition: all 0.5s ease;
-            border-bottom: 1px solid rgba(255,255,255,0);
-        }
-        header.scrolled {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
+        /* Typography & Effects */
+        .text-gradient { background: linear-gradient(180deg, #fff 0%, #86868b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Hiệu ứng chữ chạy (Marquee) cho màn hình 120Hz */
+        .marquee-container { overflow: hidden; white-space: nowrap; position: relative; mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent); }
+        .marquee-text { display: inline-block; animation: marquee 25s linear infinite; font-size: 6rem; font-weight: 800; color: rgba(255,255,255,0.03); letter-spacing: -2px; }
+        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-        /* Typography Utility */
-        .text-gradient {
-            background: linear-gradient(180deg, #fff 0%, #86868b 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* Nền giả lập màn hình Display */
+        .display-bg {
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 70%);
         }
     </style>
 </head>
 <body class="antialiased opacity-0 transition-opacity duration-1000" id="main-body">
 
     <div id="loader">
-        <i class="fab fa-apple text-5xl text-white mb-4 animate-pulse"></i>
-        <div class="loader-bar">
-            <div class="loader-progress" id="progress-bar"></div>
-        </div>
-        <p class="text-xs text-gray-500 mt-2 font-mono" id="loading-text">INITIALIZING SYSTEMS...</p>
+        <i class="fab fa-apple text-6xl text-white mb-6 animate-pulse"></i>
+        <div class="loader-bar"><div class="loader-progress" id="progress-bar"></div></div>
+        <p class="text-[10px] text-gray-500 mt-3 font-mono tracking-widest" id="loading-text">LOADING EXPERIENCE...</p>
     </div>
 
     <canvas id="webgl-canvas"></canvas>
 
-    <header class="fixed top-0 w-full z-50 h-14 flex items-center transition-all duration-300">
+    <header class="fixed top-0 w-full z-50 h-14 flex items-center transition-all duration-300 hover:bg-black/80 hover:backdrop-blur-md border-b border-transparent hover:border-white/10">
         <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
-            <a href="index.html" class="text-xl text-white hover:opacity-80 transition-opacity">
-                <i class="fab fa-apple"></i>
-            </a>
-            
+            <a href="index.html" class="text-xl text-white hover:opacity-80 transition-opacity"><i class="fab fa-apple"></i></a>
             <nav class="hidden md:flex gap-8 text-xs font-light tracking-wide text-gray-300">
                 <a href="store.html" class="hover:text-white transition-colors">Store</a>
                 <a href="#" class="hover:text-white transition-colors">Mac</a>
                 <a href="#" class="hover:text-white transition-colors">iPad</a>
                 <a href="#" class="hover:text-white transition-colors">iPhone</a>
-                <a href="#" class="hover:text-white transition-colors">Vision</a>
+                <a href="#" class="hover:text-white transition-colors">Watch</a>
                 <a href="#" class="hover:text-white transition-colors">Support</a>
             </nav>
-
             <div class="flex items-center gap-6">
                 <a href="#" class="text-gray-300 hover:text-white text-xs"><i class="fas fa-search"></i></a>
-                <a href="store.html" class="text-gray-300 hover:text-white text-xs relative">
-                    <i class="fas fa-shopping-bag"></i>
-                </a>
+                <a href="store.html" class="text-gray-300 hover:text-white text-xs relative"><i class="fas fa-shopping-bag"></i></a>
             </div>
         </div>
     </header>
-
 <main id="scroll-content" class="relative z-10 pointer-events-none">
         
         <section class="h-screen flex flex-col items-center justify-center text-center relative section-hero">
-            <div class="mt-[-10vh]"> <h2 class="text-blue-500 font-medium tracking-[0.2em] text-sm mb-4 uppercase animate-pulse">New Generation</h2>
-                <h1 class="text-6xl md:text-9xl font-bold tracking-tighter mb-6 text-gradient opacity-0 translate-y-10 gsap-hero-text">
+            <div class="mt-[-5vh]">
+                <h2 class="text-[#2997ff] font-bold tracking-[0.3em] text-[10px] md:text-xs mb-6 uppercase animate-pulse">
+                    The New Generation
+                </h2>
+                <h1 class="text-7xl md:text-9xl font-bold tracking-tighter mb-4 text-gradient opacity-0 translate-y-10 gsap-hero-text drop-shadow-[0_0_50px_rgba(255,255,255,0.15)]">
                     Titanium.
                 </h1>
-                <p class="text-xl md:text-2xl text-gray-400 font-light opacity-0 translate-y-10 gsap-hero-text">
+                <p class="text-xl md:text-3xl text-gray-400 font-light opacity-0 translate-y-10 gsap-hero-text">
                     So strong. So light. So Pro.
                 </p>
             </div>
             
-            <div class="absolute bottom-10 animate-bounce text-gray-500">
-                <p class="text-xs mb-2">Scroll to explore</p>
-                <i class="fas fa-chevron-down"></i>
+            <div class="absolute bottom-12 animate-bounce text-gray-500 flex flex-col items-center gap-2">
+                <p class="text-[10px] tracking-widest uppercase opacity-60">Scroll to explore</p>
+                <i class="fas fa-chevron-down text-xs"></i>
             </div>
         </section>
 
         <section class="h-screen flex items-center relative section-chip">
             <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2">
-                <div class="text-left opacity-0 translate-x-[-50px] gsap-chip-text pointer-events-auto">
-                    <div class="inline-block px-3 py-1 border border-blue-500/30 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold mb-4">
-                        A17 PRO CHIP
+                <div class="text-left opacity-0 translate-x-[-50px] gsap-chip-text pointer-events-auto z-20">
+                    <div class="w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-gray-800 to-black border border-white/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                        <span class="font-mono text-xs text-gray-400">A17</span>
                     </div>
-                    <h2 class="text-5xl md:text-7xl font-bold mb-6 text-white leading-tight">
-                        A monster win for <br> <span class="text-blue-500">gaming.</span>
+                    <h2 class="text-5xl md:text-7xl font-bold mb-6 text-white leading-none">
+                        A17 Pro. <br> <span class="text-[#2997ff]">Monster win.</span>
                     </h2>
-                    <p class="text-lg text-gray-400 leading-relaxed font-light max-w-md">
-                        It's here. The biggest redesign in the history of Apple GPUs. A17 Pro is an entirely new class of iPhone chip that delivers our best graphics performance by far.
+                    <p class="text-lg text-gray-400 leading-relaxed font-light max-w-md border-l-2 border-[#2997ff] pl-6">
+                        The biggest redesign in the history of Apple GPUs. Mobile games will look and feel so immersive, with incredibly detailed environments and more realistic characters.
                     </p>
-                    <button class="mt-8 px-8 py-3 bg-white text-black rounded-full font-medium hover:bg-gray-200 transition-colors">
-                        Explore A17 Pro
-                    </button>
                 </div>
             </div>
         </section>
 
         <section class="h-screen flex items-center relative section-camera">
             <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2">
-                <div class="md:col-start-2 text-left md:pl-20 opacity-0 translate-x-[50px] gsap-camera-text pointer-events-auto">
+                <div class="md:col-start-2 text-left md:pl-20 opacity-0 translate-x-[50px] gsap-camera-text pointer-events-auto z-20">
                     <h2 class="text-5xl md:text-7xl font-bold mb-6 text-white">
                         Camera. <br> <span class="text-purple-500">Wildly Pro.</span>
                     </h2>
-                    <div class="grid grid-cols-2 gap-6 mt-8">
-                        <div>
-                            <h3 class="text-3xl font-bold text-white">48MP</h3>
-                            <p class="text-sm text-gray-500">Main Camera</p>
-                        </div>
-                        <div>
-                            <h3 class="text-3xl font-bold text-white">120mm</h3>
-                            <p class="text-sm text-gray-500">5x Optical Zoom</p>
-                        </div>
-                    </div>
-                    <p class="mt-8 text-gray-400 font-light">
+                    <p class="text-gray-400 text-lg mb-8 max-w-sm">
                         Capture your wildest imagination with the all-new 48MP Main camera.
                     </p>
+                    
+                    <div class="grid grid-cols-3 gap-6 border-t border-white/10 pt-6">
+                        <div>
+                            <h3 class="text-3xl font-bold text-white">48MP</h3>
+                            <p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">Main</p>
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-bold text-white">120<span class="text-lg">mm</span></h3>
+                            <p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">5x Zoom</p>
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-bold text-white">4K<span class="text-lg">60</span></h3>
+                            <p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">ProRes</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
-        <section class="min-h-screen flex flex-col items-center justify-center relative px-6 py-20 pointer-events-auto" id="tech-specs-section">
-            <div id="tech-specs" class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-3 gap-6 opacity-0 translate-y-20 transition-all duration-1000">
+
+        <section class="h-[80vh] flex flex-col justify-center relative overflow-hidden pointer-events-auto border-y border-white/5 bg-black">
+            
+            <div class="absolute inset-0 z-0 opacity-40">
+                <img src="images/XDR.jpg" class="w-full h-full object-cover scale-110 blur-sm" alt="XDR Background">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
+            </div>
+
+            <div class="marquee-container py-10 opacity-30 relative z-10 mix-blend-overlay">
+                <div class="marquee-text">
+                    SUPER RETINA XDR — PROMOTION 120HZ — ALWAYS ON — DYNAMIC ISLAND — 
+                    SUPER RETINA XDR — PROMOTION 120HZ — ALWAYS ON — DYNAMIC ISLAND —
+                </div>
+            </div>
+
+            <div class="text-center z-20 px-6 mt-[-50px]">
+                <h2 class="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
+                    Brilliant. <br>In every way.
+                </h2>
+                <p class="text-xl text-gray-200 max-w-2xl mx-auto font-light drop-shadow-md">
+                    The most advanced Super Retina XDR display with ProMotion.
+                </p>
+            </div>
+        </section>
+
+        <section class="min-h-screen flex flex-col items-center justify-center relative px-6 py-24 pointer-events-auto bg-black" id="tech-specs-section">
+            <div class="mb-16 text-center z-10">
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-2">The full story.</h2>
+                <p class="text-gray-500">iPhone 16 Pro Max deep dive.</p>
+            </div>
+            
+            <div id="tech-specs" class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-5 opacity-0 translate-y-20 z-10">
                 
-                <div class="bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:border-blue-500/50 transition-colors group">
-                    <i class="fas fa-bolt text-4xl text-yellow-500 mb-4"></i>
-                    <h3 class="text-2xl font-bold text-gray-200">All-day Battery</h3>
-                    <p class="text-gray-400 mt-2 text-sm">Up to 29 hours video playback. Pro performance needs pro power.</p>
-                </div>
-
-                <div class="md:col-span-2 bg-gradient-to-br from-zinc-800 to-black border border-white/10 p-8 rounded-3xl relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full"></div>
-                    <h3 class="text-3xl font-bold text-white mb-2">Aerospace-grade Titanium</h3>
-                    <p class="text-gray-400 max-w-sm">The same alloy that spacecraft use for missions to Mars.</p>
-                    <div class="mt-6 flex gap-4">
-                        <div class="w-8 h-8 rounded-full bg-[#5C5C5C] border border-white/20"></div>
-                        <div class="w-8 h-8 rounded-full bg-[#2F343F] border border-white/20"></div>
-                        <div class="w-8 h-8 rounded-full bg-[#F2F3F5] border border-white/20"></div>
+                <div class="md:col-span-2 md:row-span-2 bg-[#101010] border border-white/10 p-10 rounded-[2rem] relative overflow-hidden group hover:border-white/20 transition-all duration-500">
+                    <div class="absolute -right-20 -top-20 w-96 h-96 bg-blue-600/10 blur-[100px] rounded-full group-hover:bg-blue-600/20 transition-all duration-700"></div>
+                    
+                    <h3 class="text-3xl font-bold text-white mb-4 relative z-10">Titanium Design.</h3>
+                    <p class="text-gray-400 mb-10 relative z-10 max-w-xs">
+                        The first iPhone to feature an aerospace-grade titanium design, using the same alloy that spacecraft use for missions to Mars.
+                    </p>
+                    
+                    <div class="absolute bottom-10 left-10 flex gap-4">
+                        <div class="w-10 h-10 rounded-full bg-[#5C5C5C] ring-2 ring-white/10 shadow-lg"></div>
+                        <div class="w-10 h-10 rounded-full bg-[#2F343F] ring-2 ring-white/10 shadow-lg"></div>
+                        <div class="w-10 h-10 rounded-full bg-[#F2F3F5] ring-2 ring-white/10 shadow-lg"></div>
+                        <div class="w-10 h-10 rounded-full bg-[#1e2530] ring-2 ring-white/10 shadow-lg"></div>
                     </div>
                 </div>
 
-                <div class="bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl flex flex-col justify-between hover:border-purple-500/50 transition-colors">
+                <div class="md:col-span-2 bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-green-500/30 transition-colors duration-300 relative overflow-hidden">
+                    <div class="absolute right-[-20px] top-[-20px] w-32 h-32 bg-green-500/10 blur-[50px]"></div>
+                    <div class="flex items-center justify-between h-full">
+                        <div>
+                            <h3 class="text-4xl font-bold text-white">29h</h3>
+                            <p class="text-gray-400 text-sm mt-1">Video playback</p>
+                        </div>
+                        <i class="fas fa-battery-full text-4xl text-green-500"></i>
+                    </div>
+                </div>
+
+                <div class="bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-orange-500/30 transition-colors duration-300 flex flex-col justify-between">
+                    <i class="fas fa-circle-dot text-3xl text-orange-500 mb-4"></i>
                     <div>
-                        <h3 class="text-4xl font-bold text-white">120Hz</h3>
-                        <p class="text-purple-400 font-medium">ProMotion</p>
+                        <h3 class="text-lg font-bold text-white">Action Button</h3>
+                        <p class="text-gray-500 text-xs mt-1">Shortcut to your favorite feature.</p>
                     </div>
-                    <p class="text-gray-500 text-xs mt-4">Super Retina XDR Display</p>
                 </div>
 
-                <div class="bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:border-orange-500/50 transition-colors">
-                    <i class="fas fa-circle-dot text-4xl text-orange-500 mb-4"></i>
-                    <h3 class="text-xl font-bold text-white">Action Button</h3>
-                    <p class="text-gray-400 mt-2 text-sm">Customize your favorite feature.</p>
-                </div>
-
-                <div class="bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl flex items-center justify-between group">
+                <div class="bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-blue-500/30 transition-colors duration-300 flex flex-col justify-between">
+                    <i class="fas fa-bolt text-3xl text-blue-500 mb-4"></i>
                     <div>
-                        <h3 class="text-2xl font-bold text-white">USB-C 3</h3>
-                        <p class="text-green-400 text-sm">20x Faster Transfers</p>
+                        <h3 class="text-lg font-bold text-white">USB-C 3</h3>
+                        <p class="text-gray-500 text-xs mt-1">Up to 20x faster transfer speeds.</p>
                     </div>
-                    <i class="fas fa-wifi text-3xl text-gray-600 group-hover:text-white transition-colors"></i>
                 </div>
             </div>
         </section>
 
-        <section class="h-screen flex flex-col items-center justify-center relative section-cta pointer-events-auto">
-            <h2 class="text-4xl md:text-6xl font-bold mb-8 text-center text-white opacity-0 scale-90 gsap-cta-text">
-                iPhone 16 Pro Max
+        <section class="h-[80vh] flex flex-col items-center justify-center relative section-cta pointer-events-auto bg-gradient-to-b from-black via-black to-zinc-900">
+            <h2 class="text-5xl md:text-8xl font-bold mb-10 text-center text-white opacity-0 scale-90 gsap-cta-text tracking-tighter">
+                iPhone 16 Pro
             </h2>
-            <div class="flex gap-4 opacity-0 scale-90 gsap-cta-text">
-                <a href="store.html" class="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white text-lg font-bold rounded-full transition-all hover:scale-105 shadow-[0_0_30px_rgba(0,113,227,0.4)]">
+            <div class="flex flex-col md:flex-row gap-6 opacity-0 scale-90 gsap-cta-text z-20">
+                <a href="store.html" class="px-12 py-4 bg-[#2997ff] hover:bg-[#0071e3] text-white text-lg font-semibold rounded-full transition-all hover:scale-105 shadow-[0_0_50px_rgba(41,151,255,0.4)]">
                     Buy Now
                 </a>
-                <a href="store.html" class="px-10 py-4 border border-white/20 hover:bg-white/10 text-white text-lg font-medium rounded-full transition-all">
+                <a href="store.html" class="px-12 py-4 border border-white/20 hover:bg-white text-white hover:text-black text-lg font-semibold rounded-full transition-all">
                     Visit Store
                 </a>
             </div>
             
-            <footer class="absolute bottom-10 text-gray-600 text-xs">
-                © 2025 Apple Clone Project. Designed with Three.js & Tailwind.
+            <footer class="absolute bottom-6 w-full text-center border-t border-white/5 pt-6 z-10">
+                <p class="text-gray-600 text-[10px] uppercase tracking-widest">© 2025 Premium Clone Project. WebGL Experience.</p>
             </footer>
         </section>
 
     </main>
 <script type="module">
         import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // --- 1. SETUP CƠ BẢN ---
+        // --- 1. KHỞI TẠO HỆ THỐNG ---
         const canvas = document.querySelector('#webgl-canvas');
         const loadingScreen = document.getElementById('loader');
         const progressBar = document.getElementById('progress-bar');
-        const loadingText = document.getElementById('loading-text');
-
+        
+        // Hàm ẩn màn hình chờ
         function hideLoader() {
             loadingScreen.style.opacity = '0';
             document.getElementById('main-body').classList.remove('opacity-0');
@@ -276,69 +271,86 @@
         }
 
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000000, 0.02); // Sương mù đen tạo chiều sâu
+        // Sương mù đen (Fog) giúp che đi việc model bị cắt ở xa, tạo chiều sâu vô tận
+        scene.fog = new THREE.FogExp2(0x000000, 0.01); 
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 10); // Kéo camera ra xa hơn (Cũ là 8)
+        camera.position.set(0, 0, 10); // Đặt camera ở khoảng cách tiêu chuẩn
 
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: canvas, 
+            antialias: true, // Khử răng cưa cho viền mịn
+            alpha: true      // Nền trong suốt để thấy màu background CSS
+        });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Tối ưu cho màn hình Retina
+        
+        // Cấu hình màu sắc chuẩn điện ảnh (High Dynamic Range)
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMappingExposure = 1.2; // Tăng độ phơi sáng
+        renderer.shadowMap.enabled = true;  // Bật đổ bóng
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Bóng mềm tự nhiên
 
-        // --- 2. LIGHTING (Ánh sáng Studio mượt hơn) ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        // --- 2. ÁNH SÁNG STUDIO (QUAN TRỌNG ĐỂ TẠO ĐỘ BÓNG) ---
+        // Ánh sáng môi trường: Giúp các vùng tối không bị đen kịt
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); 
         scene.add(ambientLight);
 
-        const keyLight = new THREE.SpotLight(0x0071e3, 80); // Xanh dương
+        // Đèn chính (Key Light) - Màu xanh Apple đặc trưng
+        const keyLight = new THREE.SpotLight(0x2997ff, 150); 
         keyLight.position.set(10, 10, 10);
         keyLight.angle = Math.PI / 6;
-        keyLight.penumbra = 1;
+        keyLight.penumbra = 1; // Độ mờ viền sáng
         keyLight.castShadow = true;
         scene.add(keyLight);
 
-        const rimLight = new THREE.SpotLight(0xffffff, 40); // Viền trắng
+        // Đèn viền (Rim Light) - Tạo đường biên sáng trắng ở cạnh Titanium
+        const rimLight = new THREE.SpotLight(0xffffff, 80); 
         rimLight.position.set(-10, 10, -5);
         scene.add(rimLight);
+        
+        // Đèn lấp đầy (Fill Light) - Từ dưới lên để chiếu sáng cạnh đáy
+        const fillLight = new THREE.PointLight(0xffffff, 30);
+        fillLight.position.set(0, -10, 5);
+        scene.add(fillLight);
 
-        // --- 3. PARTICLES SYSTEM (HIỆU ỨNG BỤI TITANIUM) ---
-        // Tạo 2000 hạt nhỏ bay lơ lửng
+        // --- 3. HỆ THỐNG HẠT (PARTICLES) ---
+        // Tạo 1500 hạt bụi phát sáng bay lơ lửng
         const particlesGeometry = new THREE.BufferGeometry();
-        const particlesCount = 2000;
+        const particlesCount = 1500;
         const posArray = new Float32Array(particlesCount * 3);
 
         for(let i = 0; i < particlesCount * 3; i++) {
             // Rải hạt ngẫu nhiên trong không gian rộng
-            posArray[i] = (Math.random() - 0.5) * 40; 
+            posArray[i] = (Math.random() - 0.5) * 45; 
         }
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        
         const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.03,
+            size: 0.04, 
             color: 0x4aa3f0, // Màu xanh nhạt
-            transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending
+            transparent: true, 
+            opacity: 0.6, 
+            blending: THREE.AdditiveBlending // Chế độ hòa trộn ánh sáng
         });
+        
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
 
-        // --- 4. LOAD MODEL & RESPONSIVE SCALE ---
+        // --- 4. LOAD MODEL & XỬ LÝ VẬT LIỆU (GLOSSY) ---
         const manager = new THREE.LoadingManager();
         manager.onProgress = (url, loaded, total) => {
             const progress = (loaded / total) * 100;
             if(progressBar) progressBar.style.width = progress + '%';
         };
-        
-        // **QUAN TRỌNG**: Hàm chỉnh cỡ model theo màn hình
+
+        // Hàm chỉnh kích thước model theo thiết bị
         function updateModelScale(model) {
             if(window.innerWidth < 768) {
-                // Mobile: Nhỏ hơn nữa
+                // Mobile: Nhỏ hơn (3.5)
                 model.scale.set(3.5, 3.5, 3.5); 
             } else {
-                // PC: Vừa phải (Giảm từ 15 xuống 6.5)
+                // PC: Vừa phải (6.5)
                 model.scale.set(6.5, 6.5, 6.5);
             }
         }
@@ -346,26 +358,35 @@
         const loader = new GLTFLoader(manager);
         let iphoneModel = null;
 
+        // Load Model chính
         loader.load('/images/iphone_16_pro_max.glb', (gltf) => {
             iphoneModel = gltf.scene;
-            updateModelScale(iphoneModel); // Set scale ngay khi load
-            iphoneModel.position.set(0, -1, 0); // Hạ thấp xuống một chút
+            updateModelScale(iphoneModel);
+            iphoneModel.position.set(0, -1, 0);
             
-            // Fix vật liệu để đỡ bị chói lóa
+            // --- KỸ THUẬT "ULTRA GLOSSY" ---
+            // Duyệt qua từng bộ phận của điện thoại để chỉnh sửa vật liệu
             iphoneModel.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
+                    
                     if(child.material) {
-                        child.material.envMapIntensity = 0.8; // Giảm độ phản chiếu môi trường
-                        child.material.roughness = 0.4; // Tăng độ nhám để nhìn rõ khối hơn
+                        // Bí quyết tạo độ bóng:
+                        // 1. Metalness = 1.0 (Kim loại hoàn toàn)
+                        // 2. Roughness = 0.15 (Rất mịn, gần như gương)
+                        // 3. EnvMapIntensity = 1.5 (Phản chiếu môi trường mạnh)
+                        child.material.metalness = 1.0;
+                        child.material.roughness = 0.15; 
+                        child.material.envMapIntensity = 1.5; 
                     }
                 }
             });
+
             scene.add(iphoneModel);
-        }, undefined, (err) => {
-            console.error(err);
-            // Fallback load iPhone 15
+        }, undefined, (error) => {
+            console.error('Lỗi load model chính, chuyển sang backup...', error);
+            // Load Backup nếu file 16 lỗi
             loader.load('/images/apple_iphone_15_pro_max_black.glb', (gltf) => {
                 iphoneModel = gltf.scene;
                 updateModelScale(iphoneModel);
@@ -374,64 +395,81 @@
             });
         });
 
-        // --- 5. POST PROCESSING (BLOOM NHẸ HƠN) ---
+        // --- TIẾP TỤC Ở PHẦN 4 ---
+        // --- 5. POST PROCESSING (HIỆU ỨNG PHÁT SÁNG - BLOOM) ---
         const composer = new EffectComposer(renderer);
         composer.addPass(new RenderPass(scene, camera));
         
-        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-        bloomPass.threshold = 0.2;
-        bloomPass.strength = 0.3; // Giảm độ sáng bloom (Cũ là 0.4)
-        bloomPass.radius = 0.5;
+        // Cấu hình Bloom: Giúp viền kim loại sáng rực rỡ
+        const bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight), 
+            1.5,  // strength
+            0.4,  // radius
+            0.85  // threshold
+        );
+        bloomPass.threshold = 0.1; // Ngưỡng bắt sáng thấp để kim loại dễ phát sáng
+        bloomPass.strength = 0.45; // Độ mạnh của hào quang (Glow)
+        bloomPass.radius = 0.6;    // Độ lan tỏa ánh sáng
         composer.addPass(bloomPass);
 
-        // --- 6. ANIMATION & SCROLL ---
+        // --- 6. ANIMATION & SCROLL LOGIC (GSAP SCROLLTRIGGER) ---
         const clock = new THREE.Clock();
         
-        // Setup GSAP
         function setupScrollAnimations() {
             if (!iphoneModel) return;
+            
+            // Đăng ký Plugin GSAP
             gsap.registerPlugin(ScrollTrigger);
 
-            // Intro Text
+            // Hiệu ứng chữ Intro hiện ra
             gsap.to(".gsap-hero-text", { y: 0, opacity: 1, duration: 1.5, stagger: 0.2 });
 
+            // TIMELINE CHÍNH: Điều khiển iPhone theo thanh cuộn
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: "body",
                     start: "top top",
                     end: "bottom bottom",
-                    scrub: 1, // Mượt hơn (Cũ là 1.5)
+                    scrub: 1.5, // Độ trễ mượt mà (càng cao càng đầm)
                 }
             });
 
-            // PHASE 1: Xoay ngang để lộ Chip (Di chuyển ít hơn để không bị mất hình)
-            tl.to(iphoneModel.position, { x: 1.5, y: -0.5 }, "p1") 
-              .to(iphoneModel.rotation, { y: -Math.PI / 2.5 }, "p1")
+            // GIAI ĐOẠN 1: Hero -> Chip (Nghiêng phải, lộ cạnh bên)
+            tl.to(iphoneModel.position, { x: 2, y: -0.5 }, "p1") 
+              .to(iphoneModel.rotation, { y: -Math.PI / 3 }, "p1")
               .to(".gsap-hero-text", { opacity: 0, y: -50 }, "p1")
               .to(".gsap-chip-text", { opacity: 1, x: 0 }, "p1");
 
-            // PHASE 2: Xoay lưng lộ Camera
-            tl.to(iphoneModel.position, { x: -1.5, y: 0 }, "p2")
+            // GIAI ĐOẠN 2: Chip -> Camera (Nghiêng trái, lộ cụm cam to)
+            tl.to(iphoneModel.position, { x: -2, y: 0 }, "p2")
               .to(iphoneModel.rotation, { y: Math.PI - 0.5 }, "p2")
               .to(".gsap-chip-text", { opacity: 0, y: -50 }, "p2")
               .to(".gsap-camera-text", { opacity: 1, x: 0 }, "p2");
               
-            // PHASE 3: GRID (Thông số kỹ thuật) - Mới thêm
-            // Đẩy điện thoại lên trên cùng để nhường chỗ cho lưới bên dưới
-            tl.to(iphoneModel.position, { x: 0, y: 3, scale: 0.5 }, "p3") 
-              .to(iphoneModel.rotation, { y: Math.PI * 2, x: 0.5 }, "p3")
-              .to(".gsap-camera-text", { opacity: 0 }, "p3")
-              .to("#tech-specs", { opacity: 1, y: 0 }, "p3");
+            // GIAI ĐOẠN 3: Camera -> Display Section (Bay vào giữa, xoay mặt trước chính diện) - MỚI
+            // Đây là đoạn dành cho Section Màn hình & Marquee
+            tl.to(iphoneModel.position, { x: 0, y: 0, z: 2 }, "p3")
+              .to(iphoneModel.rotation, { y: 0, x: 0 }, "p3") // Xoay về mặt trước
+              .to(".gsap-camera-text", { opacity: 0 }, "p3");
+              
+            // GIAI ĐOẠN 4: Display -> Tech Specs (Bay lên trên, xoay vòng, nhường chỗ cho Grid)
+            tl.to(iphoneModel.position, { x: 0, y: 4, scale: 0.5 }, "p4") 
+              .to(iphoneModel.rotation, { y: Math.PI * 2 }, "p4") // Xoay đủ 1 vòng
+              .to("#tech-specs", { opacity: 1, y: 0 }, "p4")
+              .to(".gsap-cta-text", { opacity: 1, scale: 1 }, "p4");
         }
 
+        // Kích hoạt khi mọi thứ đã tải xong
         manager.onLoad = () => {
             hideLoader();
             setupScrollAnimations();
             animate();
         };
 
-        // Loop
+        // --- 7. RENDER LOOP (VÒNG LẶP CHUYỂN ĐỘNG) ---
         let mouseX = 0, mouseY = 0;
+        
+        // Bắt sự kiện chuột để tạo hiệu ứng Parallax nhẹ
         document.addEventListener('mousemove', (e) => {
             mouseX = (e.clientX - window.innerWidth/2) * 0.0005;
             mouseY = (e.clientY - window.innerHeight/2) * 0.0005;
@@ -441,26 +479,30 @@
             requestAnimationFrame(animate);
             const time = clock.getElapsedTime();
 
-            // Xoay nhẹ Particles
-            particlesMesh.rotation.y = time * 0.05;
-            particlesMesh.rotation.x = mouseY * 0.5;
-
+            // Xoay nhẹ Particles nền tạo cảm giác vũ trụ
+            particlesMesh.rotation.y = time * 0.03;
+            
             if (iphoneModel) {
-                // Hiệu ứng trôi nhẹ
-                iphoneModel.position.y += Math.sin(time) * 0.002;
-                // Nghiêng theo chuột
-                iphoneModel.rotation.x += (mouseY * 0.5 - iphoneModel.rotation.x) * 0.05;
-                iphoneModel.rotation.y += (mouseX * 0.5 - iphoneModel.rotation.y) * 0.05;
+                // Hiệu ứng trôi nhẹ (Floating)
+                iphoneModel.position.y += Math.sin(time) * 0.0015; 
+                
+                // Parallax nhẹ theo chuột (Tương tác người dùng)
+                // Chỉ xoay thêm một chút so với góc xoay hiện tại của Timeline
+                iphoneModel.rotation.x += (mouseY * 0.3 - iphoneModel.rotation.x) * 0.05;
+                iphoneModel.rotation.y += (mouseX * 0.3 - iphoneModel.rotation.y) * 0.05;
             }
+
+            // Render bằng Composer để có hiệu ứng Bloom
             composer.render();
         }
 
+        // Xử lý khi thay đổi kích thước màn hình
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             composer.setSize(window.innerWidth, window.innerHeight);
-            if(iphoneModel) updateModelScale(iphoneModel); // Cập nhật lại scale khi resize
+            if(iphoneModel) updateModelScale(iphoneModel);
         });
     </script>
 </body>
