@@ -73,6 +73,13 @@
 
     <canvas id="webgl-canvas"></canvas>
 
+    <div id="color-dock" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-black/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-full flex gap-4 transition-all duration-500 translate-y-20 opacity-0">
+        <button onclick="changeColor('#5C5C5C')" class="w-8 h-8 rounded-full bg-[#5C5C5C] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white" title="Natural Titanium"></button>
+        <button onclick="changeColor('#2F343F')" class="w-8 h-8 rounded-full bg-[#2F343F] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white" title="Blue Titanium"></button>
+        <button onclick="changeColor('#F2F3F5')" class="w-8 h-8 rounded-full bg-[#F2F3F5] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white" title="White Titanium"></button>
+        <button onclick="changeColor('#181819')" class="w-8 h-8 rounded-full bg-[#181819] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white" title="Black Titanium"></button>
+    </div>
+
     <header class="fixed top-0 w-full z-50 h-14 flex items-center transition-all duration-300 hover:bg-black/80 hover:backdrop-blur-md border-b border-transparent hover:border-white/10">
         <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
             <a href="index.html" class="text-xl text-white hover:opacity-80 transition-opacity"><i class="fab fa-apple"></i></a>
@@ -90,7 +97,8 @@
             </div>
         </div>
     </header>
-<main id="scroll-content" class="relative z-10 pointer-events-none">
+
+    <main id="scroll-content" class="relative z-10 pointer-events-none">
         
         <section class="h-screen flex flex-col items-center justify-center text-center relative section-hero">
             <div class="mt-[-5vh]">
@@ -114,14 +122,14 @@
         <section class="h-screen flex items-center relative section-chip">
             <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2">
                 <div class="text-left opacity-0 translate-x-[-50px] gsap-chip-text pointer-events-auto z-20">
-                    <div class="w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-gray-800 to-black border border-white/20 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                        <span class="font-mono text-xs text-gray-400">A17</span>
+                    <div class="w-28 h-28 mb-8 rounded-3xl bg-gradient-to-br from-gray-800 to-black border border-white/20 flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.15)] group hover:scale-105 transition-transform duration-500 cursor-pointer">
+                        <span class="font-mono text-xl text-gray-300 group-hover:text-white transition-colors">A17</span>
                     </div>
                     <h2 class="text-5xl md:text-7xl font-bold mb-6 text-white leading-none">
                         A17 Pro. <br> <span class="text-[#2997ff]">Monster win.</span>
                     </h2>
                     <p class="text-lg text-gray-400 leading-relaxed font-light max-w-md border-l-2 border-[#2997ff] pl-6">
-                        The biggest redesign in the history of Apple GPUs. Mobile games will look and feel so immersive, with incredibly detailed environments and more realistic characters.
+                        The biggest redesign in the history of Apple GPUs. Mobile games will look and feel so immersive.
                     </p>
                 </div>
             </div>
@@ -136,39 +144,26 @@
                     <p class="text-gray-400 text-lg mb-8 max-w-sm">
                         Capture your wildest imagination with the all-new 48MP Main camera.
                     </p>
-                    
                     <div class="grid grid-cols-3 gap-6 border-t border-white/10 pt-6">
-                        <div>
-                            <h3 class="text-3xl font-bold text-white">48MP</h3>
-                            <p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">Main</p>
-                        </div>
-                        <div>
-                            <h3 class="text-3xl font-bold text-white">120<span class="text-lg">mm</span></h3>
-                            <p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">5x Zoom</p>
-                        </div>
-                        <div>
-                            <h3 class="text-3xl font-bold text-white">4K<span class="text-lg">60</span></h3>
-                            <p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">ProRes</p>
-                        </div>
+                        <div><h3 class="text-3xl font-bold text-white">48MP</h3><p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">Main</p></div>
+                        <div><h3 class="text-3xl font-bold text-white">120<span class="text-lg">mm</span></h3><p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">5x Zoom</p></div>
+                        <div><h3 class="text-3xl font-bold text-white">4K<span class="text-lg">60</span></h3><p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">ProRes</p></div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section class="h-[80vh] flex flex-col justify-center relative overflow-hidden pointer-events-auto border-y border-white/5 bg-black">
-            
             <div class="absolute inset-0 z-0 opacity-40">
                 <img src="images/XDR.jpg" class="w-full h-full object-cover scale-110 blur-sm" alt="XDR Background">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
             </div>
-
             <div class="marquee-container py-10 opacity-30 relative z-10 mix-blend-overlay">
                 <div class="marquee-text">
                     SUPER RETINA XDR — PROMOTION 120HZ — ALWAYS ON — DYNAMIC ISLAND — 
                     SUPER RETINA XDR — PROMOTION 120HZ — ALWAYS ON — DYNAMIC ISLAND —
                 </div>
             </div>
-
             <div class="text-center z-20 px-6 mt-[-50px]">
                 <h2 class="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
                     Brilliant. <br>In every way.
@@ -184,50 +179,33 @@
                 <h2 class="text-3xl md:text-5xl font-bold text-white mb-2">The full story.</h2>
                 <p class="text-gray-500">iPhone 16 Pro Max deep dive.</p>
             </div>
-            
             <div id="tech-specs" class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-5 opacity-0 translate-y-20 z-10">
-                
                 <div class="md:col-span-2 md:row-span-2 bg-[#101010] border border-white/10 p-10 rounded-[2rem] relative overflow-hidden group hover:border-white/20 transition-all duration-500">
                     <div class="absolute -right-20 -top-20 w-96 h-96 bg-blue-600/10 blur-[100px] rounded-full group-hover:bg-blue-600/20 transition-all duration-700"></div>
-                    
                     <h3 class="text-3xl font-bold text-white mb-4 relative z-10">Titanium Design.</h3>
                     <p class="text-gray-400 mb-10 relative z-10 max-w-xs">
-                        The first iPhone to feature an aerospace-grade titanium design, using the same alloy that spacecraft use for missions to Mars.
+                        The first iPhone to feature an aerospace-grade titanium design.
                     </p>
-                    
                     <div class="absolute bottom-10 left-10 flex gap-4">
-                        <div class="w-10 h-10 rounded-full bg-[#5C5C5C] ring-2 ring-white/10 shadow-lg"></div>
-                        <div class="w-10 h-10 rounded-full bg-[#2F343F] ring-2 ring-white/10 shadow-lg"></div>
-                        <div class="w-10 h-10 rounded-full bg-[#F2F3F5] ring-2 ring-white/10 shadow-lg"></div>
-                        <div class="w-10 h-10 rounded-full bg-[#1e2530] ring-2 ring-white/10 shadow-lg"></div>
+                        <div class="w-10 h-10 rounded-full bg-[#5C5C5C] ring-2 ring-white/10 shadow-lg cursor-pointer hover:scale-110 transition-transform" onclick="window.changeColor('#5C5C5C')"></div>
+                        <div class="w-10 h-10 rounded-full bg-[#2F343F] ring-2 ring-white/10 shadow-lg cursor-pointer hover:scale-110 transition-transform" onclick="window.changeColor('#2F343F')"></div>
+                        <div class="w-10 h-10 rounded-full bg-[#F2F3F5] ring-2 ring-white/10 shadow-lg cursor-pointer hover:scale-110 transition-transform" onclick="window.changeColor('#F2F3F5')"></div>
                     </div>
                 </div>
-
                 <div class="md:col-span-2 bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-green-500/30 transition-colors duration-300 relative overflow-hidden">
                     <div class="absolute right-[-20px] top-[-20px] w-32 h-32 bg-green-500/10 blur-[50px]"></div>
                     <div class="flex items-center justify-between h-full">
-                        <div>
-                            <h3 class="text-4xl font-bold text-white">29h</h3>
-                            <p class="text-gray-400 text-sm mt-1">Video playback</p>
-                        </div>
+                        <div><h3 class="text-4xl font-bold text-white">29h</h3><p class="text-gray-400 text-sm mt-1">Video playback</p></div>
                         <i class="fas fa-battery-full text-4xl text-green-500"></i>
                     </div>
                 </div>
-
                 <div class="bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-orange-500/30 transition-colors duration-300 flex flex-col justify-between">
                     <i class="fas fa-circle-dot text-3xl text-orange-500 mb-4"></i>
-                    <div>
-                        <h3 class="text-lg font-bold text-white">Action Button</h3>
-                        <p class="text-gray-500 text-xs mt-1">Shortcut to your favorite feature.</p>
-                    </div>
+                    <div><h3 class="text-lg font-bold text-white">Action Button</h3><p class="text-gray-500 text-xs mt-1">Shortcut ready.</p></div>
                 </div>
-
                 <div class="bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-blue-500/30 transition-colors duration-300 flex flex-col justify-between">
                     <i class="fas fa-bolt text-3xl text-blue-500 mb-4"></i>
-                    <div>
-                        <h3 class="text-lg font-bold text-white">USB-C 3</h3>
-                        <p class="text-gray-500 text-xs mt-1">Up to 20x faster transfer speeds.</p>
-                    </div>
+                    <div><h3 class="text-lg font-bold text-white">USB-C 3</h3><p class="text-gray-500 text-xs mt-1">20x faster.</p></div>
                 </div>
             </div>
         </section>
@@ -244,9 +222,8 @@
                     Visit Store
                 </a>
             </div>
-            
             <footer class="absolute bottom-6 w-full text-center border-t border-white/5 pt-6 z-10">
-                <p class="text-gray-600 text-[10px] uppercase tracking-widest">© 2025 Premium Clone Project. WebGL Experience.</p>
+                <p class="text-gray-600 text-[10px] uppercase tracking-widest">© 2025 Premium Clone Project.</p>
             </footer>
         </section>
 
