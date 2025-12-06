@@ -192,6 +192,49 @@
                 </div>
             </div>
         </section>
+        <section class="min-h-screen flex flex-col items-center justify-center relative px-6 py-20 pointer-events-auto" id="tech-specs-section">
+            <div id="tech-specs" class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-3 gap-6 opacity-0 translate-y-20 transition-all duration-1000">
+                
+                <div class="bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:border-blue-500/50 transition-colors group">
+                    <i class="fas fa-bolt text-4xl text-yellow-500 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-200">All-day Battery</h3>
+                    <p class="text-gray-400 mt-2 text-sm">Up to 29 hours video playback. Pro performance needs pro power.</p>
+                </div>
+
+                <div class="md:col-span-2 bg-gradient-to-br from-zinc-800 to-black border border-white/10 p-8 rounded-3xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 blur-[50px] rounded-full"></div>
+                    <h3 class="text-3xl font-bold text-white mb-2">Aerospace-grade Titanium</h3>
+                    <p class="text-gray-400 max-w-sm">The same alloy that spacecraft use for missions to Mars.</p>
+                    <div class="mt-6 flex gap-4">
+                        <div class="w-8 h-8 rounded-full bg-[#5C5C5C] border border-white/20"></div>
+                        <div class="w-8 h-8 rounded-full bg-[#2F343F] border border-white/20"></div>
+                        <div class="w-8 h-8 rounded-full bg-[#F2F3F5] border border-white/20"></div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl flex flex-col justify-between hover:border-purple-500/50 transition-colors">
+                    <div>
+                        <h3 class="text-4xl font-bold text-white">120Hz</h3>
+                        <p class="text-purple-400 font-medium">ProMotion</p>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-4">Super Retina XDR Display</p>
+                </div>
+
+                <div class="bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:border-orange-500/50 transition-colors">
+                    <i class="fas fa-circle-dot text-4xl text-orange-500 mb-4"></i>
+                    <h3 class="text-xl font-bold text-white">Action Button</h3>
+                    <p class="text-gray-400 mt-2 text-sm">Customize your favorite feature.</p>
+                </div>
+
+                <div class="bg-zinc-900/80 backdrop-blur-xl border border-white/10 p-8 rounded-3xl flex items-center justify-between group">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">USB-C 3</h3>
+                        <p class="text-green-400 text-sm">20x Faster Transfers</p>
+                    </div>
+                    <i class="fas fa-wifi text-3xl text-gray-600 group-hover:text-white transition-colors"></i>
+                </div>
+            </div>
+        </section>
 
         <section class="h-screen flex flex-col items-center justify-center relative section-cta pointer-events-auto">
             <h2 class="text-4xl md:text-6xl font-bold mb-8 text-center text-white opacity-0 scale-90 gsap-cta-text">
@@ -212,313 +255,213 @@
         </section>
 
     </main>
-
-    <script type="module">
-        // Import các thư viện cần thiết từ Import Map
+<script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-        import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
-        // --- CẤU HÌNH CƠ BẢN ---
+        // --- 1. SETUP CƠ BẢN ---
         const canvas = document.querySelector('#webgl-canvas');
         const loadingScreen = document.getElementById('loader');
         const progressBar = document.getElementById('progress-bar');
         const loadingText = document.getElementById('loading-text');
 
-        // Hàm ẩn Loading (Sẽ gọi khi load xong)
         function hideLoader() {
             loadingScreen.style.opacity = '0';
             document.getElementById('main-body').classList.remove('opacity-0');
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, 800);
+            setTimeout(() => { loadingScreen.style.display = 'none'; }, 800);
         }
 
-        // --- TIẾP TỤC Ở PHẦN 2 ---
-        // --- IMPORT BỔ SUNG ---
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-
-        // 1. KHỞI TẠO SCENE & CAMERA
         const scene = new THREE.Scene();
-        // Màu nền sương mù nhẹ để tạo chiều sâu (Dark Gray/Blue tone)
-        scene.fog = new THREE.FogExp2(0x000000, 0.02);
+        scene.fog = new THREE.FogExp2(0x000000, 0.02); // Sương mù đen tạo chiều sâu
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 8); // Đặt camera ở xa một chút
+        camera.position.set(0, 0, 10); // Kéo camera ra xa hơn (Cũ là 8)
 
-        // 2. RENDERER (Cấu hình "High-End")
-        const renderer = new THREE.WebGLRenderer({ 
-            canvas: canvas, 
-            antialias: true, // Khử răng cưa
-            alpha: true,     // Cho phép nền trong suốt
-            powerPreference: "high-performance"
-        });
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Tối ưu cho màn hình Retina
-        
-        // Cấu hình màu sắc chuẩn vật lý (Physically Correct Lights)
-        renderer.useLegacyLights = false; 
-        renderer.toneMapping = THREE.ACESFilmicToneMapping; // Tone màu điện ảnh
-        renderer.toneMappingExposure = 1.0;
-        renderer.shadowMap.enabled = true; // Bật đổ bóng
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Bóng mềm tự nhiên
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        // 3. CONTROLS (Điều khiển chuột mượt mà)
-        const controls = new OrbitControls(camera, canvas);
-        controls.enableDamping = true; // Quán tính mượt
-        controls.dampingFactor = 0.05;
-        controls.enableZoom = false;   // Tắt zoom để không phá bố cục (tùy chọn)
-        controls.enablePan = false;    // Tắt di chuyển ngang
-        controls.autoRotate = true;    // Tự động xoay nhẹ
-        controls.autoRotateSpeed = 0.5;
-
-        // 4. LIGHTING (Ánh sáng Studio Apple)
-        // Ánh sáng môi trường nhẹ
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); 
+        // --- 2. LIGHTING (Ánh sáng Studio mượt hơn) ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambientLight);
 
-        // Đèn chính (Key Light) - Ánh sáng xanh dương đặc trưng
-        const keyLight = new THREE.SpotLight(0x0071e3, 100);
-        keyLight.position.set(5, 5, 5);
+        const keyLight = new THREE.SpotLight(0x0071e3, 80); // Xanh dương
+        keyLight.position.set(10, 10, 10);
         keyLight.angle = Math.PI / 6;
         keyLight.penumbra = 1;
         keyLight.castShadow = true;
-        keyLight.shadow.bias = -0.0001;
         scene.add(keyLight);
 
-        // Đèn viền (Rim Light) - Tạo đường biên sáng cho kim loại
-        const rimLight = new THREE.SpotLight(0xffffff, 50);
-        rimLight.position.set(-5, 5, -5);
-        rimLight.lookAt(0, 0, 0);
+        const rimLight = new THREE.SpotLight(0xffffff, 40); // Viền trắng
+        rimLight.position.set(-10, 10, -5);
         scene.add(rimLight);
 
-        // Đèn lấp đầy (Fill Light) - Màu tím nhẹ tạo contrast
-        const fillLight = new THREE.PointLight(0xa855f7, 20);
-        fillLight.position.set(-5, 0, 5);
-        scene.add(fillLight);
+        // --- 3. PARTICLES SYSTEM (HIỆU ỨNG BỤI TITANIUM) ---
+        // Tạo 2000 hạt nhỏ bay lơ lửng
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 2000;
+        const posArray = new Float32Array(particlesCount * 3);
 
-        // 5. LOADING MANAGER & GLTF LOADER
-        // Quản lý việc tải tài nguyên để hiển thị thanh loading
+        for(let i = 0; i < particlesCount * 3; i++) {
+            // Rải hạt ngẫu nhiên trong không gian rộng
+            posArray[i] = (Math.random() - 0.5) * 40; 
+        }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.03,
+            color: 0x4aa3f0, // Màu xanh nhạt
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // --- 4. LOAD MODEL & RESPONSIVE SCALE ---
         const manager = new THREE.LoadingManager();
-        
-        manager.onProgress = (url, itemsLoaded, itemsTotal) => {
-            const progress = (itemsLoaded / itemsTotal) * 100;
+        manager.onProgress = (url, loaded, total) => {
+            const progress = (loaded / total) * 100;
             if(progressBar) progressBar.style.width = progress + '%';
-            if(loadingText) loadingText.innerText = `LOADING ASSETS: ${Math.round(progress)}%`;
         };
-
-        manager.onLoad = () => {
-            console.log('✅ All Assets Loaded');
-            hideLoader(); // Gọi hàm ẩn màn hình chờ đã viết ở Phần 1
-            
-            // Kích hoạt animation khi load xong
-            startAnimationLoop();
-        };
+        
+        // **QUAN TRỌNG**: Hàm chỉnh cỡ model theo màn hình
+        function updateModelScale(model) {
+            if(window.innerWidth < 768) {
+                // Mobile: Nhỏ hơn nữa
+                model.scale.set(3.5, 3.5, 3.5); 
+            } else {
+                // PC: Vừa phải (Giảm từ 15 xuống 6.5)
+                model.scale.set(6.5, 6.5, 6.5);
+            }
+        }
 
         const loader = new GLTFLoader(manager);
-
-        // Biến lưu trữ Model để dùng sau này
         let iphoneModel = null;
 
-        // --- HÀM LOAD MODEL (Sẽ dùng ở phần sau) ---
-        function loadIphone() {
-            // Load file iPhone 16 Pro Max của bạn
-            loader.load('/images/iphone_16_pro_max.glb', (gltf) => {
-                iphoneModel = gltf.scene;
-                
-                // Tinh chỉnh Model
-                iphoneModel.scale.set(15, 15, 15); // iPhone scale thường rất nhỏ, cần phóng to
-                iphoneModel.position.set(0, 0, 0);
-                
-                // Bật đổ bóng cho từng linh kiện
-                iphoneModel.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        // Tăng độ bóng bẩy cho kim loại
-                        if(child.material) {
-                            child.material.envMapIntensity = 1; 
-                            child.material.needsUpdate = true;
-                        }
+        loader.load('/images/iphone_16_pro_max.glb', (gltf) => {
+            iphoneModel = gltf.scene;
+            updateModelScale(iphoneModel); // Set scale ngay khi load
+            iphoneModel.position.set(0, -1, 0); // Hạ thấp xuống một chút
+            
+            // Fix vật liệu để đỡ bị chói lóa
+            iphoneModel.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    if(child.material) {
+                        child.material.envMapIntensity = 0.8; // Giảm độ phản chiếu môi trường
+                        child.material.roughness = 0.4; // Tăng độ nhám để nhìn rõ khối hơn
                     }
-                });
-
-                scene.add(iphoneModel);
-            }, undefined, (error) => {
-                console.error('❌ Lỗi load iPhone:', error);
-                // Nếu lỗi load file 16, thử load file 15 làm backup
-                console.log('⚠️ Thử load file backup...');
-                loader.load('/images/apple_iphone_15_pro_max_black.glb', (gltf2) => {
-                    iphoneModel = gltf2.scene;
-                    iphoneModel.scale.set(15, 15, 15);
-                    scene.add(iphoneModel);
-                });
+                }
             });
-        }
-
-        // Gọi hàm load ngay lập tức
-        loadIphone();
-
-        // Xử lý Resize cửa sổ
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            // composer.setSize(...) // Sẽ thêm ở phần Post-processing
+            scene.add(iphoneModel);
+        }, undefined, (err) => {
+            console.error(err);
+            // Fallback load iPhone 15
+            loader.load('/images/apple_iphone_15_pro_max_black.glb', (gltf) => {
+                iphoneModel = gltf.scene;
+                updateModelScale(iphoneModel);
+                iphoneModel.position.set(0, -1, 0);
+                scene.add(iphoneModel);
+            });
         });
 
-        // --- TIẾP TỤC Ở PHẦN 3 ---
-        // =========================================================
-        // PHẦN 3: POST-PROCESSING (HIỆU ỨNG ĐIỆN ẢNH)
-        // =========================================================
-        
-        // Tạo Composer để quản lý chuỗi hiệu ứng
+        // --- 5. POST PROCESSING (BLOOM NHẸ HƠN) ---
         const composer = new EffectComposer(renderer);
-
-        // Pass 1: Render cảnh gốc
-        const renderPass = new RenderPass(scene, camera);
-        composer.addPass(renderPass);
-
-        // Pass 2: Unreal Bloom (Hiệu ứng phát sáng)
-        // Các tham số: resolution, strength, radius, threshold
-        const bloomPass = new UnrealBloomPass(
-            new THREE.Vector2(window.innerWidth, window.innerHeight), 
-            1.5, 
-            0.4, 
-            0.85
-        );
-        bloomPass.threshold = 0.15; // Ngưỡng sáng (chỉ những phần rất sáng mới phát quang)
-        bloomPass.strength = 0.4;   // Độ mạnh của ánh sáng (vừa phải để sang trọng)
-        bloomPass.radius = 0.5;     // Độ lan tỏa
+        composer.addPass(new RenderPass(scene, camera));
+        
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+        bloomPass.threshold = 0.2;
+        bloomPass.strength = 0.3; // Giảm độ sáng bloom (Cũ là 0.4)
+        bloomPass.radius = 0.5;
         composer.addPass(bloomPass);
 
-        // Cập nhật lại Resize cho Composer (để Bloom không bị méo khi đổi cỡ màn hình)
-        window.addEventListener('resize', () => {
-            composer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        // =========================================================
-        // PHẦN 4: ANIMATION LOOP (VÒNG LẶP CHUYỂN ĐỘNG)
-        // =========================================================
-        
+        // --- 6. ANIMATION & SCROLL ---
         const clock = new THREE.Clock();
-
-        // Biến lưu trữ vị trí chuột (dùng cho hiệu ứng parallax ở phần sau)
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-        const windowHalfX = window.innerWidth / 2;
-        const windowHalfY = window.innerHeight / 2;
-
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - windowHalfX);
-            mouseY = (event.clientY - windowHalfY);
-        });
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            const elapsedTime = clock.getElapsedTime();
-
-            // 1. Cập nhật Controls (quán tính)
-            controls.update();
-
-            // 2. Hiệu ứng "Floating" (iPhone trôi lơ lửng nhẹ)
-            if (iphoneModel) {
-                // Nhấp nhô lên xuống nhẹ nhàng theo hàm sin
-                iphoneModel.position.y = Math.sin(elapsedTime * 0.5) * 0.15;
-                
-                // Nghiêng nhẹ qua lại
-                iphoneModel.rotation.z = Math.sin(elapsedTime * 0.25) * 0.05;
-
-                // Parallax theo chuột (tạo cảm giác chiều sâu)
-                targetX = mouseX * 0.0005;
-                targetY = mouseY * 0.0005;
-                iphoneModel.rotation.y += 0.05 * (targetX - iphoneModel.rotation.y);
-                iphoneModel.rotation.x += 0.05 * (targetY - iphoneModel.rotation.x);
-            }
-
-            // 3. Render bằng Composer (thay vì renderer thường) để có Bloom
-            composer.render();
-        }
-
-        // Hàm được gọi khi Loader tải xong (đã khai báo ở phần trước)
-        // Lưu ý: Cần gán vào window hoặc để global scope nếu cần, 
-        // nhưng ở module này ta gọi trực tiếp trong callback manager.onLoad
-        window.startAnimationLoop = function() {
-            animate();
-        };
-
-        // --- TIẾP TỤC Ở PHẦN CUỐI (UI & SCROLL) ---
-        // =========================================================
-        // PHẦN 5: SCROLL INTERACTION (GSAP SCROLLTRIGGER)
-        // =========================================================
-
+        
+        // Setup GSAP
         function setupScrollAnimations() {
             if (!iphoneModel) return;
-
-            // Đăng ký Plugin
             gsap.registerPlugin(ScrollTrigger);
 
-            // --- 1. HERO ANIMATION (Chữ hiện ra lúc đầu) ---
-            gsap.to(".gsap-hero-text", {
-                y: 0,
-                opacity: 1,
-                duration: 1.5,
-                stagger: 0.2,
-                ease: "power3.out"
-            });
+            // Intro Text
+            gsap.to(".gsap-hero-text", { y: 0, opacity: 1, duration: 1.5, stagger: 0.2 });
 
-            // --- 2. SCROLL TIMELINE (Điều khiển iPhone theo nhịp cuộn) ---
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: "body",
                     start: "top top",
                     end: "bottom bottom",
-                    scrub: 1.5, // Độ mượt khi cuộn (càng cao càng "đầm")
+                    scrub: 1, // Mượt hơn (Cũ là 1.5)
                 }
             });
 
-            // GIAI ĐOẠN 1: Từ Hero -> Chip Section
-            // iPhone di chuyển sang phải, xoay để lộ cạnh bên (Side view)
-            tl.to(iphoneModel.position, { x: 2.5, y: -0.5, z: 0 }, "phase1")
-              .to(iphoneModel.rotation, { y: -Math.PI / 2, x: 0 }, "phase1")
-              .to(".gsap-hero-text", { opacity: 0, y: -50 }, "phase1") // Ẩn chữ Hero
-              .to(".gsap-chip-text", { opacity: 1, x: 0 }, "phase1");  // Hiện chữ Chip
+            // PHASE 1: Xoay ngang để lộ Chip (Di chuyển ít hơn để không bị mất hình)
+            tl.to(iphoneModel.position, { x: 1.5, y: -0.5 }, "p1") 
+              .to(iphoneModel.rotation, { y: -Math.PI / 2.5 }, "p1")
+              .to(".gsap-hero-text", { opacity: 0, y: -50 }, "p1")
+              .to(".gsap-chip-text", { opacity: 1, x: 0 }, "p1");
 
-            // GIAI ĐOẠN 2: Từ Chip -> Camera Section
-            // iPhone di chuyển sang trái, xoay để lộ mặt lưng (Back view)
-            tl.to(iphoneModel.position, { x: -2.5, y: 0, z: 1 }, "phase2")
-              .to(iphoneModel.rotation, { y: Math.PI, x: 0.2 }, "phase2") // Xoay 180 độ
-              .to(".gsap-chip-text", { opacity: 0, y: -50 }, "phase2")
-              .to(".gsap-camera-text", { opacity: 1, x: 0 }, "phase2");
-
-            // GIAI ĐOẠN 3: Từ Camera -> CTA (Kết thúc)
-            // iPhone về giữa, zoom to lên
-            tl.to(iphoneModel.position, { x: 0, y: 0.5, z: 3 }, "phase3")
-              .to(iphoneModel.rotation, { y: Math.PI * 2, x: 0 }, "phase3") // Xoay đủ 1 vòng
-              .to(".gsap-camera-text", { opacity: 0, y: -50 }, "phase3")
-              .to(".gsap-cta-text", { opacity: 1, scale: 1 }, "phase3");
+            // PHASE 2: Xoay lưng lộ Camera
+            tl.to(iphoneModel.position, { x: -1.5, y: 0 }, "p2")
+              .to(iphoneModel.rotation, { y: Math.PI - 0.5 }, "p2")
+              .to(".gsap-chip-text", { opacity: 0, y: -50 }, "p2")
+              .to(".gsap-camera-text", { opacity: 1, x: 0 }, "p2");
+              
+            // PHASE 3: GRID (Thông số kỹ thuật) - Mới thêm
+            // Đẩy điện thoại lên trên cùng để nhường chỗ cho lưới bên dưới
+            tl.to(iphoneModel.position, { x: 0, y: 3, scale: 0.5 }, "p3") 
+              .to(iphoneModel.rotation, { y: Math.PI * 2, x: 0.5 }, "p3")
+              .to(".gsap-camera-text", { opacity: 0 }, "p3")
+              .to("#tech-specs", { opacity: 1, y: 0 }, "p3");
         }
 
-        // --- CẬP NHẬT MANAGER ONLOAD ---
-        // Ghi đè hàm onLoad cũ để đảm bảo setupScrollAnimations chạy đúng lúc
         manager.onLoad = () => {
-            console.log('✅ System Ready. Starting Experience...');
             hideLoader();
-            
-            // Bắt đầu vòng lặp chuyển động
-            startAnimationLoop();
-            
-            // Thiết lập hiệu ứng cuộn GSAP
             setupScrollAnimations();
+            animate();
         };
 
+        // Loop
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX - window.innerWidth/2) * 0.0005;
+            mouseY = (e.clientY - window.innerHeight/2) * 0.0005;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+
+            // Xoay nhẹ Particles
+            particlesMesh.rotation.y = time * 0.05;
+            particlesMesh.rotation.x = mouseY * 0.5;
+
+            if (iphoneModel) {
+                // Hiệu ứng trôi nhẹ
+                iphoneModel.position.y += Math.sin(time) * 0.002;
+                // Nghiêng theo chuột
+                iphoneModel.rotation.x += (mouseY * 0.5 - iphoneModel.rotation.x) * 0.05;
+                iphoneModel.rotation.y += (mouseX * 0.5 - iphoneModel.rotation.y) * 0.05;
+            }
+            composer.render();
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+            if(iphoneModel) updateModelScale(iphoneModel); // Cập nhật lại scale khi resize
+        });
     </script>
 </body>
 </html>
