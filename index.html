@@ -3,54 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iPhone 16 Pro - Apple</title>
+    <title>Apple iPhone 16 Pro - Titanium</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- GSAP for Advanced Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollSmoother.min.js"></script>
-    
-    <!-- Three.js for 3D -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
         }
+    }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap');
         
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #000;
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
             color: #f5f5f7;
+            margin: 0;
             overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Premium Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #000;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #0071e3, #00a8ff);
-            border-radius: 10px;
-        }
+        /* Ẩn thanh cuộn để tăng thẩm mỹ */
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
 
-        /* 3D Canvas Background */
+        /* Canvas 3D nằm dưới cùng */
         #webgl-canvas {
             position: fixed;
             top: 0;
@@ -58,907 +43,482 @@
             width: 100vw;
             height: 100vh;
             z-index: -1;
-            pointer-events: none;
+            outline: none;
         }
 
-        /* Glass Navigation */
-        header {
+        /* Màn hình Loading sang trọng */
+        #loader {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
             z-index: 9999;
-            backdrop-filter: blur(30px) saturate(180%);
-            background: rgba(0, 0, 0, 0.72);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        header.scrolled {
-            background: rgba(0, 0, 0, 0.85);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 24px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 32px;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: rgba(245, 245, 247, 0.92);
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 400;
-            letter-spacing: -0.01em;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%) scaleX(0);
-            width: 100%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #0071e3, transparent);
-            transition: transform 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: #fff;
-        }
-
-        .nav-links a:hover::after {
-            transform: translateX(-50%) scaleX(1);
-        }
-
-        .logo {
-            font-size: 20px;
-            color: #f5f5f7;
-            transition: transform 0.3s ease;
-        }
-
-        .logo:hover {
-            transform: scale(1.05);
-        }
-
-        /* Hero Section */
-        .hero-section {
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
-            padding: 80px 24px 40px;
+            transition: opacity 0.8s ease-out;
         }
-
-        .hero-badge {
-            display: inline-block;
-            padding: 6px 16px;
-            background: rgba(0, 113, 227, 0.15);
-            border: 1px solid rgba(0, 113, 227, 0.3);
-            border-radius: 50px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: #0071e3;
-            margin-bottom: 24px;
-            backdrop-filter: blur(10px);
-            animation: fadeInDown 1s ease-out;
-        }
-
-        .hero-title {
-            font-size: clamp(48px, 12vw, 120px);
-            font-weight: 800;
-            letter-spacing: -0.05em;
-            line-height: 0.95;
-            background: linear-gradient(180deg, #ffffff 0%, #a0a0a0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 24px;
-            animation: fadeInUp 1s ease-out 0.2s both;
-        }
-
-        .hero-subtitle {
-            font-size: clamp(20px, 3vw, 28px);
-            font-weight: 400;
-            color: rgba(245, 245, 247, 0.72);
-            margin-bottom: 40px;
-            max-width: 600px;
-            text-align: center;
-            animation: fadeInUp 1s ease-out 0.4s both;
-        }
-
-        .hero-cta {
-            display: flex;
-            gap: 16px;
-            animation: fadeInUp 1s ease-out 0.6s both;
-        }
-
-        .btn-primary {
-            padding: 14px 32px;
-            background: linear-gradient(135deg, #0071e3 0%, #005bb5 100%);
-            color: white;
-            border: none;
-            border-radius: 980px;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 20px rgba(0, 113, 227, 0.3);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 30px rgba(0, 113, 227, 0.5);
-        }
-
-        .btn-secondary {
-            padding: 14px 32px;
-            background: transparent;
-            color: #0071e3;
-            border: 1px solid rgba(0, 113, 227, 0.4);
-            border-radius: 980px;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 113, 227, 0.1);
-            border-color: #0071e3;
-        }
-
-        .scroll-indicator {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: bounce 2s infinite;
-        }
-
-        /* Animations */
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateX(-50%) translateY(0);
-            }
-            50% {
-                transform: translateX(-50%) translateY(-10px);
-            }
-        }
-
-        /* 3D Model Container */
-        .model-container {
-            width: 100%;
-            height: 70vh;
-            position: relative;
-            margin: 60px 0;
-        }
-
-        #model-canvas {
-            width: 100%;
-            height: 100%;
-            cursor: grab;
-        }
-
-        #model-canvas:active {
-            cursor: grabbing;
-        }
-
-        /* Section Styles */
-        .content-section {
-            min-height: 100vh;
-            padding: 120px 24px;
-            position: relative;
-        }
-
-        .section-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 50px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            color: rgba(245, 245, 247, 0.72);
-            margin-bottom: 16px;
-        }
-
-        .section-title {
-            font-size: clamp(36px, 8vw, 72px);
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            line-height: 1.05;
-            background: linear-gradient(180deg, #ffffff 0%, #b0b0b0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 24px;
-        }
-
-        .section-description {
-            font-size: clamp(16px, 2vw, 20px);
-            font-weight: 400;
-            color: rgba(245, 245, 247, 0.72);
-            line-height: 1.6;
-            max-width: 800px;
-        }
-
-        /* Feature Grid */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
-            margin-top: 80px;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 24px;
-            padding: 40px;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(255,255,255,0.2);
+            margin-top: 20px;
             position: relative;
             overflow: hidden;
+            border-radius: 2px;
         }
-
-        .feature-card::before {
-            content: '';
+        
+        .loader-progress {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(0, 113, 227, 0.5), transparent);
-            opacity: 0;
-            transition: opacity 0.5s ease;
+            top: 0; left: 0; height: 100%;
+            width: 0%;
+            background: #0071e3;
+            transition: width 0.2s ease;
+            box-shadow: 0 0 10px #0071e3;
         }
 
-        .feature-card:hover {
-            transform: translateY(-8px);
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(0, 113, 227, 0.3);
-            box-shadow: 0 20px 60px rgba(0, 113, 227, 0.2);
+        /* Hiệu ứng Header mờ (Glassmorphism) */
+        header {
+            transition: all 0.5s ease;
+            border-bottom: 1px solid rgba(255,255,255,0);
+        }
+        header.scrolled {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .feature-card:hover::before {
-            opacity: 1;
-        }
-
-        .feature-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, rgba(0, 113, 227, 0.2), rgba(0, 113, 227, 0.05));
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: #0071e3;
-            margin-bottom: 24px;
-        }
-
-        .feature-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .feature-description {
-            font-size: 15px;
-            color: rgba(245, 245, 247, 0.72);
-            line-height: 1.6;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .hero-cta {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .btn-primary,
-            .btn-secondary {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
+        /* Typography Utility */
+        .text-gradient {
+            background: linear-gradient(180deg, #fff 0%, #86868b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
     </style>
 </head>
-<body>
+<body class="antialiased opacity-0 transition-opacity duration-1000" id="main-body">
 
-    <!-- 3D Background Canvas -->
+    <div id="loader">
+        <i class="fab fa-apple text-5xl text-white mb-4 animate-pulse"></i>
+        <div class="loader-bar">
+            <div class="loader-progress" id="progress-bar"></div>
+        </div>
+        <p class="text-xs text-gray-500 mt-2 font-mono" id="loading-text">INITIALIZING SYSTEMS...</p>
+    </div>
+
     <canvas id="webgl-canvas"></canvas>
 
-    <!-- Navigation -->
-    <header>
-        <div class="nav-container">
-            <a href="index.html" class="logo">
+    <header class="fixed top-0 w-full z-50 h-14 flex items-center transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <a href="index.html" class="text-xl text-white hover:opacity-80 transition-opacity">
                 <i class="fab fa-apple"></i>
             </a>
             
-            <nav class="nav-links">
-                <a href="store.html">Store</a>
-                <a href="#">Mac</a>
-                <a href="#">iPad</a>
-                <a href="#">iPhone</a>
-                <a href="#">Watch</a>
-                <a href="#">AirPods</a>
-                <a href="#">Support</a>
+            <nav class="hidden md:flex gap-8 text-xs font-light tracking-wide text-gray-300">
+                <a href="store.html" class="hover:text-white transition-colors">Store</a>
+                <a href="#" class="hover:text-white transition-colors">Mac</a>
+                <a href="#" class="hover:text-white transition-colors">iPad</a>
+                <a href="#" class="hover:text-white transition-colors">iPhone</a>
+                <a href="#" class="hover:text-white transition-colors">Vision</a>
+                <a href="#" class="hover:text-white transition-colors">Support</a>
             </nav>
 
-            <div class="flex items-center gap-4">
-                <a href="#" class="text-gray-300 hover:text-white transition-colors">
-                    <i class="fas fa-search"></i>
-                </a>
-                <a href="store.html" class="text-gray-300 hover:text-white transition-colors">
+            <div class="flex items-center gap-6">
+                <a href="#" class="text-gray-300 hover:text-white text-xs"><i class="fas fa-search"></i></a>
+                <a href="store.html" class="text-gray-300 hover:text-white text-xs relative">
                     <i class="fas fa-shopping-bag"></i>
                 </a>
             </div>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="hero-badge">NEW</div>
-        <h1 class="hero-title">iPhone 16 Pro</h1>
-        <p class="hero-subtitle">Titanium. So strong. So light. So Pro.</p>
+<main id="scroll-content" class="relative z-10 pointer-events-none">
         
-        <div class="hero-cta">
-            <a href="store.html" class="btn-primary">
-                Buy Now
-                <i class="fas fa-arrow-right"></i>
-            </a>
-            <a href="#explore" class="btn-secondary">
-                Learn more
-            </a>
-        </div>
-
-        <div class="scroll-indicator">
-            <i class="fas fa-chevron-down text-gray-500"></i>
-        </div>
-    </section>
-
-    <!-- 3D Model Showcase Section -->
-    <section id="explore" class="content-section">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <div class="section-badge">A17 PRO CHIP</div>
-                <h2 class="section-title">
-                    A monster win<br>for gaming.
-                </h2>
-                <p class="section-description mx-auto">
-                    It's here. The biggest redesign in the history of Apple GPUs. A17 Pro is an entirely new class of iPhone chip that delivers our best graphics performance by far.
+        <section class="h-screen flex flex-col items-center justify-center text-center relative section-hero">
+            <div class="mt-[-10vh]"> <h2 class="text-blue-500 font-medium tracking-[0.2em] text-sm mb-4 uppercase animate-pulse">New Generation</h2>
+                <h1 class="text-6xl md:text-9xl font-bold tracking-tighter mb-6 text-gradient opacity-0 translate-y-10 gsap-hero-text">
+                    Titanium.
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-400 font-light opacity-0 translate-y-10 gsap-hero-text">
+                    So strong. So light. So Pro.
                 </p>
             </div>
-
-            <!-- 3D Model Container -->
-            <div class="model-container">
-                <canvas id="model-canvas"></canvas>
-                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
-                    <p class="text-xs text-gray-500 uppercase tracking-wider">Drag to rotate • Scroll to zoom</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="content-section bg-gradient-to-b from-black via-zinc-900/50 to-black">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-20">
-                <div class="section-badge">PRO CAMERA SYSTEM</div>
-                <h2 class="section-title">
-                    Capture your<br>wildest imagination.
-                </h2>
-            </div>
-
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-camera"></i>
-                    </div>
-                    <h3 class="feature-title">48MP Main</h3>
-                    <p class="feature-description">
-                        More detail in every shot. Advanced computational photography powered by A17 Pro.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-video"></i>
-                    </div>
-                    <h3 class="feature-title">4K 60fps ProRes</h3>
-                    <p class="feature-description">
-                        Cinematic video stabilization. Record directly to an external drive via USB-C.
-                    </p>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-expand"></i>
-                    </div>
-                    <h3 class="feature-title">5x Telephoto</h3>
-                    <p class="feature-description">
-                        The longest optical zoom in iPhone. Get closer than ever to your subject.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Specs Grid Section -->
-    <section class="content-section">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid md:grid-cols-2 gap-8 items-center">
-                <div>
-                    <div class="section-badge">TITANIUM DESIGN</div>
-                    <h2 class="section-title">
-                        Strong.<br>Light.<br>Aerospace-grade.
-                    </h2>
-                    <p class="section-description">
-                        The strongest iPhone ever made. With a new internal structure and aerospace-grade titanium, iPhone 16 Pro is incredibly durable and surprisingly light.
-                    </p>
-                    <div class="mt-8 space-y-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
-                                <i class="fas fa-shield-alt text-blue-500"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold">Ceramic Shield</h4>
-                                <p class="text-sm text-gray-400">Tougher than any smartphone glass</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                                <i class="fas fa-water text-purple-500"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold">IP68 Water Resistance</h4>
-                                <p class="text-sm text-gray-400">Protected up to 6 meters</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="relative">
-                    <div class="aspect-square rounded-3xl bg-gradient-to-br from-zinc-800 to-black border border-white/10 flex items-center justify-center overflow-hidden">
-                        <div class="absolute inset-0 bg-blue-500/10 blur-3xl"></div>
-                        <div class="relative text-6xl text-zinc-700">
-                            <i class="fab fa-apple"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Color Variants Section -->
-    <section class="content-section bg-black">
-        <div class="max-w-7xl mx-auto text-center">
-            <div class="section-badge">FOUR STUNNING FINISHES</div>
-            <h2 class="section-title mb-12">
-                Choose your color.
-            </h2>
             
-            <div class="flex justify-center gap-8 flex-wrap">
-                <div class="group cursor-pointer">
-                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 border-2 border-white/10 group-hover:border-white/30 transition-all mb-3"></div>
-                    <p class="text-sm text-gray-400 group-hover:text-white transition-colors">Natural Titanium</p>
-                </div>
-                <div class="group cursor-pointer">
-                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-900 to-blue-950 border-2 border-white/10 group-hover:border-blue-500/50 transition-all mb-3"></div>
-                    <p class="text-sm text-gray-400 group-hover:text-white transition-colors">Blue Titanium</p>
-                </div>
-                <div class="group cursor-pointer">
-                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-zinc-100 to-zinc-300 border-2 border-white/10 group-hover:border-white/50 transition-all mb-3"></div>
-                    <p class="text-sm text-gray-400 group-hover:text-white transition-colors">White Titanium</p>
-                </div>
-                <div class="group cursor-pointer">
-                    <div class="w-20 h-20 rounded-full bg-gradient-to-br from-zinc-950 to-black border-2 border-white/10 group-hover:border-white/30 transition-all mb-3"></div>
-                    <p class="text-sm text-gray-400 group-hover:text-white transition-colors">Black Titanium</p>
+            <div class="absolute bottom-10 animate-bounce text-gray-500">
+                <p class="text-xs mb-2">Scroll to explore</p>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </section>
+
+        <section class="h-screen flex items-center relative section-chip">
+            <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2">
+                <div class="text-left opacity-0 translate-x-[-50px] gsap-chip-text pointer-events-auto">
+                    <div class="inline-block px-3 py-1 border border-blue-500/30 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold mb-4">
+                        A17 PRO CHIP
+                    </div>
+                    <h2 class="text-5xl md:text-7xl font-bold mb-6 text-white leading-tight">
+                        A monster win for <br> <span class="text-blue-500">gaming.</span>
+                    </h2>
+                    <p class="text-lg text-gray-400 leading-relaxed font-light max-w-md">
+                        It's here. The biggest redesign in the history of Apple GPUs. A17 Pro is an entirely new class of iPhone chip that delivers our best graphics performance by far.
+                    </p>
+                    <button class="mt-8 px-8 py-3 bg-white text-black rounded-full font-medium hover:bg-gray-200 transition-colors">
+                        Explore A17 Pro
+                    </button>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- CTA Section -->
-    <section class="min-h-[60vh] flex flex-col items-center justify-center relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-black via-blue-950/20 to-black"></div>
-        <div class="relative z-10 text-center px-4">
-            <h2 class="text-5xl md:text-7xl font-bold mb-8">
+        <section class="h-screen flex items-center relative section-camera">
+            <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2">
+                <div class="md:col-start-2 text-left md:pl-20 opacity-0 translate-x-[50px] gsap-camera-text pointer-events-auto">
+                    <h2 class="text-5xl md:text-7xl font-bold mb-6 text-white">
+                        Camera. <br> <span class="text-purple-500">Wildly Pro.</span>
+                    </h2>
+                    <div class="grid grid-cols-2 gap-6 mt-8">
+                        <div>
+                            <h3 class="text-3xl font-bold text-white">48MP</h3>
+                            <p class="text-sm text-gray-500">Main Camera</p>
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-bold text-white">120mm</h3>
+                            <p class="text-sm text-gray-500">5x Optical Zoom</p>
+                        </div>
+                    </div>
+                    <p class="mt-8 text-gray-400 font-light">
+                        Capture your wildest imagination with the all-new 48MP Main camera.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="h-screen flex flex-col items-center justify-center relative section-cta pointer-events-auto">
+            <h2 class="text-4xl md:text-6xl font-bold mb-8 text-center text-white opacity-0 scale-90 gsap-cta-text">
                 iPhone 16 Pro Max
             </h2>
-            <p class="text-xl text-gray-400 mb-12">From $1,199 or $49.95/mo. for 24 mo.</p>
-            <div class="flex gap-4 justify-center flex-wrap">
-                <a href="store.html" class="px-12 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full transition-all transform hover:scale-105 shadow-[0_0_30px_rgba(0,113,227,0.4)]">
+            <div class="flex gap-4 opacity-0 scale-90 gsap-cta-text">
+                <a href="store.html" class="px-10 py-4 bg-blue-600 hover:bg-blue-500 text-white text-lg font-bold rounded-full transition-all hover:scale-105 shadow-[0_0_30px_rgba(0,113,227,0.4)]">
                     Buy Now
                 </a>
-                <a href="store.html" class="px-12 py-4 bg-transparent border-2 border-white/20 hover:border-white/40 text-white font-bold rounded-full transition-all">
-                    Learn More
+                <a href="store.html" class="px-10 py-4 border border-white/20 hover:bg-white/10 text-white text-lg font-medium rounded-full transition-all">
+                    Visit Store
                 </a>
             </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-zinc-950 border-t border-white/5 py-12">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-8 mb-8">
-                <div>
-                    <h4 class="text-xs font-bold text-white mb-4 uppercase tracking-wider">Shop</h4>
-                    <ul class="space-y-2">
-                        <li><a href="store.html" class="text-xs text-gray-400 hover:text-white transition-colors">Store</a></li>
-                        <li><a href="#" class="text-xs text-gray-400 hover:text-white transition-colors">Mac</a></li>
-                        <li><a href="#" class="text-xs text-gray-400 hover:text-white transition-colors">iPad</a></li>
-                        <li><a href="#" class="text-xs text-gray-400 hover:text-white transition-colors">iPhone</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-white mb-4 uppercase tracking-wider">Services</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-xs text-gray-400 hover:text-white transition-colors">Apple Music</a></li>
-                        <li><a href="#" class="text-xs text-gray-400 hover:text-white transition-colors">Apple TV+</a></li>
-                        <li><a href="#" class="text-xs text-gray-400 hover:text-white transition-colors">iCloud</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-white mb-4 uppercase tracking-wider">Account</h4>
-                    <ul class="space-y-2">
-                        <li><a href="login/login.html" class="text-xs text-gray-400 hover:text-white transition-colors">Manage Your Apple ID</a></li>
-                        <li><a href="#" class="text-xs text-gray-400 hover:text-white transition-colors">iCloud.com</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-xs font-bold text-white mb-4 uppercase tracking-wider">About Apple</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-xs text-gray-400 hover:text-white transition-colors">Newsroom</a></li>
-                        <li><a href="#" class="text-xs text-gray-400 hover:text-white transition-colors">Contact Apple</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-white/5 pt-6 text-center">
-                <p class="text-xs text-gray-500">© 2025 Apple Premium Clone. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Chat Support Bubble -->
-    <div id="chat-bubble" onclick="toggleChat()" class="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-full flex items-center justify-center cursor-pointer shadow-[0_8px_32px_rgba(0,113,227,0.5)] hover:scale-110 transition-transform z-[9998]">
-        <i class="fas fa-comment-dots text-white text-2xl"></i>
-    </div>
-
-    <div id="chat-window" class="hidden fixed bottom-28 right-8 w-96 h-[500px] bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-2xl flex-col z-[9999] shadow-2xl overflow-hidden">
-        <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-5 flex justify-between items-center">
-            <div>
-                <h3 class="font-bold text-white">Apple Support AI</h3>
-                <p class="text-xs text-blue-100">Online • Ready to help</p>
-            </div>
-            <button onclick="toggleChat()" class="text-white/80 hover:text-white transition-colors">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div id="messages-area" class="flex-1 p-4 overflow-y-auto space-y-3">
-            <div class="bg-blue-500/20 p-3 rounded-2xl rounded-bl-sm text-sm max-w-[80%]">
-                Xin chào! Tôi có thể giúp gì cho bạn?
-            </div>
-        </div>
-        <div class="p-4 border-t border-white/10 bg-zinc-900/50">
-            <div class="flex gap-2">
-                <input type="text" id="chat-input-text" class="flex-1 bg-zinc-800 rounded-xl px-4 py-3 text-sm outline-none border border-white/10 focus:border-blue-500 transition-colors" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendChat()">
-                <button onclick="sendChat()" class="bg-gradient-to-r from-blue-600 to-blue-800 px-6 rounded-xl hover:from-blue-700 hover:to-blue-900 transition-all">
-                    <i class="fas fa-paper-plane text-white"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // === 1. THREE.JS 3D BACKGROUND ===
-        const canvas = document.getElementById('webgl-canvas');
-        const scene = new THREE.Scene();
-        
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
-        
-        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
-        // Create abstract geometric shape
-        const geometry = new THREE.IcosahedronGeometry(2, 1);
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x0071e3,
-            roughness: 0.3,
-            metalness: 0.8,
-            flatShading: true,
-            emissive: 0x001133,
-            emissiveIntensity: 0.3
-        });
-        
-        const mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
-        
-        // Wireframe overlay
-        const wireMaterial = new THREE.MeshBasicMaterial({
-            color: 0x0071e3,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.15
-        });
-        const wireMesh = new THREE.Mesh(geometry, wireMaterial);
-        wireMesh.scale.set(1.05, 1.05, 1.05);
-        scene.add(wireMesh);
-        
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambientLight);
-        
-        const pointLight1 = new THREE.PointLight(0x0071e3, 2);
-        pointLight1.position.set(5, 5, 5);
-        scene.add(pointLight1);
-        
-        const pointLight2 = new THREE.PointLight(0x00a8ff, 1);
-        pointLight2.position.set(-5, -5, 5);
-        scene.add(pointLight2);
-        
-        // Mouse interaction
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
-        
-        // Animation loop
-        const clock = new THREE.Clock();
-        function animate() {
-            const elapsed = clock.getElapsedTime();
             
-            mesh.rotation.y += 0.001 + mouseX * 0.0005;
-            mesh.rotation.x += 0.001 + mouseY * 0.0005;
-            mesh.rotation.z += 0.0005;
-            
-            wireMesh.rotation.y -= 0.001 + mouseX * 0.0005;
-            wireMesh.rotation.x -= 0.001 + mouseY * 0.0005;
-            
-            const scale = 1 + Math.sin(elapsed * 0.5) * 0.05;
-            mesh.scale.set(scale, scale, scale);
-            
-            renderer.render(scene, camera);
-            requestAnimationFrame(animate);
+            <footer class="absolute bottom-10 text-gray-600 text-xs">
+                © 2025 Apple Clone Project. Designed with Three.js & Tailwind.
+            </footer>
+        </section>
+
+    </main>
+
+    <script type="module">
+        // Import các thư viện cần thiết từ Import Map
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+        import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+
+        // --- CẤU HÌNH CƠ BẢN ---
+        const canvas = document.querySelector('#webgl-canvas');
+        const loadingScreen = document.getElementById('loader');
+        const progressBar = document.getElementById('progress-bar');
+        const loadingText = document.getElementById('loading-text');
+
+        // Hàm ẩn Loading (Sẽ gọi khi load xong)
+        function hideLoader() {
+            loadingScreen.style.opacity = '0';
+            document.getElementById('main-body').classList.remove('opacity-0');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+            }, 800);
         }
-        animate();
+
+        // --- TIẾP TỤC Ở PHẦN 2 ---
+        // --- IMPORT BỔ SUNG ---
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        // 1. KHỞI TẠO SCENE & CAMERA
+        const scene = new THREE.Scene();
+        // Màu nền sương mù nhẹ để tạo chiều sâu (Dark Gray/Blue tone)
+        scene.fog = new THREE.FogExp2(0x000000, 0.02);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 8); // Đặt camera ở xa một chút
+
+        // 2. RENDERER (Cấu hình "High-End")
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas: canvas, 
+            antialias: true, // Khử răng cưa
+            alpha: true,     // Cho phép nền trong suốt
+            powerPreference: "high-performance"
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Tối ưu cho màn hình Retina
         
+        // Cấu hình màu sắc chuẩn vật lý (Physically Correct Lights)
+        renderer.useLegacyLights = false; 
+        renderer.toneMapping = THREE.ACESFilmicToneMapping; // Tone màu điện ảnh
+        renderer.toneMappingExposure = 1.0;
+        renderer.shadowMap.enabled = true; // Bật đổ bóng
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Bóng mềm tự nhiên
+
+        // 3. CONTROLS (Điều khiển chuột mượt mà)
+        const controls = new OrbitControls(camera, canvas);
+        controls.enableDamping = true; // Quán tính mượt
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = false;   // Tắt zoom để không phá bố cục (tùy chọn)
+        controls.enablePan = false;    // Tắt di chuyển ngang
+        controls.autoRotate = true;    // Tự động xoay nhẹ
+        controls.autoRotateSpeed = 0.5;
+
+        // 4. LIGHTING (Ánh sáng Studio Apple)
+        // Ánh sáng môi trường nhẹ
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); 
+        scene.add(ambientLight);
+
+        // Đèn chính (Key Light) - Ánh sáng xanh dương đặc trưng
+        const keyLight = new THREE.SpotLight(0x0071e3, 100);
+        keyLight.position.set(5, 5, 5);
+        keyLight.angle = Math.PI / 6;
+        keyLight.penumbra = 1;
+        keyLight.castShadow = true;
+        keyLight.shadow.bias = -0.0001;
+        scene.add(keyLight);
+
+        // Đèn viền (Rim Light) - Tạo đường biên sáng cho kim loại
+        const rimLight = new THREE.SpotLight(0xffffff, 50);
+        rimLight.position.set(-5, 5, -5);
+        rimLight.lookAt(0, 0, 0);
+        scene.add(rimLight);
+
+        // Đèn lấp đầy (Fill Light) - Màu tím nhẹ tạo contrast
+        const fillLight = new THREE.PointLight(0xa855f7, 20);
+        fillLight.position.set(-5, 0, 5);
+        scene.add(fillLight);
+
+        // 5. LOADING MANAGER & GLTF LOADER
+        // Quản lý việc tải tài nguyên để hiển thị thanh loading
+        const manager = new THREE.LoadingManager();
+        
+        manager.onProgress = (url, itemsLoaded, itemsTotal) => {
+            const progress = (itemsLoaded / itemsTotal) * 100;
+            if(progressBar) progressBar.style.width = progress + '%';
+            if(loadingText) loadingText.innerText = `LOADING ASSETS: ${Math.round(progress)}%`;
+        };
+
+        manager.onLoad = () => {
+            console.log('✅ All Assets Loaded');
+            hideLoader(); // Gọi hàm ẩn màn hình chờ đã viết ở Phần 1
+            
+            // Kích hoạt animation khi load xong
+            startAnimationLoop();
+        };
+
+        const loader = new GLTFLoader(manager);
+
+        // Biến lưu trữ Model để dùng sau này
+        let iphoneModel = null;
+
+        // --- HÀM LOAD MODEL (Sẽ dùng ở phần sau) ---
+        function loadIphone() {
+            // Load file iPhone 16 Pro Max của bạn
+            loader.load('/images/iphone_16_pro_max.glb', (gltf) => {
+                iphoneModel = gltf.scene;
+                
+                // Tinh chỉnh Model
+                iphoneModel.scale.set(15, 15, 15); // iPhone scale thường rất nhỏ, cần phóng to
+                iphoneModel.position.set(0, 0, 0);
+                
+                // Bật đổ bóng cho từng linh kiện
+                iphoneModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        // Tăng độ bóng bẩy cho kim loại
+                        if(child.material) {
+                            child.material.envMapIntensity = 1; 
+                            child.material.needsUpdate = true;
+                        }
+                    }
+                });
+
+                scene.add(iphoneModel);
+            }, undefined, (error) => {
+                console.error('❌ Lỗi load iPhone:', error);
+                // Nếu lỗi load file 16, thử load file 15 làm backup
+                console.log('⚠️ Thử load file backup...');
+                loader.load('/images/apple_iphone_15_pro_max_black.glb', (gltf2) => {
+                    iphoneModel = gltf2.scene;
+                    iphoneModel.scale.set(15, 15, 15);
+                    scene.add(iphoneModel);
+                });
+            });
+        }
+
+        // Gọi hàm load ngay lập tức
+        loadIphone();
+
+        // Xử lý Resize cửa sổ
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            // composer.setSize(...) // Sẽ thêm ở phần Post-processing
         });
 
-        // === 2. 3D MODEL LOADER (GLB) ===
-        const modelCanvas = document.getElementById('model-canvas');
-        const modelScene = new THREE.Scene();
-        const modelCamera = new THREE.PerspectiveCamera(45, modelCanvas.clientWidth / modelCanvas.clientHeight, 0.1, 1000);
-        modelCamera.position.set(0, 0, 5);
+        // --- TIẾP TỤC Ở PHẦN 3 ---
+        // =========================================================
+        // PHẦN 3: POST-PROCESSING (HIỆU ỨNG ĐIỆN ẢNH)
+        // =========================================================
         
-        const modelRenderer = new THREE.WebGLRenderer({ canvas: modelCanvas, alpha: true, antialias: true });
-        modelRenderer.setSize(modelCanvas.clientWidth, modelCanvas.clientHeight);
-        modelRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        
-        // Lighting for model
-        const modelAmbient = new THREE.AmbientLight(0xffffff, 1);
-        modelScene.add(modelAmbient);
-        
-        const modelLight = new THREE.DirectionalLight(0xffffff, 1);
-        modelLight.position.set(5, 5, 5);
-        modelScene.add(modelLight);
-        
-        // Load GLB model (replace with your actual model path)
-        const loader = new THREE.GLTFLoader();
-        let loadedModel = null;
-        
-        // Fallback: Create a placeholder if model doesn't load
-        const placeholderGeo = new THREE.BoxGeometry(2, 3, 0.2);
-        const placeholderMat = new THREE.MeshStandardMaterial({ 
-            color: 0x333333,
-            metalness: 0.8,
-            roughness: 0.2
-        });
-        const placeholder = new THREE.Mesh(placeholderGeo, placeholderMat);
-        modelScene.add(placeholder);
-        
-        // Attempt to load actual model - Using your GLB files
-        const models = [
-            'images/iphone_16_pro_max.glb',
-            'images/apple_iphone_15_pro_max_black.glb'
-        ];
-        
-        let currentModelIndex = 0;
-        
-        function loadModel(modelPath) {
-            loader.load(
-                modelPath,
-                (gltf) => {
-                    if (loadedModel) {
-                        modelScene.remove(loadedModel);
-                    }
-                    modelScene.remove(placeholder);
-                    
-                    loadedModel = gltf.scene;
-                    modelScene.add(loadedModel);
-                    
-                    // Auto-scale and center model
-                    const box = new THREE.Box3().setFromObject(loadedModel);
-                    const center = box.getCenter(new THREE.Vector3());
-                    const size = box.getSize(new THREE.Vector3());
-                    
-                    const maxDim = Math.max(size.x, size.y, size.z);
-                    const scale = 3 / maxDim;
-                    loadedModel.scale.set(scale, scale, scale);
-                    
-                    loadedModel.position.x = -center.x * scale;
-                    loadedModel.position.y = -center.y * scale;
-                    loadedModel.position.z = -center.z * scale;
-                    
-                    console.log('✅ Model loaded successfully:', modelPath);
-                },
-                (progress) => {
-                    const percent = (progress.loaded / progress.total * 100).toFixed(0);
-                    console.log(`Loading model: ${percent}%`);
-                },
-                (error) => {
-                    console.log('⚠️ Model not found at:', modelPath, '- Using placeholder');
-                    if (!modelScene.children.includes(placeholder)) {
-                        modelScene.add(placeholder);
-                    }
-                }
-            );
-        }
-        
-        // Load first model
-        loadModel(models[currentModelIndex]);
-        
-        // Model controls
-        let isDragging = false;
-        let previousMouseX = 0;
-        let targetRotationY = 0;
-        let targetRotationX = 0;
-        
-        modelCanvas.addEventListener('mousedown', () => isDragging = true);
-        modelCanvas.addEventListener('mouseup', () => isDragging = false);
-        modelCanvas.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                const deltaX = e.clientX - previousMouseX;
-                targetRotationY += deltaX * 0.01;
-            }
-            previousMouseX = e.clientX;
-        });
-        
-        function animateModel() {
-            if (loadedModel) {
-                loadedModel.rotation.y += (targetRotationY - loadedModel.rotation.y) * 0.1;
-            } else {
-                placeholder.rotation.y += (targetRotationY - placeholder.rotation.y) * 0.1;
-                placeholder.rotation.y += 0.005;
-            }
-            
-            modelRenderer.render(modelScene, modelCamera);
-            requestAnimationFrame(animateModel);
-        }
-        animateModel();
+        // Tạo Composer để quản lý chuỗi hiệu ứng
+        const composer = new EffectComposer(renderer);
 
-        // === 3. GSAP SCROLL ANIMATIONS ===
-        gsap.registerPlugin(ScrollTrigger);
+        // Pass 1: Render cảnh gốc
+        const renderPass = new RenderPass(scene, camera);
+        composer.addPass(renderPass);
+
+        // Pass 2: Unreal Bloom (Hiệu ứng phát sáng)
+        // Các tham số: resolution, strength, radius, threshold
+        const bloomPass = new UnrealBloomPass(
+            new THREE.Vector2(window.innerWidth, window.innerHeight), 
+            1.5, 
+            0.4, 
+            0.85
+        );
+        bloomPass.threshold = 0.15; // Ngưỡng sáng (chỉ những phần rất sáng mới phát quang)
+        bloomPass.strength = 0.4;   // Độ mạnh của ánh sáng (vừa phải để sang trọng)
+        bloomPass.radius = 0.5;     // Độ lan tỏa
+        composer.addPass(bloomPass);
+
+        // Cập nhật lại Resize cho Composer (để Bloom không bị méo khi đổi cỡ màn hình)
+        window.addEventListener('resize', () => {
+            composer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // =========================================================
+        // PHẦN 4: ANIMATION LOOP (VÒNG LẶP CHUYỂN ĐỘNG)
+        // =========================================================
         
-        // Fade in sections
-        gsap.utils.toArray('.content-section').forEach(section => {
-            gsap.from(section.children, {
-                opacity: 0,
-                y: 50,
-                duration: 1,
+        const clock = new THREE.Clock();
+
+        // Biến lưu trữ vị trí chuột (dùng cho hiệu ứng parallax ở phần sau)
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // 1. Cập nhật Controls (quán tính)
+            controls.update();
+
+            // 2. Hiệu ứng "Floating" (iPhone trôi lơ lửng nhẹ)
+            if (iphoneModel) {
+                // Nhấp nhô lên xuống nhẹ nhàng theo hàm sin
+                iphoneModel.position.y = Math.sin(elapsedTime * 0.5) * 0.15;
+                
+                // Nghiêng nhẹ qua lại
+                iphoneModel.rotation.z = Math.sin(elapsedTime * 0.25) * 0.05;
+
+                // Parallax theo chuột (tạo cảm giác chiều sâu)
+                targetX = mouseX * 0.0005;
+                targetY = mouseY * 0.0005;
+                iphoneModel.rotation.y += 0.05 * (targetX - iphoneModel.rotation.y);
+                iphoneModel.rotation.x += 0.05 * (targetY - iphoneModel.rotation.x);
+            }
+
+            // 3. Render bằng Composer (thay vì renderer thường) để có Bloom
+            composer.render();
+        }
+
+        // Hàm được gọi khi Loader tải xong (đã khai báo ở phần trước)
+        // Lưu ý: Cần gán vào window hoặc để global scope nếu cần, 
+        // nhưng ở module này ta gọi trực tiếp trong callback manager.onLoad
+        window.startAnimationLoop = function() {
+            animate();
+        };
+
+        // --- TIẾP TỤC Ở PHẦN CUỐI (UI & SCROLL) ---
+        // =========================================================
+        // PHẦN 5: SCROLL INTERACTION (GSAP SCROLLTRIGGER)
+        // =========================================================
+
+        function setupScrollAnimations() {
+            if (!iphoneModel) return;
+
+            // Đăng ký Plugin
+            gsap.registerPlugin(ScrollTrigger);
+
+            // --- 1. HERO ANIMATION (Chữ hiện ra lúc đầu) ---
+            gsap.to(".gsap-hero-text", {
+                y: 0,
+                opacity: 1,
+                duration: 1.5,
                 stagger: 0.2,
+                ease: "power3.out"
+            });
+
+            // --- 2. SCROLL TIMELINE (Điều khiển iPhone theo nhịp cuộn) ---
+            const tl = gsap.timeline({
                 scrollTrigger: {
-                    trigger: section,
-                    start: 'top 80%',
-                    toggleActions: 'play none none reverse'
+                    trigger: "body",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 1.5, // Độ mượt khi cuộn (càng cao càng "đầm")
                 }
             });
-        });
-        
-        // Feature cards animation
-        gsap.from('.feature-card', {
-            opacity: 0,
-            y: 60,
-            duration: 0.8,
-            stagger: 0.2,
-            scrollTrigger: {
-                trigger: '.feature-grid',
-                start: 'top 75%'
-            }
-        });
-        
-        // Header scroll effect
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('header');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
 
-        // === 4. CHAT FUNCTIONS ===
-        function toggleChat() {
-            document.getElementById('chat-window').classList.toggle('hidden');
+            // GIAI ĐOẠN 1: Từ Hero -> Chip Section
+            // iPhone di chuyển sang phải, xoay để lộ cạnh bên (Side view)
+            tl.to(iphoneModel.position, { x: 2.5, y: -0.5, z: 0 }, "phase1")
+              .to(iphoneModel.rotation, { y: -Math.PI / 2, x: 0 }, "phase1")
+              .to(".gsap-hero-text", { opacity: 0, y: -50 }, "phase1") // Ẩn chữ Hero
+              .to(".gsap-chip-text", { opacity: 1, x: 0 }, "phase1");  // Hiện chữ Chip
+
+            // GIAI ĐOẠN 2: Từ Chip -> Camera Section
+            // iPhone di chuyển sang trái, xoay để lộ mặt lưng (Back view)
+            tl.to(iphoneModel.position, { x: -2.5, y: 0, z: 1 }, "phase2")
+              .to(iphoneModel.rotation, { y: Math.PI, x: 0.2 }, "phase2") // Xoay 180 độ
+              .to(".gsap-chip-text", { opacity: 0, y: -50 }, "phase2")
+              .to(".gsap-camera-text", { opacity: 1, x: 0 }, "phase2");
+
+            // GIAI ĐOẠN 3: Từ Camera -> CTA (Kết thúc)
+            // iPhone về giữa, zoom to lên
+            tl.to(iphoneModel.position, { x: 0, y: 0.5, z: 3 }, "phase3")
+              .to(iphoneModel.rotation, { y: Math.PI * 2, x: 0 }, "phase3") // Xoay đủ 1 vòng
+              .to(".gsap-camera-text", { opacity: 0, y: -50 }, "phase3")
+              .to(".gsap-cta-text", { opacity: 1, scale: 1 }, "phase3");
         }
-        
-        async function sendChat() {
-            const input = document.getElementById('chat-input-text');
-            const msg = input.value.trim();
-            if (!msg) return;
+
+        // --- CẬP NHẬT MANAGER ONLOAD ---
+        // Ghi đè hàm onLoad cũ để đảm bảo setupScrollAnimations chạy đúng lúc
+        manager.onLoad = () => {
+            console.log('✅ System Ready. Starting Experience...');
+            hideLoader();
             
-            const area = document.getElementById('messages-area');
-            area.innerHTML += `<div class="bg-zinc-800 p-3 rounded-2xl rounded-br-sm text-sm max-w-[80%] ml-auto text-right">${msg}</div>`;
-            input.value = '';
+            // Bắt đầu vòng lặp chuyển động
+            startAnimationLoop();
             
-            setTimeout(() => {
-                area.innerHTML += `<div class="bg-blue-500/20 p-3 rounded-2xl rounded-bl-sm text-sm max-w-[80%]">Visit Store page for full chat functionality!</div>`;
-                area.scrollTop = area.scrollHeight;
-            }, 800);
-        }
+            // Thiết lập hiệu ứng cuộn GSAP
+            setupScrollAnimations();
+        };
+
     </script>
-
 </body>
 </html>
