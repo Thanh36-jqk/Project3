@@ -3,705 +3,956 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store - Apple Premium Reseller</title>
+    <title>Apple Store Online - Premium Reseller</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* GIỮ LẠI CSS CƠ BẢN VÀ CSS CHO CÁC MODAL/SẢN PHẨM */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #000; color: #f5f5f7; overflow-x: hidden; }
-        
+        /* --- CORE STYLES --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #f5f5f7;
+            overflow-x: hidden;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1d1d1f; }
-        ::-webkit-scrollbar-thumb { background: #424245; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #86868b; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
 
-        /* Header Styles (Shared) */
-        header { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; backdrop-filter: blur(20px) saturate(180%); background: rgba(0, 0, 0, 0.8); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .menu { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 48px; gap: 16px; }
-        .menu a { color: #f5f5f7; text-decoration: none; font-size: 12px; transition: all 0.3s; position: relative; white-space: nowrap; }
-        .menu a:hover { color: #fff; }
-        .logo { font-size: 20px; padding: 0 12px !important; }
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(28, 28, 30, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-        /* Search & Cart (Shared) */
-        .search-container { position: relative; display: flex; align-items: center; gap: 4px; }
-        .search-input { width: 0; padding: 6px 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid transparent; border-radius: 20px; color: #f5f5f7; font-size: 13px; outline: none; transition: all 0.4s; opacity: 0; }
-        .search-container:focus-within .search-input, .search-input:not(:placeholder-shown) { width: 180px; opacity: 1; border-color: rgba(255, 255, 255, 0.2); }
-        .search-btn { background: transparent; border: none; color: #f5f5f7; cursor: pointer; padding: 8px; border-radius: 50%; }
+        .glass-nav {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
         
-        /* Product Grid Styles (Store Specific) */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; list-style: none; padding: 0; }
-        .product-item { background: rgba(29, 29, 31, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 18px; overflow: hidden; transition: all 0.4s; cursor: pointer; height: 100%; display: flex; flex-direction: column; }
-        .product-item:hover { transform: translateY(-8px); border-color: rgba(0, 113, 227, 0.5); box-shadow: 0 20px 40px rgba(0, 113, 227, 0.2); background: rgba(29, 29, 31, 0.8); }
-        .product-image { position: relative; width: 100%; height: 280px; background: rgba(255, 255, 255, 0.02); display: flex; align-items: center; justify-content: center; padding: 24px; }
-        .product-image img { width: 100%; height: 100%; object-fit: contain; transition: transform 0.4s ease; }
-        .product-item:hover .product-image img { transform: scale(1.1); }
-        .product-info { padding: 20px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        .product-cat { font-size: 11px; color: #86868b; text-transform: uppercase; font-weight: 500; }
-        .product-name { font-size: 18px; font-weight: 600; color: #f5f5f7; margin-bottom: 4px; }
-        .product-price { font-size: 16px; font-weight: 500; color: #0071e3; margin-top: auto; margin-bottom: 12px; }
-        .product-info button { width: 100%; padding: 10px; background: rgba(0, 113, 227, 0.1); border: 1px solid rgba(0, 113, 227, 0.3); border-radius: 10px; color: #0071e3; cursor: pointer; transition: all 0.3s; margin-bottom: 8px; }
-        .product-info button:hover { background: rgba(0, 113, 227, 0.2); transform: scale(1.02); }
-        .btn-payment { background: rgba(0, 113, 227, 0.9) !important; color: white !important; }
+        .hover-scale { transition: transform 0.3s ease; }
+        .hover-scale:hover { transform: scale(1.02); }
 
-        /* Login & Cart UI */
-        .login-link { display: flex; align-items: center; gap: 6px; padding: 6px 12px !important; border-radius: 20px; }
-        .login-link:hover { background: rgba(255, 255, 255, 0.1); }
-        .logged-in-user { display: flex; align-items: center; gap: 8px; padding: 4px 12px; background: rgba(255, 255, 255, 0.08); border-radius: 20px; font-size: 12px; }
-        .cart-container { position: relative; cursor: pointer; padding: 8px; border-radius: 50%; }
-        .cart-container:hover { background: rgba(255, 255, 255, 0.1); }
-        .cart-count { position: absolute; top: 2px; right: 2px; background: #0071e3; color: white; font-size: 9px; min-width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-
-        /* Copy lại CSS của Modal, Footer, Chat từ index.html (Đã được tối ưu ở dưới) */
-        /* ... (CSS cho Modal và Footer được giữ nguyên như file gốc để đảm bảo tính năng) ... */
-    </style>
-    <style>
-        /* Product Detail Modal */
-        .popup-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; }
-        .popup-container.active { display: flex; }
-        #popup { background: rgba(29, 29, 31, 0.98); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; max-width: 1200px; width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 40px; position: relative; }
-        .modal-content-left { display: flex; flex-direction: column; align-items: center; }
-        .image-gallery { position: relative; width: 100%; height: 400px; background: rgba(255, 255, 255, 0.02); border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        #modalMainImg { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .thumbnail-container { display: flex; gap: 12px; margin-top: 16px; overflow-x: auto; }
-        .thumbnail-container img { width: 60px; height: 60px; object-fit: contain; background: rgba(255, 255, 255, 0.05); border-radius: 8px; cursor: pointer; }
-        .modal-content-right h2 { font-size: 32px; font-weight: 700; margin-bottom: 12px; }
-        .modal-close-top { position: absolute; top: 20px; right: 20px; color: white; font-size: 24px; cursor: pointer; background: transparent; border: none; }
-        
-        /* Payment Modal */
-        .payment-modal-overlay-index { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; }
-        .payment-modal-overlay-index.active { display: flex; }
-        .payment-content-modal-index { background: #1d1d1f; border-radius: 20px; max-width: 600px; width: 100%; padding: 24px; border: 1px solid rgba(255,255,255,0.1); }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; background: #2d2d2f; border: 1px solid #424245; border-radius: 8px; color: white; margin-bottom: 12px; }
-        .btn-submit-payment { width: 100%; padding: 16px; background: #0071e3; color: white; border-radius: 12px; font-weight: bold; margin-top: 20px; }
-        
-        /* Footer */
-        .footer { background: #1d1d1f; padding: 60px 0 32px; margin-top: 80px; border-top: 1px solid #424245; }
-        .footer-container { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: grid; gap: 40px; }
-        .footer-main { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        .footer-column h4 { font-size: 12px; font-weight: 600; color: #f5f5f7; margin-bottom: 10px; }
-        .footer-column ul li a { font-size: 12px; color: #86868b; text-decoration: none; display: block; margin-bottom: 8px; }
-        .footer-column ul li a:hover { color: #f5f5f7; }
-
-        @media(max-width: 768px) {
-            #popup { grid-template-columns: 1fr; padding: 20px; }
-            .footer-main { grid-template-columns: 1fr; }
+        /* Loader */
+        #page-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease;
         }
     </style>
 </head>
-<body class="bg-black text-white">
+<body class="antialiased min-h-screen flex flex-col">
 
-    <header>
-        <nav class="menu">
-            <a href="index.html" class="logo"><i class="fab fa-apple"></i></a>
-            
-            <a href="store.html" style="color: #0071e3;">Store</a> <a href="#">Mac</a>
-            <a href="#">iPad</a>
-            <a href="#">iPhone</a>
-            <a href="#">Watch</a>
-            <a href="#">Support</a>
-            
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Tìm kiếm...">
-                <button class="search-btn"><i class="fas fa-search"></i></button>
-            </div>
-            
-            <div id="suggestions-container" class="hidden absolute top-12 right-0 w-80 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl z-50">
-                <ul id="suggestions-list" class="max-h-96 overflow-y-auto"></ul>
-            </div>
-            
-            <a href="login/login.html" class="login-link">
-                <i class="fas fa-user"></i> <span>Đăng nhập</span>
+    <div id="page-loader">
+        <i class="fab fa-apple text-6xl text-white animate-pulse"></i>
+    </div>
+
+    <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+            <a href="index.html" class="text-xl text-white hover:opacity-80 transition-opacity">
+                <i class="fab fa-apple"></i>
             </a>
             
-            <div class="cart-container">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-count">0</span>
-            </div>
-        </nav>
-    </header>
+            <nav class="hidden md:flex gap-8 text-xs font-light tracking-wide text-gray-300">
+                <a href="store.html" class="text-white font-medium">Store</a>
+                <a href="Mac/mac.html" class="hover:text-white transition-colors">Mac</a>
+                <a href="ipad/ipad.html" class="hover:text-white transition-colors">iPad</a>
+                <a href="iphone/iphone.html" class="hover:text-white transition-colors">iPhone</a>
+                <a href="#" class="hover:text-white transition-colors">Watch</a>
+                <a href="#" class="hover:text-white transition-colors">AirPods</a>
+                <a href="support.html" class="hover:text-white transition-colors">Support</a>
+            </nav>
 
-    <div class="fixed top-24 left-6 z-[9990] flex gap-2 group">
-        <button onclick="document.querySelector('.filter-panel').classList.toggle('-translate-x-full')" 
-                class="w-10 h-10 rounded-full bg-zinc-800/80 backdrop-blur text-white border border-white/10 shadow-lg flex items-center justify-center hover:bg-blue-600 transition-all">
-            <i class="fas fa-filter"></i>
-        </button>
-    </div>
-
-    <aside class="filter-panel fixed top-[48px] left-0 w-80 h-[calc(100vh-48px)] bg-zinc-900/95 backdrop-blur-xl border-r border-white/10 p-8 overflow-y-auto transform -translate-x-full transition-transform duration-300 z-[9997] shadow-2xl">
-        <div class="flex justify-between items-center mb-8">
-            <h3 class="text-xl font-bold text-white flex items-center gap-3"><i class="fas fa-filter text-blue-500"></i> Bộ Lọc</h3>
-            <button onclick="document.querySelector('.filter-panel').classList.add('-translate-x-full')" class="text-zinc-500 hover:text-white"><i class="fas fa-chevron-left"></i></button>
-        </div>
-        <form id="filterForm" class="space-y-8">
-            <div class="filter-group">
-                <h4 class="text-xs font-bold text-zinc-500 uppercase mb-4">Khoảng Giá</h4>
-                <div class="flex flex-wrap gap-2">
-                    <label class="cursor-pointer group"><input type="checkbox" name="price" value="0-5000000" class="peer sr-only"><span class="block px-3 py-2 rounded-lg text-xs bg-zinc-800 peer-checked:bg-blue-600">&lt; 5 triệu</span></label>
-                    <label class="cursor-pointer group"><input type="checkbox" name="price" value="5000000-20000000" class="peer sr-only"><span class="block px-3 py-2 rounded-lg text-xs bg-zinc-800 peer-checked:bg-blue-600">5 - 20 triệu</span></label>
-                    <label class="cursor-pointer group"><input type="checkbox" name="price" value="20000000-999999999" class="peer sr-only"><span class="block px-3 py-2 rounded-lg text-xs bg-zinc-800 peer-checked:bg-blue-600">&gt; 20 triệu</span></label>
-                </div>
-            </div>
-            <div class="filter-group">
-                <h4 class="text-xs font-bold text-zinc-500 uppercase mb-4">Loại Sản Phẩm</h4>
-                <div class="flex flex-col gap-2">
-                    <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" name="category" value="Phone" class="accent-blue-500"> Phone</label>
-                    <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" name="category" value="iPad" class="accent-blue-500"> iPad</label>
-                    <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" name="category" value="Laptop" class="accent-blue-500"> Laptop</label>
-                    <label class="flex items-center gap-3 cursor-pointer"><input type="checkbox" name="category" value="Watch" class="accent-blue-500"> Watch</label>
-                </div>
-            </div>
-        </form>
-    </aside>
-
-    <div id="cart-popup" class="hidden fixed top-[48px] right-0 w-full sm:w-[450px] h-[calc(100vh-48px)] bg-zinc-900/95 backdrop-blur-2xl border-l border-white/10 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] z-[9999] flex flex-col transition-all duration-300 translate-x-full">
-        <div class="px-6 py-5 border-b border-white/10 flex justify-between items-center bg-zinc-900/50">
-            <h3 class="text-xl font-bold text-white">Giỏ hàng <span class="text-zinc-500 text-sm cart-count-display">(0)</span></h3>
-            <button onclick="closeCart()" class="text-zinc-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-full"><i class="fas fa-times"></i></button>
-        </div>
-        <ul id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar"></ul>
-        <div class="p-6 border-t border-white/10 bg-zinc-900/80 mt-auto">
-            <div class="flex justify-between items-end mb-4"><span class="text-zinc-400 text-sm">Tổng:</span><span id="cart-total-display" class="text-2xl font-bold text-blue-500">0₫</span></div>
-            <button onclick="window.location.href='checkout.html'" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2">Thanh Toán <i class="fas fa-arrow-right"></i></button>
-        </div>
-    </div>
-
-    <div class="w-full pt-20 pb-10">
-        <section id="search-results-section" style="display: none;" class="mb-10 px-6">
-            <h2 class="text-3xl font-bold text-center mb-8">Search Results</h2>
-            <ul id="search-results-list" class="product-grid max-w-7xl mx-auto"></ul>
-        </section>
-
-        <section id="main-store-section" class="max-w-7xl mx-auto px-6">
-            <h1 class="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Apple Store</h1>
-            <p class="text-center text-zinc-400 mb-12">Khám phá công nghệ đỉnh cao.</p>
-            
-            <ul id="product-list-container" class="product-grid">
-                <p class="text-center col-span-full text-zinc-500">Đang tải sản phẩm...</p>
-            </ul>
-        </section>
-    </div>
-
-    <div id="popup-container" class="popup-container">
-        <div id="popup">
-            <div class="modal-content-left">
-                <div class="image-gallery">
-                    <img id="modalMainImg" src="" alt="Main Product">
-                    <button class="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 text-white rounded-full" onclick="changeImage(-1)">❮</button>
-                    <button class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 text-white rounded-full" onclick="changeImage(1)">❯</button>
-                </div>
-                <div id="thumbnail-container" class="thumbnail-container"></div>
-            </div>
-            <div class="modal-content-right">
-                <button class="modal-close-top" onclick="closeModal()">×</button>
-                <h2 id="modalName">Product Name</h2>
-                <p id="modalPrice" class="text-2xl text-blue-500 font-bold mb-4">0₫</p>
-                <div id="modalColorSelector" class="mb-4"></div>
-                <p id="modalDesc" class="text-zinc-400 mb-4 text-sm leading-relaxed"></p>
-                <ul id="modalSpec" class="text-sm text-zinc-300 space-y-2 mb-6"></ul>
-                <button class="w-full py-3 bg-zinc-800 hover:bg-zinc-700 rounded-xl mb-3 border border-zinc-700" onclick="addToCartCurrentModal()">Thêm vào giỏ</button>
-                <button class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-bold" onclick="buyNowCurrentModal()">Mua ngay</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="payment-modal-overlay-index" class="payment-modal-overlay-index">
-        <div class="payment-content-modal-index">
-            <div class="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
-                <h3 class="text-xl font-bold">Thông tin đặt hàng</h3>
-                <button onclick="closePaymentFormIndex()" class="text-zinc-400 hover:text-white"><i class="fas fa-times"></i></button>
-            </div>
-            <form id="paymentFormIndex">
-                <div class="form-group"><label>Người nhận *</label><input type="text" id="recipient-name-index" required></div>
-                <div class="form-group"><label>SĐT *</label><input type="tel" id="recipient-phone-index" required></div>
-                <div class="form-group"><label>Địa chỉ *</label><input type="text" id="recipient-address-index" required></div>
-                <div class="form-group"><label>Ghi chú</label><textarea id="recipient-notes-index" rows="2"></textarea></div>
-                
-                <div class="mb-4">
-                    <label class="block mb-2 text-sm font-semibold">Thanh toán</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer bg-zinc-800 p-3 rounded-lg flex-1"><input type="radio" name="payment-method-index" value="COD" checked> COD</label>
-                        <label class="flex items-center gap-2 cursor-pointer bg-zinc-800 p-3 rounded-lg flex-1"><input type="radio" name="payment-method-index" value="Credit Card"> Thẻ</label>
+            <div class="flex items-center gap-6">
+                <div class="relative group">
+                    <button id="search-trigger" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fas fa-search text-sm"></i>
+                    </button>
+                    <div id="search-dropdown" class="absolute right-0 top-10 w-72 glass-panel rounded-xl p-2 hidden opacity-0 transform -translate-y-2 transition-all duration-300 origin-top-right">
+                        <input type="text" id="global-search" placeholder="Search products..." class="w-full bg-transparent border-b border-white/10 p-2 text-sm text-white outline-none placeholder-gray-500">
+                        <ul id="search-results-mini" class="max-h-48 overflow-y-auto mt-2 space-y-1"></ul>
                     </div>
                 </div>
 
-                <div class="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl mb-4">
-                    <div class="flex justify-between text-sm mb-1"><span>Sản phẩm:</span><span id="payment-product-name-index" class="text-white font-medium"></span></div>
-                    <div class="flex justify-between text-lg font-bold text-blue-400"><span>Tổng:</span><span id="total-amount-index"></span></div>
-                    <div id="payment-product-price-index" class="hidden"></div> </div>
+                <button onclick="toggleCart()" class="text-gray-300 hover:text-white transition-colors relative">
+                    <i class="fas fa-shopping-bag text-sm"></i>
+                    <span id="cart-badge" class="absolute -top-2 -right-2 bg-blue-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                </button>
 
-                <button type="submit" class="btn-submit-payment">Xác nhận đặt hàng</button>
+                <div class="relative group">
+                    <a href="ACCOUNT.html" id="user-icon" class="text-gray-300 hover:text-white transition-colors">
+                        <i class="fas fa-user text-sm"></i>
+                    </a>
+                    <div id="user-tooltip" class="absolute right-0 top-8 glass-panel px-4 py-2 rounded-lg text-xs whitespace-nowrap hidden">
+                        Not logged in
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="mt-14 relative h-[500px] w-full overflow-hidden flex items-center justify-center">
+        <div class="absolute inset-0 z-0">
+            <img src="https://www.apple.com/v/store/index/assets/image/startframe_store_hero__db4p0305lb6q_large.jpg" 
+                 class="w-full h-full object-cover opacity-60 hover:scale-105 transition-transform duration-[2s]" 
+                 alt="Store Hero">
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40"></div>
+        </div>
+
+        <div class="relative z-10 text-center space-y-4 px-6 animate-fade-in">
+            <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white drop-shadow-2xl">
+                Store. <span class="text-gray-400">The best way to buy the products you love.</span>
+            </h1>
+            
+            <div class="flex flex-wrap justify-center gap-4 mt-8">
+                <button onclick="filterByHero('Mac')" class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
+                    <i class="fas fa-laptop"></i> Mac
+                </button>
+                <button onclick="filterByHero('iPhone')" class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
+                    <i class="fas fa-mobile-alt"></i> iPhone
+                </button>
+                <button onclick="filterByHero('iPad')" class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
+                    <i class="fas fa-tablet-alt"></i> iPad
+                </button>
+                <button onclick="filterByHero('Watch')" class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
+                    <i class="far fa-clock"></i> Apple Watch
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div class="flex flex-col lg:flex-row max-w-[1600px] mx-auto w-full px-6 py-12 gap-10">
+        <aside class="hidden lg:block w-1/4 min-w-[280px]">
+            <div class="sticky top-24 space-y-8">
+                
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+                        <i class="fas fa-layer-group text-blue-500"></i> Categories
+                    </h3>
+                    <ul class="space-y-2 text-sm text-gray-400" id="category-filters">
+                        <li>
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="Mac" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                                <span class="group-hover:translate-x-1 transition-transform">Mac</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="iPhone" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                                <span class="group-hover:translate-x-1 transition-transform">iPhone</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="iPad" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                                <span class="group-hover:translate-x-1 transition-transform">iPad</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="Watch" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                                <span class="group-hover:translate-x-1 transition-transform">Apple Watch</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="HeadPhone" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                                <span class="group-hover:translate-x-1 transition-transform">AirPods & Audio</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
+                        <i class="fas fa-tag text-green-500"></i> Price Range
+                    </h3>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input type="checkbox" name="price" value="0-10000000" class="accent-blue-600 rounded"> Under 10M</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input type="checkbox" name="price" value="10000000-20000000" class="accent-blue-600 rounded"> 10M - 20M</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input type="checkbox" name="price" value="20000000-30000000" class="accent-blue-600 rounded"> 20M - 30M</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input type="checkbox" name="price" value="30000000-999999999" class="accent-blue-600 rounded"> Over 30M</label></li>
+                    </ul>
+                </div>
+
+                <div class="rounded-2xl overflow-hidden relative h-48 group cursor-pointer">
+                    <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/store-card-40-education-202402?wid=400&hei=500&fmt=p-jpg&qlt=95&.v=1707850552697" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Promo">
+                    <div class="absolute inset-0 bg-black/40 p-4 flex flex-col justify-end">
+                        <span class="text-xs font-bold bg-white text-black px-2 py-1 rounded w-fit mb-2">EDUCATION</span>
+                        <h4 class="text-white font-bold">Save on Mac or iPad for college.</h4>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                    All Products <span id="product-count" class="text-sm font-normal text-gray-500 bg-gray-900 px-2 py-1 rounded-full">Loading...</span>
+                </h2>
+                
+                <div class="flex items-center gap-4">
+                    <button class="lg:hidden px-4 py-2 bg-gray-800 rounded-lg text-sm hover:bg-gray-700" onclick="document.querySelector('aside').classList.toggle('hidden')">
+                        <i class="fas fa-filter"></i> Filter
+                    </button>
+
+                    <div class="relative">
+                        <select id="sort-options" class="appearance-none bg-gray-900 border border-gray-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-8 cursor-pointer">
+                            <option value="default">Featured</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="name-asc">Name: A-Z</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <ul id="product-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <li class="bg-[#1c1c1e] rounded-2xl p-6 h-96 animate-pulse"></li>
+                <li class="bg-[#1c1c1e] rounded-2xl p-6 h-96 animate-pulse"></li>
+                <li class="bg-[#1c1c1e] rounded-2xl p-6 h-96 animate-pulse"></li>
+                <li class="bg-[#1c1c1e] rounded-2xl p-6 h-96 animate-pulse"></li>
+                <li class="bg-[#1c1c1e] rounded-2xl p-6 h-96 animate-pulse"></li>
+                <li class="bg-[#1c1c1e] rounded-2xl p-6 h-96 animate-pulse"></li>
+            </ul>
+
+            <div id="empty-state" class="hidden flex-col items-center justify-center py-20 text-center">
+                <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                    <i class="fas fa-search text-3xl text-gray-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">No products found</h3>
+                <p class="text-gray-400 mt-2">Try adjusting your search or filters to find what you're looking for.</p>
+                <button onclick="resetFilters()" class="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-full transition-colors">
+                    Clear all filters
+                </button>
+            </div>
+        </main>
+
+    </div> ```
+<div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#1c1c1e] border-l border-white/10 transform translate-x-full transition-transform duration-300 z-[100] shadow-2xl flex flex-col">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center bg-[#1c1c1e]/90 backdrop-blur">
+            <h2 class="text-xl font-bold text-white">Your Bag <span id="cart-count-header" class="text-gray-500 text-sm font-normal">(0 items)</span></h2>
+            <button onclick="toggleCart()" class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6" id="cart-items-container">
+            <div class="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+                <i class="fas fa-shopping-basket text-6xl mb-4"></i>
+                <p>Your bag is empty.</p>
+                <button onclick="toggleCart()" class="text-blue-500 hover:underline">Start Shopping</button>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-white/10 bg-[#1c1c1e]">
+            <div class="flex justify-between items-center mb-4 text-gray-400 text-sm">
+                <span>Subtotal</span>
+                <span id="cart-subtotal" class="text-white font-bold text-lg">0₫</span>
+            </div>
+            <p class="text-xs text-gray-500 mb-6">Shipping and taxes calculated at checkout.</p>
+            <button onclick="openCheckout()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
+                Check Out <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300"></div>
+
+    <div id="product-modal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeModal()"></div>
+        
+        <div class="relative bg-[#1c1c1e] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex flex-col md:flex-row max-h-[90vh]">
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 text-white rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="w-full md:w-1/2 bg-[#000] p-8 flex flex-col items-center justify-center relative group">
+                <img id="modal-img-main" src="" class="max-h-[300px] md:max-h-[400px] object-contain transition-transform duration-500 group-hover:scale-105 drop-shadow-2xl" alt="Product">
+                
+                <div id="modal-thumbnails" class="flex gap-3 mt-8 overflow-x-auto w-full justify-center px-4">
+                    </div>
+            </div>
+
+            <div class="w-full md:w-1/2 p-8 md:p-12 overflow-y-auto bg-[#1c1c1e]">
+                <span id="modal-category" class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-2 block">Category</span>
+                <h2 id="modal-title" class="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">Product Name</h2>
+                <div class="flex items-center gap-4 mb-6">
+                    <span id="modal-price" class="text-2xl font-semibold text-blue-400">0₫</span>
+                    <span class="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded border border-green-500/20">In Stock</span>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-2">Overview</h4>
+                        <p id="modal-desc" class="text-gray-400 text-sm leading-relaxed">Description goes here...</p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-semibold text-white mb-2">Specifications</h4>
+                        <ul id="modal-specs" class="text-sm text-gray-400 space-y-1 list-disc pl-4">
+                            </ul>
+                    </div>
+
+                    <div class="pt-6 border-t border-white/10 flex gap-4">
+                        <button onclick="addToCartFromModal()" class="flex-1 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                            Add to Bag
+                        </button>
+                        <button class="w-14 h-14 border border-white/20 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors text-blue-500">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="checkout-modal" class="fixed inset-0 z-[120] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closeCheckout()"></div>
+        <div class="relative bg-[#1c1c1e] w-full max-w-lg rounded-2xl p-8 border border-white/10 shadow-2xl">
+            <h2 class="text-2xl font-bold text-white mb-6">Secure Checkout</h2>
+            <form id="checkout-form" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-400 ml-1">Full Name</label>
+                        <input type="text" id="checkout-name" required class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-400 ml-1">Phone</label>
+                        <input type="tel" id="checkout-phone" required class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs text-gray-400 ml-1">Shipping Address</label>
+                    <input type="text" id="checkout-address" required class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs text-gray-400 ml-1">Notes (Optional)</label>
+                    <textarea id="checkout-notes" rows="2" class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all"></textarea>
+                </div>
+                
+                <div class="bg-blue-900/20 p-4 rounded-xl border border-blue-500/20 mt-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-300">Total to Pay</span>
+                        <span id="checkout-total" class="text-xl font-bold text-blue-400">0₫</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl mt-4 shadow-lg shadow-green-900/30 transition-all">
+                    Confirm Order
+                </button>
+            </form>
+            <button onclick="closeCheckout()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+
+    <div id="chat-bubble" onclick="toggleChatWindow()" class="fixed bottom-8 right-8 z-[90] w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-900/40 cursor-pointer hover:scale-110 transition-transform duration-300 group">
+        <i class="fas fa-comment-dots text-white text-xl group-hover:animate-bounce"></i>
+        <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-[#000]"></span>
+    </div>
+
+    <div id="chat-window" class="fixed bottom-24 right-8 w-[350px] h-[500px] bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl z-[90] flex flex-col hidden opacity-0 transform translate-y-10 transition-all duration-300 origin-bottom-right">
+        <div class="p-4 border-b border-white/10 bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-t-2xl flex justify-between items-center backdrop-blur-md">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
+                    <i class="fab fa-google text-lg bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-red-500"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-white text-sm">Apple Assistant</h3>
+                    <p class="text-[10px] text-green-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> Online</p>
+                </div>
+            </div>
+            <button onclick="toggleChatWindow()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-black/20">
+            <div class="flex gap-2 items-end">
+                <div class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0"><i class="fas fa-robot text-xs text-white"></i></div>
+                <div class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5">
+                    Xin chào! Tôi là AI hỗ trợ của Apple Store. Tôi có thể giúp gì cho bạn hôm nay?
+                </div>
+            </div>
+        </div>
+
+        <div class="p-3 border-t border-white/10 bg-[#1c1c1e] rounded-b-2xl">
+            <form id="chat-form" class="flex gap-2 relative">
+                <input type="text" id="chat-input" placeholder="Ask about products..." class="flex-1 bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-full pl-4 pr-10 py-3 text-sm text-white outline-none transition-all">
+                <button type="submit" class="absolute right-1 top-1 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-500 transition-colors">
+                    <i class="fas fa-paper-plane text-xs"></i>
+                </button>
             </form>
         </div>
     </div>
-
-    <div id="chat-bubble" onclick="toggleChat()" class="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:scale-110 transition-transform z-[9998]"><i class="fas fa-comment-dots text-2xl"></i></div>
-    <div id="chat-window" class="hidden fixed bottom-28 right-8 w-80 h-96 bg-zinc-900 border border-zinc-700 rounded-2xl flex-col z-[9999] shadow-2xl">
-        <div class="bg-blue-600 p-4 rounded-t-2xl flex justify-between items-center"><span class="font-bold">Apple Support AI</span><span onclick="toggleChat()" class="cursor-pointer">✕</span></div>
-        <div id="messages-area" class="flex-1 p-4 overflow-y-auto space-y-2">
-            <div class="bg-blue-500/20 p-2 rounded-lg text-sm w-fit">Chào bạn! Tôi có thể giúp gì?</div>
-        </div>
-        <div class="p-3 border-t border-zinc-700 flex gap-2">
-            <input type="text" id="chat-input-text" class="flex-1 bg-zinc-800 rounded px-3 py-2 text-sm outline-none" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendChat()">
-            <button onclick="sendChat()" class="bg-blue-600 px-3 rounded hover:bg-blue-500"><i class="fas fa-paper-plane"></i></button>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-main">
-                <div class="footer-column"><h4>Shop</h4><ul><li><a href="#">Mac</a></li><li><a href="#">iPhone</a></li></ul></div>
-                <div class="footer-column"><h4>Services</h4><ul><li><a href="#">Apple Music</a></li><li><a href="#">iCloud</a></li></ul></div>
-                <div class="footer-column"><h4>Account</h4><ul><li><a href="#">Manage Your ID</a></li><li><a href="#">Store Account</a></li></ul></div>
-                <div class="footer-column"><h4>About Apple</h4><ul><li><a href="#">Newsroom</a></li><li><a href="#">Investors</a></li></ul></div>
-            </div>
-            <div class="text-center text-zinc-500 text-xs mt-8">© 2025 Apple Clone Store. Designed for Demo.</div>
-        </div>
-    </footer>
+<div id="toast-container" class="fixed bottom-6 left-6 z-[200] flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
-        // --- 1. CONFIG & AUTH ---
-        const API_URL = 'https://project3-icy1.onrender.com'; // Hoặc localhost nếu dev
+        // ==================================================================
+        // 1. CONFIGURATION & STATE
+        // ==================================================================
+        const API_URL = 'https://project3-icy1.onrender.com';
         let allProducts = [];
+        let cart = JSON.parse(localStorage.getItem('apple_cart')) || [];
         let currentModalProduct = null;
 
-        function getAuthToken() { return localStorage.getItem('accessToken'); }
-        function logout() { localStorage.removeItem('accessToken'); localStorage.removeItem('user'); window.location.reload(); }
+        // Dữ liệu mẫu (Fallback) nếu Server chưa có SP để Store không bị trống
+// Dữ liệu đầy đủ (Full Fallback Data)
+        const fallbackProducts = [
+            // --- IPHONE ---
+            { _id: 'ip1', name: 'iPhone 16 Pro Max', category: 'iPhone', price: 34990000, image_url: 'images/iphone-16-pro-finish-select-202409-6-9inch-blacktitanium_AV1.jpg', desc: 'A18 Pro chip. Built for Apple Intelligence.' },
+            { _id: 'ip2', name: 'iPhone 15 Pro Max', category: 'iPhone', price: 29990000, image_url: 'images/iPhone-15-Promax-Titanium-Natural.jpg', desc: 'Titanium design. A17 Pro chip.' },
+            { _id: 'ip3', name: 'iPhone 15 Plus', category: 'iPhone', price: 23990000, image_url: 'images/iphone 15 plus blue.jpg', desc: 'Big screen. Big battery life.' },
+            { _id: 'ip4', name: 'iPhone 15', category: 'iPhone', price: 19990000, image_url: 'images/iPhone 15 Plus.jpg', desc: 'Dynamic Island. 48MP Main camera.' },
+            { _id: 'ip5', name: 'iPhone 14 Pro Max', category: 'iPhone', price: 26500000, image_url: 'images/iphone14promax.webp', desc: 'Pro camera system. A16 Bionic.' },
+            { _id: 'ip6', name: 'iPhone 14', category: 'iPhone', price: 17490000, image_url: 'images/iphone 14 grey.jpg', desc: 'Full of fantastic features.' },
+            { _id: 'ip7', name: 'iPhone 13', category: 'iPhone', price: 13990000, image_url: 'images/iphone13 rose.webp', desc: 'Total powerhouse. A15 Bionic.' },
+            { _id: 'ip8', name: 'iPhone SE (3rd Gen)', category: 'iPhone', price: 10990000, image_url: 'images/iphone se 3rd black.jpg', desc: 'Serious power. Mini price.' },
+            { _id: 'ip9', name: 'iPhone 12', category: 'iPhone', price: 11990000, image_url: 'images/iphone 12 black.png', desc: 'A14 Bionic. OLED display.' },
+            { _id: 'ip10', name: 'iPhone 11', category: 'iPhone', price: 8990000, image_url: 'images/iphone11.jpg', desc: 'Just the right amount of everything.' },
+
+            // --- MAC ---
+            { _id: 'mac1', name: 'MacBook Air 15 M3', category: 'Mac', price: 32990000, image_url: 'images/air15 black.webp', desc: 'Lean. Mean. M3 machine.' },
+            { _id: 'mac2', name: 'MacBook Pro 14 M3', category: 'Mac', price: 39990000, image_url: 'images/macbook air 15 grey.webp', desc: 'Mind-blowing. Head-turning.' },
+            { _id: 'mac3', name: 'iMac 24 M3', category: 'Mac', price: 36990000, image_url: 'images/imac24.jpg', desc: 'Packed with more juice.' },
+            { _id: 'mac4', name: 'Mac mini M2', category: 'Mac', price: 14990000, image_url: 'images/Mac mini M2.jpg', desc: 'More muscle. More hustle.' },
+
+            // --- IPAD ---
+            { _id: 'pad1', name: 'iPad Pro M4', category: 'iPad', price: 28990000, image_url: 'images/ipadprom4.jpg', desc: 'Thinpossible. The ultimate iPad experience.' },
+            { _id: 'pad2', name: 'iPad Air M2', category: 'iPad', price: 16990000, image_url: 'images/ipad air m2 gold.jpg', desc: 'Fresh air. Serious performance.' },
+            { _id: 'pad3', name: 'iPad (10th Gen)', category: 'iPad', price: 9990000, image_url: 'images/ipad gen 10.webp', desc: 'Lovable. Drawable. Magical.' },
+            { _id: 'pad4', name: 'iPad mini 6', category: 'iPad', price: 12990000, image_url: 'images/ipad mini6.webp', desc: 'Mega power. Mini size.' },
+
+            // --- WATCH ---
+            { _id: 'w1', name: 'Apple Watch Ultra 2', category: 'Watch', price: 21990000, image_url: 'images/black.webp', desc: 'Next-level adventure.' },
+            { _id: 'w2', name: 'Apple Watch Series 9', category: 'Watch', price: 10490000, image_url: 'images/watch series 9 rose.webp', desc: 'Smarter. Brighter. Mightier.' },
+            { _id: 'w3', name: 'Apple Watch SE', category: 'Watch', price: 6290000, image_url: 'images/se black.jpg', desc: 'A great deal to love.' },
+
+            // --- AUDIO & HOME ---
+            { _id: 'au1', name: 'AirPods Pro 2', category: 'HeadPhone', price: 6190000, image_url: 'images/airpod2.jpg', desc: 'Adaptive Audio. Now playing.' },
+            { _id: 'au2', name: 'AirPods Max', category: 'HeadPhone', price: 13990000, image_url: 'images/airpodmax.png', desc: 'High-fidelity audio. Effortless magic.' },
+            { _id: 'au3', name: 'AirPods 3', category: 'HeadPhone', price: 4490000, image_url: 'images/AirPods (3rd gen).jpg', desc: 'All-new design. Spatial Audio.' },
+            { _id: 'au4', name: 'HomePod', category: 'HeadPhone', price: 7990000, image_url: 'images/homepod2.jpg', desc: 'Profound sound.' },
+            { _id: 'au5', name: 'Apple TV 4K', category: 'HeadPhone', price: 3490000, image_url: 'images/appletv4k.jpg', desc: 'The Apple experience. Cinematic.' }
+        ];
+
+        // ==================================================================
+        // 2. HELPER FUNCTIONS (TIỆN ÍCH)
+        // ==================================================================
+        const formatPrice = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
+        const getToken = () => localStorage.getItem('accessToken');
         
-        function updateLoginStatusUI() {
+        // Custom Toast Notification (Thay thế alert)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colorClass = type === 'success' ? 'border-green-500 text-green-400' : 'border-red-500 text-red-400';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            
+            toast.className = `bg-[#1c1c1e] border-l-4 ${colorClass} text-white px-4 py-3 rounded shadow-2xl flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-300`;
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span class="text-sm font-medium">${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            // Animation In
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+            
+            // Auto Remove
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ==================================================================
+        // 3. CORE LOGIC (FETCH & RENDER)
+        // ==================================================================
+        async function initStore() {
+            // Check Auth UI
             const user = JSON.parse(localStorage.getItem('user'));
-            const loginLink = document.querySelector('.login-link');
-            if (user && loginLink) {
-                loginLink.innerHTML = `<i class="fas fa-user-circle"></i> <span class="truncate max-w-[100px]">${user.email}</span>`;
-                loginLink.href = "#";
-                loginLink.onclick = (e) => { e.preventDefault(); if(confirm('Đăng xuất?')) logout(); };
+            if (user) {
+                document.getElementById('user-icon').classList.add('text-blue-500');
+                const tooltip = document.getElementById('user-tooltip');
+                tooltip.textContent = `Hi, ${user.email.split('@')[0]}`;
+                tooltip.classList.remove('hidden');
             }
-        }
 
-        // --- 2. FETCH & DISPLAY PRODUCTS ---
-        async function fetchProducts() {
+            // Fetch Products
             try {
-                // Thử gọi API nếu server hỗ trợ, nếu không dùng hardcode list để demo cho chắc
-                // Ở đây ta dùng list hardcode từ file cũ nhưng viết lại dạng JS Object
-const rawProducts = [
-    // --- HEADPHONE ---
-    { 
-        name: 'Airpods Pro 2', 
-        category: 'HeadPhone', 
-        price: 5000000, 
-        image: 'images/airpod2.jpg', 
-        desc: 'Noise-cancelling wireless earbuds, H2 chip', 
-        spec: 'H2 chip, ANC, Bluetooth 5.3, MagSafe Charging' 
-    },
-    { 
-        name: 'AirPods (3rd gen)', 
-        category: 'HeadPhone', 
-        price: 4000000, 
-        image: 'images/AirPods (3rd gen).jpg', 
-        desc: 'New design, Spatial sound, Adaptive EQ', 
-        spec: 'H1 chip, Spatial Audio, Adaptive EQ, IPX4, 6 hour battery life' 
-    },
-    { 
-        name: 'AirPods Max', 
-        category: 'HeadPhone', 
-        price: 13000000, 
-        image: 'images/airpodmax.png', 
-        desc: 'Premium over-ear headphones, active noise cancellation, Hi-Fi sound', 
-        spec: 'H1 chip (each side), ANC, Transparency Mode, Spatial Audio, Digital Crown' 
-    },
-
-    // --- PHONE ---
-    { 
-        name: 'iPhone 7 Plus', 
-        category: 'Phone', 
-        price: 22000000, 
-        image: 'images/iphone7plus.jpeg', 
-        desc: 'iPhone 7 Plus with dual camera, smooth performance', 
-        spec: '5.5in Display, 3GB RAM, A10 Fusion, 2900mAh Battery' 
-    },
-    { 
-        name: 'iPhone 8 Plus', 
-        category: 'Phone', 
-        price: 5000000, 
-        image: 'images/iphone8plus.webp', 
-        desc: 'Glass design, wireless charging, stable performance', 
-        spec: '5.5in Retina HD Display, A11 Bionic, 3GB RAM, 2691mAh Battery' 
-    },
-    { 
-        name: 'iPhone 11', 
-        category: 'Phone', 
-        price: 10000000, 
-        image: 'images/iphone11.jpg', 
-        desc: 'iPhone 11 with dual camera, long battery life, youthful colors', 
-        spec: '6.1in LCD Display, A13 Bionic, 4GB RAM, 3110mAh Battery' 
-    },
-    { 
-        name: 'iPhone 12', 
-        category: 'Phone', 
-        price: 20000000, 
-        image: 'images/iphone 12 black.png', 
-        desc: 'iPhone 12 with 6.1 inch screen, A14 Bionic chip', 
-        spec: 'Screen: 6.1 inch OLED, Chip: A14 Bionic, RAM: 4GB, Battery: 2815mAh' 
-    },
-    { 
-        name: 'iPhone 12 Pro', 
-        category: 'Phone', 
-        price: 25000000, 
-        image: 'images/12 gold.webp', 
-        desc: 'iPhone 12 Pro with Pro camera, LiDAR', 
-        spec: 'Display: 6.1 inch OLED, Chip: A14 Bionic, RAM: 6GB, Camera: 3 lenses, Battery: 2815mAh' 
-    },
-    { 
-        name: 'iPhone 14 Pro Max', 
-        category: 'Phone', 
-        price: 26500000, 
-        image: 'images/iphone14promax.webp', 
-        desc: 'Dynamic Island, chip A16 Bionic', 
-        spec: 'Display: 6.7 inch OLED, Chip: A16 Bionic, RAM: 6GB, Camera: 48MP, Pin: 4323mAh' 
-    },
-    { 
-        name: 'iPhone 15 Pro Max', 
-        category: 'Phone', 
-        price: 27500000, 
-        image: 'images/iphone15promax.webp', 
-        desc: 'Khung titan, chip A17 Pro', 
-        spec: 'Display: 6.7 inch OLED, Chip: A17 Pro, RAM: 8GB, Camera: 48MP, Pin: 4422mAh' 
-    },
-    { 
-        name: 'iPhone 16 Pro Max', 
-        category: 'Phone', 
-        price: 31000000, 
-        image: 'images/16 pro max đen.webp', 
-        desc: 'Display bigger, chip A18 Pro', 
-        spec: 'Display: 6.9 inch OLED, Chip: A18 Pro, RAM: 8GB, Camera: 48MP, Pin: 4700mAh' 
-    },
-    { 
-        name: 'iPhone SE (3rd gen)', 
-        category: 'Phone', 
-        price: 10000000, 
-        image: 'images/iphone se 3rd gold.webp', 
-        desc: 'Powerful performance in compact design, chip A15 Bionic', 
-        spec: 'Display 4.7\" Retina HD, A15 Bionic, RAM 4GB, Camera 12MP, Touch ID, 5G' 
-    },
-    { 
-        name: 'iPhone 13', 
-        category: 'Phone', 
-        price: 15000000, 
-        image: 'images/iphone 13 blue.jpg', 
-        desc: 'Powerful A15 Bionic chip, improved dual camera, good battery life', 
-        spec: 'Display 6.1\" Super Retina XDR, A15 Bionic, RAM 4GB, Double camera 12MP, Pin 3240mAh' 
-    },
-    { 
-        name: 'iPhone 14', 
-        category: 'Phone', 
-        price: 17000000, 
-        image: 'images/iphone 14 red.jpg', 
-        desc: 'Collision detection, upgraded camera, chip A15 Bionic', 
-        spec: 'Display 6.1\" Super Retina XDR, A15 Bionic (5-core GPU), RAM 6GB, Double camera, Crash Detection' 
-    },
-    { 
-        name: 'iPhone 15 Plus', 
-        category: 'Phone', 
-        price: 23000000, 
-        image: 'images/iphonee15 plus black.png', 
-        desc: 'Display lớn 6.7 inch, Dynamic Island, camera 48MP, USB-C', 
-        spec: 'Display 6.7\" Super Retina XDR, A16 Bionic, RAM 6GB, Double camera 48MP, Pin lớn, USB-C' 
-    },
-
-    // --- LAPTOP / DESKTOP ---
-    { 
-        name: 'MacBook Air 15 M3', 
-        category: 'Laptop', 
-        price: 32000000, 
-        image: 'images/air15 black.webp', 
-        desc: 'Display bigger 15 inch, chip M3 strong, thin and light design', 
-        spec: 'M3 8-core CPU, 10-core GPU, 8GB RAM (base), 256GB SSD (base), Display 15.3\", Wi-Fi 6E' 
-    },
-    { 
-        name: 'iMac 24 M3', 
-        category: 'Desktop', 
-        price: 33000000, 
-        image: 'images/imac24.jpg', 
-        desc: 'Gorgeous All-in-One Computer, chip M3, Display Retina 4.5K', 
-        spec: 'M3 8-core CPU, 8/10-core GPU, 8GB RAM (base), 256GB SSD (base), Display 23.5\" 4.5K Retina' 
-    },
-    { 
-        name: 'Mac mini M2', 
-        category: 'Desktop', 
-        price: 15000000, 
-        image: 'images/Mac mini M2.jpg', 
-        desc: 'Compact desktop, impressive performance with M2 chip', 
-        spec: 'M2 8-core CPU, 10-core GPU, 8GB RAM (base), 256GB SSD (base), Wi-Fi 6E, Thunderbolt 4' 
-    },
-
-    // --- WATCH ---
-    { 
-        name: 'Apple Watch Series 9', 
-        category: 'Watch', 
-        price: 10000000, 
-        image: 'images/watch series 9 rose.webp', 
-        desc: 'Powerful S9 chip, Double Tap gesture, Brighter display', 
-        spec: 'S9 SiP, Double Tap, Display Always-On sáng hơn, ECG, Blood Oxygen, GPS' 
-    },
-    { 
-        name: 'Apple Watch Ultra 2', 
-        category: 'Watch', 
-        price: 20000000, 
-        image: 'images/black.webp', 
-        desc: 'Most durable, longest battery life, professional features for sports', 
-        spec: 'S9 SiP, Double Tap, Titanium Case, Dual Frequency GPS, 100m Water Resistant, Dive Computer' 
-    },
-    { 
-        name: 'Apple Watch SE (2nd gen)', 
-        category: 'Watch', 
-        price: 6000000, 
-        image: 'images/se black.jpg', 
-        desc: 'Great value, essential features, S8 chip', 
-        spec: 'S8 SiP, Crash Detection, Heart Rate Monitor, 50m Water Resistant, Family Setup' 
-    },
-
-    // --- IPAD ---
-    { 
-        name: 'iPad Air (M2)', 
-        category: 'iPad', 
-        price: 15000000, 
-        image: 'images/ipad air m2 gold.jpg', 
-        desc: 'Powerful M2 chip, thin and light design, supports Apple Pencil Pro', 
-        spec: 'M2 chip, Display Liquid Retina 11 13\",horizontal front camera, Touch ID, USB-C' 
-    },
-    { 
-        name: 'iPad Pro (M4)', 
-        category: 'iPad', 
-        price: 25000000, 
-        image: 'images/ipadprom4.jpg', 
-        desc: 'Breakthrough M4 Chip, Ultra-thin OLED Tandem Display, Top Performance', 
-        spec: 'M4 chip, Display Ultra Retina XDR (Tandem OLED) 11 13\", Super thin, Face ID, USB-C (Thunderbolt)' 
-    },
-
-    // --- TV & HOME ---
-    { 
-        name: 'Apple TV 4K (3rd gen)', 
-        category: 'TV & Home', 
-        price: 3500000, 
-        image: 'images/appletv4k.jpg', 
-        desc: 'Ultimate 4K HDR entertainment, A15 Bionic chip, new Siri Remote', 
-        spec: 'A15 Bionic, 4K Dolby Vision & HDR10+, tvOS, Wi-Fi + Ethernet (model Advanced), Siri Remote (USB-C)' 
-    },
-    { 
-        name: 'HomePod (2nd gen)', 
-        category: 'TV & Home', 
-        price: 7500000, 
-        image: 'images/homepod2.jpg', 
-        desc: 'Vivid Hi-Fi sound, smart home integration, S7 chip', 
-        spec: 'S7 chip, Spatial audio, Temperature/humidity sensor, Thread, Matter, Siri' 
-    }
-];
+                // Thử lấy từ API
+                const res = await fetch(`${API_URL}/api/products/search?limit=100`);
+                const data = await res.json();
                 
-                // Giả lập thêm dữ liệu prefix URL nếu cần
-                allProducts = rawProducts.map(p => ({...p, image: p.image.startsWith('http') ? p.image : API_URL + '/' + p.image}));
-                displayProducts(allProducts);
+                if (data.products && data.products.length > 0) {
+                    allProducts = data.products;
+                } else {
+                    console.warn("API Empty, using fallback data.");
+                    allProducts = fallbackProducts;
+                }
             } catch (e) {
-                console.error("Lỗi tải SP:", e);
-                document.getElementById('product-list-container').innerHTML = '<p class="text-center text-red-500">Lỗi tải sản phẩm.</p>';
+                console.error("Fetch Error, using fallback:", e);
+                allProducts = fallbackProducts;
+            } finally {
+                // Tắt Loader & Render
+                document.getElementById('page-loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('page-loader').remove(), 500);
+                
+                renderProducts(allProducts);
+                updateCartUI(); // Load cart from local storage
             }
         }
 
-        function displayProducts(products) {
+        function renderProducts(products) {
             const container = document.getElementById('product-list-container');
+            const countEl = document.getElementById('product-count');
+            const emptyState = document.getElementById('empty-state');
+
             container.innerHTML = '';
-            if(products.length === 0) { container.innerHTML = '<p class="col-span-full text-center">Không tìm thấy sản phẩm.</p>'; return; }
+            countEl.textContent = `(${products.length})`;
+
+            if (products.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
 
             products.forEach(p => {
                 const li = document.createElement('li');
+                li.className = 'bg-[#1c1c1e] rounded-2xl overflow-hidden group hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 border border-white/5 flex flex-col h-full hover:-translate-y-1 cursor-pointer';
                 li.innerHTML = `
-                    <div class="product-item h-full">
-                        <div class="product-image"><img src="${p.image}" alt="${p.name}" loading="lazy"></div>
-                        <div class="product-info">
-                            <span class="product-cat">${p.category}</span>
-                            <h3 class="product-name">${p.name}</h3>
-                            <div class="product-price">${p.price.toLocaleString('vi-VN')}₫</div>
-                            <button onclick="event.stopPropagation(); addToCart('${p.name}', ${p.price}, '${p.image}')">Thêm vào giỏ</button>
-                            <button class="btn-payment py-2 rounded-lg font-medium" onclick="event.stopPropagation(); openPaymentModal('${p.name}', '${p.price}')">Mua ngay</button>
+                    <div class="relative h-64 bg-[#000] flex items-center justify-center p-6 overflow-hidden">
+                        <img src="${p.image_url}" alt="${p.name}" class="h-full w-full object-contain group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="bg-white text-black p-2 rounded-full shadow-lg hover:bg-gray-200">
+                                <i class="fas fa-expand-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">${p.category}</span>
+                        <h3 class="text-xl font-bold text-white mb-2 leading-tight">${p.name}</h3>
+                        <div class="mt-auto pt-4 flex items-center justify-between border-t border-white/5">
+                            <span class="text-lg font-semibold text-blue-400">${formatPrice(p.price)}</span>
+                            <button onclick="event.stopPropagation(); addToCart('${p._id}')" class="w-10 h-10 bg-blue-600 hover:bg-blue-500 rounded-full text-white flex items-center justify-center transition-transform active:scale-90">
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
                     </div>
                 `;
-                li.onclick = () => showProductDetails(p);
+                // Click vào card thì mở Modal
+                li.onclick = () => openProductModal(p);
                 container.appendChild(li);
             });
         }
 
-        // --- 3. CART FUNCTIONS ---
-        async function addToCart(name, price, img) {
-            const token = getAuthToken();
-            if (!token) { alert("Vui lòng đăng nhập!"); return; }
-            try {
-                // Giả lập call API (Thay bằng fetch thật như file cũ nếu server online)
-                const res = await fetch(`${API_URL}/api/cart/add`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
-                    body: JSON.stringify({ productId: 'dummy_id', name, price, image_url: img, quantity: 1 })
-                });
-                if(res.ok) {
-                    alert(`Đã thêm ${name} vào giỏ!`);
-                    loadCart(); // Reload cart
-                } else alert("Lỗi thêm vào giỏ");
-            } catch (e) { console.error(e); alert("Có lỗi xảy ra"); }
-        }
+        // ==================================================================
+        // 4. FILTERING & SEARCH
+        // ==================================================================
+        // Lắng nghe sự kiện checkbox thay đổi
+        const checkboxes = document.querySelectorAll('input[name="category"], input[name="price"]');
+        checkboxes.forEach(cb => cb.addEventListener('change', applyFilters));
 
-        async function loadCart() {
-            const token = getAuthToken();
-            if (!token) return;
-            try {
-                const res = await fetch(`${API_URL}/api/cart`, { headers: { 'token': `Bearer ${token}` } });
-                const cart = await res.json();
-                renderCart(cart.items || []);
-            } catch (e) { console.error("Lỗi load giỏ:", e); }
-        }
+        function applyFilters() {
+            const catFilters = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
+            const priceFilters = Array.from(document.querySelectorAll('input[name="price"]:checked')).map(cb => cb.value);
 
-        function renderCart(items) {
-            const list = document.getElementById("cart-items");
-            const countEl = document.querySelector(".cart-count");
-            const countDisplay = document.querySelector(".cart-count-display");
-            const totalEl = document.getElementById("cart-total-display");
-            
-            list.innerHTML = "";
-            let total = 0, qty = 0;
-
-            items.forEach(item => {
-                total += item.price * item.quantity;
-                qty += item.quantity;
-                list.innerHTML += `
-                    <li class="flex gap-4 p-3 bg-white/5 rounded-lg relative group">
-                        <img src="${item.image_url}" class="w-16 h-16 object-contain bg-white rounded-md">
-                        <div>
-                            <h4 class="font-medium text-sm text-white">${item.name}</h4>
-                            <div class="text-blue-400 text-sm font-bold">${item.price.toLocaleString('vi-VN')}₫ <span class="text-zinc-500 font-normal">x${item.quantity}</span></div>
-                        </div>
-                        <button onclick="removeFromCart('${item.productId}')" class="absolute top-2 right-2 text-zinc-600 hover:text-red-500"><i class="fas fa-trash"></i></button>
-                    </li>
-                `;
-            });
-
-            if(countEl) countEl.innerText = qty;
-            if(countDisplay) countDisplay.innerText = `(${qty})`;
-            if(totalEl) totalEl.innerText = total.toLocaleString('vi-VN') + '₫';
-        }
-        
-        // Mở/Đóng Cart Sidebar
-        const cartIcon = document.querySelector('.cart-container');
-        if(cartIcon) cartIcon.onclick = () => {
-            document.getElementById('cart-popup').classList.remove('hidden');
-            setTimeout(() => document.getElementById('cart-popup').classList.remove('translate-x-full'), 10);
-            loadCart();
-        };
-        function closeCart() {
-            const popup = document.getElementById('cart-popup');
-            popup.classList.add('translate-x-full');
-            setTimeout(() => popup.classList.add('hidden'), 300);
-        }
-
-        // --- 4. MODAL FUNCTIONS ---
-        function showProductDetails(product) {
-            currentModalProduct = product;
-            document.getElementById('modalName').innerText = product.name;
-            document.getElementById('modalPrice').innerText = product.price.toLocaleString('vi-VN') + '₫';
-            document.getElementById('modalDesc').innerText = product.desc || 'No description';
-            document.getElementById('modalSpec').innerHTML = (product.spec || '').split(',').map(s => `<li>• ${s.trim()}</li>`).join('');
-            document.getElementById('modalMainImg').src = product.image;
-            document.getElementById('popup-container').classList.add('active');
-        }
-        function closeModal() { document.getElementById('popup-container').classList.remove('active'); }
-        function addToCartCurrentModal() { if(currentModalProduct) addToCart(currentModalProduct.name, currentModalProduct.price, currentModalProduct.image); }
-        function buyNowCurrentModal() { 
-            closeModal();
-            if(currentModalProduct) openPaymentModal(currentModalProduct.name, currentModalProduct.price);
-        }
-
-        // --- 5. PAYMENT FUNCTIONS ---
-        function openPaymentModal(name, price) {
-            document.getElementById('payment-product-name-index').innerText = name;
-            document.getElementById('total-amount-index').innerText = (typeof price === 'number' ? price.toLocaleString('vi-VN') + '₫' : price);
-            document.getElementById('payment-modal-overlay-index').classList.add('active');
-        }
-        function closePaymentFormIndex() { document.getElementById('payment-modal-overlay-index').classList.remove('active'); }
-
-        document.getElementById('paymentFormIndex').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            alert("Demo: Đặt hàng thành công! (API sẽ được gọi tại đây)");
-            closePaymentFormIndex();
-        });
-
-        // --- 6. FILTER & SEARCH ---
-        document.getElementById('filterForm').addEventListener('change', () => {
-            const formData = new FormData(document.getElementById('filterForm'));
-            const cats = formData.getAll('category');
-            const prices = formData.getAll('price');
-            
             let filtered = allProducts;
-            if (cats.length > 0) filtered = filtered.filter(p => cats.includes(p.category));
-            if (prices.length > 0) filtered = filtered.filter(p => prices.some(range => {
-                const [min, max] = range.split('-').map(Number);
-                return p.price >= min && p.price <= max;
-            }));
-            displayProducts(filtered);
-        });
 
-        // Search logic cơ bản
-        document.querySelector('.search-input').addEventListener('input', (e) => {
+            if (catFilters.length > 0) {
+                filtered = filtered.filter(p => catFilters.includes(p.category));
+            }
+
+            if (priceFilters.length > 0) {
+                filtered = filtered.filter(p => priceFilters.some(range => {
+                    const [min, max] = range.split('-').map(Number);
+                    return p.price >= min && p.price <= max;
+                }));
+            }
+
+            renderProducts(filtered);
+        }
+
+        // Lọc nhanh từ Hero Button
+        window.filterByHero = (cat) => {
+            // Reset checkbox
+            checkboxes.forEach(cb => cb.checked = false);
+            // Check mục tương ứng
+            const targetCb = document.querySelector(`input[name="category"][value="${cat}"]`);
+            if (targetCb) targetCb.checked = true;
+            applyFilters();
+            // Scroll xuống lưới
+            document.getElementById('product-list-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        // Reset Filter
+        window.resetFilters = () => {
+            checkboxes.forEach(cb => cb.checked = false);
+            document.getElementById('global-search').value = '';
+            renderProducts(allProducts);
+        };
+
+        // Search Global Logic
+        document.getElementById('search-trigger').onclick = () => {
+            const dd = document.getElementById('search-dropdown');
+            dd.classList.toggle('hidden');
+            dd.classList.toggle('opacity-0');
+            if (!dd.classList.contains('hidden')) document.getElementById('global-search').focus();
+        };
+
+        document.getElementById('global-search').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term));
-            displayProducts(filtered);
-            if(term) {
-                document.getElementById('search-results-section').style.display = 'block';
-                document.getElementById('main-store-section').style.display = 'none';
-                document.getElementById('search-results-list').innerHTML = ''; 
-                // Render search result logic here (tương tự displayProducts)
-                filtered.forEach(p => {
-                    document.getElementById('search-results-list').innerHTML += `
-                        <li class="product-item p-4">
-                            <img src="${p.image}" class="h-40 w-full object-contain mb-2">
-                            <h3 class="text-white font-bold">${p.name}</h3>
-                            <div class="text-blue-500">${p.price.toLocaleString('vi-VN')}₫</div>
+            const results = allProducts.filter(p => p.name.toLowerCase().includes(term));
+            
+            // Nếu enter thì render ra main grid
+            // Ở đây làm search mini dropdown
+            const list = document.getElementById('search-results-mini');
+            list.innerHTML = '';
+            
+            if(term.length > 0) {
+                results.slice(0, 5).forEach(p => {
+                    list.innerHTML += `
+                        <li onclick="openProductModalFromId('${p._id}')" class="flex items-center gap-3 p-2 hover:bg-white/10 rounded cursor-pointer">
+                            <img src="${p.image_url}" class="w-8 h-8 object-contain bg-white rounded">
+                            <span class="text-xs text-white truncate">${p.name}</span>
                         </li>`;
                 });
+            }
+            
+            // Realtime filter main grid
+            renderProducts(results);
+        });
+
+        // ==================================================================
+        // 5. CART SYSTEM
+        // ==================================================================
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            const isOpen = !sidebar.classList.contains('translate-x-full');
+
+            if (isOpen) {
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
             } else {
-                document.getElementById('search-results-section').style.display = 'none';
-                document.getElementById('main-store-section').style.display = 'block';
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    sidebar.classList.remove('translate-x-full');
+                    overlay.classList.add('opacity-100');
+                }, 10);
+            }
+        }
+
+        window.addToCart = (id) => {
+            const product = allProducts.find(p => p._id === id);
+            if (!product) return;
+
+            const existingItem = cart.find(item => item.productId === id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    productId: id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image_url,
+                    quantity: 1
+                });
+            }
+            
+            saveCart();
+            updateCartUI();
+            showToast(`Added ${product.name} to bag`);
+            
+            // Auto open cart
+            const sidebar = document.getElementById('cart-sidebar');
+            if(sidebar.classList.contains('translate-x-full')) toggleCart();
+        };
+
+        function saveCart() {
+            localStorage.setItem('apple_cart', JSON.stringify(cart));
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            const badge = document.getElementById('cart-badge');
+            const headerCount = document.getElementById('cart-count-header');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const checkoutTotal = document.getElementById('checkout-total');
+
+            container.innerHTML = '';
+            
+            let totalQty = 0;
+            let totalPrice = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+                        <i class="fas fa-shopping-basket text-6xl mb-4"></i>
+                        <p>Your bag is empty.</p>
+                        <button onclick="toggleCart()" class="text-blue-500 hover:underline">Start Shopping</button>
+                    </div>`;
+            } else {
+                cart.forEach((item, index) => {
+                    totalQty += item.quantity;
+                    totalPrice += item.price * item.quantity;
+
+                    container.innerHTML += `
+                        <div class="flex gap-4 bg-[#2c2c2e] p-3 rounded-xl">
+                            <div class="w-20 h-20 bg-white rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                                <img src="${item.image}" class="w-full h-full object-contain">
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between">
+                                <div>
+                                    <h4 class="text-sm font-bold text-white line-clamp-1">${item.name}</h4>
+                                    <p class="text-blue-400 text-xs mt-1 font-mono">${formatPrice(item.price)}</p>
+                                </div>
+                                <div class="flex justify-between items-center mt-2">
+                                    <div class="flex items-center gap-3 bg-[#1c1c1e] rounded px-2 py-1">
+                                        <button onclick="updateQty(${index}, -1)" class="text-gray-400 hover:text-white">-</button>
+                                        <span class="text-xs font-medium w-4 text-center">${item.quantity}</span>
+                                        <button onclick="updateQty(${index}, 1)" class="text-gray-400 hover:text-white">+</button>
+                                    </div>
+                                    <button onclick="removeCartItem(${index})" class="text-xs text-red-400 hover:text-red-300">Remove</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Update Summaries
+            badge.textContent = totalQty;
+            badge.style.opacity = totalQty > 0 ? '1' : '0';
+            headerCount.textContent = `(${totalQty} items)`;
+            subtotalEl.textContent = formatPrice(totalPrice);
+            if(checkoutTotal) checkoutTotal.textContent = formatPrice(totalPrice);
+        }
+
+        window.updateQty = (index, change) => {
+            cart[index].quantity += change;
+            if (cart[index].quantity <= 0) cart.splice(index, 1);
+            saveCart();
+            updateCartUI();
+        };
+
+        window.removeCartItem = (index) => {
+            cart.splice(index, 1);
+            saveCart();
+            updateCartUI();
+        };
+
+        // ==================================================================
+        // 6. MODAL & CHECKOUT
+        // ==================================================================
+        window.openProductModal = (product) => {
+            currentModalProduct = product;
+            document.getElementById('modal-img-main').src = product.image_url;
+            document.getElementById('modal-category').textContent = product.category;
+            document.getElementById('modal-title').textContent = product.name;
+            document.getElementById('modal-price').textContent = formatPrice(product.price);
+            document.getElementById('modal-desc').textContent = product.desc || 'Experience the best technology from Apple.';
+            
+            // Fake Specs
+            const specs = product.category === 'iPhone' ? ['A18 Pro Chip', '48MP Camera', 'Titanium Design'] : 
+                          product.category === 'Mac' ? ['M3 Chip', 'Liquid Retina Display', '18h Battery'] : 
+                          ['High Performance', 'Premium Design', 'Apple Ecosystem'];
+            
+            document.getElementById('modal-specs').innerHTML = specs.map(s => `<li>${s}</li>`).join('');
+            
+            document.getElementById('product-modal').classList.remove('hidden');
+        };
+
+        window.openProductModalFromId = (id) => {
+            const p = allProducts.find(x => x._id === id);
+            if(p) openProductModal(p);
+        };
+
+        window.closeModal = () => document.getElementById('product-modal').classList.add('hidden');
+        
+        window.addToCartFromModal = () => {
+            if(currentModalProduct) {
+                addToCart(currentModalProduct._id);
+                closeModal();
+            }
+        };
+
+        // Checkout
+        window.openCheckout = () => {
+            if(cart.length === 0) return showToast('Bag is empty', 'error');
+            toggleCart(); // Close cart
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            document.getElementById('checkout-modal').classList.add('flex');
+        };
+
+        window.closeCheckout = () => {
+            document.getElementById('checkout-modal').classList.add('hidden');
+            document.getElementById('checkout-modal').classList.remove('flex');
+        };
+
+        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const orderData = {
+                recipientName: document.getElementById('checkout-name').value,
+                recipientPhone: document.getElementById('checkout-phone').value,
+                recipientAddress: document.getElementById('checkout-address').value,
+                recipientNotes: document.getElementById('checkout-notes').value,
+                paymentMethod: 'COD',
+                items: cart.map(i => ({ name: i.name, price: String(i.price), qty: i.quantity, image: i.image })),
+                appliedVoucher: null // Feature for later
+            };
+
+            // Call API
+            try {
+                // Nếu chưa đăng nhập, vẫn cho đặt nhưng không lưu userId (Backend đã xử lý)
+                const headers = { 'Content-Type': 'application/json' };
+                const token = getToken();
+                if(token) headers['token'] = `Bearer ${token}`;
+
+                const res = await fetch(`${API_URL}/api/orders`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(orderData)
+                });
+
+                if (res.ok) {
+                    showToast('Order placed successfully!');
+                    cart = [];
+                    saveCart();
+                    updateCartUI();
+                    closeCheckout();
+                } else {
+                    const err = await res.json();
+                    showToast(err.message || 'Order failed', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Network error', 'error');
             }
         });
 
-        // --- 7. CHATBOT ---
-        function toggleChat() { 
-            const win = document.getElementById('chat-window'); 
-            win.classList.toggle('hidden'); 
-            if(!win.classList.contains('hidden')) document.getElementById('chat-input-text').focus();
-        }
-        async function sendChat() {
-            const input = document.getElementById('chat-input-text');
+        // ==================================================================
+        // 7. AI CHATBOT (REAL GEMINI INTEGRATION)
+        // ==================================================================
+        window.toggleChatWindow = () => {
+            const chatWin = document.getElementById('chat-window');
+            const isHidden = chatWin.classList.contains('hidden');
+            if (isHidden) {
+                chatWin.classList.remove('hidden');
+                setTimeout(() => {
+                    chatWin.classList.remove('opacity-0', 'translate-y-10');
+                }, 10);
+            } else {
+                chatWin.classList.add('opacity-0', 'translate-y-10');
+                setTimeout(() => chatWin.classList.add('hidden'), 300);
+            }
+        };
+
+        document.getElementById('chat-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if(!msg) return;
-            const area = document.getElementById('messages-area');
-            area.innerHTML += `<div class="bg-zinc-700 p-2 rounded-lg text-sm w-fit self-end ml-auto">${msg}</div>`;
+
+            // 1. User Message UI
+            appendMessage(msg, 'user');
             input.value = '';
-            // Demo reply
-            setTimeout(() => {
-                area.innerHTML += `<div class="bg-blue-500/20 p-2 rounded-lg text-sm w-fit">AI đang bảo trì (Demo mode).</div>`;
-                area.scrollTop = area.scrollHeight;
-            }, 1000);
+
+            // 2. Loading Indicator
+            const loadingId = 'ai-loading-' + Date.now();
+            appendLoading(loadingId);
+
+            // 3. Call API
+            try {
+                const token = getToken();
+                // Chatbot yêu cầu login để lấy context, nếu không có token thì backend sẽ xử lý như khách
+                const headers = { 'Content-Type': 'application/json' };
+                if(token) headers['token'] = `Bearer ${token}`;
+
+                const res = await fetch(`${API_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({ message: msg })
+                });
+
+                const data = await res.json();
+                
+                // Remove loading & Show AI Reply
+                document.getElementById(loadingId).remove();
+                if (data.reply) {
+                    appendMessage(data.reply, 'ai');
+                } else {
+                    appendMessage("I'm sorry, I couldn't process that.", 'ai');
+                }
+
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                appendMessage("Connection error with AI brain.", 'ai');
+            }
+        });
+
+        function appendMessage(text, sender) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            
+            if (sender === 'user') {
+                div.className = "flex gap-2 items-end justify-end";
+                div.innerHTML = `<div class="bg-blue-600 text-white text-sm p-3 rounded-2xl rounded-br-none max-w-[80%]">${text}</div>`;
+            } else {
+                div.className = "flex gap-2 items-end";
+                // Convert markdown-like bold (**text**) to HTML bold if needed, here simple text
+                // Simple bold parser
+                const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                div.innerHTML = `
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center flex-shrink-0"><i class="fas fa-sparkles text-[10px] text-white"></i></div>
+                    <div class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5 leading-relaxed shadow-sm">${formattedText}</div>
+                `;
+            }
+            
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
 
-        // INIT
-        window.addEventListener('DOMContentLoaded', () => {
-            updateLoginStatusUI();
-            fetchProducts();
-            loadCart();
-        });
+        function appendLoading(id) {
+            const container = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = "flex gap-2 items-end";
+            div.innerHTML = `
+                <div class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0"><i class="fas fa-robot text-[10px] text-white"></i></div>
+                <div class="bg-[#2c2c2e] p-3 rounded-2xl rounded-bl-none border border-white/5 flex gap-1 items-center h-10">
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
+                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                </div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // INITIALIZE APP
+        document.addEventListener('DOMContentLoaded', initStore);
+
     </script>
 </body>
 </html>
