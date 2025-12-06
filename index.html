@@ -245,6 +245,7 @@
             document.getElementById('main-body').classList.remove('opacity-0');
             setTimeout(() => { 
                 loadingScreen.style.display = 'none'; 
+                // Hiện thanh chọn màu sau khi load xong
                 document.getElementById('color-dock').classList.remove('translate-y-20', 'opacity-0');
             }, 800);
         }
@@ -252,7 +253,6 @@
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x000000, 0.01); 
 
-        // Giữ nguyên Camera ở xa để góc nhìn thoáng
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
         camera.position.set(0, 0, 15); 
 
@@ -260,34 +260,33 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        // [FIX 1] Tăng độ phơi sáng lên 1.7 (Cũ 1.5) -> Sáng hơn
-        renderer.toneMappingExposure = 1.7; 
+        renderer.toneMappingExposure = 1.5; // [FIX] Tăng phơi sáng để model sáng hơn
         renderer.shadowMap.enabled = true;  
         renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
 
-        // --- 2. LIGHTING (SÁNG RỰC RỠ HƠN) ---
-        // [FIX 2] Tăng đèn nền lên 2.0 (Cũ 1.5) -> Model sáng rõ, không bị tối
-        const ambientLight = new THREE.AmbientLight(0xffffff, 2.0); 
+        // --- 2. LIGHTING BOOST (SÁNG HƠN) ---
+        // [FIX] Tăng ambientLight lên 1.5 (Cũ là 0.6)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 3); 
         scene.add(ambientLight);
 
-        // [FIX 3] Đèn chính mạnh hơn chút nữa (300)
-        const keyLight = new THREE.SpotLight(0x2997ff, 300); 
+        const keyLight = new THREE.SpotLight(0x2997ff, 200); // Tăng cường độ lên 200
         keyLight.position.set(15, 15, 15);
         keyLight.angle = Math.PI / 6;
         keyLight.penumbra = 1; 
         keyLight.castShadow = true;
         scene.add(keyLight);
 
-        const rimLight = new THREE.SpotLight(0xffffff, 150); 
+        const rimLight = new THREE.SpotLight(0xffffff, 120); // Tăng rim light
         rimLight.position.set(-15, 15, -5);
         scene.add(rimLight);
         
-        const fillLight = new THREE.PointLight(0xffffff, 100); 
+        const fillLight = new THREE.PointLight(0xffffff, 80); // Tăng fill light lấp vùng tối
         fillLight.position.set(0, -10, 5);
         scene.add(fillLight);
 
-        // FLASHLIGHT
-        const cursorLight = new THREE.PointLight(0xffffff, 0, 10); 
+        // [TÍNH NĂNG MỚI 1] FLASHLIGHT THEO CHUỘT
+        // Đèn này sẽ đi theo con trỏ chuột để "soi" chi tiết kim loại
+        const cursorLight = new THREE.PointLight(0xffffff, 0, 10); // Ban đầu tắt
         scene.add(cursorLight);
 
         // --- 3. PARTICLES ---
@@ -302,19 +301,16 @@
         const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
         scene.add(particlesMesh);
 
-        // --- 4. LOAD MODEL & SCALE ---
+        // --- 4. LOAD MODEL & LOGIC ĐỔI MÀU ---
         const manager = new THREE.LoadingManager();
         manager.onProgress = (url, loaded, total) => {
-            if(progressBar) progressBar.style.width = (loaded / total) * 100 + '%';
+            const progress = (loaded / total) * 100;
+            if(progressBar) progressBar.style.width = progress + '%';
         };
 
-        // [FIX 4] Tăng Scale lên 3.5 (Cũ 2.5) -> To hơn 1 tí, vừa mắt
         function updateModelScale(model) {
-            if(window.innerWidth < 768) {
-                model.scale.set(2.0, 2.0, 2.0); // Mobile cũng to hơn chút
-            } else {
-                model.scale.set(3.5, 3.5, 3.5); // Desktop to hơn
-            }
+            if(window.innerWidth < 768) model.scale.set(1.5, 1.5, 1.5); 
+            else model.scale.set(2.5, 2.5, 2.5);
         }
 
         const loader = new GLTFLoader(manager);
@@ -338,6 +334,7 @@
             });
             scene.add(iphoneModel);
         }, undefined, (error) => {
+            console.error('Dùng backup model...');
             loader.load('/images/apple_iphone_15_pro_max_black.glb', (gltf) => {
                 iphoneModel = gltf.scene;
                 updateModelScale(iphoneModel);
@@ -346,13 +343,19 @@
             });
         });
 
-        // HÀM ĐỔI MÀU
+        // [TÍNH NĂNG MỚI 2] HÀM ĐỔI MÀU (Gọi từ HTML)
         window.changeColor = function(colorHex) {
             if(!iphoneModel) return;
+            // Áp dụng màu mới cho ánh sáng đèn chính để tạo không gian màu tương ứng
             const colorObj = new THREE.Color(colorHex);
+            
+            // GSAP tween màu đèn cho mượt
             gsap.to(keyLight.color, { r: colorObj.r, g: colorObj.g, b: colorObj.b, duration: 1 });
+            
+            // Đổi màu vật liệu máy (Tìm các phần kim loại)
             iphoneModel.traverse((child) => {
                 if (child.isMesh && child.material) {
+                    // Áp dụng màu cho vật liệu
                     gsap.to(child.material.color, { r: colorObj.r, g: colorObj.g, b: colorObj.b, duration: 0.5 });
                 }
             });
@@ -377,7 +380,6 @@
                 scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 1.5 }
             });
 
-            // Giữ nguyên biên độ di chuyển X=4 để vẫn né chữ tốt dù model to hơn
             tl.to(iphoneModel.position, { x: 4, y: -0.5 }, "p1") 
               .to(iphoneModel.rotation, { y: -Math.PI / 3 }, "p1")
               .to(".gsap-hero-text", { opacity: 0, y: -50 }, "p1")
@@ -392,8 +394,7 @@
               .to(iphoneModel.rotation, { y: 0, x: 0 }, "p3")
               .to(".gsap-camera-text", { opacity: 0 }, "p3");
               
-            // Khi bay lên trên thì thu nhỏ lại còn 0.5
-            tl.to(iphoneModel.position, { x: 0, y: 6, scale: 0.5 }, "p4") 
+            tl.to(iphoneModel.position, { x: 0, y: 6, scale: 0.2 }, "p4") 
               .to(iphoneModel.rotation, { y: Math.PI * 2 }, "p4")
               .to("#tech-specs", { opacity: 1, y: 0 }, "p4")
               .to(".gsap-cta-text", { opacity: 1, scale: 1 }, "p4");
@@ -403,13 +404,17 @@
 
         let mouseX = 0, mouseY = 0;
         document.addEventListener('mousemove', (e) => {
+            // Tọa độ chuột chuẩn hóa
             mouseX = (e.clientX - window.innerWidth/2) * 0.0005;
             mouseY = (e.clientY - window.innerHeight/2) * 0.0005;
 
+            // Cập nhật vị trí đèn Pin (Flashlight)
+            // Chuyển đổi tọa độ màn hình sang tọa độ 3D
             const x3D = (e.clientX / window.innerWidth) * 20 - 10;
             const y3D = -(e.clientY / window.innerHeight) * 20 + 10;
+            
             cursorLight.position.set(x3D, y3D, 5);
-            cursorLight.intensity = 100; 
+            cursorLight.intensity = 100; // Bật đèn khi di chuột
         });
 
         function animate() {
