@@ -263,7 +263,6 @@ app.post('/api/login', async (req, res) => {
         res.status(200).json({ ...userInfo, accessToken });
     } catch (error) { res.status(500).json({ message: error.message }); }
 });
-
 app.get('/api/users/profile', verifyToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
