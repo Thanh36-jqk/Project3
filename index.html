@@ -446,5 +446,34 @@
             if(iphoneModel) updateModelScale(iphoneModel);
         });
     </script>
+    <script>
+    (function handleGoogleLogin() {
+        // 1. Kiểm tra xem trên thanh địa chỉ có 'token' không
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+
+        if (token) {
+            // 2. Nếu có, lưu ngay vào localStorage
+            localStorage.setItem('accessToken', token);
+
+            // 3. Xóa token trên thanh địa chỉ để nhìn cho đẹp (bảo mật)
+            window.history.replaceState({}, document.title, window.location.pathname);
+
+            // 4. (Tùy chọn) Gọi API lấy thông tin user để lưu vào localStorage luôn
+            fetch('https://project3-icy1.onrender.com/api/users/profile', {
+                headers: { 'token': 'Bearer ' + token }
+            })
+            .then(res => res.json())
+            .then(userData => {
+                if(userData.user) {
+                    localStorage.setItem('user', JSON.stringify(userData.user));
+                    // Tải lại trang để cập nhật giao diện (thay icon User thành Avatar chẳng hạn)
+                    window.location.reload();
+                }
+            })
+            .catch(err => console.error("Lỗi lấy thông tin User:", err));
+        }
+    })();
+</script>
 </body>
 </html>
