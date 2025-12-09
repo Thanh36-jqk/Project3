@@ -9,7 +9,10 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const path = require('path');
-
+// --- [NEW] AUTH IMPORTS (GOOGLE ONLY) ---
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const session = require('express-session');
 dotenv.config(); // Đọc biến môi trường từ .env
 
 const app = express();
@@ -18,7 +21,31 @@ const PORT = process.env.PORT || 3000;
 // Cấu hình CORS và JSON Parser
 app.use(cors());
 app.use(express.json());
+// --- [NEW] SESSION & PASSPORT CONFIG (DEPLOY VERSION) ---
+app.set('trust proxy', 1); // Bắt buộc cho Render/Heroku để nhận diện HTTPS
 
+app.use(session({
+    secret: 'apple_store_secret_key', // Tốt nhất nên đưa vào .env
+    resave: false,
+    saveUninitialized: true,
+    cookie: { 
+        secure: true, // BẮT BUỘC: true vì web deploy chạy HTTPS
+        sameSite: 'none', // Giúp cookie hoạt động tốt giữa Google và Server
+        maxAge: 24 * 60 * 60 * 1000 // 1 ngày
+    } 
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Hàm định danh User
+passport.serializeUser((user, done) => done(null, user.id));
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch (err) { done(err, null); }
+});
 // --- [CẬP NHẬT QUAN TRỌNG] CẤU HÌNH STATIC FILES ---
 // 1. Phục vụ thư mục ảnh sản phẩm
 app.use('/images', express.static(path.join(__dirname, 'images')));
@@ -146,7 +173,58 @@ const verifyAdmin = (req, res, next) => {
         }
     });
 };
+// ==================================================================
+// ----- [NEW] GOOGLE PASSPORT STRATEGY -----
+// ==================================================================
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    // Dùng đường dẫn tuyệt đối của web đã deploy để tránh lỗi
+    callbackURL: "https://project3-icy1.onrender.com/auth/google/callback" 
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+        // Tìm user theo email Google trả về
+        let user = await User.findOne({ email: profile.emails[0].value });
+        
+        if (!user) {
+            // Nếu chưa có, tạo user mới
+            console.log("Creating new user via Google...");
+            const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+            user = new User({
+                email: profile.emails[0].value,
+                password: randomPassword,
+                role: 'user',
+                rank: 'Silver',
+                points: 0
+            });
+            await user.save();
+        }
+        return done(null, user);
+    } catch (err) { 
+        console.error("Google Auth Error:", err);
+        return done(err, null); 
+    }
+  }
+));
 
+// --- ROUTES XỬ LÝ ĐĂNG NHẬP GOOGLE ---
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+app.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: '/login/login.html' }),
+  (req, res) => {
+    // Đăng nhập thành công -> Tạo Token
+    const accessToken = jwt.sign(
+        { id: req.user._id, role: req.user.role }, 
+        process.env.JWT_SECRET, 
+        { expiresIn: "3d" }
+    );
+    
+    // Redirect về trang chủ deploy kèm Token
+    res.redirect(`https://project3-icy1.onrender.com/?token=${accessToken}`);
+  }
+);
 // ==================================================================
 // ----- 6. API ROUTES -----
 // ==================================================================
