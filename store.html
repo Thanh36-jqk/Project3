@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apple Store Online - Premium Reseller</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
     <style>
         /* --- CORE STYLES --- */
@@ -21,10 +23,22 @@
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #121212; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
 
         /* Glassmorphism Utilities */
         .glass-panel {
@@ -41,21 +55,47 @@
         }
 
         /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
-        
-        .hover-scale { transition: transform 0.3s ease; }
-        .hover-scale:hover { transform: scale(1.02); }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
 
         /* Loader */
         #page-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             transition: opacity 0.5s ease;
         }
     </style>
 </head>
+
 <body class="antialiased min-h-screen flex flex-col">
 
     <div id="page-loader">
@@ -67,7 +107,7 @@
             <a href="index.html" class="text-xl text-white hover:opacity-80 transition-opacity">
                 <i class="fab fa-apple"></i>
             </a>
-            
+
             <nav class="hidden md:flex gap-8 text-xs font-light tracking-wide text-gray-300">
                 <a href="store.html" class="text-white font-medium">Store</a>
                 <a href="Mac/mac.html" class="hover:text-white transition-colors">Mac</a>
@@ -83,22 +123,26 @@
                     <button id="search-trigger" class="text-gray-300 hover:text-white transition-colors">
                         <i class="fas fa-search text-sm"></i>
                     </button>
-                    <div id="search-dropdown" class="absolute right-0 top-10 w-72 glass-panel rounded-xl p-2 hidden opacity-0 transform -translate-y-2 transition-all duration-300 origin-top-right">
-                        <input type="text" id="global-search" placeholder="Search products..." class="w-full bg-transparent border-b border-white/10 p-2 text-sm text-white outline-none placeholder-gray-500">
+                    <div id="search-dropdown"
+                        class="absolute right-0 top-10 w-72 glass-panel rounded-xl p-2 hidden opacity-0 transform -translate-y-2 transition-all duration-300 origin-top-right">
+                        <input type="text" id="global-search" placeholder="Search products..."
+                            class="w-full bg-transparent border-b border-white/10 p-2 text-sm text-white outline-none placeholder-gray-500">
                         <ul id="search-results-mini" class="max-h-48 overflow-y-auto mt-2 space-y-1"></ul>
                     </div>
                 </div>
 
                 <button onclick="toggleCart()" class="text-gray-300 hover:text-white transition-colors relative">
                     <i class="fas fa-shopping-bag text-sm"></i>
-                    <span id="cart-badge" class="absolute -top-2 -right-2 bg-blue-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                    <span id="cart-badge"
+                        class="absolute -top-2 -right-2 bg-blue-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
                 </button>
 
                 <div class="relative group">
                     <a href="ACCOUNT.html" id="user-icon" class="text-gray-300 hover:text-white transition-colors">
                         <i class="fas fa-user text-sm"></i>
                     </a>
-                    <div id="user-tooltip" class="absolute right-0 top-8 glass-panel px-4 py-2 rounded-lg text-xs whitespace-nowrap hidden">
+                    <div id="user-tooltip"
+                        class="absolute right-0 top-8 glass-panel px-4 py-2 rounded-lg text-xs whitespace-nowrap hidden">
                         Not logged in
                     </div>
                 </div>
@@ -106,11 +150,11 @@
         </div>
     </header>
 
-<section class="mt-14 relative h-[500px] w-full overflow-hidden flex items-center justify-center">
+    <section class="mt-14 relative h-[500px] w-full overflow-hidden flex items-center justify-center">
         <div class="absolute inset-0 z-0">
-            <img src="images/ipad hero.jpg" 
-                 class="w-full h-full object-cover opacity-70 hover:scale-105 transition-transform duration-[2s]" 
-                 alt="Apple Store Hero">
+            <img src="images/ipad hero.jpg"
+                class="w-full h-full object-cover opacity-70 hover:scale-105 transition-transform duration-[2s]"
+                alt="Apple Store Hero">
             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
         </div>
 
@@ -119,16 +163,20 @@
                 Store. <span class="text-gray-300">The best way to buy the products you love.</span>
             </h1>
             <div class="flex flex-wrap justify-center gap-4 mt-8">
-                <button onclick="filterByHero('Mac')" class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
+                <button onclick="filterByHero('Mac')"
+                    class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
                     <i class="fas fa-laptop"></i> Mac
                 </button>
-                <button onclick="filterByHero('iPhone')" class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
+                <button onclick="filterByHero('iPhone')"
+                    class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
                     <i class="fas fa-mobile-alt"></i> iPhone
                 </button>
-                <button onclick="filterByHero('iPad')" class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
+                <button onclick="filterByHero('iPad')"
+                    class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
                     <i class="fas fa-tablet-alt"></i> iPad
                 </button>
-                <button onclick="filterByHero('Watch')" class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
+                <button onclick="filterByHero('Watch')"
+                    class="px-6 py-2 rounded-full glass-panel hover:bg-white hover:text-black transition-all text-sm font-medium flex items-center gap-2">
                     <i class="far fa-clock"></i> Apple Watch
                 </button>
             </div>
@@ -138,39 +186,49 @@
     <div class="flex flex-col lg:flex-row max-w-[1600px] mx-auto w-full px-6 py-12 gap-10">
         <aside class="hidden lg:block w-1/4 min-w-[280px]">
             <div class="sticky top-24 space-y-8">
-                
+
                 <div class="glass-panel rounded-2xl p-6">
                     <h3 class="text-white font-semibold mb-4 flex items-center gap-2">
                         <i class="fas fa-layer-group text-blue-500"></i> Categories
                     </h3>
                     <ul class="space-y-2 text-sm text-gray-400" id="category-filters">
                         <li>
-                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
-                                <input type="checkbox" name="category" value="Mac" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                            <label
+                                class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="Mac"
+                                    class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
                                 <span class="group-hover:translate-x-1 transition-transform">Mac</span>
                             </label>
                         </li>
                         <li>
-                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
-                                <input type="checkbox" name="category" value="iPhone" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                            <label
+                                class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="iPhone"
+                                    class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
                                 <span class="group-hover:translate-x-1 transition-transform">iPhone</span>
                             </label>
                         </li>
                         <li>
-                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
-                                <input type="checkbox" name="category" value="iPad" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                            <label
+                                class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="iPad"
+                                    class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
                                 <span class="group-hover:translate-x-1 transition-transform">iPad</span>
                             </label>
                         </li>
                         <li>
-                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
-                                <input type="checkbox" name="category" value="Watch" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                            <label
+                                class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="Watch"
+                                    class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
                                 <span class="group-hover:translate-x-1 transition-transform">Apple Watch</span>
                             </label>
                         </li>
                         <li>
-                            <label class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
-                                <input type="checkbox" name="category" value="HeadPhone" class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
+                            <label
+                                class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
+                                <input type="checkbox" name="category" value="HeadPhone"
+                                    class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
                                 <span class="group-hover:translate-x-1 transition-transform">AirPods & Audio</span>
                             </label>
                         </li>
@@ -182,18 +240,28 @@
                         <i class="fas fa-tag text-green-500"></i> Price Range
                     </h3>
                     <ul class="space-y-2 text-sm text-gray-400">
-                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input type="checkbox" name="price" value="0-10000000" class="accent-blue-600 rounded"> Under 10M</label></li>
-                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input type="checkbox" name="price" value="10000000-20000000" class="accent-blue-600 rounded"> 10M - 20M</label></li>
-                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input type="checkbox" name="price" value="20000000-30000000" class="accent-blue-600 rounded"> 20M - 30M</label></li>
-                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input type="checkbox" name="price" value="30000000-999999999" class="accent-blue-600 rounded"> Over 30M</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input
+                                    type="checkbox" name="price" value="0-10000000" class="accent-blue-600 rounded">
+                                Under 10M</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input
+                                    type="checkbox" name="price" value="10000000-20000000"
+                                    class="accent-blue-600 rounded"> 10M - 20M</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input
+                                    type="checkbox" name="price" value="20000000-30000000"
+                                    class="accent-blue-600 rounded"> 20M - 30M</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-white"><input
+                                    type="checkbox" name="price" value="30000000-999999999"
+                                    class="accent-blue-600 rounded"> Over 30M</label></li>
                     </ul>
                 </div>
-<div class="rounded-2xl overflow-hidden relative h-48 group cursor-pointer border border-white/10">
-                    <img src="images/bannerlogin.png" 
-                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80" 
-                         alt="Education Promo">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent p-4 flex flex-col justify-end">
-                        <span class="text-[10px] font-bold bg-white text-black px-2 py-0.5 rounded w-fit mb-1">EDUCATION</span>
+                <div class="rounded-2xl overflow-hidden relative h-48 group cursor-pointer border border-white/10">
+                    <img src="images/bannerlogin.png"
+                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80"
+                        alt="Education Promo">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent p-4 flex flex-col justify-end">
+                        <span
+                            class="text-[10px] font-bold bg-white text-black px-2 py-0.5 rounded w-fit mb-1">EDUCATION</span>
                         <h4 class="text-white font-bold leading-tight">Save on Mac or iPad for college.</h4>
                     </div>
                 </div>
@@ -203,22 +271,26 @@
         <main class="flex-1">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
                 <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-                    All Products <span id="product-count" class="text-sm font-normal text-gray-500 bg-gray-900 px-2 py-1 rounded-full">Loading...</span>
+                    All Products <span id="product-count"
+                        class="text-sm font-normal text-gray-500 bg-gray-900 px-2 py-1 rounded-full">Loading...</span>
                 </h2>
-                
+
                 <div class="flex items-center gap-4">
-                    <button class="lg:hidden px-4 py-2 bg-gray-800 rounded-lg text-sm hover:bg-gray-700" onclick="document.querySelector('aside').classList.toggle('hidden')">
+                    <button class="lg:hidden px-4 py-2 bg-gray-800 rounded-lg text-sm hover:bg-gray-700"
+                        onclick="document.querySelector('aside').classList.toggle('hidden')">
                         <i class="fas fa-filter"></i> Filter
                     </button>
 
                     <div class="relative">
-                        <select id="sort-options" class="appearance-none bg-gray-900 border border-gray-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-8 cursor-pointer">
+                        <select id="sort-options"
+                            class="appearance-none bg-gray-900 border border-gray-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 pr-8 cursor-pointer">
                             <option value="default">Featured</option>
                             <option value="price-asc">Price: Low to High</option>
                             <option value="price-desc">Price: High to Low</option>
                             <option value="name-asc">Name: A-Z</option>
                         </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
                             <i class="fas fa-chevron-down text-xs"></i>
                         </div>
                     </div>
@@ -240,17 +312,21 @@
                 </div>
                 <h3 class="text-xl font-bold text-white">No products found</h3>
                 <p class="text-gray-400 mt-2">Try adjusting your search or filters to find what you're looking for.</p>
-                <button onclick="resetFilters()" class="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-full transition-colors">
+                <button onclick="resetFilters()"
+                    class="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-full transition-colors">
                     Clear all filters
                 </button>
             </div>
         </main>
 
     </div> ```
-<div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#1c1c1e] border-l border-white/10 transform translate-x-full transition-transform duration-300 z-[100] shadow-2xl flex flex-col">
+    <div id="cart-sidebar"
+        class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#1c1c1e] border-l border-white/10 transform translate-x-full transition-transform duration-300 z-[100] shadow-2xl flex flex-col">
         <div class="p-6 border-b border-white/10 flex justify-between items-center bg-[#1c1c1e]/90 backdrop-blur">
-            <h2 class="text-xl font-bold text-white">Your Bag <span id="cart-count-header" class="text-gray-500 text-sm font-normal">(0 items)</span></h2>
-            <button onclick="toggleCart()" class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all">
+            <h2 class="text-xl font-bold text-white">Your Bag <span id="cart-count-header"
+                    class="text-gray-500 text-sm font-normal">(0 items)</span></h2>
+            <button onclick="toggleCart()"
+                class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all">
                 <i class="fas fa-times text-lg"></i>
             </button>
         </div>
@@ -269,35 +345,45 @@
                 <span id="cart-subtotal" class="text-white font-bold text-lg">0₫</span>
             </div>
             <p class="text-xs text-gray-500 mb-6">Shipping and taxes calculated at checkout.</p>
-            <button onclick="openCheckout()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
+            <button onclick="openCheckout()"
+                class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
                 Check Out <i class="fas fa-arrow-right"></i>
             </button>
         </div>
     </div>
-    
-    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300"></div>
+
+    <div id="cart-overlay" onclick="toggleCart()"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300">
+    </div>
 
     <div id="product-modal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeModal()"></div>
-        
-        <div class="relative bg-[#1c1c1e] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex flex-col md:flex-row max-h-[90vh]">
-            <button onclick="closeModal()" class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 text-white rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center">
+
+        <div
+            class="relative bg-[#1c1c1e] w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl border border-white/10 flex flex-col md:flex-row max-h-[90vh]">
+            <button onclick="closeModal()"
+                class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 text-white rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center">
                 <i class="fas fa-times"></i>
             </button>
 
             <div class="w-full md:w-1/2 bg-[#000] p-8 flex flex-col items-center justify-center relative group">
-                <img id="modal-img-main" src="" class="max-h-[300px] md:max-h-[400px] object-contain transition-transform duration-500 group-hover:scale-105 drop-shadow-2xl" alt="Product">
-                
+                <img id="modal-img-main" src=""
+                    class="max-h-[300px] md:max-h-[400px] object-contain transition-transform duration-500 group-hover:scale-105 drop-shadow-2xl"
+                    alt="Product">
+
                 <div id="modal-thumbnails" class="flex gap-3 mt-8 overflow-x-auto w-full justify-center px-4">
-                    </div>
+                </div>
             </div>
 
             <div class="w-full md:w-1/2 p-8 md:p-12 overflow-y-auto bg-[#1c1c1e]">
-                <span id="modal-category" class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-2 block">Category</span>
-                <h2 id="modal-title" class="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">Product Name</h2>
+                <span id="modal-category"
+                    class="text-xs font-bold text-gray-500 tracking-wider uppercase mb-2 block">Category</span>
+                <h2 id="modal-title" class="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">Product Name
+                </h2>
                 <div class="flex items-center gap-4 mb-6">
                     <span id="modal-price" class="text-2xl font-semibold text-blue-400">0₫</span>
-                    <span class="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded border border-green-500/20">In Stock</span>
+                    <span class="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded border border-green-500/20">In
+                        Stock</span>
                 </div>
 
                 <div class="space-y-6">
@@ -309,14 +395,16 @@
                     <div>
                         <h4 class="text-sm font-semibold text-white mb-2">Specifications</h4>
                         <ul id="modal-specs" class="text-sm text-gray-400 space-y-1 list-disc pl-4">
-                            </ul>
+                        </ul>
                     </div>
 
                     <div class="pt-6 border-t border-white/10 flex gap-4">
-                        <button onclick="addToCartFromModal()" class="flex-1 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                        <button onclick="addToCartFromModal()"
+                            class="flex-1 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
                             Add to Bag
                         </button>
-                        <button class="w-14 h-14 border border-white/20 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors text-blue-500">
+                        <button
+                            class="w-14 h-14 border border-white/20 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors text-blue-500">
                             <i class="far fa-heart"></i>
                         </button>
                     </div>
@@ -333,22 +421,26 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400 ml-1">Full Name</label>
-                        <input type="text" id="checkout-name" required class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
+                        <input type="text" id="checkout-name" required
+                            class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400 ml-1">Phone</label>
-                        <input type="tel" id="checkout-phone" required class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
+                        <input type="tel" id="checkout-phone" required
+                            class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
                     </div>
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs text-gray-400 ml-1">Shipping Address</label>
-                    <input type="text" id="checkout-address" required class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
+                    <input type="text" id="checkout-address" required
+                        class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
                 </div>
                 <div class="space-y-1">
                     <label class="text-xs text-gray-400 ml-1">Notes (Optional)</label>
-                    <textarea id="checkout-notes" rows="2" class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all"></textarea>
+                    <textarea id="checkout-notes" rows="2"
+                        class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all"></textarea>
                 </div>
-                
+
                 <div class="bg-blue-900/20 p-4 rounded-xl border border-blue-500/20 mt-4">
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-300">Total to Pay</span>
@@ -356,37 +448,47 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl mt-4 shadow-lg shadow-green-900/30 transition-all">
+                <button type="submit"
+                    class="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl mt-4 shadow-lg shadow-green-900/30 transition-all">
                     Confirm Order
                 </button>
             </form>
-            <button onclick="closeCheckout()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fas fa-times"></i></button>
+            <button onclick="closeCheckout()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i
+                    class="fas fa-times"></i></button>
         </div>
     </div>
 
-    <div id="chat-bubble" onclick="toggleChatWindow()" class="fixed bottom-8 right-8 z-[90] w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-900/40 cursor-pointer hover:scale-110 transition-transform duration-300 group">
+    <div id="chat-bubble" onclick="toggleChatWindow()"
+        class="fixed bottom-8 right-8 z-[90] w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-900/40 cursor-pointer hover:scale-110 transition-transform duration-300 group">
         <i class="fas fa-comment-dots text-white text-xl group-hover:animate-bounce"></i>
         <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-[#000]"></span>
     </div>
 
-    <div id="chat-window" class="fixed bottom-24 right-8 w-[350px] h-[500px] bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl z-[90] flex flex-col hidden opacity-0 transform translate-y-10 transition-all duration-300 origin-bottom-right">
-        <div class="p-4 border-b border-white/10 bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-t-2xl flex justify-between items-center backdrop-blur-md">
+    <div id="chat-window"
+        class="fixed bottom-24 right-8 w-[350px] h-[500px] bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl z-[90] flex flex-col hidden opacity-0 transform translate-y-10 transition-all duration-300 origin-bottom-right">
+        <div
+            class="p-4 border-b border-white/10 bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-t-2xl flex justify-between items-center backdrop-blur-md">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                    <i class="fab fa-google text-lg bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-red-500"></i>
+                    <i
+                        class="fab fa-google text-lg bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-red-500"></i>
                 </div>
                 <div>
                     <h3 class="font-bold text-white text-sm">Apple Assistant</h3>
-                    <p class="text-[10px] text-green-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> Online</p>
+                    <p class="text-[10px] text-green-400 flex items-center gap-1"><span
+                            class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> Online</p>
                 </div>
             </div>
-            <button onclick="toggleChatWindow()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+            <button onclick="toggleChatWindow()" class="text-gray-400 hover:text-white"><i
+                    class="fas fa-times"></i></button>
         </div>
 
         <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-black/20">
             <div class="flex gap-2 items-end">
-                <div class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0"><i class="fas fa-robot text-xs text-white"></i></div>
-                <div class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5">
+                <div class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0"><i
+                        class="fas fa-robot text-xs text-white"></i></div>
+                <div
+                    class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5">
                     Xin chào! Tôi là AI hỗ trợ của Apple Store. Tôi có thể giúp gì cho bạn hôm nay?
                 </div>
             </div>
@@ -394,14 +496,16 @@
 
         <div class="p-3 border-t border-white/10 bg-[#1c1c1e] rounded-b-2xl">
             <form id="chat-form" class="flex gap-2 relative">
-                <input type="text" id="chat-input" placeholder="Ask about products..." class="flex-1 bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-full pl-4 pr-10 py-3 text-sm text-white outline-none transition-all">
-                <button type="submit" class="absolute right-1 top-1 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-500 transition-colors">
+                <input type="text" id="chat-input" placeholder="Ask about products..."
+                    class="flex-1 bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-full pl-4 pr-10 py-3 text-sm text-white outline-none transition-all">
+                <button type="submit"
+                    class="absolute right-1 top-1 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-500 transition-colors">
                     <i class="fas fa-paper-plane text-xs"></i>
                 </button>
             </form>
         </div>
     </div>
-<div id="toast-container" class="fixed bottom-6 left-6 z-[200] flex flex-col gap-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-6 left-6 z-[200] flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
         // ==================================================================
@@ -413,10 +517,10 @@
         let currentModalProduct = null;
 
         // Dữ liệu mẫu (Fallback) nếu Server chưa có SP để Store không bị trống
-// Dữ liệu đầy đủ (Full Fallback Data)
+        // Dữ liệu đầy đủ (Full Fallback Data)
         const fallbackProducts = [
             // --- IPHONE ---
-            { _id: 'ip1', name: 'iPhone 16 Pro Max', category: 'iPhone', price: 34990000, image_url: 'images/iphone-16-pro-finish-select-202409-6-9inch-blacktitanium_AV1.jpg', desc: 'A18 Pro chip. Built for Apple Intelligence.' },
+            { _id: 'ip1', name: 'iPhone 16 Pro Max', category: 'iPhone', price: 34990000, image_url: 'images/test1.png', desc: 'A18 Pro chip. Built for Apple Intelligence.' },
             { _id: 'ip2', name: 'iPhone 15 Pro Max', category: 'iPhone', price: 29990000, image_url: 'images/iPhone-15-Promax-Titanium-Natural.jpg', desc: 'Titanium design. A17 Pro chip.' },
             { _id: 'ip3', name: 'iPhone 15 Plus', category: 'iPhone', price: 23990000, image_url: 'images/iphone 15 plus blue.jpg', desc: 'Big screen. Big battery life.' },
             { _id: 'ip4', name: 'iPhone 15', category: 'iPhone', price: 19990000, image_url: 'images/iPhone 15 Plus.jpg', desc: 'Dynamic Island. 48MP Main camera.' },
@@ -457,22 +561,22 @@
         // ==================================================================
         const formatPrice = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
         const getToken = () => localStorage.getItem('accessToken');
-        
+
         // Custom Toast Notification (Thay thế alert)
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             const colorClass = type === 'success' ? 'border-green-500 text-green-400' : 'border-red-500 text-red-400';
             const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-            
+
             toast.className = `bg-[#1c1c1e] border-l-4 ${colorClass} text-white px-4 py-3 rounded shadow-2xl flex items-center gap-3 transform translate-y-10 opacity-0 transition-all duration-300`;
             toast.innerHTML = `<i class="fas ${icon}"></i> <span class="text-sm font-medium">${message}</span>`;
-            
+
             container.appendChild(toast);
-            
+
             // Animation In
             setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
-            
+
             // Auto Remove
             setTimeout(() => {
                 toast.classList.add('opacity-0', 'translate-y-2');
@@ -498,7 +602,7 @@
                 // Thử lấy từ API
                 const res = await fetch(`${API_URL}/api/products/search?limit=100`);
                 const data = await res.json();
-                
+
                 if (data.products && data.products.length > 0) {
                     allProducts = data.products;
                 } else {
@@ -512,7 +616,7 @@
                 // Tắt Loader & Render
                 document.getElementById('page-loader').style.opacity = '0';
                 setTimeout(() => document.getElementById('page-loader').remove(), 500);
-                
+
                 renderProducts(allProducts);
                 updateCartUI(); // Load cart from local storage
             }
@@ -621,13 +725,13 @@
         document.getElementById('global-search').addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             const results = allProducts.filter(p => p.name.toLowerCase().includes(term));
-            
+
             // Nếu enter thì render ra main grid
             // Ở đây làm search mini dropdown
             const list = document.getElementById('search-results-mini');
             list.innerHTML = '';
-            
-            if(term.length > 0) {
+
+            if (term.length > 0) {
                 results.slice(0, 5).forEach(p => {
                     list.innerHTML += `
                         <li onclick="openProductModalFromId('${p._id}')" class="flex items-center gap-3 p-2 hover:bg-white/10 rounded cursor-pointer">
@@ -636,7 +740,7 @@
                         </li>`;
                 });
             }
-            
+
             // Realtime filter main grid
             renderProducts(results);
         });
@@ -678,14 +782,14 @@
                     quantity: 1
                 });
             }
-            
+
             saveCart();
             updateCartUI();
             showToast(`Added ${product.name} to bag`);
-            
+
             // Auto open cart
             const sidebar = document.getElementById('cart-sidebar');
-            if(sidebar.classList.contains('translate-x-full')) toggleCart();
+            if (sidebar.classList.contains('translate-x-full')) toggleCart();
         };
 
         function saveCart() {
@@ -700,7 +804,7 @@
             const checkoutTotal = document.getElementById('checkout-total');
 
             container.innerHTML = '';
-            
+
             let totalQty = 0;
             let totalPrice = 0;
 
@@ -745,7 +849,7 @@
             badge.style.opacity = totalQty > 0 ? '1' : '0';
             headerCount.textContent = `(${totalQty} items)`;
             subtotalEl.textContent = formatPrice(totalPrice);
-            if(checkoutTotal) checkoutTotal.textContent = formatPrice(totalPrice);
+            if (checkoutTotal) checkoutTotal.textContent = formatPrice(totalPrice);
         }
 
         window.updateQty = (index, change) => {
@@ -771,26 +875,26 @@
             document.getElementById('modal-title').textContent = product.name;
             document.getElementById('modal-price').textContent = formatPrice(product.price);
             document.getElementById('modal-desc').textContent = product.desc || 'Experience the best technology from Apple.';
-            
+
             // Fake Specs
-            const specs = product.category === 'iPhone' ? ['A18 Pro Chip', '48MP Camera', 'Titanium Design'] : 
-                          product.category === 'Mac' ? ['M3 Chip', 'Liquid Retina Display', '18h Battery'] : 
-                          ['High Performance', 'Premium Design', 'Apple Ecosystem'];
-            
+            const specs = product.category === 'iPhone' ? ['A18 Pro Chip', '48MP Camera', 'Titanium Design'] :
+                product.category === 'Mac' ? ['M3 Chip', 'Liquid Retina Display', '18h Battery'] :
+                    ['High Performance', 'Premium Design', 'Apple Ecosystem'];
+
             document.getElementById('modal-specs').innerHTML = specs.map(s => `<li>${s}</li>`).join('');
-            
+
             document.getElementById('product-modal').classList.remove('hidden');
         };
 
         window.openProductModalFromId = (id) => {
             const p = allProducts.find(x => x._id === id);
-            if(p) openProductModal(p);
+            if (p) openProductModal(p);
         };
 
         window.closeModal = () => document.getElementById('product-modal').classList.add('hidden');
-        
+
         window.addToCartFromModal = () => {
-            if(currentModalProduct) {
+            if (currentModalProduct) {
                 addToCart(currentModalProduct._id);
                 closeModal();
             }
@@ -798,7 +902,7 @@
 
         // Checkout
         window.openCheckout = () => {
-            if(cart.length === 0) return showToast('Bag is empty', 'error');
+            if (cart.length === 0) return showToast('Bag is empty', 'error');
             toggleCart(); // Close cart
             document.getElementById('checkout-modal').classList.remove('hidden');
             document.getElementById('checkout-modal').classList.add('flex');
@@ -811,7 +915,7 @@
 
         document.getElementById('checkout-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const orderData = {
                 recipientName: document.getElementById('checkout-name').value,
                 recipientPhone: document.getElementById('checkout-phone').value,
@@ -827,7 +931,7 @@
                 // Nếu chưa đăng nhập, vẫn cho đặt nhưng không lưu userId (Backend đã xử lý)
                 const headers = { 'Content-Type': 'application/json' };
                 const token = getToken();
-                if(token) headers['token'] = `Bearer ${token}`;
+                if (token) headers['token'] = `Bearer ${token}`;
 
                 const res = await fetch(`${API_URL}/api/orders`, {
                     method: 'POST',
@@ -872,7 +976,7 @@
             e.preventDefault();
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
-            if(!msg) return;
+            if (!msg) return;
 
             // 1. User Message UI
             appendMessage(msg, 'user');
@@ -887,7 +991,7 @@
                 const token = getToken();
                 // Chatbot yêu cầu login để lấy context, nếu không có token thì backend sẽ xử lý như khách
                 const headers = { 'Content-Type': 'application/json' };
-                if(token) headers['token'] = `Bearer ${token}`;
+                if (token) headers['token'] = `Bearer ${token}`;
 
                 const res = await fetch(`${API_URL}/api/chat`, {
                     method: 'POST',
@@ -896,7 +1000,7 @@
                 });
 
                 const data = await res.json();
-                
+
                 // Remove loading & Show AI Reply
                 document.getElementById(loadingId).remove();
                 if (data.reply) {
@@ -914,7 +1018,7 @@
         function appendMessage(text, sender) {
             const container = document.getElementById('chat-messages');
             const div = document.createElement('div');
-            
+
             if (sender === 'user') {
                 div.className = "flex gap-2 items-end justify-end";
                 div.innerHTML = `<div class="bg-blue-600 text-white text-sm p-3 rounded-2xl rounded-br-none max-w-[80%]">${text}</div>`;
@@ -928,7 +1032,7 @@
                     <div class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5 leading-relaxed shadow-sm">${formattedText}</div>
                 `;
             }
-            
+
             container.appendChild(div);
             container.scrollTop = container.scrollHeight;
         }
@@ -955,4 +1059,5 @@
 
     </script>
 </body>
+
 </html>
