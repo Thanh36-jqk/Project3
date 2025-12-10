@@ -398,6 +398,15 @@
                         </ul>
                     </div>
 
+                    <!-- Color Selection -->
+                    <div id="color-selector-section">
+                        <h4 class="text-sm font-semibold text-white mb-3">Choose Color</h4>
+                        <div id="color-options" class="flex gap-3 flex-wrap">
+                            <!-- Color swatches will be dynamically inserted here -->
+                        </div>
+                        <p id="selected-color-name" class="text-xs text-gray-400 mt-2"></p>
+                    </div>
+
                     <div class="pt-6 border-t border-white/10 flex gap-4">
                         <button onclick="addToCartFromModal()"
                             class="flex-1 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
@@ -828,6 +837,7 @@
                             <div class="flex-1 flex flex-col justify-between">
                                 <div>
                                     <h4 class="text-sm font-bold text-white line-clamp-1">${item.name}</h4>
+                                    ${item.color ? `<p class="text-gray-400 text-xs mt-0.5">Color: ${item.color}</p>` : ''}
                                     <p class="text-blue-400 text-xs mt-1 font-mono">${formatPrice(item.price)}</p>
                                 </div>
                                 <div class="flex justify-between items-center mt-2">
@@ -883,8 +893,90 @@
 
             document.getElementById('modal-specs').innerHTML = specs.map(s => `<li>${s}</li>`).join('');
 
+            // Color Selection Logic
+            renderColorOptions(product);
+
             document.getElementById('product-modal').classList.remove('hidden');
         };
+
+        // Color options data (you can customize these per product)
+        // Color options with actual product images
+        const colorVariants = {
+            'iPhone': [
+                { name: 'Black', hex: '#2c2c2e', image: 'images/iphone 13 black.jpg' },
+                { name: 'Blue', hex: '#4a90e2', image: 'images/iphone 13 blue.jpg' },
+                { name: 'Purple', hex: '#9b59b6', image: 'images/iphone 14 purple.webp' },
+                { name: 'Red', hex: '#e53935', image: 'images/iphone 14 red.jpg' },
+                { name: 'Gold', hex: '#d4af37', image: 'images/iphone 13 gold.webp' },
+                { name: 'Yellow', hex: '#f1c40f', image: 'images/iphone 14 yellow.webp' }
+            ],
+            'Mac': [
+                { name: 'Space Gray', hex: '#535456', image: 'images/macbook air 15 grey.webp' },
+                { name: 'Silver', hex: '#e3e4e5', image: 'images/macbook-air-og-202503.jpg' },
+                { name: 'Midnight', hex: '#1d1d1f', image: 'images/animated-gif-showing-the-new-m4-macbook-pro-slowly-opening-its-lid-on-a-black-background.webp' },
+                { name: 'Starlight', hex: '#f0e4d3', image: 'images/macbook_air_13_m2_starlight_1_24bf8f9188.png' }
+            ],
+            'iPad': [
+                { name: 'Space Gray', hex: '#535456', image: 'images/ipadprom4.jpg' },
+                { name: 'Silver', hex: '#e3e4e5', image: 'images/ipad air m2 gold.jpg' },
+                { name: 'Rose Gold', hex: '#f4c2c2', image: 'images/ipad air m2 gold.jpg' },
+                { name: 'Sky Blue', hex: '#a8dadc', image: 'images/ipad gen 10.webp' }
+            ],
+            'Watch': [
+                { name: 'Midnight', hex: '#1d1d1f', image: 'images/black.webp' },
+                { name: 'Starlight', hex: '#f0e4d3', image: 'images/watch series 9 rose.webp' },
+                { name: 'Product Red', hex: '#e53935', image: 'images/se black.jpg' },
+                { name: 'Blue', hex: '#0071e3', image: 'images/watch series 9 rose.webp' }
+            ],
+            'HeadPhone': [
+                { name: 'White', hex: '#f5f5f7', image: 'images/airpod2.jpg' },
+                { name: 'Black', hex: '#1d1d1f', image: 'images/airpodmax.png' },
+                { name: 'Space Gray', hex: '#535456', image: 'images/AirPods (3rd gen).jpg' }
+            ]
+        };
+
+
+        let selectedColor = null;
+
+        function renderColorOptions(product) {
+            const colorContainer = document.getElementById('color-options');
+            const colorNameDisplay = document.getElementById('selected-color-name');
+            const colors = colorVariants[product.category] || colorVariants['iPhone'];
+
+            colorContainer.innerHTML = '';
+            selectedColor = colors[0]; // Default to first color
+
+            colors.forEach((color, index) => {
+                const swatch = document.createElement('button');
+                swatch.className = `w-10 h-10 rounded-full border-2 transition-all hover:scale-110 ${index === 0 ? 'border-white ring-2 ring-blue-500' : 'border-gray-600 hover:border-gray-400'}`;
+                swatch.style.backgroundColor = color.hex;
+                swatch.title = color.name;
+
+                swatch.onclick = () => selectColor(color, swatch, product);
+                colorContainer.appendChild(swatch);
+            });
+
+            colorNameDisplay.textContent = `Selected: ${selectedColor.name}`;
+        }
+
+        function selectColor(color, swatchElement, product) {
+            selectedColor = color;
+
+            // Update visual selection
+            document.querySelectorAll('#color-options button').forEach(btn => {
+                btn.className = 'w-10 h-10 rounded-full border-2 transition-all hover:scale-110 border-gray-600 hover:border-gray-400';
+            });
+            swatchElement.className = 'w-10 h-10 rounded-full border-2 transition-all hover:scale-110 border-white ring-2 ring-blue-500';
+
+            // Update color name display
+            document.getElementById('selected-color-name').textContent = `Selected: ${color.name}`;
+
+            // If color has specific image, update main image (optional enhancement)
+            if (color.image) {
+                document.getElementById('modal-img-main').src = color.image;
+            }
+        }
+
 
         window.openProductModalFromId = (id) => {
             const p = allProducts.find(x => x._id === id);
@@ -895,10 +987,30 @@
 
         window.addToCartFromModal = () => {
             if (currentModalProduct) {
-                addToCart(currentModalProduct._id);
+                // Add product with selected color
+                const product = currentModalProduct;
+                const existingItem = cart.find(item => item.productId === product._id && item.color === selectedColor.name);
+
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        productId: product._id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image_url,
+                        quantity: 1,
+                        color: selectedColor.name
+                    });
+                }
+
+                saveCart();
+                updateCartUI();
+                showToast(`Added ${product.name} (${selectedColor.name}) to bag`);
                 closeModal();
             }
         };
+
 
         // Checkout
         window.openCheckout = () => {
