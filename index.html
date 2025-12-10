@@ -277,7 +277,7 @@
         const ambientLight = new THREE.AmbientLight(0xffffff, 3); 
         scene.add(ambientLight);
 
-        const keyLight = new THREE.SpotLight(0x2997ff, 200); // Tăng cường độ lên 200
+        const keyLight = new THREE.SpotLight(0x2997ff, 250); // Tăng cường độ lên 200
         keyLight.position.set(15, 15, 15);
         keyLight.angle = Math.PI / 6;
         keyLight.penumbra = 1; 
@@ -288,7 +288,7 @@
         rimLight.position.set(-15, 15, -5);
         scene.add(rimLight);
         
-        const fillLight = new THREE.PointLight(0xffffff, 80); // Tăng fill light lấp vùng tối
+        const fillLight = new THREE.PointLight(0xffffff, 120); // Tăng fill light lấp vùng tối
         fillLight.position.set(0, -10, 5);
         scene.add(fillLight);
 
