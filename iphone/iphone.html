@@ -1,226 +1,582 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iPhone - Apple</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="iphone1.css">
-</head>
-<body>
-    <header>
-<nav class="menu">
-    <a href="../store.html" class="logo"><i class="fab fa-apple"></i></a>
-    
-    <a href="../store.html">Store</a>
-    <a href="../Mac/mac.html">Mac</a>
-    <a href="../ipad/ipad.html">iPad</a>
-    <a href="iphone.html" class="active-link">iPhone</a> <a href="#">Watch</a>
-    <a href="#">AirPods</a>
-    <a href="#">TV & Home</a>
-    
-    <a href="../ACCOUNT.html">Member</a>
-    <a href="../support.html">Support</a>
-    
-    <div class="search-container">
-        <input type="text" class="search-input" placeholder="Search iPhone...">
-        <button class="search-btn"><i class="fas fa-search"></i></button>
-    </div>
-    <div class="cart-container">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-count">0</span>
-    </div>
-</nav>
-    </header>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhone - Apple Store</title>
 
-    <section class="hero" id="iphone">
-        <div class="hero-content">
-            <h1>iPhone 16 Pro Max</h1>
-            <p>Peak performance. A class apart.</p>
-            <a href="#iphone-store-section" class="btn">Discover Now</a>
-        </div>
-        <img src="../images/hero_ios18__gf6c1cf1m1yu_xlarge.jpg" alt="iPhone 16 Pro Max" class="hero-img">
-    </section>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
-    <section class="features" id="features">
-        <div class="feature">
-            <img src="../images/camera.png" alt="Camera Feature">
-            <h3>Advanced Camera</h3>
-            <p>Capture the most beautiful moments in videos and photos.</p>
-        </div>
-        <div class="feature">
-            <img src="../images/a18 chip.jpg" alt="A18 Chip Feature">
-            <h3>A18 Pro Chip</h3>
-            <p>Fast. And fast to last.</p>
-        </div>
-        <div class="feature">
-            <img src="../images/inte.jpg" alt="Intelligence Feature">
-            <h3>Apple Intelligence</h3>
-            <p>Unleash powerful potential.</p>
-        </div>
-    </section>
-
-    <section class="video">
-        <h2>Stunning high-quality video.</h2>
-        <div class="video-container">
-            <video loop autoplay muted playsinline controls>
-                <source src="../images/xlarge.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-    </section>
-
-    <section class="iphone-sale-section" id="iphone-store-section">
-        <h2 class="iphone-sale-title">The latest iPhone generation</h2>
-        <ul class="iphone-sale-list" id="iphone-sale-list">
-            </ul>
-    </section>
-
-    <footer id="footer">
-        <div class="footer-content">
-            <p>&copy; 2025 Apple Inc. All rights reserved.</p>
-            <a href="mailto:contact@apple.com" class="contact-btn">Contact Us</a>
-        </div>
-    </footer>
-
-    <div id="iphone-order-modal" class="order-modal-overlay">
-      <div class="order-modal">
-        <button class="modal-close-top" onclick="closeIphoneOrderModal()">&times;</button>
-        <h2>Confirm Your iPhone Order</h2>
-        <div class="order-modal-product">
-          <img id="order-iphone-img" src="" alt="" style="width:90px;height:90px;border-radius:14px;object-fit:cover;">
-          <div>
-            <div id="order-iphone-name" style="font-weight:600;font-size:1.2rem;"></div>
-            <div id="order-iphone-desc" style="color:#444;font-size:1rem;"></div>
-            <div id="order-iphone-price" style="color:#e53935;font-weight:600;margin-top:7px;"></div>
-          </div>
-        </div>
-        <form id="iphone-order-form" style="margin-top:15px;">
-          <input required name="recipientName" type="text" placeholder="Full Name" class="order-input"><br>
-          <input required name="recipientPhone" type="tel" placeholder="Phone Number" class="order-input"><br>
-          <input required name="recipientAddress" type="text" placeholder="Shipping Address" class="order-input"><br>
-          <textarea name="recipientNotes" placeholder="Notes (optional)" class="order-input"></textarea><br>
-          <select required name="paymentMethod" class="order-input">
-            <option value="">Select a payment method</option>
-            <option value="COD">Cash on Delivery (COD)</option>
-            <option value="bank">Bank Transfer</option>
-          </select>
-          <input type="hidden" name="productName">
-          <input type="hidden" name="productPrice">
-          <input type="hidden" name="productImage">
-          <button type="submit" class="btn-buy-iphone-submit">Order Now</button>
-        </form>
-        <div id="order-success-iphone" style="display:none;margin-top:10px;font-weight:600;color:#1abc9c;text-align:center;"></div>
-      </div>
-    </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const iphoneProducts = [
-    { name: "iPhone 16 Pro Max", desc: "Larger display, powerful A18 Pro chip", price: "31,000,000₫", img: "../images/iphone-16-pro-finish-select-202409-6-9inch-blacktitanium_AV1.jpg" },
-    { name: "iPhone 15 Pro Max", desc: "Titanium frame, A17 Pro chip, 5x optical zoom", price: "27,500,000₫", img: "../images/iPhone-15-Promax-Titanium-Natural.jpg" },
-    { name: "iPhone 15 Plus", desc: "6.7-inch display, Dynamic Island, 48MP camera", price: "23,000,000₫", img: "../images/iphone 15 plus blue.jpg" },
-    { name: "iPhone 15", desc: "A16 Bionic chip, 48MP Camera, Dynamic Island", price: "24,000,000₫", img: "../images/iPhone 15 Plus.jpg" },
-    { name: "iPhone 14 Pro Max", desc: "Dynamic Island, A16 Bionic chip, ProMotion display", price: "26,500,000₫", img: "../images/iphone14promax.webp" },
-    { name: "iPhone 14", desc: "Crash Detection, improved camera, A15 chip", price: "17,000,000₫", img: "../images/iphone 14 grey.jpg" },
-    { name: "iPhone 13", desc: "A15 Bionic chip, dual camera, great battery life", price: "15,000,000₫", img: "../images/iphone13 rose.webp" },
-    { name: "iPhone SE (3rd gen)", desc: "Powerful performance in a compact design, A15 Bionic chip", price: "10,000,000₫", img: "../images/iphone se 3rd black.jpg" }
-  ];
-
-  const productList = document.getElementById('iphone-sale-list');
-  iphoneProducts.forEach(prod => {
-    const li = document.createElement('li');
-    li.className = 'iphone-sale-card';
-    li.innerHTML = `
-      <div class="iphone-sale-image">
-        <img src="${prod.img}" alt="${prod.name}">
-      </div>
-      <div class="iphone-sale-content">
-        <h3>${prod.name}</h3>
-        <p class="iphone-sale-desc">${prod.desc}</p>
-        <div class="iphone-sale-price">${prod.price}</div>
-        <a href="#" class="btn-buy-iphone">Buy Now</a>
-      </div>
-    `;
-    productList.appendChild(li);
-  });
-
-  document.querySelectorAll('.iphone-sale-card .btn-buy-iphone').forEach(btn => {
-    btn.addEventListener('click', function(e){
-      e.preventDefault();
-      const name = this.closest('.iphone-sale-card').querySelector('h3').textContent.trim();
-      openIphoneOrderModal(name);
-    });
-  });
-
-  window.openIphoneOrderModal = function(productName) {
-    const prod = iphoneProducts.find(p => p.name === productName);
-    if (!prod) return;
-    document.getElementById('order-iphone-img').src = prod.img;
-    document.getElementById('order-iphone-name').textContent = prod.name;
-    document.getElementById('order-iphone-desc').textContent = prod.desc;
-    document.getElementById('order-iphone-price').textContent = prod.price;
-    document.getElementById('order-success-iphone').style.display = 'none';
-    document.getElementById('iphone-order-form').reset();
-    document.querySelector('input[name=productName]').value = prod.name;
-    document.querySelector('input[name=productPrice]').value = prod.price;
-    document.querySelector('input[name=productImage]').value = prod.img;
-    document.getElementById('iphone-order-modal').classList.add('active');
-  }
-
-  window.closeIphoneOrderModal = function() {
-    document.getElementById('iphone-order-modal').classList.remove('active');
-  }
-
-  document.getElementById('iphone-order-form').addEventListener('submit', async function(e){
-    e.preventDefault();
-    const form = e.target;
-    const data = {
-      recipientName: form.recipientName.value,
-      recipientPhone: form.recipientPhone.value,
-      recipientAddress: form.recipientAddress.value,
-      recipientNotes: form.recipientNotes.value,
-      paymentMethod: form.paymentMethod.value,
-      items: [{
-        name: form.productName.value,
-        price: form.productPrice.value,
-        qty: 1,
-        image: form.productImage.value
-      }],
-      totalAmountString: form.productPrice.value,
-      totalAmountNumeric: Number(form.productPrice.value.replace(/[^\d]/g, ''))
-    };
-    try {
-      const res = await fetch('https://project3-icy1.onrender.com/api/orders', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(data)
-      });
-      const result = await res.json();
-      if (res.ok) {
-        form.style.display = 'none';
-        document.getElementById('order-success-iphone').textContent = "Order successful! We will contact you for confirmation.";
-        document.getElementById('order-success-iphone').style.display = 'block';
-        setTimeout(() => {
-          window.closeIphoneOrderModal();
-          form.style.display = 'block';
-        }, 2000);
-      } else {
-        document.getElementById('order-success-iphone').textContent = result.message || "Order failed!";
-        document.getElementById('order-success-iphone').style.display = 'block';
-      }
-    } catch (err) {
-      document.getElementById('order-success-iphone').textContent = "Server connection error!";
-      document.getElementById('order-success-iphone').style.display = 'block';
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #000;
+      color: #f5f5f7;
+      overflow-x: hidden;
     }
-  });
-});
 
-document.querySelector('.hero .btn').addEventListener('click', function(e) {
-    e.preventDefault();
-    document.getElementById('iphone-store-section').scrollIntoView({ behavior: 'smooth' });
-});
-</script>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
 
+    ::-webkit-scrollbar-track {
+      background: #1d1d1f;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #424245;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #6e6e73;
+    }
+
+    /* Glassmorphism */
+    .glass-nav {
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .glass-panel {
+      background: rgba(28, 28, 30, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 20px rgba(0, 113, 227, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 0 40px rgba(0, 113, 227, 0.6);
+      }
+    }
+
+    .animate-fade-in-up {
+      animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    /* Hero gradient background */
+    .hero-gradient {
+      background: radial-gradient(ellipse at center, rgba(0, 113, 227, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+    }
+
+    /* Product card hover effect */
+    .product-card {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 60px rgba(0, 113, 227, 0.2);
+    }
+
+    /* Modal animations */
+    .modal-overlay {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+
+    /* Smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Feature icon animation */
+    .feature-icon {
+      transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    /* Price tag effect */
+    .price-tag {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+</head>
+
+<body class="antialiased">
+
+  <!-- Navigation -->
+  <header class="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+      <a href="../store.html" class="text-xl text-white hover:opacity-80 transition-opacity">
+        <i class="fab fa-apple"></i>
+      </a>
+
+      <nav class="hidden md:flex gap-8 text-xs font-light tracking-wide text-gray-300">
+        <a href="../store.html" class="hover:text-white transition-colors">Store</a>
+        <a href="../Mac/mac.html" class="hover:text-white transition-colors">Mac</a>
+        <a href="../ipad/ipad.html" class="hover:text-white transition-colors">iPad</a>
+        <a href="iphone.html" class="text-white font-medium">iPhone</a>
+        <a href="#" class="hover:text-white transition-colors">Watch</a>
+        <a href="#" class="hover:text-white transition-colors">AirPods</a>
+        <a href="../support.html" class="hover:text-white transition-colors">Support</a>
+      </nav>
+
+      <div class="flex items-center gap-6">
+        <button class="text-gray-300 hover:text-white transition-colors">
+          <i class="fas fa-search text-sm"></i>
+        </button>
+        <button onclick="window.location.href='../store.html#cart'"
+          class="text-gray-300 hover:text-white transition-colors relative">
+          <i class="fas fa-shopping-bag text-sm"></i>
+          <span id="cart-badge"
+            class="absolute -top-2 -right-2 bg-blue-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center opacity-0">0</span>
+        </button>
+        <a href="../ACCOUNT.html" class="text-gray-300 hover:text-white transition-colors">
+          <i class="fas fa-user text-sm"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-14">
+    <div class="absolute inset-0 hero-gradient"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-black"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center">
+      <div class="text-center md:text-left space-y-6 animate-fade-in-up">
+        <div
+          class="inline-block px-4 py-1 bg-blue-600/20 border border-blue-500/30 rounded-full text-blue-400 text-xs font-semibold mb-4">
+          NEW
+        </div>
+        <h1 class="text-5xl md:text-7xl font-bold tracking-tight leading-tight">
+          iPhone 16 Pro
+        </h1>
+        <p class="text-2xl md:text-3xl text-gray-400 font-light">
+          Titanium. So strong. So light. So Pro.
+        </p>
+        <p class="text-lg text-gray-500 max-w-xl">
+          Built for Apple Intelligence with the A18 Pro chip. Advanced camera system. Stunning 6.9-inch display.
+        </p>
+        <div class="flex flex-wrap gap-4 justify-center md:justify-start pt-4">
+          <a href="#products"
+            class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full transition-all transform hover:scale-105 shadow-lg shadow-blue-900/50">
+            Shop iPhone
+          </a>
+          <a href="#features"
+            class="px-8 py-4 glass-panel hover:bg-white/10 text-white font-semibold rounded-full transition-all">
+            Learn More
+          </a>
+        </div>
+      </div>
+
+      <div class="relative animate-fade-in-up" style="animation-delay: 0.2s;">
+        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-3xl"></div>
+        <img src="../images/iphone-16-pro-finish-select-202409-6-9inch-blacktitanium_AV1.jpg" alt="iPhone 16 Pro"
+          class="relative z-10 w-full max-w-md mx-auto animate-float drop-shadow-2xl">
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-20 px-6 bg-gradient-to-b from-black to-gray-900">
+    <div class="max-w-7xl mx-auto">
+      <h2
+        class="text-4xl md:text-5xl font-bold text-center mb-16 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+        Why you'll love iPhone
+      </h2>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="feature-card glass-panel rounded-3xl p-8 text-center hover:bg-white/5 transition-all group">
+          <div
+            class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center feature-icon">
+            <i class="fas fa-camera text-3xl text-white"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Pro Camera System</h3>
+          <p class="text-gray-400 leading-relaxed">
+            48MP Main camera with 2x Telephoto. Capture stunning detail in any light with advanced computational
+            photography.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card glass-panel rounded-3xl p-8 text-center hover:bg-white/5 transition-all group">
+          <div
+            class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center feature-icon">
+            <i class="fas fa-microchip text-3xl text-white"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">A18 Pro Chip</h3>
+          <p class="text-gray-400 leading-relaxed">
+            The fastest chip in a smartphone. Built for Apple Intelligence. Incredible performance and efficiency.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card glass-panel rounded-3xl p-8 text-center hover:bg-white/5 transition-all group">
+          <div
+            class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-pink-500 to-pink-700 rounded-2xl flex items-center justify-center feature-icon">
+            <i class="fas fa-brain text-3xl text-white"></i>
+          </div>
+          <h3 class="text-2xl font-bold mb-4">Apple Intelligence</h3>
+          <p class="text-gray-400 leading-relaxed">
+            Personal intelligence that helps you write, express yourself, and get things done effortlessly.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video Section -->
+  <section class="py-20 px-6 bg-black">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">
+        Cinematic mode. <span class="text-gray-500">Hollywood in your pocket.</span>
+      </h2>
+      <div class="relative rounded-3xl overflow-hidden shadow-2xl">
+        <video class="w-full" loop autoplay muted playsinline controls>
+          <source src="../images/xlarge.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Section -->
+  <section id="products" class="py-20 px-6 bg-gradient-to-b from-gray-900 to-black">
+    <div class="max-w-7xl mx-auto">
+      <h2 class="text-4xl md:text-5xl font-bold text-center mb-4">
+        Which iPhone is right for you?
+      </h2>
+      <p class="text-center text-gray-400 mb-16 text-lg">
+        Choose from our latest models
+      </p>
+
+      <div id="product-grid" class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Products will be dynamically inserted here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-[#1d1d1f] py-12 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p class="text-gray-500 text-sm mb-4">
+        &copy; 2025 Apple Inc. All rights reserved.
+      </p>
+      <div class="flex justify-center gap-6 text-xs text-gray-500">
+        <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+        <a href="../support.html" class="hover:text-white transition-colors">Support</a>
+        <a href="mailto:contact@apple.com" class="hover:text-white transition-colors">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Order Modal -->
+  <div id="order-modal"
+    class="modal-overlay fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
+    <div class="modal-content glass-panel rounded-3xl max-w-2xl w-full p-8 relative">
+      <button onclick="closeOrderModal()"
+        class="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <h2 class="text-3xl font-bold mb-6">Complete Your Order</h2>
+
+      <div class="flex gap-6 mb-8 bg-white/5 p-4 rounded-2xl">
+        <img id="modal-product-img" src="" alt="" class="w-24 h-24 object-contain rounded-xl bg-white/10">
+        <div class="flex-1">
+          <h3 id="modal-product-name" class="text-xl font-bold mb-1"></h3>
+          <p id="modal-product-desc" class="text-gray-400 text-sm mb-2"></p>
+          <p id="modal-product-price" class="text-2xl font-bold price-tag"></p>
+        </div>
+      </div>
+
+      <form id="order-form" class="space-y-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <input type="text" name="recipientName" required placeholder="Full Name"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-all">
+          <input type="tel" name="recipientPhone" required placeholder="Phone Number"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-all">
+        </div>
+        <input type="text" name="recipientAddress" required placeholder="Shipping Address"
+          class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-all">
+        <textarea name="recipientNotes" placeholder="Order Notes (Optional)" rows="3"
+          class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-all resize-none"></textarea>
+        <select name="paymentMethod" required
+          class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-all">
+          <option value="" class="bg-gray-900">Select Payment Method</option>
+          <option value="COD" class="bg-gray-900">Cash on Delivery (COD)</option>
+          <option value="bank" class="bg-gray-900">Bank Transfer</option>
+        </select>
+
+        <input type="hidden" name="productName">
+        <input type="hidden" name="productPrice">
+        <input type="hidden" name="productImage">
+
+        <button type="submit"
+          class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] shadow-lg shadow-blue-900/50">
+          Place Order
+        </button>
+      </form>
+
+      <div id="order-success"
+        class="hidden mt-6 p-4 bg-green-500/20 border border-green-500/30 rounded-xl text-green-400 text-center font-semibold">
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-2"></div>
+
+  <script>
+    // Product Data
+    const iphoneProducts = [
+      {
+        name: "iPhone 16 Pro Max",
+        desc: "6.9-inch display, A18 Pro chip, Titanium design",
+        price: "34,990,000₫",
+        img: "../images/iphone-16-pro-finish-select-202409-6-9inch-blacktitanium_AV1.jpg",
+        badge: "NEW"
+      },
+      {
+        name: "iPhone 15 Pro Max",
+        desc: "Titanium frame, A17 Pro chip, 5x optical zoom",
+        price: "29,990,000₫",
+        img: "../images/iPhone-15-Promax-Titanium-Natural.jpg"
+      },
+      {
+        name: "iPhone 15 Plus",
+        desc: "6.7-inch display, Dynamic Island, 48MP camera",
+        price: "23,990,000₫",
+        img: "../images/iphone 15 plus blue.jpg"
+      },
+      {
+        name: "iPhone 15",
+        desc: "A16 Bionic chip, 48MP Camera, Dynamic Island",
+        price: "19,990,000₫",
+        img: "../images/iPhone 15 Plus.jpg"
+      },
+      {
+        name: "iPhone 14 Pro Max",
+        desc: "Dynamic Island, A16 Bionic chip, ProMotion",
+        price: "26,500,000₫",
+        img: "../images/iphone14promax.webp"
+      },
+      {
+        name: "iPhone 14",
+        desc: "Crash Detection, improved camera, A15 chip",
+        price: "17,490,000₫",
+        img: "../images/iphone 14 grey.jpg"
+      },
+      {
+        name: "iPhone 13",
+        desc: "A15 Bionic chip, dual camera, great battery",
+        price: "13,990,000₫",
+        img: "../images/iphone13 rose.webp"
+      },
+      {
+        name: "iPhone SE (3rd Gen)",
+        desc: "Powerful performance, compact design, A15 chip",
+        price: "10,990,000₫",
+        img: "../images/iphone se 3rd black.jpg"
+      }
+    ];
+
+    // Render Products
+    function renderProducts() {
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = '';
+
+      iphoneProducts.forEach((product, index) => {
+        const card = document.createElement('div');
+        card.className = 'product-card glass-panel rounded-3xl overflow-hidden group cursor-pointer';
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate-fade-in-up');
+
+        card.innerHTML = `
+                    <div class="relative bg-gradient-to-br from-gray-900 to-black p-8 h-64 flex items-center justify-center overflow-hidden">
+                        ${product.badge ? `<span class="absolute top-4 left-4 px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-full">${product.badge}</span>` : ''}
+                        <img src="${product.img}" alt="${product.name}" class="h-full object-contain group-hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-blue-400 transition-colors">${product.name}</h3>
+                        <p class="text-gray-400 text-sm mb-4 line-clamp-2">${product.desc}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold price-tag">${product.price}</span>
+                            <button onclick="openOrderModal('${product.name}')" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full transition-all transform hover:scale-105">
+                                Buy
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // Toast Notification
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colorClass = type === 'success' ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-red-500/20 border-red-500/30 text-red-400';
+
+      toast.className = `${colorClass} border px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transform translate-x-full transition-all duration-300`;
+      toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span class="font-semibold">${message}</span>
+            `;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+
+      setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Modal Functions
+    function openOrderModal(productName) {
+      const product = iphoneProducts.find(p => p.name === productName);
+      if (!product) return;
+
+      document.getElementById('modal-product-img').src = product.img;
+      document.getElementById('modal-product-name').textContent = product.name;
+      document.getElementById('modal-product-desc').textContent = product.desc;
+      document.getElementById('modal-product-price').textContent = product.price;
+
+      document.querySelector('input[name="productName"]').value = product.name;
+      document.querySelector('input[name="productPrice"]').value = product.price;
+      document.querySelector('input[name="productImage"]').value = product.img;
+
+      document.getElementById('order-success').classList.add('hidden');
+      document.getElementById('order-form').reset();
+      document.getElementById('order-modal').classList.add('active');
+    }
+
+    function closeOrderModal() {
+      document.getElementById('order-modal').classList.remove('active');
+    }
+
+    // Form Submission
+    document.getElementById('order-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+
+      const data = {
+        recipientName: form.recipientName.value,
+        recipientPhone: form.recipientPhone.value,
+        recipientAddress: form.recipientAddress.value,
+        recipientNotes: form.recipientNotes.value,
+        paymentMethod: form.paymentMethod.value,
+        items: [{
+          name: form.productName.value,
+          price: form.productPrice.value,
+          qty: 1,
+          image: form.productImage.value
+        }],
+        totalAmountString: form.productPrice.value,
+        totalAmountNumeric: Number(form.productPrice.value.replace(/[^\d]/g, ''))
+      };
+
+      try {
+        const res = await fetch('https://project3-icy1.onrender.com/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          form.style.display = 'none';
+          document.getElementById('order-success').textContent = '✓ Order placed successfully! We will contact you soon.';
+          document.getElementById('order-success').classList.remove('hidden');
+          showToast('Order placed successfully!', 'success');
+
+          setTimeout(() => {
+            closeOrderModal();
+            form.style.display = 'block';
+          }, 2000);
+        } else {
+          showToast(result.message || 'Order failed!', 'error');
+        }
+      } catch (err) {
+        showToast('Server connection error!', 'error');
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProducts();
+    });
+
+    // Close modal on overlay click
+    document.getElementById('order-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'order-modal') closeOrderModal();
+    });
+  </script>
 </body>
+
 </html>
