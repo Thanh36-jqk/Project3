@@ -28,11 +28,11 @@ app.use(session({
     secret: 'apple_store_secret_key', // Tốt nhất nên đưa vào .env
     resave: false,
     saveUninitialized: true,
-    cookie: { 
+    cookie: {
         secure: true, // BẮT BUỘC: true vì web deploy chạy HTTPS
         sameSite: 'none', // Giúp cookie hoạt động tốt giữa Google và Server
         maxAge: 24 * 60 * 60 * 1000 // 1 ngày
-    } 
+    }
 }));
 
 app.use(passport.initialize());
@@ -66,8 +66,8 @@ if (!mongoUrl) {
 }
 
 mongoose.connect(mongoUrl)
-  .then(() => console.log('✅ Database Connected Successfully'))
-  .catch((err) => console.error('❌ Database Connection Error:', err));
+    .then(() => console.log('✅ Database Connected Successfully'))
+    .catch((err) => console.error('❌ Database Connection Error:', err));
 
 // ==================================================================
 // ----- 3. GEMINI AI SETUP -----
@@ -90,21 +90,21 @@ if (apiKey) {
 const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true, lowercase: true },
     password: { type: String, required: true },
-    role: { type: String, default: 'user' }, 
+    role: { type: String, default: 'user' },
     rank: { type: String, enum: ['Silver', 'Gold', 'VIP'], default: 'Silver' },
-    points: { type: Number, default: 0 }, 
-    totalSpending: { type: Number, default: 0 }, 
-    myVouchers: [{ 
+    points: { type: Number, default: 0 },
+    totalSpending: { type: Number, default: 0 },
+    myVouchers: [{
         code: String, discountAmount: Number, isUsed: { type: Boolean, default: false }, redeemedAt: { type: Date, default: Date.now }
     }]
 }, { timestamps: true });
 const User = mongoose.model('User', userSchema);
 
 const voucherSchema = new mongoose.Schema({
-    code: { type: String, required: true, unique: true }, 
-    discountAmount: { type: Number, required: true }, 
-    pointsRequired: { type: Number, required: true }, 
-    quantity: { type: Number, default: 100 }, 
+    code: { type: String, required: true, unique: true },
+    discountAmount: { type: Number, required: true },
+    pointsRequired: { type: Number, required: true },
+    quantity: { type: Number, default: 100 },
     isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 const Voucher = mongoose.model('Voucher', voucherSchema);
@@ -141,8 +141,8 @@ const orderSchema = new mongoose.Schema({
     totalAmountString: String,
     totalAmountNumeric: Number,
     finalAmount: Number,
-    appliedVoucher: { type: String, default: null }, 
-    status: { type: String, default: 'Pending' } 
+    appliedVoucher: { type: String, default: null },
+    status: { type: String, default: 'Pending' }
 }, { timestamps: true });
 const Order = mongoose.model('Order', orderSchema);
 
@@ -180,50 +180,50 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     // Dùng đường dẫn tuyệt đối của web đã deploy để tránh lỗi
-    callbackURL: "https://project3-icy1.onrender.com/auth/google/callback" 
-  },
-  async (accessToken, refreshToken, profile, done) => {
-    try {
-        // Tìm user theo email Google trả về
-        let user = await User.findOne({ email: profile.emails[0].value });
-        
-        if (!user) {
-            // Nếu chưa có, tạo user mới
-            console.log("Creating new user via Google...");
-            const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
-            user = new User({
-                email: profile.emails[0].value,
-                password: randomPassword,
-                role: 'user',
-                rank: 'Silver',
-                points: 0
-            });
-            await user.save();
+    callbackURL: "https://project3-icy1.onrender.com/auth/google/callback"
+},
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            // Tìm user theo email Google trả về
+            let user = await User.findOne({ email: profile.emails[0].value });
+
+            if (!user) {
+                // Nếu chưa có, tạo user mới
+                console.log("Creating new user via Google...");
+                const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+                user = new User({
+                    email: profile.emails[0].value,
+                    password: randomPassword,
+                    role: 'user',
+                    rank: 'Silver',
+                    points: 0
+                });
+                await user.save();
+            }
+            return done(null, user);
+        } catch (err) {
+            console.error("Google Auth Error:", err);
+            return done(err, null);
         }
-        return done(null, user);
-    } catch (err) { 
-        console.error("Google Auth Error:", err);
-        return done(err, null); 
     }
-  }
 ));
 
 // --- ROUTES XỬ LÝ ĐĂNG NHẬP GOOGLE ---
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/login/login.html' }),
-  (req, res) => {
-    // Đăng nhập thành công -> Tạo Token
-    const accessToken = jwt.sign(
-        { id: req.user._id, role: req.user.role }, 
-        process.env.JWT_SECRET, 
-        { expiresIn: "3d" }
-    );
-    
-    // Redirect về trang chủ deploy kèm Token
-    res.redirect(`https://project3-icy1.onrender.com/?token=${accessToken}`);
-  }
+app.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/login/login.html' }),
+    (req, res) => {
+        // Đăng nhập thành công -> Tạo Token
+        const accessToken = jwt.sign(
+            { id: req.user._id, role: req.user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "3d" }
+        );
+
+        // Redirect về trang chủ deploy kèm Token
+        res.redirect(`https://project3-icy1.onrender.com/?token=${accessToken}`);
+    }
 );
 // ==================================================================
 // ----- 6. API ROUTES -----
@@ -236,13 +236,13 @@ app.post('/api/register', async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ message: 'Thiếu thông tin' });
-        
+
         const existingUser = await User.findOne({ email });
         if (existingUser) return res.status(400).json({ message: 'Email đã tồn tại' });
-        
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const role = email.includes('admin') ? 'admin' : 'user';
-        
+
         const newUser = new User({ email, password: hashedPassword, role, rank: 'Silver' });
         await newUser.save();
         res.status(201).json({ message: 'Đăng ký thành công!' });
@@ -254,7 +254,7 @@ app.post('/api/login', async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
         if (!user) return res.status(401).json({ message: 'Email không đúng' });
-        
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ message: 'Mật khẩu không đúng' });
 
@@ -294,11 +294,11 @@ app.post('/api/cart/add', verifyToken, async (req, res) => {
         const { productId, quantity, name, price, image_url } = req.body;
         let cart = await Cart.findOne({ userId: req.user.id });
         if (!cart) cart = new Cart({ userId: req.user.id, items: [] });
-        
+
         const itemIndex = cart.items.findIndex(p => (p.productId && p.productId.toString() === productId) || p.name === name);
         if (itemIndex > -1) cart.items[itemIndex].quantity += quantity;
         else cart.items.push({ productId, quantity, name, price, image_url });
-        
+
         await cart.save();
         res.status(200).json(cart);
     } catch (error) { res.status(500).json({ message: error.message }); }
@@ -345,10 +345,10 @@ app.post('/api/vouchers/redeem', verifyToken, async (req, res) => {
 
 // ---------------- ORDER & CHECKOUT (SECURE) ----------------
 app.post('/api/orders', async (req, res) => {
-    const authHeader = req.headers.token; 
+    const authHeader = req.headers.token;
     let userId = null;
     if (authHeader) {
-        try { userId = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET).id; } catch(e) {}
+        try { userId = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET).id; } catch (e) { }
     }
 
     try {
@@ -370,8 +370,8 @@ app.post('/api/orders', async (req, res) => {
                 });
                 // Cố gắng parse giá từ string
                 const priceNum = parseFloat(String(item.price).replace(/[^\d]/g, ''));
-                if(!isNaN(priceNum)) calculatedTotal += priceNum * item.qty;
-                continue; 
+                if (!isNaN(priceNum)) calculatedTotal += priceNum * item.qty;
+                continue;
             }
 
             if (product.stock < item.qty) return res.status(400).json({ message: `Sản phẩm "${item.name}" chỉ còn lại ${product.stock} chiếc.` });
@@ -412,11 +412,11 @@ app.post('/api/orders', async (req, res) => {
 
         const savedOrder = await newOrder.save();
 
-        if(userId) {
+        if (userId) {
             await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
             const pointsEarned = Math.floor(finalTotal / 100000);
             await User.findByIdAndUpdate(userId, { $inc: { points: pointsEarned, totalSpending: finalTotal } });
-            
+
             const updatedUser = await User.findById(userId);
             let newRank = updatedUser.rank;
             if (updatedUser.totalSpending > 50000000) newRank = 'VIP';
@@ -427,6 +427,24 @@ app.post('/api/orders', async (req, res) => {
         res.status(201).json({ message: 'Đặt hàng thành công!', order: savedOrder });
     } catch (error) { res.status(500).json({ message: 'Lỗi server: ' + error.message }); }
 });
+
+// ---------------- GET ORDER BY ID (For Order Tracking) ----------------
+app.get('/api/orders/:id', async (req, res) => {
+    try {
+        const order = await Order.findById(req.params.id);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found. Please check your Order ID.' });
+        }
+        res.status(200).json(order);
+    } catch (error) {
+        // Handle invalid ObjectId format
+        if (error.kind === 'ObjectId') {
+            return res.status(400).json({ message: 'Invalid Order ID format.' });
+        }
+        res.status(500).json({ message: 'Server error: ' + error.message });
+    }
+});
+
 
 // ---------------- ADMIN ROUTES ----------------
 // 1. Lấy danh sách toàn bộ sản phẩm (Kèm tồn kho) - Đưa lên trước verifyAdmin của các route khác để dễ quản lý
@@ -440,7 +458,7 @@ app.get('/api/admin/products', verifyAdmin, async (req, res) => {
 // 2. Cập nhật số lượng tồn kho (Nhập/Xả hàng)
 app.put('/api/admin/products/:id/stock', verifyAdmin, async (req, res) => {
     try {
-        const { newStock } = req.body; 
+        const { newStock } = req.body;
         if (newStock < 0) return res.status(400).json({ message: "Tồn kho không thể âm" });
 
         const product = await Product.findByIdAndUpdate(req.params.id, { stock: newStock }, { new: true });
@@ -499,7 +517,7 @@ app.post('/api/chat', verifyToken, async (req, res) => {
             try {
                 const user = await User.findById(userId);
                 if (user) contextData.customer = { name: user.email.split('@')[0], rank: user.rank, points: user.points };
-                
+
                 const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(5);
                 contextData.recent_orders = orders.map(o => ({
                     id: o._id.toString().slice(-6).toUpperCase(),
