@@ -473,6 +473,87 @@
         </div>
     </div>
 
+    <!-- Buy Now Modal -->
+    <div id="buynow-modal" class="fixed inset-0 z-[120] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closeBuyNowModal()"></div>
+        <div
+            class="relative bg-[#1c1c1e] w-full max-w-2xl rounded-2xl overflow-hidden border border-white/10 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeBuyNowModal()"
+                class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/50 text-white rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="p-8">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                    <i class="fas fa-bolt text-blue-500"></i> Quick Checkout
+                </h2>
+
+                <!-- Product Info -->
+                <div class="bg-[#2c2c2e] rounded-xl p-4 mb-6 flex gap-4">
+                    <img id="buynow-product-image" src="" alt="" class="w-24 h-24 object-contain bg-black rounded-lg">
+                    <div class="flex-1">
+                        <p class="text-xs text-gray-500 uppercase" id="buynow-product-category"></p>
+                        <h3 class="text-lg font-bold text-white" id="buynow-product-name"></h3>
+                        <p class="text-xl font-semibold text-blue-400 mt-2" id="buynow-product-price"></p>
+                    </div>
+                </div>
+
+                <!-- Color Selection -->
+                <div id="buynow-color-section" class="mb-6" style="display: none;">
+                    <h4 class="text-sm font-semibold text-white mb-3">Choose Color <span class="text-red-500">*</span>
+                    </h4>
+                    <div id="buynow-color-options" class="flex gap-3 flex-wrap mb-2"></div>
+                    <p id="buynow-selected-color-name" class="text-xs text-gray-400"></p>
+                </div>
+
+                <!-- Shipping Form -->
+                <form id="buynow-form" class="space-y-4">
+                    <h4 class="text-sm font-semibold text-white mb-3 border-t border-white/10 pt-4">Shipping Details
+                    </h4>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-400 ml-1">Full Name <span
+                                    class="text-red-500">*</span></label>
+                            <input type="text" id="buynow-name" required
+                                class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-400 ml-1">Phone <span class="text-red-500">*</span></label>
+                            <input type="tel" id="buynow-phone" required
+                                class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-400 ml-1">Shipping Address <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" id="buynow-address" required
+                            class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-400 ml-1">Notes (Optional)</label>
+                        <textarea id="buynow-notes" rows="2"
+                            class="w-full bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-lg p-3 text-white outline-none transition-all"></textarea>
+                    </div>
+
+                    <div class="bg-blue-900/20 p-4 rounded-xl border border-blue-500/20 mt-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-300">Total to Pay</span>
+                            <span id="buynow-total" class="text-xl font-bold text-blue-400">0₫</span>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-4 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl mt-4 shadow-lg shadow-green-900/30 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle"></i> Place Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div id="chat-bubble" onclick="toggleChatWindow()"
         class="fixed bottom-8 right-8 z-[90] w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-900/40 cursor-pointer hover:scale-110 transition-transform duration-300 group">
         <i class="fas fa-comment-dots text-white text-xl group-hover:animate-bounce"></i>
@@ -1171,6 +1252,130 @@
                 window.location.href = 'checkout.html';
             }
         };
+
+
+        // ==================================================================
+        // BUY NOW MODAL FUNCTIONS
+        // ==================================================================
+        let currentBuyNowProduct = null;
+        let buyNowSelectedColor = null;
+
+        window.openBuyNowModal = (product) => {
+            currentBuyNowProduct = product;
+            buyNowSelectedColor = null;
+
+            // Populate product info
+            document.getElementById('buynow-product-image').src = product.image_url;
+            document.getElementById('buynow-product-category').textContent = product.category;
+            document.getElementById('buynow-product-name').textContent = product.name;
+            document.getElementById('buynow-product-price').textContent = formatPrice(product.price);
+            document.getElementById('buynow-total').textContent = formatPrice(product.price);
+
+            // Handle color selection
+            const colors = productColorVariants[product.name];
+            const colorSection = document.getElementById('buynow-color-section');
+            const colorContainer = document.getElementById('buynow-color-options');
+
+            if (colors && colors.length > 0) {
+                colorSection.style.display = 'block';
+                colorContainer.innerHTML = '';
+                buyNowSelectedColor = colors[0]; // Default to first color
+
+                colors.forEach((color, index) => {
+                    const swatch = document.createElement('button');
+                    swatch.type = 'button';
+                    swatch.className = `w-10 h-10 rounded-full border-2 transition-all hover:scale-110 ${index === 0 ? 'border-white ring-2 ring-blue-500' : 'border-gray-600 hover:border-gray-400'}`;
+                    swatch.style.backgroundColor = color.hex;
+                    swatch.title = color.name;
+                    swatch.onclick = () => selectBuyNowColor(color, swatch);
+                    colorContainer.appendChild(swatch);
+                });
+
+                document.getElementById('buynow-selected-color-name').textContent = `Selected: ${buyNowSelectedColor.name}`;
+                document.getElementById('buynow-product-image').src = buyNowSelectedColor.image;
+            } else {
+                colorSection.style.display = 'none';
+            }
+
+            // Show modal
+            document.getElementById('buynow-modal').classList.remove('hidden');
+            document.getElementById('buynow-modal').classList.add('flex');
+        };
+
+        function selectBuyNowColor(color, swatchElement) {
+            buyNowSelectedColor = color;
+
+            // Update visual selection
+            document.querySelectorAll('#buynow-color-options button').forEach(btn => {
+                btn.className = 'w-10 h-10 rounded-full border-2 transition-all hover:scale-110 border-gray-600 hover:border-gray-400';
+            });
+            swatchElement.className = 'w-10 h-10 rounded-full border-2 transition-all hover:scale-110 border-white ring-2 ring-blue-500';
+
+            // Update color name and image
+            document.getElementById('buynow-selected-color-name').textContent = `Selected: ${color.name}`;
+            if (color.image) {
+                document.getElementById('buynow-product-image').src = color.image;
+            }
+        }
+
+        window.closeBuyNowModal = () => {
+            document.getElementById('buynow-modal').classList.add('hidden');
+            document.getElementById('buynow-modal').classList.remove('flex');
+            document.getElementById('buynow-form').reset();
+        };
+
+        // Handle Buy Now form submission
+        document.getElementById('buynow-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentBuyNowProduct) return;
+
+            const product = currentBuyNowProduct;
+            const hasColorVariants = productColorVariants[product.name] && productColorVariants[product.name].length > 0;
+
+            // Validate color selection
+            if (hasColorVariants && !buyNowSelectedColor) {
+                showToast('Please select a color', 'error');
+                return;
+            }
+
+            const orderData = {
+                recipientName: document.getElementById('buynow-name').value.trim(),
+                recipientPhone: document.getElementById('buynow-phone').value.trim(),
+                recipientAddress: document.getElementById('buynow-address').value.trim(),
+                recipientNotes: document.getElementById('buynow-notes').value.trim(),
+                paymentMethod: 'COD',
+                items: [{
+                    name: buyNowSelectedColor ? `${product.name} (${buyNowSelectedColor.name})` : product.name,
+                    price: String(product.price),
+                    qty: 1,
+                    image: buyNowSelectedColor && buyNowSelectedColor.image ? buyNowSelectedColor.image : product.image_url
+                }],
+                appliedVoucher: null
+            };
+
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                const token = getToken();
+                if (token) headers['token'] = `Bearer ${token}`;
+
+                const res = await fetch(`${API_URL}/api/orders`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(orderData),
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || "Order failed.");
+
+                closeBuyNowModal();
+                showToast(`Order placed successfully! Order ID: ${data.order._id || 'N/A'}`);
+
+            } catch (error) {
+                console.error(error);
+                showToast(`Error: ${error.message}`, 'error');
+            }
+        });
 
 
         // Checkout
