@@ -899,39 +899,113 @@
             document.getElementById('product-modal').classList.remove('hidden');
         };
 
-        // Color options data (you can customize these per product)
-        // Color options with actual product images
-        const colorVariants = {
-            'iPhone': [
-                { name: 'Black', hex: '#2c2c2e', image: 'images/iphone 13 black.jpg' },
-                { name: 'Blue', hex: '#4a90e2', image: 'images/iphone 13 blue.jpg' },
-                { name: 'Purple', hex: '#9b59b6', image: 'images/iphone 14 purple.webp' },
-                { name: 'Red', hex: '#e53935', image: 'images/iphone 14 red.jpg' },
-                { name: 'Gold', hex: '#d4af37', image: 'images/iphone 13 gold.webp' },
-                { name: 'Yellow', hex: '#f1c40f', image: 'images/iphone 14 yellow.webp' }
+        // Product-specific color variants with actual images from folders
+        const productColorVariants = {
+            // ========== IPHONE MODELS ==========
+            'iPhone 11': [
+                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 11/11 white.png' },
+                { name: 'Green', hex: '#aee1cd', image: 'images/iphone 11/11green.png' },
+                { name: 'Yellow', hex: '#ffe681', image: 'images/iphone 11/iphone 11 yellow.png' },
+                { name: 'Red', hex: '#ba0c2f', image: 'images/iphone 11/iphone-11 red.png' }
             ],
-            'Mac': [
-                { name: 'Space Gray', hex: '#535456', image: 'images/macbook air 15 grey.webp' },
-                { name: 'Silver', hex: '#e3e4e5', image: 'images/macbook-air-og-202503.jpg' },
-                { name: 'Midnight', hex: '#1d1d1f', image: 'images/animated-gif-showing-the-new-m4-macbook-pro-slowly-opening-its-lid-on-a-black-background.webp' },
-                { name: 'Starlight', hex: '#f0e4d3', image: 'images/macbook_air_13_m2_starlight_1_24bf8f9188.png' }
+            'iPhone 12': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 12/iphone 12 black.png' },
+                { name: 'Purple', hex: '#b9b5d7', image: 'images/iphone 12/iphone 12 purple.png' },
+                { name: 'Red', hex: '#ba0c2f', image: 'images/iphone 12/iphone 12 red.png' }
             ],
-            'iPad': [
-                { name: 'Space Gray', hex: '#535456', image: 'images/ipadprom4.jpg' },
-                { name: 'Silver', hex: '#e3e4e5', image: 'images/ipad air m2 gold.jpg' },
-                { name: 'Rose Gold', hex: '#f4c2c2', image: 'images/ipad air m2 gold.jpg' },
-                { name: 'Sky Blue', hex: '#a8dadc', image: 'images/ipad gen 10.webp' }
+            'iPhone 13': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 13/iphone 13 black.png' },
+                { name: 'Blue', hex: '#276787', image: 'images/iphone 13/iphone 13 blue.png' },
+                { name: 'Gold', hex: '#fad7bd', image: 'images/iphone 13/iphone 13 gold.png' }
             ],
-            'Watch': [
-                { name: 'Midnight', hex: '#1d1d1f', image: 'images/black.webp' },
-                { name: 'Starlight', hex: '#f0e4d3', image: 'images/watch series 9 rose.webp' },
-                { name: 'Product Red', hex: '#e53935', image: 'images/se black.jpg' },
-                { name: 'Blue', hex: '#0071e3', image: 'images/watch series 9 rose.webp' }
+            'iPhone 14': [
+                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 14/iPhone_14 white.png' },
+                { name: 'Red', hex: '#ba0c2f', image: 'images/iphone 14/iphone 14 red.png' },
+                { name: 'Purple', hex: '#e0d1e8', image: 'images/iphone 14/iphone_14_purple.png' },
+                { name: 'Yellow', hex: '#f9e179', image: 'images/iphone 14/iphone_14_yellow.png' }
             ],
-            'HeadPhone': [
-                { name: 'White', hex: '#f5f5f7', image: 'images/airpod2.jpg' },
-                { name: 'Black', hex: '#1d1d1f', image: 'images/airpodmax.png' },
-                { name: 'Space Gray', hex: '#535456', image: 'images/AirPods (3rd gen).jpg' }
+            'iPhone 14 Pro Max': [
+                { name: 'Purple', hex: '#594f63', image: 'images/iphone 14 pro max/14_pro_max_purple-removebg-preview.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'images/iphone 14 pro max/14_promax_gold-removebg-preview.png' },
+                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 14 pro max/iphone 14 pro max black.png' },
+                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 14 pro max/iphone 14 pro max white.png' }
+            ],
+            'iPhone 15 Plus': [
+                { name: 'Yellow', hex: '#f9e179', image: 'images/iphone 15 plus/15_plus_yellow-removebg-preview.png' },
+                { name: 'Green', hex: '#d5e8d4', image: 'images/iphone 15 plus/iPhone_15_Plus-removebg-preview.png' },
+                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 15 plus/iphone_15_plus_black-removebg-preview.png' },
+                { name: 'Blue', hex: '#a8c5dd', image: 'images/iphone 15 plus/iphone_15_plus_blue-removebg-preview.png' },
+                { name: 'Rose', hex: '#f4c2c2', image: 'images/iphone 15 plus/iphone_15_plus_rose-removebg-preview.png' }
+            ],
+            'iPhone 15 Pro Max': [
+                { name: 'Silver', hex: '#e3e4e5', image: 'images/iphone 15 pro max/15_pro_max_silver-removebg-preview.png' },
+                { name: 'Blue', hex: '#2d5f7e', image: 'images/iphone 15 pro max/iphone-15-pro-max-blue-removebg-preview.png' },
+                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 15 pro max/iphone_15_pro_max_white-removebg-preview.png' }
+            ],
+            'iPhone 16 Pro Max': [
+                { name: 'Gold Rose', hex: '#e8c4b8', image: 'images/iphone 16 pro max/iphone 16 promax gold rose rm.png' },
+                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 16 pro max/iphone 16 promax white remove.png' },
+                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 16 pro max/test1.png' }
+            ],
+            'iPhone SE (3rd Gen)': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/iPhone SE (3rd Gen)/iphone se 3rd black.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'images/iPhone SE (3rd Gen)/iphone se 3rd gold.png' },
+                { name: 'Red', hex: '#ba0c2f', image: 'images/iPhone SE (3rd Gen)/iphone se 3rd red.png' }
+            ],
+
+            // ========== IPAD MODELS ==========
+            'iPad (10th Gen)': [
+                { name: 'Blue', hex: '#a8dadc', image: 'images/ipad (10th gen)/ipad gen 10 blue.webp' },
+                { name: 'Pink', hex: '#ffc0cb', image: 'images/ipad (10th gen)/ipad gen 10 pink.png' },
+                { name: 'Yellow', hex: '#f9e179', image: 'images/ipad (10th gen)/ipad gen 10 yellow.webp' }
+            ],
+            'iPad Air M2': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/ipad air m2/ipad air m2 black.png' },
+                { name: 'Blue', hex: '#4a90e2', image: 'images/ipad air m2/ipad air m2 blue.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'images/ipad air m2/ipad air m2 gold.png' }
+            ],
+            'iPad mini 6': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/ipad mini 6/ipad mini 6 black.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'images/ipad mini 6/ipad mini 6 gold.png' },
+                { name: 'Purple', hex: '#b9b5d7', image: 'images/ipad mini 6/ipad mini 6 purple.png' }
+            ],
+            'iPad Pro': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/ipad pro/ipad pro black.png' },
+                { name: 'Silver', hex: '#e3e4e5', image: 'images/ipad pro/ipad pro silver.png' }
+            ],
+            'iPad Pro M4': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/ipad pro m4/ipad pro m4 black.png' },
+                { name: 'Silver', hex: '#e3e4e5', image: 'images/ipad pro m4/ipad pro m4 silver.png' }
+            ],
+
+            // ========== APPLE WATCH MODELS ==========
+            'Apple Watch Series 9': [
+                { name: 'Blue', hex: '#4a90e2', image: 'images/Apple Watch Series 9/watch series 9 blue.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'images/Apple Watch Series 9/watch series 9 gold.png' },
+                { name: 'Rose', hex: '#f4c2c2', image: 'images/Apple Watch Series 9/watch series 9 rose.png' },
+                { name: 'Black', hex: '#1d1d1f', image: 'images/Apple Watch Series 9/watch seris 9 black.png' }
+            ],
+            'Apple Watch SE': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/Apple Watch SE/se black.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'images/Apple Watch SE/se gold.png' }
+            ],
+            'Apple Watch Ultra 2': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/Apple Watch Ultra 2/Apple Watch Ultra 2 black.webp' },
+                { name: 'Blue', hex: '#4a90e2', image: 'images/Apple Watch Ultra 2/Apple Watch Ultra 2 blue.png' },
+                { name: 'Orange', hex: '#ff6b35', image: 'images/Apple Watch Ultra 2/Apple Watch Ultra 2 orange.png' }
+            ],
+
+            // ========== AUDIO PRODUCTS ==========
+            'AirPods Max': [
+                { name: 'Black', hex: '#1d1d1f', image: 'images/Air pod max/airpod max black.png' },
+                { name: 'Orange', hex: '#ff6b35', image: 'images/Air pod max/airpod max orange.webp' },
+                { name: 'White', hex: '#f5f5f7', image: 'images/Air pod max/airpod max white.png' }
+            ],
+
+            // ========== MAC MODELS ==========
+            'MacBook Air 15 M3': [
+                { name: 'Gold', hex: '#fad7a0', image: 'images/mac air 15/air 15 gold.png' },
+                { name: 'Grey', hex: '#535456', image: 'images/mac air 15/macbook air 15 grey.png' }
             ]
         };
 
@@ -941,8 +1015,20 @@
         function renderColorOptions(product) {
             const colorContainer = document.getElementById('color-options');
             const colorNameDisplay = document.getElementById('selected-color-name');
-            const colors = colorVariants[product.category] || colorVariants['iPhone'];
+            const colorSection = document.getElementById('color-selector-section');
 
+            // Get product-specific colors by exact product name
+            const colors = productColorVariants[product.name];
+
+            // If no colors available for this product, hide the color section
+            if (!colors || colors.length === 0) {
+                colorSection.style.display = 'none';
+                selectedColor = null;
+                return;
+            }
+
+            // Show color section and render options
+            colorSection.style.display = 'block';
             colorContainer.innerHTML = '';
             selectedColor = colors[0]; // Default to first color
 
@@ -957,6 +1043,11 @@
             });
 
             colorNameDisplay.textContent = `Selected: ${selectedColor.name}`;
+
+            // Update main image to show first color
+            if (selectedColor.image) {
+                document.getElementById('modal-img-main').src = selectedColor.image;
+            }
         }
 
         function selectColor(color, swatchElement, product) {
@@ -971,11 +1062,12 @@
             // Update color name display
             document.getElementById('selected-color-name').textContent = `Selected: ${color.name}`;
 
-            // If color has specific image, update main image (optional enhancement)
+            // Update main image to show selected color
             if (color.image) {
                 document.getElementById('modal-img-main').src = color.image;
             }
         }
+
 
 
         window.openProductModalFromId = (id) => {
