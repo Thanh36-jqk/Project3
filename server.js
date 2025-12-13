@@ -80,13 +80,13 @@ if (apiKey) {
         const genAI = new GoogleGenerativeAI(apiKey);
         // Sử dụng gemini-1.5-flash thay vì 2.0 (stable hơn)
         model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        console.log('✅ Gemini AI Configured with model: gemini-1.5-flash');
-        console.log('✅ API Key present:', apiKey.substring(0, 10) + '...');
+        console.log('[OK] Gemini AI Configured with model: gemini-1.5-flash');
+        console.log('[OK] API Key present:', apiKey.substring(0, 10) + '...');
     } catch (error) {
-        console.error('❌ Gemini AI initialization error:', error.message);
+        console.error('[ERROR] Gemini AI initialization error:', error.message);
     }
 } else {
-    console.warn("⚠️ WARNING: GEMINI_API_KEY thiếu. Chatbot sẽ không hoạt động.");
+    console.warn("[WARNING] GEMINI_API_KEY missing. Chatbot will not work.");
 }
 
 // ==================================================================
