@@ -505,20 +505,39 @@ app.post('/api/admin/vouchers', verifyAdmin, async (req, res) => {
 });
 
 // ---------------- CHATBOT AI ----------------
+// ---------------- CHATBOT AI ----------------
 app.post('/api/chat', verifyToken, async (req, res) => {
+    console.log('=== CHAT REQUEST RECEIVED ===');
+    console.log('User ID:', req.user?.id);
+    console.log('Message:', req.body.message);
+
     const userMessage = req.body.message;
     const userId = req.user ? req.user.id : null;
 
-    if (!model) return res.status(503).json({ reply: "Hệ thống AI đang bảo trì." });
+    // Kiểm tra model
+    console.log('Model status:', model ? 'INITIALIZED' : 'NOT INITIALIZED');
+    if (!model) {
+        console.error('❌ Gemini model not initialized');
+        return res.status(503).json({ reply: "Hệ thống AI đang bảo trì." });
+    }
 
     try {
         let contextData = { customer: "Khách vãng lai", recent_orders: [], available_products: [] };
 
         if (userId) {
             try {
+                console.log('📊 Fetching user data...');
                 const user = await User.findById(userId);
-                if (user) contextData.customer = { name: user.email.split('@')[0], rank: user.rank, points: user.points };
+                if (user) {
+                    contextData.customer = {
+                        name: user.email.split('@')[0],
+                        rank: user.rank,
+                        points: user.points
+                    };
+                    console.log('✅ User data loaded');
+                }
 
+                console.log('📊 Fetching orders...');
                 const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(5);
                 contextData.recent_orders = orders.map(o => ({
                     id: o._id.toString().slice(-6).toUpperCase(),
@@ -527,13 +546,20 @@ app.post('/api/chat', verifyToken, async (req, res) => {
                     items: o.items.map(i => i.name).join(", "),
                     date: o.createdAt.toISOString().split('T')[0]
                 }));
-            } catch (dbError) { console.error("DB Context Error:", dbError); }
+                console.log('✅ Orders loaded:', orders.length);
+            } catch (dbError) {
+                console.error("❌ DB Error:", dbError.message);
+            }
         }
 
+        console.log('📊 Fetching products...');
         const products = await Product.find({ stock: { $gt: 0 } }).select('name price category').limit(50);
         contextData.available_products = products.map(p => ({
-            name: p.name, price: p.price.toLocaleString('vi-VN') + 'đ', category: p.category
+            name: p.name,
+            price: p.price.toLocaleString('vi-VN') + 'đ',
+            category: p.category
         }));
+        console.log('✅ Products loaded:', products.length);
 
         const systemPrompt = `
         BẠN LÀ: Trợ lý ảo AI của Apple Store.
@@ -545,12 +571,41 @@ app.post('/api/chat', verifyToken, async (req, res) => {
         User hỏi: "${userMessage}"
         `;
 
-        const result = await model.generateContent(systemPrompt);
-        const response = await result.response;
-        res.json({ reply: response.text() });
-    } catch (error) { res.status(500).json({ reply: "Xin lỗi, AI đang gặp sự cố." }); }
-});
+        console.log('🤖 Calling Gemini API...');
+        console.log('Prompt length:', systemPrompt.length);
 
+        const result = await model.generateContent(systemPrompt);
+        console.log('✅ Gemini API responded');
+
+        const response = await result.response;
+        const replyText = response.text();
+        console.log('✅ Reply length:', replyText.length);
+
+        res.json({ reply: replyText });
+
+    } catch (error) {
+        console.error('❌ CHAT ERROR - FULL DETAILS:');
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+
+        // Log thêm chi tiết nếu có
+        if (error.response) {
+            console.error('Error response:', JSON.stringify(error.response));
+        }
+        if (error.status) {
+            console.error('Error status:', error.status);
+        }
+
+        res.status(500).json({
+            reply: "Xin lỗi, AI đang gặp sự cố.",
+            // Chỉ show error trong development
+            ...(process.env.NODE_ENV !== 'production' && {
+                error: error.message
+            })
+        });
+    }
+});
 // ==================================================================
 // ----- 7. SERVER START -----
 // ==================================================================
