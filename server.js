@@ -76,9 +76,15 @@ const apiKey = process.env.GEMINI_API_KEY;
 let model;
 
 if (apiKey) {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    console.log('✅ Gemini AI Configured');
+    try {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        // Sử dụng gemini-1.5-flash thay vì 2.0 (stable hơn)
+        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        console.log('✅ Gemini AI Configured with model: gemini-1.5-flash');
+        console.log('✅ API Key present:', apiKey.substring(0, 10) + '...');
+    } catch (error) {
+        console.error('❌ Gemini AI initialization error:', error.message);
+    }
 } else {
     console.warn("⚠️ WARNING: GEMINI_API_KEY thiếu. Chatbot sẽ không hoạt động.");
 }
@@ -568,11 +574,15 @@ app.post('/api/chat', async (req, res) => {
         const response = await result.response;
         const replyText = response.text();
 
-        console.log("AI Response generated successfully");
+        console.log("✅ AI Response generated successfully");
         res.json({ reply: replyText });
     } catch (error) {
-        console.error("Chatbot Error:", error.message);
-        res.status(500).json({ reply: "Xin lỗi, AI đang gặp sự cố. Vui lòng thử lại." });
+        console.error("❌ Chatbot Error:", error.message);
+        console.error("❌ Error stack:", error.stack);
+        res.status(500).json({
+            reply: "Xin lỗi, AI đang gặp sự cố. Vui lòng thử lại.",
+            debug: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
 

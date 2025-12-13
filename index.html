@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apple iPhone 16 Pro - Titanium Experience</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
@@ -22,7 +23,7 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap');
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: #000;
@@ -31,31 +32,88 @@
             overflow-x: hidden;
         }
 
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-        
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
         /* Canvas nền 3D */
-        #webgl-canvas { 
-            position: fixed; top: 0; left: 0; 
-            width: 100vw; height: 100vh; 
-            z-index: -1; outline: none; 
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            outline: none;
         }
 
         /* Loading Screen Mới */
         #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; transition: opacity 0.8s ease-out;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s ease-out;
         }
-        .loader-bar { width: 200px; height: 2px; background: rgba(255,255,255,0.2); margin-top: 20px; overflow: hidden; border-radius: 2px; }
-        .loader-progress { height: 100%; width: 0%; background: #2997ff; transition: width 0.2s ease; box-shadow: 0 0 15px #2997ff; }
+
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .loader-progress {
+            height: 100%;
+            width: 0%;
+            background: #2997ff;
+            transition: width 0.2s ease;
+            box-shadow: 0 0 15px #2997ff;
+        }
 
         /* Typography & Effects */
-        .text-gradient { background: linear-gradient(180deg, #fff 0%, #86868b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
+        .text-gradient {
+            background: linear-gradient(180deg, #fff 0%, #86868b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         /* Hiệu ứng chữ chạy (Marquee) cho màn hình 120Hz */
-        .marquee-container { overflow: hidden; white-space: nowrap; position: relative; mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent); }
-        .marquee-text { display: inline-block; animation: marquee 25s linear infinite; font-size: 6rem; font-weight: 800; color: rgba(255,255,255,0.03); letter-spacing: -2px; }
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            mask-image: linear-gradient(to right, transparent, black 20%, black 80%, transparent);
+        }
+
+        .marquee-text {
+            display: inline-block;
+            animation: marquee 25s linear infinite;
+            font-size: 6rem;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.03);
+            letter-spacing: -2px;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
 
         /* Nền giả lập màn hình Display */
         .display-bg {
@@ -63,64 +121,80 @@
         }
     </style>
 </head>
+
 <body class="antialiased opacity-0 transition-opacity duration-1000" id="main-body">
 
     <div id="loader">
         <i class="fab fa-apple text-6xl text-white mb-6 animate-pulse"></i>
-        <div class="loader-bar"><div class="loader-progress" id="progress-bar"></div></div>
+        <div class="loader-bar">
+            <div class="loader-progress" id="progress-bar"></div>
+        </div>
         <p class="text-[10px] text-gray-500 mt-3 font-mono tracking-widest" id="loading-text">LOADING EXPERIENCE...</p>
     </div>
 
     <canvas id="webgl-canvas"></canvas>
 
-    <div id="color-dock" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-black/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-full flex gap-4 transition-all duration-500 translate-y-20 opacity-0">
-        <button onclick="changeColor('#5C5C5C')" class="w-8 h-8 rounded-full bg-[#5C5C5C] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white" title="Natural Titanium"></button>
-        <button onclick="changeColor('#2F343F')" class="w-8 h-8 rounded-full bg-[#2F343F] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white" title="Blue Titanium"></button>
-        <button onclick="changeColor('#F2F3F5')" class="w-8 h-8 rounded-full bg-[#F2F3F5] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white" title="White Titanium"></button>
-        <button onclick="changeColor('#181819')" class="w-8 h-8 rounded-full bg-[#181819] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white" title="Black Titanium"></button>
+    <div id="color-dock"
+        class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-black/40 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-full flex gap-4 transition-all duration-500 translate-y-20 opacity-0">
+        <button onclick="changeColor('#5C5C5C')"
+            class="w-8 h-8 rounded-full bg-[#5C5C5C] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white"
+            title="Natural Titanium"></button>
+        <button onclick="changeColor('#2F343F')"
+            class="w-8 h-8 rounded-full bg-[#2F343F] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white"
+            title="Blue Titanium"></button>
+        <button onclick="changeColor('#F2F3F5')"
+            class="w-8 h-8 rounded-full bg-[#F2F3F5] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white"
+            title="White Titanium"></button>
+        <button onclick="changeColor('#181819')"
+            class="w-8 h-8 rounded-full bg-[#181819] ring-2 ring-transparent hover:scale-110 transition-all focus:ring-white"
+            title="Black Titanium"></button>
     </div>
-<header class="fixed top-0 w-full z-50 h-14 flex items-center transition-all duration-300 hover:bg-black/80 hover:backdrop-blur-md border-b border-transparent hover:border-white/10">
+    <header
+        class="fixed top-0 w-full z-50 h-14 flex items-center transition-all duration-300 hover:bg-black/80 hover:backdrop-blur-md border-b border-transparent hover:border-white/10">
         <div class="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
             <a href="index.html" class="text-xl text-white hover:opacity-80 transition-opacity">
                 <i class="fab fa-apple"></i>
             </a>
-            
+
             <nav class="hidden md:flex gap-8 text-xs font-light tracking-wide text-gray-300">
                 <a href="store.html" class="hover:text-white transition-colors">Store</a>
                 <a href="Mac/mac.html" class="hover:text-white transition-colors">Mac</a>
                 <a href="ipad/ipad.html" class="hover:text-white transition-colors">iPad</a>
                 <a href="iphone/iphone.html" class="hover:text-white transition-colors">iPhone</a>
-                
+
                 <a href="#" class="hover:text-white transition-colors">Watch</a>
                 <a href="#" class="hover:text-white transition-colors">AirPods</a>
-                
+
                 <a href="ACCOUNT.html" class="hover:text-white transition-colors">Member</a>
                 <a href="support.html" class="hover:text-white transition-colors">Support</a>
             </nav>
 
             <div class="flex items-center gap-6">
                 <a href="#" class="text-gray-300 hover:text-white text-xs"><i class="fas fa-search"></i></a>
-                <a href="store.html" class="text-gray-300 hover:text-white text-xs relative"><i class="fas fa-shopping-bag"></i></a>
+                <a href="store.html" class="text-gray-300 hover:text-white text-xs relative"><i
+                        class="fas fa-shopping-bag"></i></a>
                 <a href="ACCOUNT.html" class="text-gray-300 hover:text-white text-xs"><i class="fas fa-user"></i></a>
             </div>
         </div>
     </header>
 
     <main id="scroll-content" class="relative z-10 pointer-events-none">
-        
+
         <section class="h-screen flex flex-col items-center justify-center text-center relative section-hero">
             <div class="mt-[-5vh]">
-                <h2 class="text-[#2997ff] font-bold tracking-[0.3em] text-[10px] md:text-xs mb-6 uppercase animate-pulse">
+                <h2
+                    class="text-[#2997ff] font-bold tracking-[0.3em] text-[10px] md:text-xs mb-6 uppercase animate-pulse">
                     The New Generation
                 </h2>
-                <h1 class="text-7xl md:text-9xl font-bold tracking-tighter mb-4 text-gradient opacity-0 translate-y-10 gsap-hero-text drop-shadow-[0_0_50px_rgba(255,255,255,0.15)]">
+                <h1
+                    class="text-7xl md:text-9xl font-bold tracking-tighter mb-4 text-gradient opacity-0 translate-y-10 gsap-hero-text drop-shadow-[0_0_50px_rgba(255,255,255,0.15)]">
                     Titanium.
                 </h1>
                 <p class="text-xl md:text-3xl text-gray-400 font-light opacity-0 translate-y-10 gsap-hero-text">
                     So strong. So light. So Pro.
                 </p>
             </div>
-            
+
             <div class="absolute bottom-12 animate-bounce text-gray-500 flex flex-col items-center gap-2">
                 <p class="text-[10px] tracking-widest uppercase opacity-60">Scroll to explore</p>
                 <i class="fas fa-chevron-down text-xs"></i>
@@ -130,13 +204,16 @@
         <section class="h-screen flex items-center relative section-chip">
             <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2">
                 <div class="text-left opacity-0 translate-x-[-50px] gsap-chip-text pointer-events-auto z-20">
-                    <div class="w-28 h-28 mb-8 rounded-3xl bg-gradient-to-br from-gray-800 to-black border border-white/20 flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.15)] group hover:scale-105 transition-transform duration-500 cursor-pointer">
-                        <span class="font-mono text-xl text-gray-300 group-hover:text-white transition-colors">A17</span>
+                    <div
+                        class="w-28 h-28 mb-8 rounded-3xl bg-gradient-to-br from-gray-800 to-black border border-white/20 flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.15)] group hover:scale-105 transition-transform duration-500 cursor-pointer">
+                        <span
+                            class="font-mono text-xl text-gray-300 group-hover:text-white transition-colors">A17</span>
                     </div>
                     <h2 class="text-5xl md:text-7xl font-bold mb-6 text-white leading-none">
                         A17 Pro. <br> <span class="text-[#2997ff]">Monster win.</span>
                     </h2>
-                    <p class="text-lg text-gray-400 leading-relaxed font-light max-w-md border-l-2 border-[#2997ff] pl-6">
+                    <p
+                        class="text-lg text-gray-400 leading-relaxed font-light max-w-md border-l-2 border-[#2997ff] pl-6">
                         The biggest redesign in the history of Apple GPUs. Mobile games will look and feel so immersive.
                     </p>
                 </div>
@@ -145,7 +222,8 @@
 
         <section class="h-screen flex items-center relative section-camera">
             <div class="max-w-7xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-2">
-                <div class="md:col-start-2 text-left md:pl-20 opacity-0 translate-x-[50px] gsap-camera-text pointer-events-auto z-20">
+                <div
+                    class="md:col-start-2 text-left md:pl-20 opacity-0 translate-x-[50px] gsap-camera-text pointer-events-auto z-20">
                     <h2 class="text-5xl md:text-7xl font-bold mb-6 text-white">
                         Camera. <br> <span class="text-purple-500">Wildly Pro.</span>
                     </h2>
@@ -153,22 +231,32 @@
                         Capture your wildest imagination with the all-new 48MP Main camera.
                     </p>
                     <div class="grid grid-cols-3 gap-6 border-t border-white/10 pt-6">
-                        <div><h3 class="text-3xl font-bold text-white">48MP</h3><p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">Main</p></div>
-                        <div><h3 class="text-3xl font-bold text-white">120<span class="text-lg">mm</span></h3><p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">5x Zoom</p></div>
-                        <div><h3 class="text-3xl font-bold text-white">4K<span class="text-lg">60</span></h3><p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">ProRes</p></div>
+                        <div>
+                            <h3 class="text-3xl font-bold text-white">48MP</h3>
+                            <p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">Main</p>
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-bold text-white">120<span class="text-lg">mm</span></h3>
+                            <p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">5x Zoom</p>
+                        </div>
+                        <div>
+                            <h3 class="text-3xl font-bold text-white">4K<span class="text-lg">60</span></h3>
+                            <p class="text-[10px] uppercase text-gray-500 mt-1 tracking-wider">ProRes</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="h-[80vh] flex flex-col justify-center relative overflow-hidden pointer-events-auto border-y border-white/5 bg-black">
+        <section
+            class="h-[80vh] flex flex-col justify-center relative overflow-hidden pointer-events-auto border-y border-white/5 bg-black">
             <div class="absolute inset-0 z-0 opacity-40">
                 <img src="images/XDR.jpg" class="w-full h-full object-cover scale-110 blur-sm" alt="XDR Background">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
             </div>
             <div class="marquee-container py-10 opacity-30 relative z-10 mix-blend-overlay">
                 <div class="marquee-text">
-                    SUPER RETINA XDR — PROMOTION 120HZ — ALWAYS ON — DYNAMIC ISLAND — 
+                    SUPER RETINA XDR — PROMOTION 120HZ — ALWAYS ON — DYNAMIC ISLAND —
                     SUPER RETINA XDR — PROMOTION 120HZ — ALWAYS ON — DYNAMIC ISLAND —
                 </div>
             </div>
@@ -182,51 +270,76 @@
             </div>
         </section>
 
-        <section class="min-h-screen flex flex-col items-center justify-center relative px-6 py-24 pointer-events-auto bg-black" id="tech-specs-section">
+        <section
+            class="min-h-screen flex flex-col items-center justify-center relative px-6 py-24 pointer-events-auto bg-black"
+            id="tech-specs-section">
             <div class="mb-16 text-center z-10">
                 <h2 class="text-3xl md:text-5xl font-bold text-white mb-2">The full story.</h2>
                 <p class="text-gray-500">iPhone 16 Pro Max deep dive.</p>
             </div>
-            <div id="tech-specs" class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-5 opacity-0 translate-y-20 z-10">
-                <div class="md:col-span-2 md:row-span-2 bg-[#101010] border border-white/10 p-10 rounded-[2rem] relative overflow-hidden group hover:border-white/20 transition-all duration-500">
-                    <div class="absolute -right-20 -top-20 w-96 h-96 bg-blue-600/10 blur-[100px] rounded-full group-hover:bg-blue-600/20 transition-all duration-700"></div>
+            <div id="tech-specs"
+                class="max-w-6xl w-full grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-5 opacity-0 translate-y-20 z-10">
+                <div
+                    class="md:col-span-2 md:row-span-2 bg-[#101010] border border-white/10 p-10 rounded-[2rem] relative overflow-hidden group hover:border-white/20 transition-all duration-500">
+                    <div
+                        class="absolute -right-20 -top-20 w-96 h-96 bg-blue-600/10 blur-[100px] rounded-full group-hover:bg-blue-600/20 transition-all duration-700">
+                    </div>
                     <h3 class="text-3xl font-bold text-white mb-4 relative z-10">Titanium Design.</h3>
                     <p class="text-gray-400 mb-10 relative z-10 max-w-xs">
                         The first iPhone to feature an aerospace-grade titanium design.
                     </p>
                     <div class="absolute bottom-10 left-10 flex gap-4">
-                        <div class="w-10 h-10 rounded-full bg-[#5C5C5C] ring-2 ring-white/10 shadow-lg cursor-pointer hover:scale-110 transition-transform" onclick="window.changeColor('#5C5C5C')"></div>
-                        <div class="w-10 h-10 rounded-full bg-[#2F343F] ring-2 ring-white/10 shadow-lg cursor-pointer hover:scale-110 transition-transform" onclick="window.changeColor('#2F343F')"></div>
-                        <div class="w-10 h-10 rounded-full bg-[#F2F3F5] ring-2 ring-white/10 shadow-lg cursor-pointer hover:scale-110 transition-transform" onclick="window.changeColor('#F2F3F5')"></div>
+                        <div class="w-10 h-10 rounded-full bg-[#5C5C5C] ring-2 ring-white/10 shadow-lg cursor-pointer hover:scale-110 transition-transform"
+                            onclick="window.changeColor('#5C5C5C')"></div>
+                        <div class="w-10 h-10 rounded-full bg-[#2F343F] ring-2 ring-white/10 shadow-lg cursor-pointer hover:scale-110 transition-transform"
+                            onclick="window.changeColor('#2F343F')"></div>
+                        <div class="w-10 h-10 rounded-full bg-[#F2F3F5] ring-2 ring-white/10 shadow-lg cursor-pointer hover:scale-110 transition-transform"
+                            onclick="window.changeColor('#F2F3F5')"></div>
                     </div>
                 </div>
-                <div class="md:col-span-2 bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-green-500/30 transition-colors duration-300 relative overflow-hidden">
+                <div
+                    class="md:col-span-2 bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-green-500/30 transition-colors duration-300 relative overflow-hidden">
                     <div class="absolute right-[-20px] top-[-20px] w-32 h-32 bg-green-500/10 blur-[50px]"></div>
                     <div class="flex items-center justify-between h-full">
-                        <div><h3 class="text-4xl font-bold text-white">29h</h3><p class="text-gray-400 text-sm mt-1">Video playback</p></div>
+                        <div>
+                            <h3 class="text-4xl font-bold text-white">29h</h3>
+                            <p class="text-gray-400 text-sm mt-1">Video playback</p>
+                        </div>
                         <i class="fas fa-battery-full text-4xl text-green-500"></i>
                     </div>
                 </div>
-                <div class="bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-orange-500/30 transition-colors duration-300 flex flex-col justify-between">
+                <div
+                    class="bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-orange-500/30 transition-colors duration-300 flex flex-col justify-between">
                     <i class="fas fa-circle-dot text-3xl text-orange-500 mb-4"></i>
-                    <div><h3 class="text-lg font-bold text-white">Action Button</h3><p class="text-gray-500 text-xs mt-1">Shortcut ready.</p></div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">Action Button</h3>
+                        <p class="text-gray-500 text-xs mt-1">Shortcut ready.</p>
+                    </div>
                 </div>
-                <div class="bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-blue-500/30 transition-colors duration-300 flex flex-col justify-between">
+                <div
+                    class="bg-[#101010] border border-white/10 p-8 rounded-[2rem] hover:border-blue-500/30 transition-colors duration-300 flex flex-col justify-between">
                     <i class="fas fa-bolt text-3xl text-blue-500 mb-4"></i>
-                    <div><h3 class="text-lg font-bold text-white">USB-C 3</h3><p class="text-gray-500 text-xs mt-1">20x faster.</p></div>
+                    <div>
+                        <h3 class="text-lg font-bold text-white">USB-C 3</h3>
+                        <p class="text-gray-500 text-xs mt-1">20x faster.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="h-[80vh] flex flex-col items-center justify-center relative section-cta pointer-events-auto bg-gradient-to-b from-black via-black to-zinc-900">
-            <h2 class="text-5xl md:text-8xl font-bold mb-10 text-center text-white opacity-0 scale-90 gsap-cta-text tracking-tighter">
+        <section
+            class="h-[80vh] flex flex-col items-center justify-center relative section-cta pointer-events-auto bg-gradient-to-b from-black via-black to-zinc-900">
+            <h2
+                class="text-5xl md:text-8xl font-bold mb-10 text-center text-white opacity-0 scale-90 gsap-cta-text tracking-tighter">
                 iPhone 16 Pro
             </h2>
             <div class="flex flex-col md:flex-row gap-6 opacity-0 scale-90 gsap-cta-text z-20">
-                <a href="store.html" class="px-12 py-4 bg-[#2997ff] hover:bg-[#0071e3] text-white text-lg font-semibold rounded-full transition-all hover:scale-105 shadow-[0_0_50px_rgba(41,151,255,0.4)]">
+                <a href="store.html"
+                    class="px-12 py-4 bg-[#2997ff] hover:bg-[#0071e3] text-white text-lg font-semibold rounded-full transition-all hover:scale-105 shadow-[0_0_50px_rgba(41,151,255,0.4)]">
                     Buy Now
                 </a>
-                <a href="store.html" class="px-12 py-4 border border-white/20 hover:bg-white text-white hover:text-black text-lg font-semibold rounded-full transition-all">
+                <a href="store.html"
+                    class="px-12 py-4 border border-white/20 hover:bg-white text-white hover:text-black text-lg font-semibold rounded-full transition-all">
                     Visit Store
                 </a>
             </div>
@@ -236,7 +349,7 @@
         </section>
 
     </main>
-<script type="module">
+    <script type="module">
         import * as THREE from 'three';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -247,47 +360,47 @@
         const canvas = document.querySelector('#webgl-canvas');
         const loadingScreen = document.getElementById('loader');
         const progressBar = document.getElementById('progress-bar');
-        
+
         function hideLoader() {
             loadingScreen.style.opacity = '0';
             document.getElementById('main-body').classList.remove('opacity-0');
-            setTimeout(() => { 
-                loadingScreen.style.display = 'none'; 
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
                 // Hiện thanh chọn màu sau khi load xong
                 document.getElementById('color-dock').classList.remove('translate-y-20', 'opacity-0');
             }, 800);
         }
 
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000000, 0.01); 
+        scene.fog = new THREE.FogExp2(0x000000, 0.01);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 15); 
+        camera.position.set(0, 0, 15);
 
         const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1.5; // [FIX] Tăng phơi sáng để model sáng hơn
-        renderer.shadowMap.enabled = true;  
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         // --- 2. LIGHTING BOOST (SÁNG HƠN) ---
         // [FIX] Tăng ambientLight lên 1.5 (Cũ là 0.6)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 3); 
+        const ambientLight = new THREE.AmbientLight(0xffffff, 3);
         scene.add(ambientLight);
 
         const keyLight = new THREE.SpotLight(0x2997ff, 250); // Tăng cường độ lên 200
         keyLight.position.set(15, 15, 15);
         keyLight.angle = Math.PI / 6;
-        keyLight.penumbra = 1; 
+        keyLight.penumbra = 1;
         keyLight.castShadow = true;
         scene.add(keyLight);
 
         const rimLight = new THREE.SpotLight(0xffffff, 120); // Tăng rim light
         rimLight.position.set(-15, 15, -5);
         scene.add(rimLight);
-        
+
         const fillLight = new THREE.PointLight(0xffffff, 120); // Tăng fill light lấp vùng tối
         fillLight.position.set(0, -10, 5);
         scene.add(fillLight);
@@ -301,7 +414,7 @@
         const particlesGeometry = new THREE.BufferGeometry();
         const particlesCount = 1500;
         const posArray = new Float32Array(particlesCount * 3);
-        for(let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 50;
+        for (let i = 0; i < particlesCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 50;
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
         const particlesMaterial = new THREE.PointsMaterial({
             size: 0.04, color: 0x4aa3f0, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending
@@ -313,11 +426,11 @@
         const manager = new THREE.LoadingManager();
         manager.onProgress = (url, loaded, total) => {
             const progress = (loaded / total) * 100;
-            if(progressBar) progressBar.style.width = progress + '%';
+            if (progressBar) progressBar.style.width = progress + '%';
         };
 
         function updateModelScale(model) {
-            if(window.innerWidth < 768) model.scale.set(1.5, 1.5, 1.5); 
+            if (window.innerWidth < 768) model.scale.set(1.5, 1.5, 1.5);
             else model.scale.set(2.5, 2.5, 2.5);
         }
 
@@ -328,15 +441,15 @@
             iphoneModel = gltf.scene;
             updateModelScale(iphoneModel);
             iphoneModel.position.set(0, -1, 0);
-            
+
             iphoneModel.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
-                    if(child.material) {
+                    if (child.material) {
                         child.material.metalness = 1.0;
-                        child.material.roughness = 0.15; 
-                        child.material.envMapIntensity = 1.5; 
+                        child.material.roughness = 0.15;
+                        child.material.envMapIntensity = 1.5;
                     }
                 }
             });
@@ -352,14 +465,14 @@
         });
 
         // [TÍNH NĂNG MỚI 2] HÀM ĐỔI MÀU (Gọi từ HTML)
-        window.changeColor = function(colorHex) {
-            if(!iphoneModel) return;
+        window.changeColor = function (colorHex) {
+            if (!iphoneModel) return;
             // Áp dụng màu mới cho ánh sáng đèn chính để tạo không gian màu tương ứng
             const colorObj = new THREE.Color(colorHex);
-            
+
             // GSAP tween màu đèn cho mượt
             gsap.to(keyLight.color, { r: colorObj.r, g: colorObj.g, b: colorObj.b, duration: 1 });
-            
+
             // Đổi màu vật liệu máy (Tìm các phần kim loại)
             iphoneModel.traverse((child) => {
                 if (child.isMesh && child.material) {
@@ -373,12 +486,12 @@
         const composer = new EffectComposer(renderer);
         composer.addPass(new RenderPass(scene, camera));
         const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-        bloomPass.threshold = 0.1; bloomPass.strength = 0.45; bloomPass.radius = 0.6;    
+        bloomPass.threshold = 0.1; bloomPass.strength = 0.45; bloomPass.radius = 0.6;
         composer.addPass(bloomPass);
 
         // --- 6. ANIMATION ---
         const clock = new THREE.Clock();
-        
+
         function setupScrollAnimations() {
             if (!iphoneModel) return;
             gsap.registerPlugin(ScrollTrigger);
@@ -388,24 +501,24 @@
                 scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 1.5 }
             });
 
-            tl.to(iphoneModel.position, { x: 4, y: -0.5 }, "p1") 
-              .to(iphoneModel.rotation, { y: -Math.PI / 3 }, "p1")
-              .to(".gsap-hero-text", { opacity: 0, y: -50 }, "p1")
-              .to(".gsap-chip-text", { opacity: 1, x: 0 }, "p1");
+            tl.to(iphoneModel.position, { x: 4, y: -0.5 }, "p1")
+                .to(iphoneModel.rotation, { y: -Math.PI / 3 }, "p1")
+                .to(".gsap-hero-text", { opacity: 0, y: -50 }, "p1")
+                .to(".gsap-chip-text", { opacity: 1, x: 0 }, "p1");
 
             tl.to(iphoneModel.position, { x: -4, y: 0 }, "p2")
-              .to(iphoneModel.rotation, { y: Math.PI - 0.5 }, "p2")
-              .to(".gsap-chip-text", { opacity: 0, y: -50 }, "p2")
-              .to(".gsap-camera-text", { opacity: 1, x: 0 }, "p2");
-              
+                .to(iphoneModel.rotation, { y: Math.PI - 0.5 }, "p2")
+                .to(".gsap-chip-text", { opacity: 0, y: -50 }, "p2")
+                .to(".gsap-camera-text", { opacity: 1, x: 0 }, "p2");
+
             tl.to(iphoneModel.position, { x: 0, y: 0, z: 2 }, "p3")
-              .to(iphoneModel.rotation, { y: 0, x: 0 }, "p3")
-              .to(".gsap-camera-text", { opacity: 0 }, "p3");
-              
-            tl.to(iphoneModel.position, { x: 0, y: 6, scale: 0.2 }, "p4") 
-              .to(iphoneModel.rotation, { y: Math.PI * 2 }, "p4")
-              .to("#tech-specs", { opacity: 1, y: 0 }, "p4")
-              .to(".gsap-cta-text", { opacity: 1, scale: 1 }, "p4");
+                .to(iphoneModel.rotation, { y: 0, x: 0 }, "p3")
+                .to(".gsap-camera-text", { opacity: 0 }, "p3");
+
+            tl.to(iphoneModel.position, { x: 0, y: 6, scale: 0.2 }, "p4")
+                .to(iphoneModel.rotation, { y: Math.PI * 2 }, "p4")
+                .to("#tech-specs", { opacity: 1, y: 0 }, "p4")
+                .to(".gsap-cta-text", { opacity: 1, scale: 1 }, "p4");
         }
 
         manager.onLoad = () => { hideLoader(); setupScrollAnimations(); animate(); };
@@ -413,14 +526,14 @@
         let mouseX = 0, mouseY = 0;
         document.addEventListener('mousemove', (e) => {
             // Tọa độ chuột chuẩn hóa
-            mouseX = (e.clientX - window.innerWidth/2) * 0.0005;
-            mouseY = (e.clientY - window.innerHeight/2) * 0.0005;
+            mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+            mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
 
             // Cập nhật vị trí đèn Pin (Flashlight)
             // Chuyển đổi tọa độ màn hình sang tọa độ 3D
             const x3D = (e.clientX / window.innerWidth) * 20 - 10;
             const y3D = -(e.clientY / window.innerHeight) * 20 + 10;
-            
+
             cursorLight.position.set(x3D, y3D, 5);
             cursorLight.intensity = 100; // Bật đèn khi di chuột
         });
@@ -429,9 +542,9 @@
             requestAnimationFrame(animate);
             const time = clock.getElapsedTime();
             particlesMesh.rotation.y = time * 0.03;
-            
+
             if (iphoneModel) {
-                iphoneModel.position.y += Math.sin(time) * 0.0015; 
+                iphoneModel.position.y += Math.sin(time) * 0.0015;
                 iphoneModel.rotation.x += (mouseY * 0.3 - iphoneModel.rotation.x) * 0.05;
                 iphoneModel.rotation.y += (mouseX * 0.3 - iphoneModel.rotation.y) * 0.05;
             }
@@ -443,37 +556,38 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
             composer.setSize(window.innerWidth, window.innerHeight);
-            if(iphoneModel) updateModelScale(iphoneModel);
+            if (iphoneModel) updateModelScale(iphoneModel);
         });
     </script>
     <script>
-    (function handleGoogleLogin() {
-        // 1. Kiểm tra xem trên thanh địa chỉ có 'token' không
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
+        (function handleGoogleLogin() {
+            // 1. Kiểm tra xem trên thanh địa chỉ có 'token' không
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
 
-        if (token) {
-            // 2. Nếu có, lưu ngay vào localStorage
-            localStorage.setItem('accessToken', token);
+            if (token) {
+                // 2. Nếu có, lưu ngay vào localStorage
+                localStorage.setItem('accessToken', token);
 
-            // 3. Xóa token trên thanh địa chỉ để nhìn cho đẹp (bảo mật)
-            window.history.replaceState({}, document.title, window.location.pathname);
+                // 3. Xóa token trên thanh địa chỉ để nhìn cho đẹp (bảo mật)
+                window.history.replaceState({}, document.title, window.location.pathname);
 
-            // 4. (Tùy chọn) Gọi API lấy thông tin user để lưu vào localStorage luôn
-            fetch('https://project3-icy1.onrender.com/api/users/profile', {
-                headers: { 'token': 'Bearer ' + token }
-            })
-            .then(res => res.json())
-            .then(userData => {
-                if(userData.user) {
-                    localStorage.setItem('user', JSON.stringify(userData.user));
-                    // Tải lại trang để cập nhật giao diện (thay icon User thành Avatar chẳng hạn)
-                    window.location.reload();
-                }
-            })
-            .catch(err => console.error("Lỗi lấy thông tin User:", err));
-        }
-    })();
-</script>
+                // 4. (Tùy chọn) Gọi API lấy thông tin user để lưu vào localStorage luôn
+                fetch('https://project3-icy1.onrender.com/api/users/profile', {
+                    headers: { 'token': 'Bearer ' + token }
+                })
+                    .then(res => res.json())
+                    .then(userData => {
+                        if (userData.user) {
+                            localStorage.setItem('user', JSON.stringify(userData.user));
+                            // Tải lại trang để cập nhật giao diện (thay icon User thành Avatar chẳng hạn)
+                            window.location.reload();
+                        }
+                    })
+                    .catch(err => console.error("Lỗi lấy thông tin User:", err));
+            }
+        })();
+    </script>
 </body>
+
 </html>
