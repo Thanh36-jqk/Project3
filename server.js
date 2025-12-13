@@ -80,6 +80,7 @@ if (apiKey) {
     model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     console.log('✅ Gemini AI Configured');
 } else {
+
     console.warn("⚠️ WARNING: GEMINI_API_KEY thiếu. Chatbot sẽ không hoạt động.");
 }
 
