@@ -275,7 +275,12 @@ app.get('/api/users/profile', verifyToken, async (req, res) => {
 app.get('/api/products/search', async (req, res) => {
     try {
         const { q, limit } = req.query;
-        if (!q) return res.status(200).json({ products: [] });
+        // If no search query, return all products (useful for store page initial load)
+        if (!q) {
+            const products = await Product.find().limit(parseInt(limit) || 20);
+            return res.status(200).json({ products });
+        }
+        // Otherwise, search by name
         const products = await Product.find({ name: { $regex: q, $options: 'i' } }).limit(parseInt(limit) || 20);
         res.status(200).json({ products });
     } catch (error) { res.status(500).json({ message: error.message }); }
