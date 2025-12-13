@@ -76,17 +76,11 @@ const apiKey = process.env.GEMINI_API_KEY;
 let model;
 
 if (apiKey) {
-    try {
-        const genAI = new GoogleGenerativeAI(apiKey);
-        // Sử dụng gemini-1.5-flash thay vì 2.0 (stable hơn)
-        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        console.log('[OK] Gemini AI Configured with model: gemini-1.5-flash');
-        console.log('[OK] API Key present:', apiKey.substring(0, 10) + '...');
-    } catch (error) {
-        console.error('[ERROR] Gemini AI initialization error:', error.message);
-    }
+    const genAI = new GoogleGenerativeAI(apiKey);
+    model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    console.log('✅ Gemini AI Configured');
 } else {
-    console.warn("[WARNING] GEMINI_API_KEY missing. Chatbot will not work.");
+    console.warn("⚠️ WARNING: GEMINI_API_KEY thiếu. Chatbot sẽ không hoạt động.");
 }
 
 // ==================================================================
@@ -281,12 +275,7 @@ app.get('/api/users/profile', verifyToken, async (req, res) => {
 app.get('/api/products/search', async (req, res) => {
     try {
         const { q, limit } = req.query;
-        // If no search query, return all products (useful for store page initial load)
-        if (!q) {
-            const products = await Product.find().limit(parseInt(limit) || 20);
-            return res.status(200).json({ products });
-        }
-        // Otherwise, search by name
+        if (!q) return res.status(200).json({ products: [] });
         const products = await Product.find({ name: { $regex: q, $options: 'i' } }).limit(parseInt(limit) || 20);
         res.status(200).json({ products });
     } catch (error) { res.status(500).json({ message: error.message }); }
@@ -515,26 +504,11 @@ app.post('/api/admin/vouchers', verifyAdmin, async (req, res) => {
 });
 
 // ---------------- CHATBOT AI ----------------
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', verifyToken, async (req, res) => {
     const userMessage = req.body.message;
+    const userId = req.user ? req.user.id : null;
 
-    // Check if user is logged in (optional authentication)
-    let userId = null;
-    const authHeader = req.headers.token;
-    if (authHeader) {
-        try {
-            const token = authHeader.split(" ")[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            userId = decoded.id;
-        } catch (e) {
-            console.log("Chat: User not authenticated or invalid token");
-        }
-    }
-
-    if (!model) {
-        console.error("Gemini AI model not initialized");
-        return res.status(503).json({ reply: "Hệ thống AI đang bảo trì." });
-    }
+    if (!model) return res.status(503).json({ reply: "Hệ thống AI đang bảo trì." });
 
     try {
         let contextData = { customer: "Khách vãng lai", recent_orders: [], available_products: [] };
@@ -572,18 +546,8 @@ app.post('/api/chat', async (req, res) => {
 
         const result = await model.generateContent(systemPrompt);
         const response = await result.response;
-        const replyText = response.text();
-
-        console.log("✅ AI Response generated successfully");
-        res.json({ reply: replyText });
-    } catch (error) {
-        console.error("❌ Chatbot Error:", error.message);
-        console.error("❌ Error stack:", error.stack);
-        res.status(500).json({
-            reply: "Xin lỗi, AI đang gặp sự cố. Vui lòng thử lại.",
-            debug: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
-    }
+        res.json({ reply: response.text() });
+    } catch (error) { res.status(500).json({ reply: "Xin lỗi, AI đang gặp sự cố." }); }
 });
 
 // ==================================================================
