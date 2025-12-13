@@ -1467,7 +1467,6 @@
             // 3. Call API
             try {
                 const token = getToken();
-                // Chatbot yêu cầu login để lấy context, nếu không có token thì backend sẽ xử lý như khách
                 const headers = { 'Content-Type': 'application/json' };
                 if (token) headers['token'] = `Bearer ${token}`;
 
@@ -1477,19 +1476,30 @@
                     body: JSON.stringify({ message: msg })
                 });
 
+                // Remove loading first
+                document.getElementById(loadingId)?.remove();
+
+                if (!res.ok) {
+                    console.error('Chat API Error:', res.status, res.statusText);
+                    const errorData = await res.json().catch(() => ({}));
+                    appendMessage(errorData.reply || "Sorry, the AI service is unavailable. Please try again later.", 'ai');
+                    return;
+                }
+
                 const data = await res.json();
 
-                // Remove loading & Show AI Reply
-                document.getElementById(loadingId).remove();
+                // Show AI Reply
                 if (data.reply) {
                     appendMessage(data.reply, 'ai');
                 } else {
-                    appendMessage("I'm sorry, I couldn't process that.", 'ai');
+                    console.error('No reply in response:', data);
+                    appendMessage("I received your message but couldn't generate a response. Please try again.", 'ai');
                 }
 
             } catch (error) {
-                document.getElementById(loadingId).remove();
-                appendMessage("Connection error with AI brain.", 'ai');
+                console.error('Chatbot connection error:', error);
+                document.getElementById(loadingId)?.remove();
+                appendMessage("Connection error. Please check your internet and try again.", 'ai');
             }
         });
 

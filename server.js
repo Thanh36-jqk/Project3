@@ -509,11 +509,26 @@ app.post('/api/admin/vouchers', verifyAdmin, async (req, res) => {
 });
 
 // ---------------- CHATBOT AI ----------------
-app.post('/api/chat', verifyToken, async (req, res) => {
+app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
-    const userId = req.user ? req.user.id : null;
 
-    if (!model) return res.status(503).json({ reply: "Hệ thống AI đang bảo trì." });
+    // Check if user is logged in (optional authentication)
+    let userId = null;
+    const authHeader = req.headers.token;
+    if (authHeader) {
+        try {
+            const token = authHeader.split(" ")[1];
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            userId = decoded.id;
+        } catch (e) {
+            console.log("Chat: User not authenticated or invalid token");
+        }
+    }
+
+    if (!model) {
+        console.error("Gemini AI model not initialized");
+        return res.status(503).json({ reply: "Hệ thống AI đang bảo trì." });
+    }
 
     try {
         let contextData = { customer: "Khách vãng lai", recent_orders: [], available_products: [] };
@@ -551,8 +566,14 @@ app.post('/api/chat', verifyToken, async (req, res) => {
 
         const result = await model.generateContent(systemPrompt);
         const response = await result.response;
-        res.json({ reply: response.text() });
-    } catch (error) { res.status(500).json({ reply: "Xin lỗi, AI đang gặp sự cố." }); }
+        const replyText = response.text();
+
+        console.log("AI Response generated successfully");
+        res.json({ reply: replyText });
+    } catch (error) {
+        console.error("Chatbot Error:", error.message);
+        res.status(500).json({ reply: "Xin lỗi, AI đang gặp sự cố. Vui lòng thử lại." });
+    }
 });
 
 // ==================================================================
