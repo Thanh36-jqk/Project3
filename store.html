@@ -752,6 +752,20 @@
                 tooltip.classList.remove('hidden');
             }
 
+            // Chatbot Visibility Control: Only show when logged in
+            const chatBubble = document.getElementById('chat-bubble');
+            const chatWindow = document.getElementById('chat-window');
+
+            if (user) {
+                // User is logged in → SHOW chatbot
+                if (chatBubble) chatBubble.style.display = 'flex';
+                if (chatWindow) chatWindow.style.display = 'flex';
+            } else {
+                // User is NOT logged in → HIDE chatbot
+                if (chatBubble) chatBubble.style.display = 'none';
+                if (chatWindow) chatWindow.style.display = 'none';
+            }
+
             // Fetch Products
             try {
                 // Thử lấy từ API
