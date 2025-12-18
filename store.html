@@ -1567,7 +1567,7 @@
                 // Remove loading & Show AI Reply
                 document.getElementById(loadingId).remove();
                 if (data.reply) {
-                    appendMessage(data.reply, 'ai');
+                    appendMessage(data.reply, 'ai', data.products);
                 } else {
                     appendMessage("I'm sorry, I couldn't process that.", 'ai');
                 }
@@ -1578,7 +1578,7 @@
             }
         });
 
-        function appendMessage(text, sender) {
+        function appendMessage(text, sender, products = null) {
             const container = document.getElementById('chat-messages');
             const div = document.createElement('div');
 
@@ -1586,14 +1586,49 @@
                 div.className = "flex gap-2 items-end justify-end";
                 div.innerHTML = `<div class="bg-blue-600 text-white text-sm p-3 rounded-2xl rounded-br-none max-w-[80%]">${text}</div>`;
             } else {
-                div.className = "flex gap-2 items-end";
-                // Convert markdown-like bold (**text**) to HTML bold if needed, here simple text
-                // Simple bold parser
+                div.className = "flex gap-2 items-start flex-col";
+                // Convert markdown-like bold (**text**) to HTML bold if needed
                 const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-                div.innerHTML = `
-                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center flex-shrink-0"><i class="fas fa-sparkles text-[10px] text-white"></i></div>
-                    <div class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5 leading-relaxed shadow-sm">${formattedText}</div>
+
+                let messageHTML = `
+                    <div class="flex gap-2 items-end">
+                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center flex-shrink-0"><i class="fas fa-sparkles text-[10px] text-white"></i></div>
+                        <div class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5 leading-relaxed shadow-sm">${formattedText}</div>
+                    </div>
                 `;
+
+                // If products are provided, add product cards
+                if (products && products.length > 0) {
+                    products.forEach(product => {
+                        messageHTML += `
+                            <div class="ml-8 mt-2 bg-gradient-to-br from-[#2c2c2e] to-[#1c1c1e] border border-white/10 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/20 max-w-[85%] group">
+                                <div class="flex gap-4 p-4">
+                                    <div class="w-24 h-24 bg-black/30 rounded-xl p-2 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                                        <img src="${product.image_url}" alt="${product.name}" class="w-full h-full object-contain">
+                                    </div>
+                                    <div class="flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <p class="text-[10px] text-blue-400 uppercase font-bold tracking-wider mb-1">${product.category || 'Product'}</p>
+                                            <h4 class="text-white font-bold text-sm mb-1 leading-tight">${product.name}</h4>
+                                            <p class="text-xs text-gray-400 line-clamp-2">${product.desc || ''}</p>
+                                        </div>
+                                        <div class="flex items-center justify-between mt-2">
+                                            <span class="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">${formatPrice(product.price)}</span>
+                                            <button 
+                                                onclick="openProductModal(${JSON.stringify(product).replace(/"/g, '&quot;')})"
+                                                class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-md shadow-blue-900/30 flex items-center gap-1.5">
+                                                <i class="fas fa-shopping-bag text-[10px]"></i>
+                                                Mua ngay
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                div.innerHTML = messageHTML;
             }
 
             container.appendChild(div);
