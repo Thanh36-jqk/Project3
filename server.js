@@ -77,7 +77,7 @@ let model;
 
 if (apiKey) {
     const genAI = new GoogleGenerativeAI(apiKey);
-    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     console.log('✅ Gemini AI Configured');
 } else {
 
@@ -505,95 +505,6 @@ app.post('/api/admin/vouchers', verifyAdmin, async (req, res) => {
 });
 
 // ---------------- CHATBOT AI ----------------
-// ---------------- PRODUCT DETECTION HELPER ----------------
-// Helper function to detect products in user message
-async function detectProductsInMessage(message) {
-    try {
-        // Normalize message for better matching
-        const normalizedMessage = message.toLowerCase()
-            .replace(/\s+/g, ' ')
-            .trim();
-
-        // Common product keywords to look for
-        const productKeywords = [
-            'iphone', 'ipad', 'mac', 'macbook', 'watch', 'airpod', 'homepod',
-            'pro max', 'pro', 'plus', 'air', 'mini', 'ultra', 'se'
-        ];
-
-        // Check if message contains any product keywords
-        const hasProductKeyword = productKeywords.some(keyword =>
-            normalizedMessage.includes(keyword)
-        );
-
-        if (!hasProductKeyword) {
-            return [];
-        }
-
-        // Search for products in database
-        // Try to find exact or partial matches
-        const searchTerms = [];
-
-        // Extract potential product names from message
-        if (normalizedMessage.includes('iphone')) {
-            const iphoneMatch = message.match(/iphone\s*(\d+\s*)?(pro\s*max|pro|plus|se)?/i);
-            if (iphoneMatch) searchTerms.push(iphoneMatch[0]);
-        }
-        if (normalizedMessage.includes('ipad')) {
-            const ipadMatch = message.match(/ipad(\s*pro|\s*air|\s*mini)?(\s*m\d)?/i);
-            if (ipadMatch) searchTerms.push(ipadMatch[0]);
-        }
-        if (normalizedMessage.includes('mac')) {
-            const macMatch = message.match(/mac(book)?\s*(pro|air)?(\s*\d+)?(\s*m\d)?/i);
-            if (macMatch) searchTerms.push(macMatch[0]);
-        }
-        if (normalizedMessage.includes('watch')) {
-            const watchMatch = message.match(/apple\s*watch(\s*ultra|\s*series\s*\d+|\s*se)?/i);
-            if (watchMatch) searchTerms.push(watchMatch[0]);
-        }
-        if (normalizedMessage.includes('airpod')) {
-            const airpodMatch = message.match(/airpod[s]?(\s*pro|\s*max|\s*\d)?/i);
-            if (airpodMatch) searchTerms.push(airpodMatch[0]);
-        }
-
-        // If no specific terms found, use the whole message
-        if (searchTerms.length === 0) {
-            searchTerms.push(normalizedMessage);
-        }
-
-        // Search products in database
-        const foundProducts = [];
-        for (const term of searchTerms) {
-            const products = await Product.find({
-                name: { $regex: term, $options: 'i' }
-            })
-                .select('name price category image_url short_description spec')
-                .limit(3); // Limit to 3 products per search term
-
-            // Add to results if not already there
-            products.forEach(p => {
-                if (!foundProducts.find(fp => fp._id.toString() === p._id.toString())) {
-                    foundProducts.push({
-                        _id: p._id,
-                        name: p.name,
-                        price: p.price,
-                        category: p.category,
-                        image_url: p.image_url,
-                        desc: p.short_description || `${p.name} - Premium Apple product.`,
-                        spec: p.spec || null
-                    });
-                }
-            });
-        }
-
-        console.log(`🔍 Detected ${foundProducts.length} products for query: "${message}"`);
-        return foundProducts.slice(0, 3); // Return max 3 products
-
-    } catch (error) {
-        console.error('❌ Error detecting products:', error.message);
-        return [];
-    }
-}
-
 // ---------------- CHATBOT AI ----------------
 app.post('/api/chat', verifyToken, async (req, res) => {
     console.log('=== CHAT REQUEST RECEIVED ===');
@@ -670,17 +581,7 @@ app.post('/api/chat', verifyToken, async (req, res) => {
         const replyText = response.text();
         console.log('✅ Reply length:', replyText.length);
 
-        // Detect products in user message
-        const detectedProducts = await detectProductsInMessage(userMessage);
-
-        // Return both reply and products (if any)
-        const chatResponse = { reply: replyText };
-        if (detectedProducts.length > 0) {
-            chatResponse.products = detectedProducts;
-            console.log(`✅ Returning ${detectedProducts.length} products with reply`);
-        }
-
-        res.json(chatResponse);
+        res.json({ reply: replyText });
 
     } catch (error) {
         console.error('❌ CHAT ERROR - FULL DETAILS:');
@@ -705,7 +606,6 @@ app.post('/api/chat', verifyToken, async (req, res) => {
         });
     }
 });
-
 // ==================================================================
 // ----- 7. SERVER START -----
 // ==================================================================
