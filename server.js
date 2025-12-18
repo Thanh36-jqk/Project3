@@ -678,7 +678,7 @@ async function detectProductsInMessage(message) {
             const products = await Product.find({
                 name: { $regex: term, $options: 'i' }
             })
-                .select('name price category image_url short_description')
+                .select('name price category image_url short_description spec')
                 .limit(3); // Limit to 3 products per search term
 
             // Add to results if not already there
@@ -690,7 +690,8 @@ async function detectProductsInMessage(message) {
                         price: p.price,
                         category: p.category,
                         image_url: p.image_url,
-                        desc: p.short_description || `${p.name} - Premium Apple product.`
+                        desc: p.short_description || `${p.name} - Premium Apple product.`,
+                        spec: p.spec || null
                     });
                 }
             });
