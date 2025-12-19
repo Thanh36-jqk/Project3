@@ -77,7 +77,7 @@ let model;
 
 if (apiKey) {
     const genAI = new GoogleGenerativeAI(apiKey);
-    model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     console.log('✅ Gemini AI Configured');
 } else {
 
@@ -580,6 +580,10 @@ app.post('/api/chat', verifyToken, async (req, res) => {
         const response = await result.response;
         const replyText = response.text();
         console.log('✅ Reply length:', replyText.length);
+
+        if (!replyText) {
+            return res.json({ reply: "I'm sorry, I couldn't generate a response." });
+        }
 
         res.json({ reply: replyText });
 
