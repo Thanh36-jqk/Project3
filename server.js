@@ -505,14 +505,29 @@ app.post('/api/admin/vouchers', verifyAdmin, async (req, res) => {
 });
 
 // ---------------- CHATBOT AI ----------------
-// ---------------- CHATBOT AI ----------------
-app.post('/api/chat', verifyToken, async (req, res) => {
+// ---------------- CHATBOT AI (OPTIONAL AUTH - GUEST FRIENDLY) ----------------
+app.post('/api/chat', async (req, res) => {
     console.log('=== CHAT REQUEST RECEIVED ===');
-    console.log('User ID:', req.user?.id);
-    console.log('Message:', req.body.message);
+
+    // Optional authentication - support both logged-in users and guests
+    const authHeader = req.headers.token;
+    let userId = null;
+
+    if (authHeader) {
+        try {
+            const token = authHeader.split(" ")[1];
+            const userPayload = jwt.verify(token, process.env.JWT_SECRET);
+            userId = userPayload.id;
+            console.log('✅ Authenticated user:', userId);
+        } catch (err) {
+            console.warn('⚠️ Invalid token, treating as guest');
+        }
+    } else {
+        console.log('👤 Guest user - no token provided');
+    }
 
     const userMessage = req.body.message;
-    const userId = req.user ? req.user.id : null;
+    console.log('Message:', userMessage);
 
     // Kiểm tra model
     console.log('Model status:', model ? 'INITIALIZED' : 'NOT INITIALIZED');
@@ -601,11 +616,26 @@ app.post('/api/chat', verifyToken, async (req, res) => {
             console.error('Error status:', error.status);
         }
 
+        // Enhanced fallback messages based on error type
+        let fallbackReply = "Xin lỗi, tôi đang gặp sự cố kỹ thuật. Vui lòng thử lại sau.";
+
+        // Check for specific error types
+        const errorMsg = error.message?.toLowerCase() || '';
+
+        if (errorMsg.includes('quota') || errorMsg.includes('rate limit') || errorMsg.includes('resource_exhausted')) {
+            fallbackReply = "⚠️ Hiện tại tôi đang quá tải. Vui lòng liên hệ hotline: 0962923329 để được hỗ trợ ngay.";
+        } else if (errorMsg.includes('network') || errorMsg.includes('timeout') || errorMsg.includes('econnrefused')) {
+            fallbackReply = "🔌 Kết nối AI bị gián đoạn. Vui lòng thử lại sau vài giây.";
+        } else if (errorMsg.includes('invalid') || errorMsg.includes('api key')) {
+            fallbackReply = "🔧 Hệ thống AI đang bảo trì. Vui lòng liên hệ: nthanhtat51@gmail.com";
+        }
+
         res.status(500).json({
-            reply: "Xin lỗi, AI đang gặp sự cố.",
-            // Chỉ show error trong development
+            reply: fallbackReply,
+            // Debug info only in development
             ...(process.env.NODE_ENV !== 'production' && {
-                error: error.message
+                debug: error.message,
+                timestamp: new Date().toISOString()
             })
         });
     }

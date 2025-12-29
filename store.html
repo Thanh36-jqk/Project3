@@ -1564,19 +1564,37 @@
                     body: JSON.stringify({ message: msg })
                 });
 
+                // Check HTTP status before parsing JSON
+                if (!res.ok) {
+                    document.getElementById(loadingId).remove();
+
+                    if (res.status === 401) {
+                        appendMessage("⚠️ Bạn cần đăng nhập để có trải nghiệm chatbot tốt hơn. Tuy nhiên, chatbot vẫn hoạt động cho khách vãng lai.", 'ai');
+                    } else if (res.status === 503) {
+                        appendMessage("🔧 Hệ thống AI đang bảo trì. Liên hệ: 0962923329", 'ai');
+                    } else {
+                        appendMessage("❌ Lỗi kết nối. Vui lòng thử lại sau.", 'ai');
+                    }
+                    return;
+                }
+
                 const data = await res.json();
 
                 // Remove loading & Show AI Reply
                 document.getElementById(loadingId).remove();
-                if (data.reply) {
+
+                // Check reply exists and is not empty
+                if (data.reply && typeof data.reply === 'string' && data.reply.trim() !== '') {
                     appendMessage(data.reply, 'ai');
                 } else {
-                    appendMessage("I'm sorry, I couldn't process that.", 'ai');
+                    // Helpful fallback with suggestions
+                    appendMessage("❓ Tôi chưa hiểu câu hỏi của bạn. Bạn có thể hỏi về:\n• Giá sản phẩm (VD: iPhone 16 bao nhiêu tiền?)\n• Trạng thái đơn hàng\n• Khuyến mãi hiện tại", 'ai');
                 }
 
             } catch (error) {
                 document.getElementById(loadingId).remove();
-                appendMessage("Connection error with AI brain.", 'ai');
+                console.error('Chat error:', error);
+                appendMessage("🔌 Không thể kết nối với AI. Vui lòng kiểm tra internet và thử lại.", 'ai');
             }
         });
 
