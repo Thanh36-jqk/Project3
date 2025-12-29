@@ -4,27 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apple Support - Customer Hub</title>
+    <title>Support Check - Apple Style</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=sf+pro+display:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'] },
                     colors: {
-                        'apple-dark': '#000000',
-                        'apple-gray': '#1d1d1f',
-                        'apple-blue': '#0071e3',
-                        'apple-bg': '#f5f5f7'
+                        'glass': 'rgba(255, 255, 255, 0.05)',
+                        'glass-hover': 'rgba(255, 255, 255, 0.1)',
                     },
                     animation: {
-                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'blob': 'blob 10s infinite',
+                        'fade-up': 'fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     },
                     keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
                         }
                     }
@@ -36,153 +42,196 @@
         body {
             background-color: #000;
             color: #f5f5f7;
+            overflow-x: hidden;
         }
 
-        .scrollbar-hide::-webkit-scrollbar {
+        .scrollbar-none::-webkit-scrollbar {
             display: none;
+        }
+
+        .glass-panel {
+            background: rgba(28, 28, 30, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 
-<body class="antialiased min-h-screen flex flex-col bg-black">
+<body class="antialiased min-h-screen relative selection:bg-blue-500/30">
 
-    <!-- Header -->
+    <!-- Ambient Background -->
+    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div
+            class="absolute top-0 left-1/4 w-96 h-96 bg-blue-900/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob">
+        </div>
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-purple-900/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"
+            style="animation-delay: 2s"></div>
+        <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-indigo-900/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"
+            style="animation-delay: 4s"></div>
+    </div>
+
+    <!-- Nav -->
     <header
-        class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 transition-all duration-300">
+        class="fixed top-0 w-full z-50 transition-all duration-300 glass-panel border-b-0 border-b-white/5 bg-black/50">
         <div class="max-w-7xl mx-auto px-6 h-12 flex items-center justify-between">
-            <a href="index.html" class="text-xl text-white hover:text-gray-300 transition-colors">
-                <i class="fab fa-apple"></i>
+            <a href="index.html" class="text-white hover:opacity-80 transition-opacity">
+                <i class="fab fa-apple text-xl"></i>
             </a>
-            <nav class="hidden md:flex space-x-8 text-xs font-light text-gray-300">
-                <a href="index.html" class="hover:text-white transition-colors">Home</a>
-                <a href="store.html" class="hover:text-white transition-colors">Store</a>
-                <a href="support.html" class="text-white font-medium">Support</a>
-            </nav>
             <div class="flex items-center gap-4" id="auth-section">
-                <!-- Injected via JS -->
                 <a href="login/login.html"
-                    class="text-xs text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-full transition-all">Sign
+                    class="text-xs font-medium text-white bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-full transition-all backdrop-blur-md">Sign
                     In</a>
             </div>
         </div>
     </header>
 
-    <main class="flex-grow pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto w-full space-y-12">
+    <main class="relative z-10 pt-32 pb-24 px-6 max-w-7xl mx-auto w-full">
 
-        <!-- Hero Section -->
-        <section class="text-center space-y-4 pt-10 animate-fade-in">
-            <h1
-                class="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                How can we help you?
+        <!-- Header -->
+        <section class="text-center space-y-6 mb-20 animate-fade-up">
+            <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white drop-shadow-2xl">
+                Support
             </h1>
-            <p class="text-xl text-gray-400">Track orders, manage vouchers, and find answers.</p>
+            <p class="text-xl md:text-2xl text-gray-400 font-light max-w-2xl mx-auto">
+                Everything you need, all in one place.
+            </p>
         </section>
 
-        <!-- DASHBOARD SECTION (Visible to Logged In Users) -->
-        <div id="user-dashboard" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
+        <!-- DASHBOARD (Bento Grid) -->
+        <div id="user-dashboard" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-up"
+            style="animation-delay: 0.1s">
 
-            <!-- Left Col: Profile & Vouchers -->
-            <div class="lg:col-span-1 space-y-8">
-                <!-- User Welcome -->
-                <div class="bg-apple-gray rounded-3xl p-6 border border-white/5 shadow-xl">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div
-                            class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl font-bold text-white" id="user-name">Welcome Back</h2>
-                            <p class="text-sm text-gray-400" id="user-rank">Rank: Member</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center bg-black/40 rounded-xl p-4 border border-white/5">
-                        <span class="text-gray-400 text-sm">Reward Points</span>
-                        <span class="text-xl font-bold text-yellow-500" id="user-points">0</span>
+            <!-- Welcome Card (Large) -->
+            <div
+                class="md:col-span-2 glass-panel rounded-[2rem] p-8 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center relative overflow-hidden group">
+                <div class="relative z-10">
+                    <p class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">Overview</p>
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-2" id="user-name">Welcome Back</h2>
+                    <div class="flex items-center gap-3 mt-4">
+                        <span id="user-rank"
+                            class="px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-white border border-white/10">Member</span>
+                        <span class="text-gray-400 text-sm">|</span>
+                        <span class="text-yellow-500 font-bold" id="user-points">0 pts</span>
                     </div>
                 </div>
-
-                <!-- Voucher Wallet -->
+                <div class="mt-8 md:mt-0 relative z-10">
+                    <button onclick="logout()"
+                        class="text-sm font-medium text-red-400 hover:text-red-300 transition-colors">Sign Out <i
+                            class="fas fa-arrow-right ml-1"></i></button>
+                </div>
+                <!-- Decor -->
                 <div
-                    class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 border border-white/5 shadow-xl relative overflow-hidden group">
-                    <div class="absolute top-0 right-0 p-6 opacity-10">
-                        <i
-                            class="fas fa-ticket-alt text-8xl text-white transform rotate-12 group-hover:rotate-0 transition-transform duration-500"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <i class="fas fa-wallet text-purple-400"></i> My Vouchers
-                    </h3>
-
-                    <div id="voucher-list" class="space-y-3 max-h-[300px] overflow-y-auto scrollbar-hide">
-                        <!-- Vouchers Injected Here -->
-                        <div class="text-center py-8 text-gray-500 text-sm">Loading vouchers...</div>
-                    </div>
+                    class="absolute right-0 top-0 w-64 h-64 bg-gradient-to-br from-blue-600/10 to-transparent rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-600/20 transition-all duration-700">
                 </div>
             </div>
 
-            <!-- Right Col: Order History -->
-            <div class="lg:col-span-2">
-                <div class="bg-apple-gray rounded-3xl p-6 md:p-8 border border-white/5 shadow-xl min-h-[500px]">
-                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <i class="fas fa-box-open text-blue-400"></i> Recent Orders
-                    </h3>
+            <!-- Voucher Wallet (Tall) -->
+            <div
+                class="glass-panel rounded-[2rem] p-8 relative overflow-hidden group hover:border-white/20 transition-all duration-300">
+                <div class="flex justify-between items-center mb-6 relative z-10">
+                    <h3 class="text-xl font-bold text-white">Vouchers</h3>
+                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"><i
+                            class="fas fa-ticket-alt text-sm"></i></div>
+                </div>
+                <div id="voucher-list"
+                    class="space-y-3 relative z-10 h-[200px] overflow-y-auto scrollbar-none mask-image-gradient">
+                    <!-- JS Injected -->
+                    <p class="text-gray-500 text-sm">Loading...</p>
+                </div>
+            </div>
 
-                    <div id="order-list" class="space-y-4">
-                        <!-- Orders Injected Here -->
-                        <div class="text-center py-12 text-gray-500">Loading orders...</div>
+            <!-- Recent Orders (Wide) -->
+            <div class="md:col-span-3 glass-panel rounded-[2rem] p-8 md:p-10">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">Recent Activity</h3>
+                        <p class="text-gray-400 text-sm">Your latest purchase history</p>
                     </div>
+                    <a href="store.html"
+                        class="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">Video All
+                        Products <i class="fas fa-chevron-right text-xs"></i></a>
+                </div>
+
+                <div id="order-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Orders Injected -->
                 </div>
             </div>
         </div>
 
-        <!-- GUEST TOOLS (Always visible, but secondary if logged in) -->
-        <section id="guest-tools" class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-white/10">
+        <!-- PUBLIC TOOLS -->
+        <div id="public-tools" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-fade-up"
+            style="animation-delay: 0.2s">
+
             <!-- Quick Track -->
-            <div class="bg-apple-gray rounded-3xl p-8 border border-white/5">
-                <h3 class="text-xl font-bold mb-4">Quick Order Tracking</h3>
-                <p class="text-gray-400 mb-6 text-sm">Want to check an order status without logging in? Enter the Order
-                    ID below.</p>
-                <form id="quick-track-form" class="flex gap-2">
-                    <input type="text" id="track-id" placeholder="Order ID (e.g. 675...)"
-                        class="flex-1 bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500 outline-none">
+            <div class="glass-panel rounded-[2rem] p-8 md:p-10 flex flex-col justify-center">
+                <div class="mb-6">
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-700 flex items-center justify-center mb-4 shadow-lg shadow-green-900/20">
+                        <i class="fas fa-box text-xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">Track an Order</h3>
+                    <p class="text-gray-400 mt-2 text-sm">See the status of any order without signing in.</p>
+                </div>
+
+                <form id="quick-track-form" class="relative group">
+                    <input type="text" id="track-id" placeholder="Enter Order ID"
+                        class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-mono text-sm">
                     <button type="submit"
-                        class="bg-white/10 hover:bg-white/20 text-white px-6 rounded-xl transition-colors font-medium">
-                        <i class="fas fa-search"></i>
+                        class="absolute right-2 top-2 bottom-2 bg-white/10 hover:bg-white/20 text-white px-4 rounded-xl transition-all">
+                        <i class="fas fa-arrow-right"></i>
                     </button>
                 </form>
-                <!-- Quick Result Area -->
+
+                <!-- Result Area -->
                 <div id="quick-track-result"
                     class="mt-4 hidden p-4 bg-black/40 rounded-xl border border-white/5 text-sm"></div>
             </div>
 
-            <!-- FAQ -->
-            <div class="bg-apple-gray rounded-3xl p-8 border border-white/5">
-                <h3 class="text-xl font-bold mb-4">Common Questions</h3>
-                <div class="space-y-2">
-                    <details class="group bg-black/20 rounded-xl overflow-hidden">
+            <!-- FAQ Accordion -->
+            <div class="glass-panel rounded-[2rem] p-8 md:p-10">
+                <h3 class="text-2xl font-bold text-white mb-6">Common Questions</h3>
+                <div class="space-y-3">
+                    <details
+                        class="group bg-black/20 rounded-2xl overflow-hidden border border-white/5 open:bg-black/40 transition-colors">
                         <summary
-                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white transition-colors flex justify-between">
-                            How do I return an item? <i
-                                class="fas fa-chevron-down opacity-50 transition-transform group-open:rotate-180"></i>
+                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white flex justify-between items-center">
+                            Return Policy <i
+                                class="fas fa-plus text-xs opacity-50 transition-transform group-open:rotate-45"></i>
                         </summary>
-                        <div class="p-4 pt-0 text-sm text-gray-400">You have 14 days to return an item. Visit any Apple
-                            Store or use the online return portal.</div>
+                        <div class="p-4 pt-0 text-sm text-gray-400 leading-relaxed">
+                            You have 14 calendar days to return an item from the date you received it.
+                        </div>
                     </details>
-                    <details class="group bg-black/20 rounded-xl overflow-hidden">
+                    <details
+                        class="group bg-black/20 rounded-2xl overflow-hidden border border-white/5 open:bg-black/40 transition-colors">
                         <summary
-                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white transition-colors flex justify-between">
-                            Where is my refund? <i
-                                class="fas fa-chevron-down opacity-50 transition-transform group-open:rotate-180"></i>
+                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white flex justify-between items-center">
+                            Shipping Times <i
+                                class="fas fa-plus text-xs opacity-50 transition-transform group-open:rotate-45"></i>
                         </summary>
-                        <div class="p-4 pt-0 text-sm text-gray-400">Refunds are processed within 3-5 business days after
-                            we receive your returned item.</div>
+                        <div class="p-4 pt-0 text-sm text-gray-400 leading-relaxed">
+                            Standard shipping takes 3-5 business days. Express options available.
+                        </div>
+                    </details>
+                    <details
+                        class="group bg-black/20 rounded-2xl overflow-hidden border border-white/5 open:bg-black/40 transition-colors">
+                        <summary
+                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white flex justify-between items-center">
+                            Forgot Password? <i
+                                class="fas fa-plus text-xs opacity-50 transition-transform group-open:rotate-45"></i>
+                        </summary>
+                        <div class="p-4 pt-0 text-sm text-gray-400 leading-relaxed">
+                            Visit the login page and click "Forgot Password" to reset via email.
+                        </div>
                     </details>
                 </div>
             </div>
-        </section>
+        </div>
 
     </main>
 
-    <!-- JS LOGIC -->
+    <!-- JS Logic -->
     <script>
         const API_BASE_URL = 'https://project3-icy1.onrender.com';
 
@@ -192,26 +241,12 @@
             const authSection = document.getElementById('auth-section');
 
             if (token) {
-                // Logged In State
-                authSection.innerHTML = `
-                    <div class="relative group">
-                        <button class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs overflow-hidden">
-                            <i class="fas fa-user"></i>
-                        </button>
-                        <!-- Dropdown -->
-                        <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-xl shadow-lg border border-gray-700 hidden group-hover:block p-1 z-50">
-                             <a href="#" onclick="logout()" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 rounded-lg">Sign Out</a>
-                        </div>
-                    </div>
-                 `;
+                // Logged In
+                authSection.innerHTML = ``; // Hide 'Sign In' button
                 userDashboard.classList.remove('hidden');
                 await loadUserProfile(token);
-            } else {
-                // Guest State
-                // Dashboard remains hidden
             }
 
-            // Handle Quick Track
             document.getElementById('quick-track-form').addEventListener('submit', handleQuickTrack);
         });
 
@@ -221,74 +256,55 @@
                 const data = await res.json();
 
                 if (res.ok) {
-                    // 1. Populate Profile Info
-                    document.getElementById('user-name').textContent = data.user.email.split('@')[0];
-                    document.getElementById('user-rank').textContent = `Rank: ${data.user.rank}`;
-                    const rankColor = data.user.rank === 'VIP' ? 'text-purple-400' : (data.user.rank === 'Gold' ? 'text-yellow-400' : 'text-gray-400');
-                    document.getElementById('user-rank').className = `text-sm font-medium ${rankColor}`;
-                    document.getElementById('user-points').textContent = data.user.points.toLocaleString();
+                    // Profile
+                    document.getElementById('user-name').textContent = 'Hello, ' + data.user.email.split('@')[0];
+                    document.getElementById('user-points').textContent = data.user.points.toLocaleString() + ' pts';
+                    document.getElementById('user-rank').textContent = data.user.rank;
 
-                    // 2. Populate Vouchers
+                    // Vouchers
                     const voucherList = document.getElementById('voucher-list');
                     voucherList.innerHTML = '';
-                    if (data.user.myVouchers && data.user.myVouchers.length > 0) {
+                    if (data.user.myVouchers?.length > 0) {
                         data.user.myVouchers.forEach(v => {
-                            const isUsed = v.isUsed;
-                            const el = document.createElement('div');
-                            el.className = `p-3 rounded-xl border border-dashed flex justify-between items-center transition-all ${isUsed ? 'bg-gray-800/50 border-gray-700 opacity-50' : 'bg-gray-800 border-gray-600 hover:border-purple-500'}`;
-                            el.innerHTML = `
+                            const div = document.createElement('div');
+                            div.className = `p-3 rounded-xl border border-white/5 flex justify-between items-center ${v.isUsed ? 'opacity-40 bg-black/20' : 'bg-white/5 hover:bg-white/10 transition-colors'}`;
+                            div.innerHTML = `
                                 <div>
-                                    <p class="font-mono font-bold text-white text-sm tracking-wider">${v.code}</p>
-                                    <p class="text-xs ${isUsed ? 'text-gray-500' : 'text-green-400'}">${isUsed ? 'Used' : `-${v.discountAmount.toLocaleString()}₫ off`}</p>
+                                    <p class="font-mono text-xs font-bold text-white tracking-widest">${v.code}</p>
+                                    <p class="text-[10px] text-gray-400">-${v.discountAmount.toLocaleString()}₫</p>
                                 </div>
-                                ${!isUsed ? `<button onclick="copyToClipboard('${v.code}')" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-white" title="Copy Code"><i class="far fa-copy"></i></button>` : ''}
+                                ${!v.isUsed ? `<button onclick="copyToClipboard('${v.code}')" class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white text-white hover:text-black transition-all"><i class="fas fa-copy text-xs"></i></button>` : ''}
                             `;
-                            voucherList.appendChild(el);
+                            voucherList.appendChild(div);
                         });
                     } else {
-                        voucherList.innerHTML = '<div class="text-center py-4 text-gray-500 text-sm">No vouchers yet. Shop more to earn!</div>';
+                        voucherList.innerHTML = '<div class="text-center py-8 opacity-50 text-xs">No vouchers available</div>';
                     }
 
-                    // 3. Populate Orders
+                    // Orders
                     const orderList = document.getElementById('order-list');
                     orderList.innerHTML = '';
-                    if (data.orders && data.orders.length > 0) {
-                        data.orders.forEach(order => {
+                    if (data.orders?.length > 0) {
+                        data.orders.slice(0, 6).forEach(order => {
                             const statusColor = getStatusColor(order.status);
-                            const orderEl = document.createElement('div');
-                            orderEl.className = 'bg-black/20 p-4 rounded-2xl border border-white/5 hover:bg-black/40 transition-colors';
-
-                            // Calculate items summary
-                            const itemNames = order.items.map(i => i.name).join(', ');
-                            const itemCount = order.items.reduce((acc, i) => acc + (i.qty || i.quantity), 0);
-
-                            orderEl.innerHTML = `
-                                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-3">
-                                    <div>
-                                        <div class="flex items-center gap-3">
-                                            <span class="text-sm font-mono text-gray-400">#${order._id.slice(-8).toUpperCase()}</span>
-                                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${statusColor}">${order.status}</span>
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-1">${new Date(order.createdAt).toLocaleDateString()}</p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-white font-bold">${parseInt(order.finalAmount || order.totalAmountNumeric).toLocaleString()} ₫</p>
-                                        <p class="text-xs text-gray-500">${itemCount} items</p>
-                                    </div>
+                            const div = document.createElement('div');
+                            div.className = 'bg-black/30 p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-all group';
+                            div.innerHTML = `
+                                <div class="flex justify-between items-start mb-3">
+                                    <span class="text-[10px] font-mono text-gray-500 bg-white/5 px-2 py-1 rounded">#${order._id.slice(-6).toUpperCase()}</span>
+                                    <span class="w-2 h-2 rounded-full ${statusColor}"></span>
                                 </div>
-                                <div class="text-sm text-gray-300 line-clamp-1 mb-3">${itemNames}</div>
-                                <div class="flex justify-end gap-2">
-                                     <button onclick="handleQuickTrack(null, '${order._id}')" class="text-xs bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg transition-all font-medium">Track Order</button>
+                                <div class="mb-3">
+                                    <p class="text-lg font-bold text-white">${parseInt(order.finalAmount || order.totalAmountNumeric).toLocaleString()} ₫</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">${order.items.length} items • ${order.status}</p>
                                 </div>
+                                <button onclick="handleQuickTrack(null, '${order._id}')" class="w-full py-2 rounded-xl bg-white/5 hover:bg-white text-white hover:text-black text-xs font-bold transition-all">Track Order</button>
                             `;
-                            orderList.appendChild(orderEl);
+                            orderList.appendChild(div);
                         });
                     } else {
-                        orderList.innerHTML = '<div class="text-center py-10"><i class="fas fa-box-open text-4xl text-gray-700 mb-2"></i><p class="text-gray-500">No recent orders found.</p><a href="store.html" class="text-blue-400 text-sm hover:underline mt-2">Start Shopping</a></div>';
+                        orderList.innerHTML = '<div class="md:col-span-3 text-center py-12 text-gray-600">No orders yet.</div>';
                     }
-
-                } else {
-                    console.error("Failed to load profile");
                 }
             } catch (e) {
                 console.error(e);
@@ -303,50 +319,45 @@
             if (!id) return;
 
             resultDiv.classList.remove('hidden');
-            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Locating order...';
+            resultDiv.innerHTML = '<span class="animate-pulse">Searching...</span>';
 
             try {
                 const res = await fetch(`${API_BASE_URL}/api/orders/${id}`);
                 const data = await res.json();
 
                 if (res.ok) {
-                    const statusColor = getStatusColor(data.status);
                     resultDiv.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-green-400 font-bold mb-1">Order Found!</p>
-                                <p>Status: <span class="${statusColor} px-1.5 rounded">${data.status}</span></p>
-                                <p class="text-xs text-gray-500 mt-1">To: ${data.recipientName}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-bold">${parseInt(data.finalAmount || data.totalAmountNumeric).toLocaleString()} ₫</p>
-                            </div>
+                        <div class="flex items-center gap-3">
+                           <div class="flex-1">
+                                <p class="text-green-400 font-bold text-xs uppercase tracking-wider mb-1">Found</p>
+                                <p class="text-white font-medium">${data.status}</p>
+                                <p class="text-gray-500 text-xs mt-0.5">${data.items.length} items for ${data.recipientName}</p>
+                           </div> 
+                           <div class="text-right">
+                                <p class="text-white font-bold">${parseInt(data.finalAmount).toLocaleString()}₫</p>
+                           </div>
                         </div>
                     `;
-                    // Smooth scroll to result if it was a manual search
                     if (!idOverride) resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 } else {
-                    throw new Error(data.message || 'Order not found');
+                    resultDiv.innerHTML = `<span class="text-red-400">Order not found.</span>`;
                 }
             } catch (err) {
-                resultDiv.innerHTML = `<span class="text-red-400"><i class="fas fa-exclamation-circle"></i> ${err.message}</span>`;
+                resultDiv.innerHTML = `<span class="text-red-400">Error searching.</span>`;
             }
         }
 
         function getStatusColor(status) {
             switch (status) {
-                case 'Pending': return 'bg-yellow-500/20 text-yellow-500';
-                case 'Processing': return 'bg-blue-500/20 text-blue-400';
-                case 'Shipped': return 'bg-purple-500/20 text-purple-400';
-                case 'Completed': return 'bg-green-500/20 text-green-400';
-                default: return 'bg-gray-700 text-gray-400';
+                case 'Completed': return 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]';
+                case 'Shipped': return 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]';
+                default: return 'bg-yellow-500';
             }
         }
 
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('Voucher code copied: ' + text);
-            });
+            navigator.clipboard.writeText(text);
+            alert('Copied: ' + text);
         }
 
         function logout() {
