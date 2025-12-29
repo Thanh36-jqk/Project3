@@ -584,13 +584,98 @@ app.post('/api/chat', async (req, res) => {
         }));
         console.log('✅ Products loaded:', products.length);
 
+        // ===== AI-POWERED INTENT DETECTION =====
+        const intentPrompt = `
+        PHÂN TÍCH CÂU HỎI:
+        User: "${userMessage}"
+        
+        XÁC ĐỊNH:
+        1. Intent: 
+           - ASK_PRICE (hỏi giá sản phẩm)
+           - GENERAL (hỏi chung, tư vấn)
+           - ORDER_STATUS (hỏi đơn hàng)
+        
+        2. Nếu ASK_PRICE, extract:
+           - productName: tên sản phẩm chính xác (VD: "iPhone 16", "MacBook Air")
+           - variant: phiên bản nếu có (VD: "Pro Max", "128GB")
+        
+        RETURN ONLY JSON:
+        {
+          "intent": "ASK_PRICE" | "GENERAL" | "ORDER_STATUS",
+          "productName": "string or null",
+          "variant": "string or null",
+          "confidence": 0.0-1.0
+        }
+        `;
+
+        console.log('🤖 Analyzing intent with AI...');
+        const intentResult = await model.generateContent(intentPrompt);
+        const intentResponse = await intentResult.response;
+        let intentData;
+
+        try {
+            const intentText = intentResponse.text().trim();
+            // Extract JSON from response (may have markdown code blocks)
+            const jsonMatch = intentText.match(/\{[\s\S]*\}/);
+            intentData = JSON.parse(jsonMatch ? jsonMatch[0] : intentText);
+            console.log('✅ Intent detected:', intentData);
+        } catch (parseError) {
+            console.warn('⚠️ Failed to parse intent, defaulting to GENERAL');
+            intentData = { intent: 'GENERAL', confidence: 0.5 };
+        }
+
+        // ===== HANDLE ASK_PRICE INTENT =====
+        if (intentData.intent === 'ASK_PRICE' && intentData.productName && intentData.confidence > 0.7) {
+            console.log('💰 Price query detected for:', intentData.productName);
+
+            // Search products in database
+            const searchRegex = new RegExp(intentData.productName, 'i');
+            let products = await Product.find({
+                name: searchRegex,
+                stock: { $gt: 0 }
+            }).limit(5);
+
+            if (products.length > 0) {
+                console.log(`✅ Found ${products.length} matching products`);
+
+                // Format products for card response
+                const formattedProducts = products.map(p => ({
+                    id: p._id.toString(),
+                    name: p.name,
+                    price: p.price,
+                    priceFormatted: p.price.toLocaleString('vi-VN') + '₫',
+                    image: p.image_url,
+                    category: p.category,
+                    stock: p.stock
+                }));
+
+                return res.json({
+                    type: 'product_card',
+                    products: formattedProducts,
+                    message: products.length === 1
+                        ? `Đây là thông tin về ${products[0].name}:`
+                        : `Tôi tìm thấy ${products.length} sản phẩm phù hợp:`
+                });
+            } else {
+                // No products found
+                return res.json({
+                    type: 'text',
+                    reply: `❓ Xin lỗi, tôi không tìm thấy sản phẩm "${intentData.productName}" trong kho. Bạn có thể:
+• Thử từ khóa khác (VD: "iPhone 16", "MacBook Pro")
+• Xem toàn bộ sản phẩm tại /store.html
+• Liên hệ: 0962923329`
+                });
+            }
+        }
+
+        // ===== HANDLE GENERAL QUERIES =====
         const systemPrompt = `
         BẠN LÀ: Trợ lý ảo AI của Apple Store.
         DỮ LIỆU:
         - Khách: ${JSON.stringify(contextData.customer)}
         - Đơn hàng gần đây: ${JSON.stringify(contextData.recent_orders)}
         - Sản phẩm: ${JSON.stringify(contextData.available_products)}
-        NHIỆM VỤ: Trả lời ngắn gọn, chính xác về giá và đơn hàng.
+        NHIỆM VỤ: Trả lời ngắn gọn, chính xác về đơn hàng, khuyến mãi, và tư vấn.
         User hỏi: "${userMessage}"
         `;
 
@@ -623,7 +708,7 @@ app.post('/api/chat', async (req, res) => {
             });
         }
 
-        res.json({ reply: replyText });
+        res.json({ type: 'text', reply: replyText });
 
     } catch (error) {
         console.error('❌ CHAT ERROR - FULL DETAILS:');
