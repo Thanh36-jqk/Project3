@@ -3,188 +3,230 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout - Apple Store</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="checkout1.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-
-    /* Modal Custom Styles */
-    .success-modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.6);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1001;
-    }
-
-    .success-modal {
-      background-color: white;
-      padding: 30px 40px;
-      border-radius: 18px;
-      text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-      width: 90%;
-      max-width: 400px;
-      transform: scale(0.9);
-      animation: scaleUp 0.3s forwards;
-    }
-
-    @keyframes scaleUp {
-      to {
-        transform: scale(1);
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            'apple-blue': '#0071e3',
+            'apple-dark': '#1d1d1f',
+            'apple-gray': '#f5f5f7',
+          },
+          animation: {
+            'scale-up': 'scaleUp 0.3s forwards',
+          },
+          keyframes: {
+            scaleUp: {
+              '0%': { transform: 'scale(0.9)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' },
+            }
+          }
+        }
       }
     }
-
-    /* --- CSS CHO PHẦN VOUCHER --- */
-    .voucher-section {
-      margin-top: 15px;
-      padding: 15px;
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      border: 1px dashed #ccc;
-    }
-
-    .voucher-select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ddd;
-      margin-top: 5px;
-      font-family: inherit;
-    }
-
-    .discount-row {
-      display: flex;
-      justify-content: space-between;
-      color: #28a745;
-      /* Màu xanh lá cho giảm giá */
-      font-weight: bold;
-      margin-top: 10px;
-      font-size: 0.9em;
-    }
-  </style>
+  </script>
 </head>
 
-<body>
+<body class="bg-apple-gray text-apple-dark antialiased font-sans">
 
-  <div class="checkout-container">
-    <h1>Your Shopping Cart</h1>
-    <table class="cart-table" id="checkout-table">
-      <thead>
-        <tr>
-          <th>Image</th>
-          <th>Product</th>
-          <th>Category</th>
-          <th>Price</th>
-          <th>Qty</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <!-- Header -->
+    <div class="flex items-center mb-8">
+      <a href="store.html"
+        class="text-apple-blue hover:text-blue-700 font-medium flex items-center gap-2 transition-colors">
+        <i class="fas fa-arrow-left"></i> Continue Shopping
+      </a>
+    </div>
 
-    <div class="actions">
-      <a href="index.html" class="btn btn-secondary">← Continue Shopping</a>
-      <button class="btn btn-payment-checkout" onclick="openOrderModal()">Proceed to Checkout</button>
+    <h1 class="text-3xl md:text-4xl font-semibold mb-8 tracking-tight">Checkout</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- Left Column: Shipping & Payment (7 cols) -->
+      <div class="lg:col-span-7 space-y-6">
+
+        <!-- Shipping Details Card -->
+        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-200">
+          <div class="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+            <div
+              class="w-8 h-8 rounded-full bg-apple-dark text-white flex items-center justify-center text-sm font-bold">1
+            </div>
+            <h2 class="text-xl font-semibold">Shipping Information</h2>
+          </div>
+
+          <div class="grid grid-cols-1 gap-5">
+            <div>
+              <label for="recipient-name-checkout" class="block text-sm font-medium text-gray-700 mb-1.5">Full Name
+                <span class="text-red-500">*</span></label>
+              <input type="text" id="recipient-name-checkout"
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-apple-blue/50 focus:border-apple-blue transition-all"
+                placeholder="e.g. John Doe" required>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label for="recipient-phone-checkout" class="block text-sm font-medium text-gray-700 mb-1.5">Phone
+                  Number <span class="text-red-500">*</span></label>
+                <input type="tel" id="recipient-phone-checkout"
+                  class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-apple-blue/50 focus:border-apple-blue transition-all"
+                  placeholder="e.g. 0901234567" required>
+              </div>
+              <div>
+                <label for="recipient-address-checkout" class="block text-sm font-medium text-gray-700 mb-1.5">Address
+                  <span class="text-red-500">*</span></label>
+                <input type="text" id="recipient-address-checkout"
+                  class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-apple-blue/50 focus:border-apple-blue transition-all"
+                  placeholder="e.g. 123 Apple St" required>
+              </div>
+            </div>
+
+            <div>
+              <label for="recipient-notes-checkout" class="block text-sm font-medium text-gray-700 mb-1.5">Notes
+                (Optional)</label>
+              <textarea id="recipient-notes-checkout" rows="2"
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-apple-blue/50 focus:border-apple-blue transition-all resize-none"
+                placeholder="Any special delivery instructions?"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Card -->
+        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-gray-200">
+          <div class="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+            <div
+              class="w-8 h-8 rounded-full bg-apple-dark text-white flex items-center justify-center text-sm font-bold">2
+            </div>
+            <h2 class="text-xl font-semibold">Payment Method</h2>
+          </div>
+
+          <div class="space-y-3">
+            <label
+              class="relative flex items-center p-4 border border-apple-blue bg-blue-50/30 rounded-2xl cursor-pointer transition-all hover:bg-blue-50/50 ring-1 ring-apple-blue">
+              <input type="radio" name="payment-method" value="cod" checked
+                class="h-5 w-5 text-apple-blue border-gray-300 focus:ring-apple-blue" id="cod-checkout">
+              <span class="ml-3 flex items-center gap-3 font-medium text-gray-900">
+                <i class="fas fa-truck text-apple-blue text-lg"></i>
+                Cash on Delivery (COD)
+              </span>
+              <span
+                class="ml-auto text-xs font-semibold bg-blue-100 text-apple-blue px-2 py-1 rounded">Recommended</span>
+            </label>
+            <!-- Placeholder for future methods -->
+            <label
+              class="relative flex items-center p-4 border border-dashed border-gray-300 rounded-2xl opacity-50 cursor-not-allowed">
+              <input type="radio" name="payment-method" disabled class="h-5 w-5 text-gray-300 border-gray-300">
+              <span class="ml-3 flex items-center gap-3 font-medium text-gray-400">
+                <i class="fab fa-cc-visa text-lg"></i>
+                Credit Card (Coming Soon)
+              </span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Order Summary (5 cols) -->
+      <div class="lg:col-span-5">
+        <div class="bg-white p-6 md:p-8 rounded-3xl shadow-lg border border-gray-200 sticky top-8">
+          <h2 class="text-xl font-semibold mb-6">Order Summary</h2>
+
+          <!-- Cart Items Container -->
+          <div id="order-items-container" class="space-y-4 mb-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            <!-- Items will be injected here via JS -->
+          </div>
+
+          <!-- Voucher Section -->
+          <div class="mb-6 p-4 bg-gray-50 rounded-2xl">
+            <label for="voucher-select"
+              class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Gift Card or Discount
+              Code</label>
+            <div class="relative">
+              <select id="voucher-select" onchange="applyVoucher()"
+                class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-apple-blue focus:border-apple-blue sm:text-sm rounded-xl appearance-none bg-white border shadow-sm">
+                <option value="0" data-code="">Select a voucher...</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <i class="fas fa-chevron-down text-xs"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cost Breakdown -->
+          <div class="space-y-3 pt-6 border-t border-gray-100 text-sm">
+            <div class="flex justify-between text-gray-600">
+              <span>Subtotal</span>
+              <span id="subtotal-amount" class="font-medium text-gray-900">0 ₫</span>
+            </div>
+            <div class="flex justify-between text-green-600 hidden" id="discount-row">
+              <span>Discount</span>
+              <span id="discount-amount" class="font-medium">-0 ₫</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span>Shipping</span>
+              <span class="font-medium text-gray-900">Free</span>
+            </div>
+
+            <div class="flex justify-between items-end pt-4 border-t border-gray-100 mt-2">
+              <span class="text-base font-medium text-gray-900">Total</span>
+              <div class="text-right">
+                <span id="total-amount" class="block text-2xl font-bold text-gray-900">0 ₫</span>
+                <span class="text-xs text-gray-500">Including VAT</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Checkout Button -->
+          <button onclick="submitOrderCheckout()"
+            class="w-full mt-8 bg-apple-blue hover:bg-blue-600 text-white font-medium py-4 px-6 rounded-2xl transition-all duration-200 transform hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2">
+            <span>Place Order</span>
+            <i class="fas fa-arrow-right text-sm"></i>
+          </button>
+
+          <p class="text-center text-xs text-gray-400 mt-4">
+            <i class="fas fa-lock mr-1"></i> Secure Checkout
+          </p>
+
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <div class="order-modal-overlay" id="order-modal-overlay">
-    <div class="order-modal">
-      <div class="order-modal-header">
-        <h2>Confirm Order</h2>
-        <button type="button" class="order-modal-close-btn" onclick="closeOrderModal()">&times;</button>
+  <!-- Success Modal Overlay -->
+  <div id="success-modal-overlay"
+    class="fixed inset-0 bg-black/50 z-50 hidden place-items-center backdrop-blur-sm transition-opacity">
+    <div
+      class="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 text-center shadow-2xl transform scale-95 opacity-0 transition-all duration-300 animate-scale-up"
+      id="success-modal-content">
+      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-check text-3xl text-green-500"></i>
       </div>
-      <div class="order-modal-body">
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Order Confirmed!</h2>
+      <p class="text-gray-500 mb-6 line-clamp-2">Thank you for your purchase. We've received your order.</p>
 
-        <section>
-          <h3>Shipping Details</h3>
-          <div class="form-group">
-            <label>Recipient Name <span class="required">*</span></label>
-            <input type="text" id="recipient-name-checkout" required>
-          </div>
-          <div class="form-group">
-            <label>Phone Number <span class="required">*</span></label>
-            <input type="tel" id="recipient-phone-checkout" required>
-          </div>
-          <div class="form-group">
-            <label>Address <span class="required">*</span></label>
-            <input type="text" id="recipient-address-checkout" required>
-          </div>
-          <div class="form-group">
-            <label>Notes</label>
-            <textarea id="recipient-notes-checkout" rows="2"></textarea>
-          </div>
-        </section>
-
-        <section class="order-summary-section">
-          <h3>Order Summary</h3>
-          <div id="order-modal-product-summary-checkout" class="product-summary-list"></div>
-
-          <div class="voucher-section">
-            <label for="voucher-select" style="font-weight: 600; font-size: 0.9em;">Apply Voucher</label>
-            <select id="voucher-select" class="voucher-select" onchange="applyVoucher()">
-              <option value="0" data-code="">Select a voucher...</option>
-            </select>
-          </div>
-
-          <div class="order-calculations" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-              <span>Subtotal:</span>
-              <span id="subtotal-amount">0 ₫</span>
-            </div>
-
-            <div class="discount-row" id="discount-row" style="display: none;">
-              <span>Discount:</span>
-              <span id="discount-amount">-0 ₫</span>
-            </div>
-
-            <div class="order-modal-total" style="margin-top: 10px; font-size: 1.2em;">
-              <span>Total Payment:</span>
-              <span id="order-modal-total-amount-checkout">0 ₫</span>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <h3>Payment Method</h3>
-          <div class="payment-option">
-            <input type="radio" id="cod-checkout" name="payment-method" value="cod" checked>
-            <label for="cod-checkout"><i class="fa fa-truck"></i> Cash on Delivery (COD)</label>
-          </div>
-        </section>
+      <div class="bg-gray-50 rounded-xl p-4 mb-6 text-left border border-gray-100">
+        <p class="text-xs text-gray-500 uppercase tracking-wide">Order ID</p>
+        <p id="success-order-id" class="text-sm font-mono font-medium text-gray-900 break-all">#12345</p>
       </div>
-      <div class="order-modal-footer">
-        <button class="btn-place-order" onclick="submitOrderCheckout()">PLACE ORDER</button>
-      </div>
-    </div>
-  </div>
 
-  <div class="success-modal-overlay" id="success-modal-overlay">
-    <div class="success-modal">
-      <div class="icon" style="font-size: 50px; color: #28a745; margin-bottom: 10px;">&#10004;</div>
-      <h2>Order Successful!</h2>
-      <p>Thank you for your purchase.</p>
-      <p class="text-sm text-gray-500">Order ID: <strong id="success-order-id"></strong></p>
-      <button class="btn-ok"
-        style="background: #0071e3; color: white; padding: 10px 30px; border-radius: 20px; border: none; cursor: pointer; margin-top: 15px;"
-        onclick="closeSuccessModal()">Continue Shopping</button>
+      <button onclick="closeSuccessModal()"
+        class="w-full bg-black hover:bg-gray-800 text-white font-medium py-3 px-6 rounded-xl transition-colors">
+        Continue Shopping
+      </button>
     </div>
   </div>
 
   <script>
-    // --- KHAI BÁO ĐƯỜNG DẪN API CHUẨN (RENDER) ---
+    // --- API & STATE ---
     const API_BASE_URL = 'https://project3-icy1.onrender.com';
-
     let serverCartItems = [];
     let userVouchers = [];
     let currentDiscount = 0;
@@ -194,18 +236,18 @@
       return localStorage.getItem('accessToken');
     }
 
+    // --- MAIN INITIALIZATION ---
     async function loadCartFromServer() {
       const token = getAuthToken();
-      const tbody = document.querySelector('#checkout-table tbody');
-      const payBtn = document.querySelector('.btn-payment-checkout');
+      const container = document.getElementById('order-items-container');
 
-      // 1. Check if this is a Buy Now purchase (single product)
+      // 1. Buy Now Item Check
       const buyNowItem = localStorage.getItem('buyNowItem');
       if (buyNowItem) {
         try {
           const item = JSON.parse(buyNowItem);
           serverCartItems = [item];
-          displayCartItemsInTable();
+          renderCartItems();
           localStorage.removeItem('buyNowItem');
           return;
         } catch (error) {
@@ -214,153 +256,152 @@
         }
       }
 
-      // 2. Check Local Storage 'apple_cart' (Main Cart from Store)
+      // 2. Local Storage Cart Check
       const localCart = JSON.parse(localStorage.getItem('apple_cart')) || [];
       if (localCart.length > 0) {
-        console.log("Loaded items from local storage:", localCart);
         serverCartItems = localCart;
-        displayCartItemsInTable();
-
-        // Helper to fetch vouchers if logged in
-        if (token) {
-          try {
-            const profileRes = await fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'token': `Bearer ${token}` } });
-            const profileData = await profileRes.json();
-            if (profileData.user && profileData.user.myVouchers) {
-              userVouchers = profileData.user.myVouchers.filter(v => !v.isUsed);
-            }
-          } catch (e) { console.error("Error loading profile/vouchers", e); }
-        }
+        renderCartItems();
+        if (token) fetchUserVouchers(token);
         return;
       }
 
-      // 3. Regular Server Cart Flow (Fallback) - requires login
+      // 3. Server Cart Check (Fallback)
       if (!token) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Your cart is empty. <a href="store.html" style="color: #0071e3;">Go shopping</a></td></tr>';
-        if (payBtn) payBtn.disabled = true;
+        container.innerHTML = `
+          <div class="text-center py-8">
+            <p class="text-gray-500 mb-2">Your cart is empty.</p>
+            <a href="store.html" class="text-apple-blue hover:underline">Go shopping</a>
+          </div>`;
         return;
       }
 
       try {
-        // Tải Giỏ hàng từ Render
         const cartRes = await fetch(`${API_BASE_URL}/api/cart`, { headers: { 'token': `Bearer ${token}` } });
         const cartData = await cartRes.json();
         serverCartItems = cartData.items || [];
 
-        // Tải Profile từ Render để lấy Voucher
+        await fetchUserVouchers(token);
+        renderCartItems();
+
+      } catch (error) {
+        console.error("Error loading cart:", error);
+        container.innerHTML = `<div class="text-red-500 text-center py-4">Failed to load cart data.</div>`;
+      }
+    }
+
+    async function fetchUserVouchers(token) {
+      try {
         const profileRes = await fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'token': `Bearer ${token}` } });
         const profileData = await profileRes.json();
         if (profileData.user && profileData.user.myVouchers) {
           userVouchers = profileData.user.myVouchers.filter(v => !v.isUsed);
+          populateVoucherSelect();
         }
-
-        displayCartItemsInTable();
-
-      } catch (error) {
-        console.error("Error loading data:", error);
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Error loading data from server.</td></tr>`;
-      }
+      } catch (e) { console.error("Error fetching vouchers:", e); }
     }
 
-    function displayCartItemsInTable() {
-      const tbody = document.querySelector('#checkout-table tbody');
-      const payBtn = document.querySelector('.btn-payment-checkout');
-      tbody.innerHTML = '';
+    // --- UI RENDERING ---
+    function renderCartItems() {
+      const container = document.getElementById('order-items-container');
+      container.innerHTML = '';
+      currentSubtotal = 0;
 
       if (serverCartItems.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Your cart is empty.</td></tr>';
-        if (payBtn) payBtn.disabled = true;
-      } else {
-        if (payBtn) payBtn.disabled = false;
-        serverCartItems.forEach(item => {
-          const tr = document.createElement('tr');
-          const formattedPrice = item.price.toLocaleString('vi-VN') + ' ₫';
-          const productName = item.color ? `${item.name} <span style="color: #666; font-size: 0.9em;">(${item.color})</span>` : item.name;
-          const imageUrl = item.image || item.image_url || 'images/default.jpg';
-
-          tr.innerHTML = `
-                    <td><img src="${imageUrl}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: contain;" onerror="this.src='images/default.jpg'"></td>
-                    <td>${productName}</td>
-                    <td>${item.category || '-'}</td>
-                    <td>${formattedPrice}</td>
-                    <td>${item.quantity}</td>
-                `;
-          tbody.appendChild(tr);
-        });
+        container.innerHTML = `
+          <div class="text-center py-8">
+             <i class="fas fa-shopping-bag text-gray-300 text-4xl mb-3"></i>
+             <p class="text-gray-500">Your cart is empty.</p>
+          </div>`;
+        updateTotals();
+        return;
       }
-    }
-
-    function openOrderModal() {
-      if (serverCartItems.length === 0) return alert("Cart is empty.");
-
-      const summaryDiv = document.getElementById('order-modal-product-summary-checkout');
-      summaryDiv.innerHTML = '';
-      currentSubtotal = 0;
 
       serverCartItems.forEach(item => {
         const itemTotal = item.price * item.quantity;
         currentSubtotal += itemTotal;
 
-        const div = document.createElement('div');
-        div.style.cssText = "display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em;";
-        div.innerHTML = `
-                <span>${item.name} (x${item.quantity})</span>
-                <span>${itemTotal.toLocaleString('vi-VN')} ₫</span>
-            `;
-        summaryDiv.appendChild(div);
+        const imageUrl = item.image || item.image_url || 'images/default.jpg';
+        // Fallback for missing images
+
+        const itemEl = document.createElement('div');
+        itemEl.className = 'flex items-start gap-4 p-3 bg-gray-50 rounded-xl';
+        itemEl.innerHTML = `
+            <div class="w-16 h-16 bg-white rounded-lg border border-gray-200 flex-shrink-0 overflow-hidden flex items-center justify-center p-1">
+                <img src="${imageUrl}" alt="${item.name}" class="w-full h-full object-contain" onerror="this.src='images/default.jpg'">
+            </div>
+            <div class="flex-1 min-w-0">
+                <h4 class="text-sm font-medium text-gray-900 truncate" title="${item.name}">${item.name}</h4>
+                <p class="text-xs text-gray-500 mt-0.5">${item.category || 'Product'}</p>
+                ${item.color ? `<p class="text-xs text-gray-500">Color: ${item.color}</p>` : ''}
+                <div class="flex items-center justify-between mt-2">
+                    <span class="text-xs font-medium text-gray-600">Qty: ${item.quantity}</span>
+                    <span class="text-sm font-semibold text-gray-900">${itemTotal.toLocaleString('vi-VN')} ₫</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(itemEl);
       });
 
-      const voucherSelect = document.getElementById('voucher-select');
-      voucherSelect.innerHTML = '<option value="0" data-code="">-- Select a Voucher --</option>';
+      updateTotals();
+    }
+
+    function populateVoucherSelect() {
+      const select = document.getElementById('voucher-select');
+      select.innerHTML = '<option value="0" data-code="">Select a voucher...</option>';
 
       if (userVouchers.length > 0) {
         userVouchers.forEach(v => {
           const option = document.createElement('option');
           option.value = v.discountAmount;
           option.dataset.code = v.code;
-          option.textContent = `${v.code} - Giảm ${v.discountAmount.toLocaleString()}₫`;
-          voucherSelect.appendChild(option);
+          option.textContent = `${v.code} (-${v.discountAmount.toLocaleString()}₫)`;
+          select.appendChild(option);
         });
-      } else {
-        const option = document.createElement('option');
-        option.textContent = "No vouchers available";
-        option.disabled = true;
-        voucherSelect.appendChild(option);
       }
-
-      document.getElementById('voucher-select').value = "0";
-      applyVoucher();
-      document.getElementById('order-modal-overlay').classList.add('active');
     }
 
     function applyVoucher() {
       const select = document.getElementById('voucher-select');
-      const discountVal = parseFloat(select.value) || 0;
-      currentDiscount = discountVal;
+      currentDiscount = parseFloat(select.value) || 0;
+      updateTotals();
+    }
+
+    function updateTotals() {
+      const subEl = document.getElementById('subtotal-amount');
+      const discRow = document.getElementById('discount-row');
+      const discEl = document.getElementById('discount-amount');
+      const totalEl = document.getElementById('total-amount');
 
       let finalTotal = currentSubtotal - currentDiscount;
       if (finalTotal < 0) finalTotal = 0;
 
-      document.getElementById('subtotal-amount').textContent = currentSubtotal.toLocaleString('vi-VN') + ' ₫';
+      subEl.textContent = currentSubtotal.toLocaleString('vi-VN') + ' ₫';
 
-      const discountRow = document.getElementById('discount-row');
       if (currentDiscount > 0) {
-        discountRow.style.display = 'flex';
-        document.getElementById('discount-amount').textContent = `-${currentDiscount.toLocaleString('vi-VN')} ₫`;
+        discRow.classList.remove('hidden');
+        discRow.classList.add('flex');
+        discEl.textContent = `-${currentDiscount.toLocaleString('vi-VN')} ₫`;
       } else {
-        discountRow.style.display = 'none';
+        discRow.classList.add('hidden');
+        discRow.classList.remove('flex');
       }
 
-      document.getElementById('order-modal-total-amount-checkout').textContent = finalTotal.toLocaleString('vi-VN') + ' ₫';
+      totalEl.textContent = finalTotal.toLocaleString('vi-VN') + ' ₫';
     }
 
+    // --- FORM SUBMISSION ---
     async function submitOrderCheckout() {
+      if (serverCartItems.length === 0) return alert("Your cart is empty.");
+
       const name = document.getElementById('recipient-name-checkout').value.trim();
       const phone = document.getElementById('recipient-phone-checkout').value.trim();
       const address = document.getElementById('recipient-address-checkout').value.trim();
       const notes = document.getElementById('recipient-notes-checkout').value.trim();
 
-      if (!name || !phone || !address) return alert("Please fill in shipping details.");
+      if (!name || !phone || !address) {
+        alert("Please fill in all required shipping fields (*).");
+        return;
+      }
 
       const voucherSelect = document.getElementById('voucher-select');
       const selectedOption = voucherSelect.options[voucherSelect.selectedIndex];
@@ -379,7 +420,7 @@
           name: item.name,
           price: item.price.toLocaleString('vi-VN') + ' ₫',
           qty: item.quantity,
-          image: item.image_url
+          image: item.image_url || item.image
         })),
         totalAmountString: finalTotal.toLocaleString('vi-VN') + ' ₫',
         totalAmountNumeric: currentSubtotal,
@@ -388,7 +429,11 @@
       };
 
       try {
-        // Gửi đơn hàng lên Render
+        const btn = document.querySelector('button[onclick="submitOrderCheckout()"]');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        btn.disabled = true;
+
         const res = await fetch(`${API_BASE_URL}/api/orders`, {
           method: 'POST',
           headers: {
@@ -399,31 +444,48 @@
         });
 
         const data = await res.json();
+
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+
         if (!res.ok) throw new Error(data.message || "Order failed.");
 
-        closeOrderModal();
         showSuccessModal(data.order._id || "SUCCESS");
 
+        // Clear cart locally
         serverCartItems = [];
-        displayCartItemsInTable();
+        renderCartItems();
+        localStorage.removeItem('apple_cart'); // Clear local cart too
 
       } catch (error) {
         console.error(error);
-        alert(`Error: ${error.message}`);
+        alert(`Order Error: ${error.message}`);
+        const btn = document.querySelector('button[onclick="submitOrderCheckout()"]');
+        btn.disabled = false;
+        btn.innerHTML = 'Place Order <i class="fas fa-arrow-right text-sm"></i>';
       }
     }
 
-    function closeOrderModal() {
-      document.getElementById('order-modal-overlay').classList.remove('active');
-    }
+    // --- MODAL CONTROLS ---
     function showSuccessModal(id) {
+      const overlay = document.getElementById('success-modal-overlay');
+      const content = document.getElementById('success-modal-content');
       document.getElementById('success-order-id').textContent = id;
-      document.getElementById('success-modal-overlay').style.display = 'flex';
+
+      overlay.classList.remove('hidden');
+      overlay.classList.add('grid');
+      // Small delay to allow display:grid to apply before opacity transition
+      setTimeout(() => {
+        content.classList.remove('opacity-0', 'scale-95');
+        content.classList.add('opacity-100', 'scale-100');
+      }, 10);
     }
+
     function closeSuccessModal() {
       window.location.href = 'index.html';
     }
 
+    // Initialize
     document.addEventListener('DOMContentLoaded', loadCartFromServer);
   </script>
 </body>
