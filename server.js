@@ -584,91 +584,95 @@ app.post('/api/chat', async (req, res) => {
         }));
         console.log('✅ Products loaded:', products.length);
 
-        // ===== AI-POWERED INTENT DETECTION =====
-        const intentPrompt = `
-        PHÂN TÍCH CÂU HỎI:
-        User: "${userMessage}"
-        
-        XÁC ĐỊNH:
-        1. Intent: 
-           - ASK_PRICE (hỏi giá sản phẩm)
-           - GENERAL (hỏi chung, tư vấn)
-           - ORDER_STATUS (hỏi đơn hàng)
-        
-        2. Nếu ASK_PRICE, extract:
-           - productName: tên sản phẩm chính xác (VD: "iPhone 16", "MacBook Air")
-           - variant: phiên bản nếu có (VD: "Pro Max", "128GB")
-        
-        RETURN ONLY JSON:
-        {
-          "intent": "ASK_PRICE" | "GENERAL" | "ORDER_STATUS",
-          "productName": "string or null",
-          "variant": "string or null",
-          "confidence": 0.0-1.0
-        }
-        `;
+        // ===== FAST REGEX-BASED INTENT DETECTION (NO API CALLS) =====
+        const userMessageLower = userMessage.toLowerCase();
 
-        console.log('🤖 Analyzing intent with AI...');
-        const intentResult = await model.generateContent(intentPrompt);
-        const intentResponse = await intentResult.response;
-        let intentData;
+        // Detect price intent with keywords
+        const priceKeywords = ['giá', 'bao nhiêu', 'tiền', 'price', 'cost', 'giá cả', 'giá tiền', 'mức giá'];
+        const productKeywords = ['iphone', 'ip', 'macbook', 'mac', 'ipad', 'watch', 'airpods', 'airpod'];
 
-        try {
-            const intentText = intentResponse.text().trim();
-            // Extract JSON from response (may have markdown code blocks)
-            const jsonMatch = intentText.match(/\{[\s\S]*\}/);
-            intentData = JSON.parse(jsonMatch ? jsonMatch[0] : intentText);
-            console.log('✅ Intent detected:', intentData);
-        } catch (parseError) {
-            console.warn('⚠️ Failed to parse intent, defaulting to GENERAL');
-            intentData = { intent: 'GENERAL', confidence: 0.5 };
-        }
+        const hasPriceIntent = priceKeywords.some(kw => userMessageLower.includes(kw));
+        const hasProductMention = productKeywords.some(kw => userMessageLower.includes(kw));
 
-        // ===== HANDLE ASK_PRICE INTENT =====
-        if (intentData.intent === 'ASK_PRICE' && intentData.productName && intentData.confidence > 0.7) {
-            console.log('💰 Price query detected for:', intentData.productName);
+        console.log('🔍 Quick intent check:', { hasPriceIntent, hasProductMention });
 
-            // Search products in database
-            const searchRegex = new RegExp(intentData.productName, 'i');
-            let products = await Product.find({
-                name: searchRegex,
-                stock: { $gt: 0 }
-            }).limit(5);
+        // ===== HANDLE PRICE QUERIES (NO AI NEEDED) =====
+        if (hasPriceIntent && hasProductMention) {
+            console.log('💰 Price query detected - using regex extraction');
 
-            if (products.length > 0) {
-                console.log(`✅ Found ${products.length} matching products`);
+            // Extract product name with regex patterns
+            let productName = null;
 
-                // Format products for card response
-                const formattedProducts = products.map(p => ({
-                    id: p._id.toString(),
-                    name: p.name,
-                    price: p.price,
-                    priceFormatted: p.price.toLocaleString('vi-VN') + '₫',
-                    image: p.image_url,
-                    category: p.category,
-                    stock: p.stock
-                }));
+            // Common patterns
+            const patterns = [
+                /(?:iphone|ip)\s*(\d+)\s*(pro|max|plus|pro max)?/i,
+                /macbook\s*(air|pro)?/i,
+                /ipad\s*(pro|air|mini)?/i,
+                /apple\s*watch\s*(series\s*\d+|ultra|se)?/i,
+                /airpods?\s*(max|pro)?/i
+            ];
 
-                return res.json({
-                    type: 'product_card',
-                    products: formattedProducts,
-                    message: products.length === 1
-                        ? `Đây là thông tin về ${products[0].name}:`
-                        : `Tôi tìm thấy ${products.length} sản phẩm phù hợp:`
-                });
-            } else {
-                // No products found
-                return res.json({
-                    type: 'text',
-                    reply: `❓ Xin lỗi, tôi không tìm thấy sản phẩm "${intentData.productName}" trong kho. Bạn có thể:
+            for (const pattern of patterns) {
+                const match = userMessage.match(pattern);
+                if (match) {
+                    productName = match[0];
+                    break;
+                }
+            }
+
+            if (!productName) {
+                // Fallback: try any product keyword found
+                const found = productKeywords.find(kw => userMessageLower.includes(kw));
+                if (found) productName = found;
+            }
+
+            if (productName) {
+                console.log('📦 Extracted product:', productName);
+
+                // Search products in database
+                const searchRegex = new RegExp(productName, 'i');
+                let products = await Product.find({
+                    name: searchRegex,
+                    stock: { $gt: 0 }
+                }).limit(5);
+
+                if (products.length > 0) {
+                    console.log(`✅ Found ${products.length} matching products`);
+
+                    // Format products for card response
+                    const formattedProducts = products.map(p => ({
+                        id: p._id.toString(),
+                        name: p.name,
+                        price: p.price,
+                        priceFormatted: p.price.toLocaleString('vi-VN') + '₫',
+                        image: p.image_url,
+                        category: p.category,
+                        stock: p.stock
+                    }));
+
+                    return res.json({
+                        type: 'product_card',
+                        products: formattedProducts,
+                        message: products.length === 1
+                            ? `Đây là thông tin về ${products[0].name}:`
+                            : `Tôi tìm thấy ${products.length} sản phẩm phù hợp:`
+                    });
+                } else {
+                    // No products found
+                    return res.json({
+                        type: 'text',
+                        reply: `❓ Xin lỗi, tôi không tìm thấy sản phẩm "${productName}" trong kho. Bạn có thể:
 • Thử từ khóa khác (VD: "iPhone 16", "MacBook Pro")
 • Xem toàn bộ sản phẩm tại /store.html
 • Liên hệ: 0962923329`
-                });
+                    });
+                }
             }
         }
 
-        // ===== HANDLE GENERAL QUERIES =====
+        // ===== HANDLE GENERAL QUERIES (AI-POWERED) =====
+        console.log('💬 General query - calling Gemini AI');
+
         const systemPrompt = `
         BẠN LÀ: Trợ lý ảo AI của Apple Store.
         DỮ LIỆU:
