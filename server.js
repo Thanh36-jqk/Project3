@@ -529,6 +529,14 @@ app.post('/api/chat', async (req, res) => {
     const userMessage = req.body.message;
     console.log('Message:', userMessage);
 
+    // ===== VALIDATION =====
+    if (!userMessage || typeof userMessage !== 'string' || userMessage.trim() === '') {
+        console.log('❌ Empty or invalid message');
+        return res.status(400).json({
+            reply: "⚠️ Vui lòng nhập nội dung tin nhắn."
+        });
+    }
+
     // Kiểm tra model
     console.log('Model status:', model ? 'INITIALIZED' : 'NOT INITIALIZED');
     if (!model) {
@@ -589,15 +597,30 @@ app.post('/api/chat', async (req, res) => {
         console.log('🤖 Calling Gemini API...');
         console.log('Prompt length:', systemPrompt.length);
 
-        const result = await model.generateContent(systemPrompt);
-        console.log('✅ Gemini API responded');
+        let result, response, replyText;
 
-        const response = await result.response;
-        const replyText = response.text();
-        console.log('✅ Reply length:', replyText.length);
+        try {
+            result = await model.generateContent(systemPrompt);
+            console.log('✅ Gemini API call successful');
+        } catch (apiError) {
+            console.error('❌ Gemini API call failed:', apiError.message);
+            throw new Error('GEMINI_API_ERROR: ' + apiError.message);
+        }
 
-        if (!replyText) {
-            return res.json({ reply: "I'm sorry, I couldn't generate a response." });
+        try {
+            response = await result.response;
+            replyText = response.text();
+            console.log('✅ Reply extracted, length:', replyText?.length || 0);
+        } catch (parseError) {
+            console.error('❌ Failed to parse Gemini response:', parseError.message);
+            throw new Error('GEMINI_PARSE_ERROR: ' + parseError.message);
+        }
+
+        if (!replyText || replyText.trim() === '') {
+            console.warn('⚠️ Gemini returned empty response');
+            return res.json({
+                reply: "Xin lỗi, tôi không thể tạo câu trả lời lúc này. Vui lòng thử lại hoặc hỏi câu khác."
+            });
         }
 
         res.json({ reply: replyText });
