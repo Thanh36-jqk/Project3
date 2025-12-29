@@ -588,7 +588,7 @@ app.post('/api/chat', async (req, res) => {
         const userMessageLower = userMessage.toLowerCase();
 
         // Detect price intent with keywords
-        const priceKeywords = ['giá', 'bao nhiêu', 'tiền', 'price', 'cost', 'giá cả', 'giá tiền', 'mức giá'];
+        const priceKeywords = ['giá', 'bao nhiêu', 'tiền', 'price', 'cost', 'giá cả', 'giá tiền', 'mức giá', 'mua', 'đặt', 'order', 'buy', 'cần'];
         const productKeywords = ['iphone', 'ip', 'macbook', 'mac', 'ipad', 'watch', 'airpods', 'airpod'];
 
         const hasPriceIntent = priceKeywords.some(kw => userMessageLower.includes(kw));
