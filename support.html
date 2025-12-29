@@ -4,99 +4,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apple Support - Professional Experience</title>
-
+    <title>Apple Support - Customer Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        'apple-dark': '#000000',
+                        'apple-gray': '#1d1d1f',
+                        'apple-blue': '#0071e3',
+                        'apple-bg': '#f5f5f7'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
             background-color: #000;
             color: #f5f5f7;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #1d1d1f;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #424245;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6e6e73;
-        }
-
-        /* Smooth Fade In Animation */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-fade-in {
-            animation: fadeIn 0.6s ease-out forwards;
-        }
-
-        /* Timeline Connector Line */
-        .timeline-connector {
-            position: absolute;
-            top: 24px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: #333;
-            z-index: 0;
-        }
-
-        .timeline-progress {
-            position: absolute;
-            top: 24px;
-            left: 0;
-            height: 2px;
-            background: #0071e3;
-            z-index: 1;
-            width: 0%;
-            transition: width 1s ease-in-out;
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
         }
     </style>
 </head>
 
-<body class="antialiased min-h-screen flex flex-col">
+<body class="antialiased min-h-screen flex flex-col bg-black">
 
+    <!-- Header -->
     <header
         class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-6 h-12 flex items-center justify-between">
-            <a href="../index.html" class="text-xl text-white hover:text-gray-300 transition-colors">
+            <a href="index.html" class="text-xl text-white hover:text-gray-300 transition-colors">
                 <i class="fab fa-apple"></i>
             </a>
             <nav class="hidden md:flex space-x-8 text-xs font-light text-gray-300">
-                <a href="../index.html" class="hover:text-white transition-colors">Home</a>
-                <a href="../store.html" class="hover:text-white transition-colors">Store</a>
-                <a href="../Mac/mac.html" class="hover:text-white transition-colors">Mac</a>
-                <a href="../ipad/ipad.html" class="hover:text-white transition-colors">iPad</a>
-                <a href="../iphone/iphone.html" class="hover:text-white transition-colors">iPhone</a>
-                <a href="#" class="hover:text-white transition-colors">Watch</a>
-                <a href="#" class="hover:text-white transition-colors">AirPods</a>
+                <a href="index.html" class="hover:text-white transition-colors">Home</a>
+                <a href="store.html" class="hover:text-white transition-colors">Store</a>
                 <a href="support.html" class="text-white font-medium">Support</a>
             </nav>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4" id="auth-section">
+                <!-- Injected via JS -->
                 <a href="login/login.html"
                     class="text-xs text-white bg-blue-600 hover:bg-blue-700 px-3 py-1.5 rounded-full transition-all">Sign
                     In</a>
@@ -104,413 +67,293 @@
         </div>
     </header>
 
-    <section class="relative pt-32 pb-20 px-6 text-center overflow-hidden">
-        <div
-            class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-black to-black -z-10">
-        </div>
+    <main class="flex-grow pt-24 pb-20 px-4 md:px-8 max-w-7xl mx-auto w-full space-y-12">
 
-        <h1
-            class="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-fade-in">
-            Apple Support
-        </h1>
-        <p class="text-xl md:text-2xl text-gray-400 mb-10 max-w-2xl mx-auto animate-fade-in"
-            style="animation-delay: 0.1s;">
-            We’re here to help. Calculate your repair cost, track your order, or chat with an expert.
-        </p>
-
-        <div class="max-w-xl mx-auto relative group animate-fade-in" style="animation-delay: 0.2s;">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <i class="fas fa-search text-gray-500 group-focus-within:text-blue-500 transition-colors"></i>
-            </div>
-            <input type="text"
-                class="w-full bg-white/10 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-black transition-all backdrop-blur-sm"
-                placeholder="Search for topics (e.g., 'Reset Password', 'Order Status')">
-        </div>
-    </section>
-
-    <main class="flex-grow max-w-7xl mx-auto w-full px-6 space-y-24 pb-20">
-
-        <section id="order-tracking"
-            class="bg-[#1d1d1f] rounded-3xl p-8 md:p-12 border border-white/5 shadow-2xl relative overflow-hidden animate-fade-in"
-            style="animation-delay: 0.3s;">
-            <div class="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-                <i class="fas fa-box-open text-9xl text-white"></i>
-            </div>
-
-            <h2 class="text-3xl font-bold mb-2">Track Your Order</h2>
-            <p class="text-gray-400 mb-8">Enter your Order ID to see real-time updates.</p>
-
-            <form id="order-status-form" class="flex flex-col md:flex-row gap-4 mb-10">
-                <input type="text" id="order-id-input" placeholder="Order ID (e.g., 674...)"
-                    class="flex-1 bg-black border border-gray-700 rounded-xl px-5 py-4 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
-                    required>
-                <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all flex items-center justify-center gap-2 group">
-                    <span>Check Status</span>
-                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </button>
-            </form>
-
-            <div id="loading-spinner" class="hidden text-center py-10">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                <p class="text-gray-500 mt-2 text-sm">Retrieving data...</p>
-            </div>
-
-            <div id="error-message"
-                class="hidden bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl text-center mb-6">
-            </div>
-
-            <div id="order-result" class="hidden space-y-8">
-                <div
-                    class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/10 pb-6">
-                    <div>
-                        <p class="text-gray-400 text-sm">Order ID</p>
-                        <p class="text-xl font-mono text-white" id="res-order-id">#12345678</p>
-                    </div>
-                    <div class="mt-4 md:mt-0 text-right">
-                        <p class="text-gray-400 text-sm">Recipient</p>
-                        <p class="text-lg font-medium text-white" id="res-customer">Nguyen Van A</p>
-                    </div>
-                </div>
-
-                <div class="relative py-8">
-                    <div class="timeline-connector"></div>
-                    <div class="timeline-progress" id="progress-bar"></div>
-
-                    <div class="relative z-10 flex justify-between w-full">
-                        <div class="flex flex-col items-center group step-item" data-step="Pending">
-                            <div
-                                class="w-12 h-12 rounded-full bg-[#1d1d1f] border-2 border-gray-600 flex items-center justify-center mb-2 transition-colors duration-500 group-[.active]:bg-blue-600 group-[.active]:border-blue-600 shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-                                <i class="fas fa-clipboard-check text-gray-400 group-[.active]:text-white text-lg"></i>
-                            </div>
-                            <span
-                                class="text-xs md:text-sm text-gray-400 font-medium group-[.active]:text-blue-400">Order
-                                Placed</span>
-                        </div>
-                        <div class="flex flex-col items-center group step-item" data-step="Processing">
-                            <div
-                                class="w-12 h-12 rounded-full bg-[#1d1d1f] border-2 border-gray-600 flex items-center justify-center mb-2 transition-colors duration-500 group-[.active]:bg-blue-600 group-[.active]:border-blue-600 shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-                                <i class="fas fa-cog text-gray-400 group-[.active]:text-white text-lg fa-spin-pulse"
-                                    style="animation-duration: 3s;"></i>
-                            </div>
-                            <span
-                                class="text-xs md:text-sm text-gray-400 font-medium group-[.active]:text-blue-400">Processing</span>
-                        </div>
-                        <div class="flex flex-col items-center group step-item" data-step="Shipped">
-                            <div
-                                class="w-12 h-12 rounded-full bg-[#1d1d1f] border-2 border-gray-600 flex items-center justify-center mb-2 transition-colors duration-500 group-[.active]:bg-blue-600 group-[.active]:border-blue-600 shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-                                <i class="fas fa-shipping-fast text-gray-400 group-[.active]:text-white text-lg"></i>
-                            </div>
-                            <span
-                                class="text-xs md:text-sm text-gray-400 font-medium group-[.active]:text-blue-400">Shipped</span>
-                        </div>
-                        <div class="flex flex-col items-center group step-item" data-step="Completed">
-                            <div
-                                class="w-12 h-12 rounded-full bg-[#1d1d1f] border-2 border-gray-600 flex items-center justify-center mb-2 transition-colors duration-500 group-[.active]:bg-green-500 group-[.active]:border-green-500 shadow-[0_0_10px_rgba(0,0,0,0.5)]">
-                                <i class="fas fa-box text-gray-400 group-[.active]:text-white text-lg"></i>
-                            </div>
-                            <span
-                                class="text-xs md:text-sm text-gray-400 font-medium group-[.active]:text-green-400">Delivered</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-black/50 rounded-xl p-6 border border-white/5">
-                    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4">Items in Order</h3>
-                    <ul id="res-items" class="space-y-4">
-                    </ul>
-                    <div class="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
-                        <span class="text-gray-400">Total Amount</span>
-                        <span class="text-2xl font-bold text-white" id="res-total">0₫</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Hero Section -->
+        <section class="text-center space-y-4 pt-10 animate-fade-in">
+            <h1
+                class="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                How can we help you?
+            </h1>
+            <p class="text-xl text-gray-400">Track orders, manage vouchers, and find answers.</p>
         </section>
 
-        <section>
-            <h2 class="text-3xl font-bold mb-8">Support by Product</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <a href="#"
-                    class="group bg-[#1d1d1f] hover:bg-[#2d2d2f] p-8 rounded-2xl flex flex-col items-center text-center transition-all duration-300 border border-white/5 hover:border-blue-500/30">
-                    <img src="../images/14 promax black.png" alt="iPhone"
-                        class="h-20 object-contain mb-4 group-hover:scale-110 transition-transform">
-                    <span class="font-medium">iPhone</span>
-                </a>
-                <a href="#"
-                    class="group bg-[#1d1d1f] hover:bg-[#2d2d2f] p-8 rounded-2xl flex flex-col items-center text-center transition-all duration-300 border border-white/5 hover:border-blue-500/30">
-                    <img src="../images/macbook air 15 grey.webp" alt="Mac"
-                        class="h-20 object-contain mb-4 group-hover:scale-110 transition-transform">
-                    <span class="font-medium">Mac</span>
-                </a>
-                <a href="#"
-                    class="group bg-[#1d1d1f] hover:bg-[#2d2d2f] p-8 rounded-2xl flex flex-col items-center text-center transition-all duration-300 border border-white/5 hover:border-blue-500/30">
-                    <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/ipad-card-40-pro-202210?wid=340&hei=264&fmt=p-jpg&qlt=95&.v=1664387252907"
-                        alt="iPad" class="h-20 object-contain mb-4 group-hover:scale-110 transition-transform">
-                    <span class="font-medium">iPad</span>
-                </a>
-                <a href="#"
-                    class="group bg-[#1d1d1f] hover:bg-[#2d2d2f] p-8 rounded-2xl flex flex-col items-center text-center transition-all duration-300 border border-white/5 hover:border-blue-500/30">
-                    <img src="https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/watch-card-40-ultra2-202309?wid=340&hei=264&fmt=p-jpg&qlt=95&.v=1693611738496"
-                        alt="Watch" class="h-20 object-contain mb-4 group-hover:scale-110 transition-transform">
-                    <span class="font-medium">Watch</span>
-                </a>
-            </div>
-        </section>
+        <!-- DASHBOARD SECTION (Visible to Logged In Users) -->
+        <div id="user-dashboard" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
 
-        <section class="grid md:grid-cols-3 gap-12">
-            <div class="md:col-span-1">
-                <h2 class="text-3xl font-bold mb-4">Common Questions</h2>
-                <p class="text-gray-400 mb-6">Quick answers to help you get back to what you love.</p>
-                <div class="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-                    <h3 class="font-bold text-lg mb-2">Genius Bar</h3>
-                    <p class="text-sm opacity-90 mb-4">Get hands-on hardware support.</p>
-                    <button
-                        class="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors w-full">Make
-                        a Reservation</button>
+            <!-- Left Col: Profile & Vouchers -->
+            <div class="lg:col-span-1 space-y-8">
+                <!-- User Welcome -->
+                <div class="bg-apple-gray rounded-3xl p-6 border border-white/5 shadow-xl">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div
+                            class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-white" id="user-name">Welcome Back</h2>
+                            <p class="text-sm text-gray-400" id="user-rank">Rank: Member</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center bg-black/40 rounded-xl p-4 border border-white/5">
+                        <span class="text-gray-400 text-sm">Reward Points</span>
+                        <span class="text-xl font-bold text-yellow-500" id="user-points">0</span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="md:col-span-2 space-y-4">
+                <!-- Voucher Wallet -->
                 <div
-                    class="group bg-[#1d1d1f] rounded-xl border border-white/5 overflow-hidden transition-all hover:bg-[#2d2d2f]">
-                    <button class="w-full flex justify-between items-center p-6 text-left faq-trigger">
-                        <span class="font-medium">How do I reset my Apple ID password?</span>
+                    class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-6 border border-white/5 shadow-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-6 opacity-10">
                         <i
-                            class="fas fa-plus text-gray-500 transition-transform duration-300 group-[.active]:rotate-45"></i>
-                    </button>
-                    <div class="h-0 overflow-hidden transition-all duration-300 faq-content">
-                        <div class="p-6 pt-0 text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
-                            Go to iforgot.apple.com, enter your Apple ID, and follow the instructions to reset your
-                            password. You may need to verify your identity using trusted devices.
-                        </div>
+                            class="fas fa-ticket-alt text-8xl text-white transform rotate-12 group-hover:rotate-0 transition-transform duration-500"></i>
                     </div>
-                </div>
-                <div
-                    class="group bg-[#1d1d1f] rounded-xl border border-white/5 overflow-hidden transition-all hover:bg-[#2d2d2f]">
-                    <button class="w-full flex justify-between items-center p-6 text-left faq-trigger">
-                        <span class="font-medium">What is the return policy?</span>
-                        <i class="fas fa-plus text-gray-500 transition-transform duration-300"></i>
-                    </button>
-                    <div class="h-0 overflow-hidden transition-all duration-300 faq-content">
-                        <div class="p-6 pt-0 text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
-                            You have 14 calendar days to return an item from the date you received it. Only items that
-                            have been purchased directly from Apple can be returned to Apple.
-                        </div>
-                    </div>
-                </div>
-                <div
-                    class="group bg-[#1d1d1f] rounded-xl border border-white/5 overflow-hidden transition-all hover:bg-[#2d2d2f]">
-                    <button class="w-full flex justify-between items-center p-6 text-left faq-trigger">
-                        <span class="font-medium">How long does shipping usually take?</span>
-                        <i class="fas fa-plus text-gray-500 transition-transform duration-300"></i>
-                    </button>
-                    <div class="h-0 overflow-hidden transition-all duration-300 faq-content">
-                        <div class="p-6 pt-0 text-gray-400 text-sm leading-relaxed border-t border-white/5 mt-2">
-                            Standard delivery takes 2-3 business days for major cities and 4-5 days for other regions.
-                            Expedited shipping options are available at checkout.
-                        </div>
+                    <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fas fa-wallet text-purple-400"></i> My Vouchers
+                    </h3>
+
+                    <div id="voucher-list" class="space-y-3 max-h-[300px] overflow-y-auto scrollbar-hide">
+                        <!-- Vouchers Injected Here -->
+                        <div class="text-center py-8 text-gray-500 text-sm">Loading vouchers...</div>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <section class="text-center py-12 border-t border-white/10">
-            <h2 class="text-2xl font-bold mb-2">Still need help?</h2>
-            <p class="text-gray-400 mb-8">Connect with our support team.</p>
-            <div class="flex justify-center gap-6 flex-wrap">
-                <a href="tel:0962923329"
-                    class="flex items-center gap-3 bg-[#1d1d1f] px-6 py-3 rounded-full hover:bg-white hover:text-black transition-all border border-white/10">
-                    <i class="fas fa-phone-alt"></i>
-                    <span>Call Us</span>
-                </a>
-                <a href="mailto:nthanhtat51@gmail.com"
-                    class="flex items-center gap-3 bg-[#1d1d1f] px-6 py-3 rounded-full hover:bg-white hover:text-black transition-all border border-white/10">
-                    <i class="fas fa-envelope"></i>
-                    <span>Email Support</span>
-                </a>
-                <a href="#"
-                    class="flex items-center gap-3 bg-[#1d1d1f] px-6 py-3 rounded-full hover:bg-white hover:text-black transition-all border border-white/10">
-                    <i class="fas fa-comments"></i>
-                    <span>Live Chat</span>
-                </a>
+            <!-- Right Col: Order History -->
+            <div class="lg:col-span-2">
+                <div class="bg-apple-gray rounded-3xl p-6 md:p-8 border border-white/5 shadow-xl min-h-[500px]">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="fas fa-box-open text-blue-400"></i> Recent Orders
+                    </h3>
+
+                    <div id="order-list" class="space-y-4">
+                        <!-- Orders Injected Here -->
+                        <div class="text-center py-12 text-gray-500">Loading orders...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GUEST TOOLS (Always visible, but secondary if logged in) -->
+        <section id="guest-tools" class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-white/10">
+            <!-- Quick Track -->
+            <div class="bg-apple-gray rounded-3xl p-8 border border-white/5">
+                <h3 class="text-xl font-bold mb-4">Quick Order Tracking</h3>
+                <p class="text-gray-400 mb-6 text-sm">Want to check an order status without logging in? Enter the Order
+                    ID below.</p>
+                <form id="quick-track-form" class="flex gap-2">
+                    <input type="text" id="track-id" placeholder="Order ID (e.g. 675...)"
+                        class="flex-1 bg-black border border-gray-700 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500 outline-none">
+                    <button type="submit"
+                        class="bg-white/10 hover:bg-white/20 text-white px-6 rounded-xl transition-colors font-medium">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                <!-- Quick Result Area -->
+                <div id="quick-track-result"
+                    class="mt-4 hidden p-4 bg-black/40 rounded-xl border border-white/5 text-sm"></div>
+            </div>
+
+            <!-- FAQ -->
+            <div class="bg-apple-gray rounded-3xl p-8 border border-white/5">
+                <h3 class="text-xl font-bold mb-4">Common Questions</h3>
+                <div class="space-y-2">
+                    <details class="group bg-black/20 rounded-xl overflow-hidden">
+                        <summary
+                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white transition-colors flex justify-between">
+                            How do I return an item? <i
+                                class="fas fa-chevron-down opacity-50 transition-transform group-open:rotate-180"></i>
+                        </summary>
+                        <div class="p-4 pt-0 text-sm text-gray-400">You have 14 days to return an item. Visit any Apple
+                            Store or use the online return portal.</div>
+                    </details>
+                    <details class="group bg-black/20 rounded-xl overflow-hidden">
+                        <summary
+                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white transition-colors flex justify-between">
+                            Where is my refund? <i
+                                class="fas fa-chevron-down opacity-50 transition-transform group-open:rotate-180"></i>
+                        </summary>
+                        <div class="p-4 pt-0 text-sm text-gray-400">Refunds are processed within 3-5 business days after
+                            we receive your returned item.</div>
+                    </details>
+                </div>
             </div>
         </section>
 
     </main>
 
-    <footer class="bg-[#1d1d1f] py-8 text-center text-xs text-gray-500 border-t border-white/10">
-        <div class="max-w-7xl mx-auto px-6">
-            <p class="mb-2">Copyright © 2025 Apple Clone Inc. All rights reserved.</p>
-            <div class="space-x-4">
-                <a href="#" class="hover:underline">Privacy Policy</a>
-                <a href="#" class="hover:underline">Terms of Use</a>
-                <a href="#" class="hover:underline">Sales and Refunds</a>
-                <a href="#" class="hover:underline">Legal</a>
-                <a href="#" class="hover:underline">Site Map</a>
-            </div>
-        </div>
-    </footer>
-
+    <!-- JS LOGIC -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        const API_BASE_URL = 'https://project3-icy1.onrender.com';
 
-            // --- FAQ Accordion Logic ---
-            const faqButtons = document.querySelectorAll('.faq-trigger');
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('accessToken');
+            const userDashboard = document.getElementById('user-dashboard');
+            const authSection = document.getElementById('auth-section');
 
-            faqButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const parent = btn.parentElement;
-                    const content = parent.querySelector('.faq-content');
-                    const icon = btn.querySelector('.fa-plus');
-
-                    // Toggle active class
-                    parent.classList.toggle('active');
-
-                    // Animate height
-                    if (parent.classList.contains('active')) {
-                        content.style.height = content.scrollHeight + "px";
-                        icon.style.transform = "rotate(45deg)";
-                    } else {
-                        content.style.height = "0";
-                        icon.style.transform = "rotate(0deg)";
-                    }
-
-                    // Close others
-                    faqButtons.forEach(otherBtn => {
-                        if (otherBtn !== btn) {
-                            const otherParent = otherBtn.parentElement;
-                            const otherContent = otherParent.querySelector('.faq-content');
-                            const otherIcon = otherBtn.querySelector('.fa-plus');
-
-                            otherParent.classList.remove('active');
-                            otherContent.style.height = "0";
-                            otherIcon.style.transform = "rotate(0deg)";
-                        }
-                    });
-                });
-            });
-
-            // --- Advanced Order Status Checker ---
-            const form = document.getElementById('order-status-form');
-            const input = document.getElementById('order-id-input');
-            const resultSection = document.getElementById('order-result');
-            const loader = document.getElementById('loading-spinner');
-            const errorDiv = document.getElementById('error-message');
-            const progressBar = document.getElementById('progress-bar');
-            const stepItems = document.querySelectorAll('.step-item');
-
-            const STATUS_MAP = {
-                'Pending': 0,
-                'Processing': 1,
-                'Shipped': 2,
-                'Completed': 3
-            };
-
-            const STATUS_PERCENT = {
-                'Pending': 12,
-                'Processing': 38,
-                'Shipped': 62,
-                'Completed': 100
-            };
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const orderId = input.value.trim();
-
-                if (!orderId) return;
-
-                // UI Reset
-                resultSection.classList.add('hidden');
-                errorDiv.classList.add('hidden');
-                loader.classList.remove('hidden');
-
-                try {
-                    // Call the NEW Backend API
-                    const response = await fetch(`https://project3-icy1.onrender.com/api/orders/${orderId}`);
-
-                    // Check if response is JSON
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        throw new Error('Server returned invalid response. Please check the Order ID and try again.');
-                    }
-
-                    if (!response.ok) {
-                        const err = await response.json();
-                        throw new Error(err.message || 'Order not found. Please verify your Order ID.');
-                    }
-
-                    const data = await response.json();
-
-                    // Render Data
-                    document.getElementById('res-order-id').textContent = '#' + data._id.slice(-8).toUpperCase();
-                    document.getElementById('res-customer').textContent = data.recipientName;
-                    document.getElementById('res-total').textContent = parseInt(data.finalAmount || data.totalAmountNumeric).toLocaleString('vi-VN') + '₫';
-
-                    // Render Items
-                    const itemsList = document.getElementById('res-items');
-                    itemsList.innerHTML = '';
-                    data.items.forEach(item => {
-                        const li = document.createElement('li');
-                        li.className = 'flex items-center gap-4 bg-white/5 p-3 rounded-lg';
-                        li.innerHTML = `
-                            <div class="w-12 h-12 bg-white rounded-md flex items-center justify-center overflow-hidden flex-shrink-0">
-                                <img src="${item.image || 'https://via.placeholder.com/50'}" class="w-full h-full object-contain">
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-white font-medium text-sm truncate">${item.name}</p>
-                                <p class="text-gray-500 text-xs">Qty: ${item.quantity || item.qty}</p>
-                            </div>
-                            <span class="text-gray-300 text-sm font-medium">
-                                ${(parseFloat(item.price.replace(/[^\d]/g, '')) * (item.quantity || item.qty)).toLocaleString('vi-VN')}₫
-                            </span>
-                        `;
-                        itemsList.appendChild(li);
-                    });
-
-                    // Update Timeline Visuals
-                    updateTimeline(data.status);
-
-                    // Show Result
-                    loader.classList.add('hidden');
-                    resultSection.classList.remove('hidden');
-                    // Smooth scroll to result
-                    resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                } catch (error) {
-                    loader.classList.add('hidden');
-                    errorDiv.textContent = error.message;
-                    errorDiv.classList.remove('hidden');
-                }
-            });
-
-            function updateTimeline(status) {
-                // Reset styling
-                stepItems.forEach(step => step.classList.remove('active'));
-
-                const statusIndex = STATUS_MAP[status] !== undefined ? STATUS_MAP[status] : 0;
-
-                // Active current and previous steps
-                stepItems.forEach((step, index) => {
-                    if (index <= statusIndex) {
-                        step.classList.add('active');
-                    }
-                });
-
-                // Animate Progress Bar width
-                // Small delay to allow element to be visible first
-                setTimeout(() => {
-                    const percentage = STATUS_PERCENT[status] || 0;
-                    progressBar.style.width = percentage + '%';
-
-                    // Change color based on completion
-                    if (status === 'Completed') {
-                        progressBar.style.backgroundColor = '#22c55e'; // Green
-                    } else {
-                        progressBar.style.backgroundColor = '#2563eb'; // Blue
-                    }
-                }, 100);
+            if (token) {
+                // Logged In State
+                authSection.innerHTML = `
+                    <div class="relative group">
+                        <button class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-white text-xs overflow-hidden">
+                            <i class="fas fa-user"></i>
+                        </button>
+                        <!-- Dropdown -->
+                        <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-xl shadow-lg border border-gray-700 hidden group-hover:block p-1 z-50">
+                             <a href="#" onclick="logout()" class="block px-4 py-2 text-sm text-red-400 hover:bg-gray-700 rounded-lg">Sign Out</a>
+                        </div>
+                    </div>
+                 `;
+                userDashboard.classList.remove('hidden');
+                await loadUserProfile(token);
+            } else {
+                // Guest State
+                // Dashboard remains hidden
             }
+
+            // Handle Quick Track
+            document.getElementById('quick-track-form').addEventListener('submit', handleQuickTrack);
         });
+
+        async function loadUserProfile(token) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'token': `Bearer ${token}` } });
+                const data = await res.json();
+
+                if (res.ok) {
+                    // 1. Populate Profile Info
+                    document.getElementById('user-name').textContent = data.user.email.split('@')[0];
+                    document.getElementById('user-rank').textContent = `Rank: ${data.user.rank}`;
+                    const rankColor = data.user.rank === 'VIP' ? 'text-purple-400' : (data.user.rank === 'Gold' ? 'text-yellow-400' : 'text-gray-400');
+                    document.getElementById('user-rank').className = `text-sm font-medium ${rankColor}`;
+                    document.getElementById('user-points').textContent = data.user.points.toLocaleString();
+
+                    // 2. Populate Vouchers
+                    const voucherList = document.getElementById('voucher-list');
+                    voucherList.innerHTML = '';
+                    if (data.user.myVouchers && data.user.myVouchers.length > 0) {
+                        data.user.myVouchers.forEach(v => {
+                            const isUsed = v.isUsed;
+                            const el = document.createElement('div');
+                            el.className = `p-3 rounded-xl border border-dashed flex justify-between items-center transition-all ${isUsed ? 'bg-gray-800/50 border-gray-700 opacity-50' : 'bg-gray-800 border-gray-600 hover:border-purple-500'}`;
+                            el.innerHTML = `
+                                <div>
+                                    <p class="font-mono font-bold text-white text-sm tracking-wider">${v.code}</p>
+                                    <p class="text-xs ${isUsed ? 'text-gray-500' : 'text-green-400'}">${isUsed ? 'Used' : `-${v.discountAmount.toLocaleString()}₫ off`}</p>
+                                </div>
+                                ${!isUsed ? `<button onclick="copyToClipboard('${v.code}')" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-white" title="Copy Code"><i class="far fa-copy"></i></button>` : ''}
+                            `;
+                            voucherList.appendChild(el);
+                        });
+                    } else {
+                        voucherList.innerHTML = '<div class="text-center py-4 text-gray-500 text-sm">No vouchers yet. Shop more to earn!</div>';
+                    }
+
+                    // 3. Populate Orders
+                    const orderList = document.getElementById('order-list');
+                    orderList.innerHTML = '';
+                    if (data.orders && data.orders.length > 0) {
+                        data.orders.forEach(order => {
+                            const statusColor = getStatusColor(order.status);
+                            const orderEl = document.createElement('div');
+                            orderEl.className = 'bg-black/20 p-4 rounded-2xl border border-white/5 hover:bg-black/40 transition-colors';
+
+                            // Calculate items summary
+                            const itemNames = order.items.map(i => i.name).join(', ');
+                            const itemCount = order.items.reduce((acc, i) => acc + (i.qty || i.quantity), 0);
+
+                            orderEl.innerHTML = `
+                                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-3">
+                                    <div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-sm font-mono text-gray-400">#${order._id.slice(-8).toUpperCase()}</span>
+                                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${statusColor}">${order.status}</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500 mt-1">${new Date(order.createdAt).toLocaleDateString()}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-white font-bold">${parseInt(order.finalAmount || order.totalAmountNumeric).toLocaleString()} ₫</p>
+                                        <p class="text-xs text-gray-500">${itemCount} items</p>
+                                    </div>
+                                </div>
+                                <div class="text-sm text-gray-300 line-clamp-1 mb-3">${itemNames}</div>
+                                <div class="flex justify-end gap-2">
+                                     <button onclick="handleQuickTrack(null, '${order._id}')" class="text-xs bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg transition-all font-medium">Track Order</button>
+                                </div>
+                            `;
+                            orderList.appendChild(orderEl);
+                        });
+                    } else {
+                        orderList.innerHTML = '<div class="text-center py-10"><i class="fas fa-box-open text-4xl text-gray-700 mb-2"></i><p class="text-gray-500">No recent orders found.</p><a href="store.html" class="text-blue-400 text-sm hover:underline mt-2">Start Shopping</a></div>';
+                    }
+
+                } else {
+                    console.error("Failed to load profile");
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function handleQuickTrack(e, idOverride) {
+            if (e) e.preventDefault();
+            const id = idOverride || document.getElementById('track-id').value.trim();
+            const resultDiv = document.getElementById('quick-track-result');
+
+            if (!id) return;
+
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Locating order...';
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/orders/${id}`);
+                const data = await res.json();
+
+                if (res.ok) {
+                    const statusColor = getStatusColor(data.status);
+                    resultDiv.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-green-400 font-bold mb-1">Order Found!</p>
+                                <p>Status: <span class="${statusColor} px-1.5 rounded">${data.status}</span></p>
+                                <p class="text-xs text-gray-500 mt-1">To: ${data.recipientName}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold">${parseInt(data.finalAmount || data.totalAmountNumeric).toLocaleString()} ₫</p>
+                            </div>
+                        </div>
+                    `;
+                    // Smooth scroll to result if it was a manual search
+                    if (!idOverride) resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    throw new Error(data.message || 'Order not found');
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<span class="text-red-400"><i class="fas fa-exclamation-circle"></i> ${err.message}</span>`;
+            }
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'Pending': return 'bg-yellow-500/20 text-yellow-500';
+                case 'Processing': return 'bg-blue-500/20 text-blue-400';
+                case 'Shipped': return 'bg-purple-500/20 text-purple-400';
+                case 'Completed': return 'bg-green-500/20 text-green-400';
+                default: return 'bg-gray-700 text-gray-400';
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Voucher code copied: ' + text);
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('apple_cart');
+            window.location.reload();
+        }
     </script>
 </body>
 
