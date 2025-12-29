@@ -77,8 +77,8 @@ let model;
 
 if (apiKey) {
     const genAI = new GoogleGenerativeAI(apiKey);
-    model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    console.log('✅ Gemini AI Configured');
+    model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    console.log('✅ Gemini AI Configured (Model: gemini-2.5-flash)');
 } else {
 
     console.warn("⚠️ WARNING: GEMINI_API_KEY thiếu. Chatbot sẽ không hoạt động.");
