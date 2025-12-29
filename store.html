@@ -1466,11 +1466,13 @@
 
 
         // Checkout
+        // Checkout
         window.openCheckout = () => {
             if (cart.length === 0) return showToast('Bag is empty', 'error');
             toggleCart(); // Close cart
-            document.getElementById('checkout-modal').classList.remove('hidden');
-            document.getElementById('checkout-modal').classList.add('flex');
+            window.location.href = 'checkout.html';
+            // document.getElementById('checkout-modal').classList.remove('hidden');
+            // document.getElementById('checkout-modal').classList.add('flex');
         };
 
         window.closeCheckout = () => {

@@ -199,16 +199,13 @@
       const tbody = document.querySelector('#checkout-table tbody');
       const payBtn = document.querySelector('.btn-payment-checkout');
 
-      // Check if this is a Buy Now purchase (single product)
+      // 1. Check if this is a Buy Now purchase (single product)
       const buyNowItem = localStorage.getItem('buyNowItem');
       if (buyNowItem) {
-        // Handle Buy Now flow
         try {
           const item = JSON.parse(buyNowItem);
           serverCartItems = [item];
           displayCartItemsInTable();
-
-          // Clear the buyNowItem after loading
           localStorage.removeItem('buyNowItem');
           return;
         } catch (error) {
@@ -217,20 +214,40 @@
         }
       }
 
-      // Regular cart flow - requires login
+      // 2. Check Local Storage 'apple_cart' (Main Cart from Store)
+      const localCart = JSON.parse(localStorage.getItem('apple_cart')) || [];
+      if (localCart.length > 0) {
+        console.log("Loaded items from local storage:", localCart);
+        serverCartItems = localCart;
+        displayCartItemsInTable();
+
+        // Helper to fetch vouchers if logged in
+        if (token) {
+          try {
+            const profileRes = await fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'token': `Bearer ${token}` } });
+            const profileData = await profileRes.json();
+            if (profileData.user && profileData.user.myVouchers) {
+              userVouchers = profileData.user.myVouchers.filter(v => !v.isUsed);
+            }
+          } catch (e) { console.error("Error loading profile/vouchers", e); }
+        }
+        return;
+      }
+
+      // 3. Regular Server Cart Flow (Fallback) - requires login
       if (!token) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Please <a href="login/login.html" style="color: #0071e3;">login</a> to view your cart.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Your cart is empty. <a href="store.html" style="color: #0071e3;">Go shopping</a></td></tr>';
         if (payBtn) payBtn.disabled = true;
         return;
       }
 
       try {
-        // 1. Tải Giỏ hàng từ Render
+        // Tải Giỏ hàng từ Render
         const cartRes = await fetch(`${API_BASE_URL}/api/cart`, { headers: { 'token': `Bearer ${token}` } });
         const cartData = await cartRes.json();
         serverCartItems = cartData.items || [];
 
-        // 2. Tải Profile từ Render để lấy Voucher
+        // Tải Profile từ Render để lấy Voucher
         const profileRes = await fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'token': `Bearer ${token}` } });
         const profileData = await profileRes.json();
         if (profileData.user && profileData.user.myVouchers) {
