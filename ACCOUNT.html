@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +9,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f5f5f7; /* Màu nền xám đặc trưng của Apple */
+            background-color: #f5f5f7;
+            /* Màu nền xám đặc trưng của Apple */
             color: #1d1d1f;
             -webkit-font-smoothing: antialiased;
         }
@@ -29,30 +31,44 @@
             border-radius: 18px;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
-        
+
         .apple-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
         }
 
         /* Gradient Rank Card */
-        .rank-card-silver { background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%); color: #2d3436; }
-        .rank-card-gold { background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%); color: #795548; }
-        .rank-card-vip { background: linear-gradient(135deg, #232526 0%, #414345 100%); color: #ffffff; }
+        .rank-card-silver {
+            background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%);
+            color: #2d3436;
+        }
+
+        .rank-card-gold {
+            background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+            color: #795548;
+        }
+
+        .rank-card-vip {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            color: #ffffff;
+        }
 
         /* Button Style */
         .btn-apple {
             background-color: #0071e3;
             color: white;
-            border-radius: 980px; /* Pill shape */
+            border-radius: 980px;
+            /* Pill shape */
             transition: all 0.2s ease;
         }
+
         .btn-apple:hover {
             background-color: #0077ed;
             transform: scale(1.02);
         }
+
         .btn-apple:active {
             transform: scale(0.98);
         }
@@ -62,13 +78,23 @@
             color: #1d1d1f;
             border-bottom: 2px solid #1d1d1f;
         }
-        
+
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 3px; }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #d1d1d6;
+            border-radius: 3px;
+        }
     </style>
 </head>
+
 <body class="flex flex-col min-h-screen">
 
     <!-- 1. NAVIGATION BAR (Dark & Sleek) -->
@@ -78,15 +104,15 @@
             <div class="flex items-center gap-8">
                 <a href="index.html" class="text-lg hover:text-white transition-colors"><i class="fab fa-apple"></i></a>
                 <div class="hidden md:flex gap-6">
-                    <a href="index.html" class="hover:text-white transition-colors">Store</a>
+                    <a href="store.html" class="hover:text-white transition-colors">Store</a>
                     <a href="Mac/mac.html" class="hover:text-white transition-colors">Mac</a>
                     <a href="ipad/ipad.html" class="hover:text-white transition-colors">iPad</a>
                     <a href="iphone/iphone.html" class="hover:text-white transition-colors">iPhone</a>
-                    <a href="#" class="hover:text-white transition-colors">Watch</a>
-                    <a href="#" class="hover:text-white transition-colors">AirPods</a>
+                    <a href="watch.html" class="hover:text-white transition-colors">Watch & AirPods</a>
+                    <a href="support.html" class="hover:text-white transition-colors">Support</a>
                 </div>
             </div>
-            
+
             <!-- Right: User & Cart -->
             <div class="flex items-center gap-6">
                 <div class="hidden md:flex items-center gap-2 cursor-pointer group relative">
@@ -109,7 +135,8 @@
                 </p>
             </div>
             <!-- Rank Badge Mini -->
-            <div id="rank-badge-mini" class="hidden md:flex items-center gap-2 px-4 py-2 bg-[#f5f5f7] rounded-full text-xs font-semibold text-[#1d1d1f]">
+            <div id="rank-badge-mini"
+                class="hidden md:flex items-center gap-2 px-4 py-2 bg-[#f5f5f7] rounded-full text-xs font-semibold text-[#1d1d1f]">
                 <i class="fas fa-shield-alt"></i> <span id="rank-text-mini">Member</span>
             </div>
         </div>
@@ -121,15 +148,17 @@
 
             <!-- LEFT COLUMN (Sidebar Info) -->
             <div class="lg:col-span-4 space-y-6">
-                
+
                 <!-- Membership Card (The "Star" of the page) -->
-                <div id="membership-card" class="rank-card-silver rounded-2xl p-8 shadow-xl relative overflow-hidden group h-64 flex flex-col justify-between">
+                <div id="membership-card"
+                    class="rank-card-silver rounded-2xl p-8 shadow-xl relative overflow-hidden group h-64 flex flex-col justify-between">
                     <div class="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-white/20 rounded-full blur-2xl"></div>
-                    
+
                     <div class="relative z-10">
                         <div class="flex justify-between items-start">
                             <i class="fab fa-apple text-3xl opacity-80"></i>
-                            <span class="text-xs font-bold uppercase tracking-widest border border-current px-2 py-1 rounded">Rewards</span>
+                            <span
+                                class="text-xs font-bold uppercase tracking-widest border border-current px-2 py-1 rounded">Rewards</span>
                         </div>
                     </div>
 
@@ -181,12 +210,15 @@
 
             <!-- RIGHT COLUMN (Main Content Tabs) -->
             <div class="lg:col-span-8">
-                
+
                 <!-- Tabs Navigation -->
                 <div class="flex gap-8 border-b border-[#d2d2d7] mb-8 text-sm font-medium text-[#86868b]">
-                    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active pb-3 hover:text-[#1d1d1f] transition-colors">Order History</button>
-                    <button onclick="switchTab('rewards')" id="tab-rewards" class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors">Redeem Rewards</button>
-                    <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors">Settings</button>
+                    <button onclick="switchTab('orders')" id="tab-orders"
+                        class="tab-btn active pb-3 hover:text-[#1d1d1f] transition-colors">Order History</button>
+                    <button onclick="switchTab('rewards')" id="tab-rewards"
+                        class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors">Redeem Rewards</button>
+                    <button onclick="switchTab('settings')" id="tab-settings"
+                        class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors">Settings</button>
                 </div>
 
                 <!-- 1. ORDER HISTORY TAB -->
@@ -202,7 +234,9 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100" id="order-history-body">
-                                <tr><td colspan="4" class="py-8 text-center text-gray-400">Loading orders...</td></tr>
+                                <tr>
+                                    <td colspan="4" class="py-8 text-center text-gray-400">Loading orders...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -216,7 +250,8 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="redeemable-vouchers">
                         <!-- Voucher Item Example (Will be replaced by JS) -->
-                        <div class="border border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center justify-center text-center text-gray-400 h-48">
+                        <div
+                            class="border border-dashed border-gray-300 rounded-2xl p-8 flex flex-col items-center justify-center text-center text-gray-400 h-48">
                             <i class="fas fa-gift text-3xl mb-2 opacity-50"></i>
                             <p>Loading rewards...</p>
                         </div>
@@ -268,19 +303,19 @@
                 document.getElementById('header-email').innerText = user.email.split('@')[0]; // Just show name part
                 document.getElementById('info-email').innerText = user.email;
                 document.getElementById('info-spent').innerText = user.totalSpending.toLocaleString() + '₫';
-                
+
                 // 2. Update Rank Card Style
                 const card = document.getElementById('membership-card');
                 const rankTitle = document.getElementById('card-rank-title');
                 const miniRank = document.getElementById('rank-text-mini');
-                
+
                 rankTitle.innerText = user.rank + " Member";
                 miniRank.innerText = user.rank;
                 document.getElementById('user-points').innerText = user.points;
 
                 // Reset classes first
                 card.className = "rounded-2xl p-8 shadow-xl relative overflow-hidden group h-64 flex flex-col justify-between";
-                
+
                 if (user.rank === 'Gold') card.classList.add('rank-card-gold');
                 else if (user.rank === 'VIP') card.classList.add('rank-card-vip');
                 else card.classList.add('rank-card-silver');
@@ -297,8 +332,8 @@
                             <td class="py-4 px-6 font-medium">${o.totalAmountNumeric.toLocaleString()}₫</td>
                             <td class="py-4 px-6 text-right">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                ${o.status === 'Completed' ? 'bg-green-100 text-green-800' : 
-                                  o.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                                ${o.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                            o.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
                                     ${o.status}
                                 </span>
                             </td>
@@ -309,7 +344,7 @@
                 // 4. Render My Vouchers (Wallet)
                 const myVouchersList = document.getElementById('my-vouchers-list');
                 document.getElementById('voucher-count').innerText = user.myVouchers.filter(v => !v.isUsed).length;
-                
+
                 if (user.myVouchers.length === 0) {
                     myVouchersList.innerHTML = '<p class="text-sm text-gray-400 italic text-center py-2">Empty wallet</p>';
                 } else {
@@ -382,18 +417,18 @@
         }
 
         async function redeem(voucherId) {
-            if(!confirm("Use your points to get this voucher?")) return;
-            
+            if (!confirm("Use your points to get this voucher?")) return;
+
             try {
                 const res = await fetch(`${API_URL}/vouchers/redeem`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
-                        'token': `Bearer ${token}` 
+                        'token': `Bearer ${token}`
                     },
                     body: JSON.stringify({ voucherId })
                 });
-                
+
                 const data = await res.json();
                 if (res.ok) {
                     alert("Successfully redeemed! Check your Wallet.");
@@ -413,4 +448,5 @@
         loadProfile();
     </script>
 </body>
+
 </html>
