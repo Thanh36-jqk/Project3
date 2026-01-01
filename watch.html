@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apple Watch & AirPods - Premium Showcase</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'apple-gray': '#f5f5f7',
+                        'apple-dark': '#1d1d1f',
+                        'watch-ultra': '#FF4500',
+                    },
+                    boxShadow: {
+                        'soft': '0 20px 40px -10px rgba(0,0,0,0.1)',
+                        'glow': '0 0 20px rgba(0, 113, 227, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* Animation Classes */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-in {
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+        }
+
+        /* Tab Transition */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Sticky Nav Transition */
+        header.scrolled {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-[#f5f5f7] text-[#1d1d1f] antialiased">
+
+    <!-- ==================== HEADER ==================== -->
+    <header
+        class="fixed top-0 w-full z-50 transition-all duration-300 bg-white/70 backdrop-blur-md border-b border-gray-200">
+        <nav class="max-w-7xl mx-auto px-4 h-12 flex items-center justify-between text-xs font-medium text-gray-600">
+            <!-- Logo -->
+            <a href="store.html" class="text-lg hover:text-black transition-colors"><i class="fab fa-apple"></i></a>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex space-x-8">
+                <a href="store.html" class="hover:text-black transition-colors">Store</a>
+                <a href="Mac/mac.html" class="hover:text-black transition-colors">Mac</a>
+                <a href="ipad/ipad.html" class="hover:text-black transition-colors">iPad</a>
+                <a href="iphone/iphone.html" class="hover:text-black transition-colors">iPhone</a>
+                <a href="watch.html" class="text-black">Watch</a>
+                <a href="watch.html" class="text-black">AirPods</a> <!-- Corrected Link -->
+                <a href="#" class="hover:text-black transition-colors">TV & Home</a>
+                <a href="ACCOUNT.html" class="hover:text-black transition-colors">Member</a>
+                <a href="support.html" class="hover:text-black transition-colors">Support</a>
+            </div>
+
+            <!-- Icons -->
+            <div class="flex items-center space-x-6">
+                <button class="hover:text-black"><i class="fas fa-search"></i></button>
+                <div class="relative cursor-pointer hover:text-black">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span
+                        class="absolute -top-1 -right-1 bg-black text-white text-[9px] w-3 h-3 flex items-center justify-center rounded-full">0</span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==================== SUB-NAV TAB BAR ==================== -->
+    <div class="sticky top-12 z-40 bg-[#f5f5f7]/90 backdrop-blur-lg border-b border-gray-200">
+        <div class="max-w-3xl mx-auto flex justify-center py-4">
+            <div class="bg-gray-200/50 p-1 rounded-full flex relative">
+                <!-- Glider Indicator (JS will move this) -->
+                <div id="tab-indicator"
+                    class="absolute top-1 bottom-1 w-1/2 bg-white rounded-full shadow-sm transition-transform duration-300 ease-out left-0">
+                </div>
+
+                <button onclick="switchTab('airpods')"
+                    class="relative z-10 px-10 py-2 text-sm font-semibold rounded-full transition-colors duration-300 w-32 text-center"
+                    id="btn-airpods">AirPods</button>
+                <button onclick="switchTab('watch')"
+                    class="relative z-10 px-10 py-2 text-sm font-semibold rounded-full transition-colors duration-300 w-32 text-center text-gray-500 hover:text-black"
+                    id="btn-watch">Watch</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="pt-6">
+
+        <!-- ==================== TAB 1: AIRPODS CONTENT ==================== -->
+        <div id="tab-airpods" class="tab-content active">
+
+            <!-- Hero: AirPods Pro -->
+            <section class="h-[90vh] bg-black relative flex items-center justify-center overflow-hidden">
+                <div class="absolute inset-0 z-0">
+                    <img src="images/AirPods Pro 2/air pod pro.png"
+                        class="w-full h-full object-contain opacity-80 scale-90 md:scale-75 animate-hero-img"
+                        alt="AirPods Pro Gen 2">
+                </div>
+                <div class="relative z-10 text-center text-white mt-[40vh]">
+                    <h1 class="text-5xl md:text-7xl font-bold mb-4 tracking-tight fade-up">AirPods Pro</h1>
+                    <p class="text-xl md:text-2xl text-gray-400 font-light mb-8 fade-up delay-100">Rebuilt from the
+                        sound up.</p>
+                    <div class="flex gap-4 justify-center fade-up delay-200">
+                        <button
+                            class="px-8 py-3 bg-white text-black rounded-full font-medium hover:scale-105 transition-transform">Buy
+                            - $249</button>
+                        <button
+                            class="px-8 py-3 bg-blue-600/20 text-blue-400 rounded-full font-medium hover:bg-blue-600/30 transition-colors border border-blue-500/30">Learn
+                            more</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feature: AirPods Max -->
+            <section class="py-32 px-4 bg-white">
+                <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div class="order-2 md:order-1 fade-up">
+                        <span class="text-orange-500 font-bold uppercase tracking-widest text-xs mb-2 block">Over-Ear
+                            Headphones</span>
+                        <h2 class="text-5xl md:text-6xl font-bold mb-6 text-black leading-tight">AirPods Max</h2>
+                        <p class="text-xl text-gray-500 mb-8 max-w-md">High-fidelity audio. Active Noise Cancellation
+                            with Transparency mode. Stunning design for an exceptional listening experience.</p>
+                        <button class="text-blue-600 hover:underline text-lg font-medium">Buy Now <i
+                                class="fas fa-chevron-right text-xs ml-1"></i></button>
+                    </div>
+                    <div
+                        class="order-1 md:order-2 h-[500px] bg-gray-50 rounded-[3rem] flex items-center justify-center p-10 fade-up delay-100 relative group overflow-hidden">
+                        <img src="images/Air pod max/airpod max white.png"
+                            class="w-full h-full object-contain drop-shadow-2xl transition-transform duration-700 group-hover:scale-110"
+                            alt="AirPods Max">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grid: AirPods 3 -->
+            <section class="py-20 px-4 bg-[#f5f5f7]">
+                <div class="max-w-4xl mx-auto text-center mb-16 fade-up">
+                    <h2 class="text-4xl font-bold mb-4">It’s magic, remastered.</h2>
+                    <p class="text-lg text-gray-500">Spatial audio with dynamic head tracking places sound all around
+                        you.</p>
+                </div>
+
+                <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div
+                        class="bg-white rounded-[2.5rem] h-[600px] p-12 flex flex-col items-center justify-between text-center overflow-hidden group fade-up">
+                        <div class="mt-8">
+                            <h3 class="text-3xl font-bold mb-2">AirPods</h3>
+                            <p class="text-gray-500">3rd generation</p>
+                        </div>
+                        <img src="images/AirPods 3/airpod 3.png"
+                            class="w-3/4 object-contain mb-8 transition-transform duration-500 group-hover:-translate-y-4 shadow-xl rounded-full"
+                            alt="AirPods 3">
+                        <div class="flex gap-4">
+                            <button class="px-6 py-2 bg-blue-600 text-white rounded-full text-sm">Buy</button>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-black rounded-[2.5rem] h-[600px] p-12 flex flex-col items-center justify-center text-center text-white overflow-hidden relative fade-up delay-100">
+                        <div class="absolute inset-0 bg-gradient-to-b from-gray-800 to-black opacity-50"></div>
+                        <div class="relative z-10">
+                            <h3 class="text-4xl font-bold mb-6">Personalized<br>Spatial Audio.</h3>
+                            <button
+                                class="w-16 h-16 rounded-full bg-white/20 backdrop-blur flex items-center justify-center hover:bg-white/30 transition-colors mx-auto"><i
+                                    class="fas fa-play text-xl"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== TAB 2: WATCH CONTENT ==================== -->
+        <div id="tab-watch" class="tab-content">
+
+            <!-- Hero: Watch Ultra 2 -->
+            <section class="h-[85vh] bg-[#1a1a1a] relative flex items-center justify-center overflow-hidden">
+                <img src="images/Apple Watch Ultra 2/Apple Watch Ultra 2 orange.png"
+                    class="absolute w-[60vh] md:w-[80vh] object-contain z-0 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-90"
+                    alt="Watch Ultra 2">
+                <div class="relative z-10 text-center text-white mt-[40vh]">
+                    <span
+                        class="text-orange-500 font-bold tracking-widest uppercase text-sm mb-2 block fade-up">Adventure
+                        Awaits</span>
+                    <h1 class="text-6xl md:text-8xl font-black mb-4 tracking-tighter fade-up uppercase">Ultra 2</h1>
+                    <p class="text-xl md:text-2xl text-gray-300 font-light mb-8 fade-up delay-100">Next level adventure.
+                    </p>
+                    <button
+                        class="px-10 py-3 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-colors fade-up delay-200 shadow-glow shadow-orange-500/40">Buy</button>
+                </div>
+            </section>
+
+            <!-- Scroll Showcase: Series 9 -->
+            <section class="py-32 px-4 bg-white">
+                <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div class="fade-up">
+                        <h2 class="text-5xl md:text-7xl font-semibold mb-6 text-black tracking-tight">Series 9</h2>
+                        <p class="text-2xl font-light text-gray-500 mb-8 leading-relaxed">Smarter. Brighter.
+                            Mightier.<br>Introducing <span class="text-pink-500 font-medium">Double Tap.</span></p>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center"><i
+                                    class="fas fa-heartbeat text-pink-500"></i></div>
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center"><i
+                                    class="fas fa-tint text-blue-500"></i></div>
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center"><i
+                                    class="fas fa-leaf text-green-500"></i></div>
+                        </div>
+                    </div>
+                    <div
+                        class="relative h-[600px] w-full bg-[#FAFAFA] rounded-[3rem] flex items-center justify-center fade-up delay-100">
+                        <img src="images/Apple Watch Series 9/watch series 9 rose.png"
+                            class="w-3/4 object-contain drop-shadow-2xl z-10" alt="Series 9">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-pink-100/50 to-transparent rounded-[3rem]">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grid: SE & Comparison -->
+            <section class="py-20 px-4 bg-[#f5f5f7]">
+                <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- SE Card -->
+                    <div
+                        class="md:col-span-2 bg-white rounded-[2rem] p-10 flex flex-col md:flex-row items-center justify-between overflow-hidden shadow-soft fade-up">
+                        <div class="mb-6 md:mb-0 md:pr-8 text-center md:text-left">
+                            <h3 class="text-3xl font-bold mb-2">Apple Watch SE</h3>
+                            <p class="text-gray-500 mb-6">A great deal to love.</p>
+                            <button class="px-6 py-2 bg-blue-600 text-white rounded-full text-sm">Buy</button>
+                        </div>
+                        <img src="images/Apple Watch SE/se gold.png" class="h-64 object-contain transform rotate-12"
+                            alt="Watch SE">
+                    </div>
+
+                    <!-- Compare Card -->
+                    <div
+                        class="md:col-span-1 bg-black rounded-[2rem] p-10 flex flex-col justify-center text-white text-center shadow-soft fade-up delay-100">
+                        <h3 class="text-2xl font-bold mb-4">Which Watch is right for you?</h3>
+                        <a href="#" class="text-blue-400 hover:text-blue-300">Compare all models <i
+                                class="fas fa-chevron-right text-xs"></i></a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="bg-[#f5f5f7] py-12 px-4 mt-20 border-t border-gray-200">
+        <div class="max-w-5xl mx-auto text-xs text-gray-400">
+            <p class="mb-4">1. Battery life varies by use and configuration. See apple.com/batteries for more
+                information.</p>
+            <p class="mb-8">Some bands are sold separately. Some features are not available in all regions or on all
+                languages.</p>
+            <div class="flex justify-between pt-8 border-t border-gray-300">
+                <p>Copyright © 2024 Apple Inc. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#" class="hover:underline">Privacy</a>
+                    <a href="#" class="hover:underline">Terms</a>
+                    <a href="#" class="hover:underline">Legal</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // Init: Show AirPods by default
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-up, .fade-in').forEach(el => observer.observe(el));
+        });
+
+        function switchTab(tabName) {
+            // Update Buttons
+            const btnAirbeds = document.getElementById('btn-airpods');
+            const btnWatch = document.getElementById('btn-watch');
+            const indicator = document.getElementById('tab-indicator');
+
+            // Reset Colors
+            btnAirbeds.classList.remove('text-black');
+            btnAirbeds.classList.add('text-gray-500');
+            btnWatch.classList.remove('text-black');
+            btnWatch.classList.add('text-gray-500');
+
+            // Update Active
+            if (tabName === 'airpods') {
+                btnAirbeds.classList.add('text-black');
+                btnAirbeds.classList.remove('text-gray-500');
+                indicator.style.transform = 'translateX(0)';
+
+                // Content
+                document.getElementById('tab-airpods').classList.add('active');
+                document.getElementById('tab-watch').classList.remove('active');
+            } else {
+                btnWatch.classList.add('text-black');
+                btnWatch.classList.remove('text-gray-500');
+                indicator.style.transform = 'translateX(100%)';
+
+                // Content
+                document.getElementById('tab-watch').classList.add('active');
+                document.getElementById('tab-airpods').classList.remove('active');
+            }
+
+            // Re-trigger animations for new tab content
+            document.querySelectorAll('.active .fade-up').forEach(el => {
+                el.classList.remove('visible');
+                setTimeout(() => el.classList.add('visible'), 50);
+            });
+        }
+
+        // Set initial state
+        switchTab('airpods');
+    </script>
+</body>
+
+</html>
