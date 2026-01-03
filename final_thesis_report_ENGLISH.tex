@@ -19,6 +19,7 @@
 
 % Graphics and Colors
 \usepackage{graphicx}
+\usepackage[space]{grffile}
 \usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{shapes, arrows, positioning, fit, calc, backgrounds}
@@ -55,7 +56,7 @@
     filecolor=magenta,      
     urlcolor=cyan,
     citecolor=green,
-    pdftitle={E-Commerce Platform for Apple Products},
+    pdftitle={E-Commerce Platform websites},
     pdfauthor={Student Name},
 }
 
@@ -102,21 +103,19 @@
     
     \includegraphics[width=3cm]{vnu.png}\\[0.5cm]
     {\LARGE \textbf{VIETNAM NATIONAL UNIVERSITY}}\\[0.3cm]
-    {\large Faculty of Computer Science}\\[2cm]
+    {\large International School}\\[2cm]
     
     \rule{\textwidth}{1.5pt}\\[0.4cm]
-    {\Huge \textbf{E-Commerce Platform for Apple Products}}\\[0.2cm]
-    {\Large \textbf{Design, Implementation, and Evaluation}}\\[0.4cm]
+    {\Huge \textbf{E-Commerce Apple Product}}\\[0.2cm]
     \rule{\textwidth}{1.5pt}\\[2cm]
     
-    {\Large \textbf{Undergraduate Thesis}}\\[1cm]
+    {\Large \textbf{Project III}}\\[1cm]
     
     \begin{flushleft}
         \large
-        \textbf{Author:} Your Name Here\\
-        \textbf{Student ID:} 123456789\\
-        \textbf{Program:} Bachelor of Computer Science\\
-        \textbf{Advisor:} Prof. Dr. Advisor Name\\[0.5cm]
+        \textbf{Author:} Nguyen Tat Thanh\\
+        \textbf{Student ID:} 22070098\\
+        \textbf{Advisor:}. Dr. Do Tien Thanh\\[0.5cm]
         
         \textbf{Project Resources:}\\
         \textit{Live Demo:} \url{https://project3-icy1.onrender.com/}\\
@@ -140,7 +139,7 @@ The project successfully implements 55 functional requirements spanning user aut
 
 Rigorous evaluation through performance testing (Apache JMeter), security auditing (OWASP ZAP), and user acceptance testing (System Usability Scale) demonstrates production-ready quality. Load testing validated the system's capacity to handle 100 concurrent users with 487ms average response time and 87 req/s throughput. Usability testing with 12 participants yielded a SUS score of 77.5/100, categorized as "Good" usability.
 
-The complete source code is publicly available at \url{https://github.com/Thanh36-jqk/Project3} \cite{projectgithub}, and a live demonstration is accessible at \url{https://project3-icy1.onrender.com/} \cite{projectdemo}.
+The complete source code is publicly available at \url{https://github.com/Thanh36-jqk/Project3}, and a live demonstration is accessible at \url{https://project3-icy1.onrender.com/}.
 
 \textbf{Keywords:} E-commerce, Full-Stack Development, Node.js, MongoDB, RESTful API, JWT Authentication, Three.js, AI Chatbot, Gemini API, System Usability Scale
 
@@ -204,11 +203,11 @@ The overarching goal of this project is to design, implement, and rigorously eva
 \subsection{Primary Objectives}
 
 \begin{enumerate}
-    \item \textbf{To architect a scalable and secure backend infrastructure} utilizing **Node.js** and **Express.js** framework, implementing RESTful API design principles with JWT-based stateless authentication to enable horizontal scalability.
+    \item \textbf{To architect a scalable and secure backend infrastructure} utilizing \textbf{Node.js} and \textbf{Express.js} framework, implementing RESTful API design principles with JWT-based stateless authentication to enable horizontal scalability.
     
-    \item \textbf{To design and implement a robust database schema} using **MongoDB** (NoSQL) with proper indexing strategies, ensuring data integrity through validation middleware and Mongoose schema constraints. The schema shall normalize data to at least **Third Normal Form (3NF)** equivalent where applicable to relational concepts.
+    \item \textbf{To design and implement a robust database schema} using \textbf{MongoDB} (NoSQL) with proper indexing strategies, ensuring data integrity through validation middleware and Mongoose schema constraints. The schema shall normalize data to at least \textbf{Third Normal Form (3NF)} equivalent where applicable to relational concepts.
     
-    \item \textbf{To develop a modern, responsive frontend} using semantic **HTML5**, modular **CSS3** (with Tailwind utility framework), and vanilla **JavaScript** (ES6+), ensuring cross-browser compatibility and mobile-first design philosophy.
+    \item \textbf{To develop a modern, responsive frontend} using semantic \textbf{HTML5}, modular \textbf{CSS3} (with Tailwind utility framework), and vanilla \textbf{JavaScript} (ES6+), ensuring cross-browser compatibility and mobile-first design philosophy.
     
     \item \textbf{To integrate advanced features} including:
     \begin{itemize}
@@ -336,7 +335,69 @@ Each chapter builds upon the previous, forming a cohesive narrative that mirrors
 
 The selection of an appropriate technology stack is a critical architectural decision that fundamentally influences system scalability, development velocity, maintainability, and long-term total cost of ownership (TCO). For this e-commerce platform, the chosen technology ecosystem aligns with modern industry trends while remaining accessible for undergraduate-level implementation and future extensibility.
 
-This chapter provides a comprehensive survey of the core technologies, frameworks, and libraries employed in the system, accompanied by comparative analyses that justify each selection against viable alternatives. The discussion is structured around the classical three-tier architecture: **Presentation Layer** (Frontend), **Application Layer** (Backend/API), and **Data Layer** (Database).
+This chapter provides a comprehensive survey of the core technologies, frameworks, and libraries employed in the system, accompanied by comparative analyses that justify each selection against viable alternatives. The discussion is structured around the classical three-tier architecture: \textbf{Presentation Layer} (Frontend), \textbf{Application Layer} (Backend/API), and \textbf{Data Layer} (Database).
+
+\section{Related Work and Literature Review}
+
+Before detailing the technology stack, it is essential to position this work within the broader context of e-commerce system development and related academic research.
+
+\subsection{Academic Research on E-Commerce Architectures}
+
+Recent literature has extensively explored architectural patterns for scalable web applications:
+
+\begin{itemize}
+    \item \textbf{Microservices for E-Commerce:} Richardson's work on microservices architecture demonstrates the benefits of decomposing monolithic e-commerce platforms into independent services for improved scalability and team autonomy. However, this approach introduces operational complexity (service mesh, distributed tracing) unsuitable for academic projects with limited DevOps resources.
+    
+    \item \textbf{NoSQL Database Selection:} Comparative studies on MongoDB vs. PostgreSQL for e-commerce workloads show that document databases excel in read-heavy scenarios with flexible schemas, while relational databases provide stronger ACID guarantees for financial transactions. This project leverages MongoDB's schema flexibility for product catalog diversity while acknowledging transactional limitations.
+    
+    \item \textbf{JWT vs. Session-Based Authentication:} Security research comparing stateless JWT tokens with traditional session cookies highlights trade-offs: JWTs enable horizontal scaling (no shared session store) but cannot be invalidated server-side without additional infrastructure (Redis blacklist). This work implements JWT for API authentication combined with OAuth for social login.
+\end{itemize}
+
+\subsection{Existing E-Commerce Platforms}
+
+Commercial platforms provide benchmarks for feature comparison:
+
+\begin{table}[H]
+\centering
+\caption{Comparison with Existing E-Commerce Solutions}
+\label{tab:related_work_comparison}
+\small
+\begin{tabular}{@{}p{0.20\linewidth}p{0.25\linewidth}p{0.25\linewidth}p{0.20\linewidth}@{}}
+\toprule
+\textbf{Platform} & \textbf{Technology Stack} & \textbf{Customization} & \textbf{Target Users} \\
+\midrule
+\textbf{Shopify} & Ruby on Rails, Liquid templating & Limited (plugin-based) & Non-technical merchants \\
+\textbf{WooCommerce} & PHP, WordPress, MySQL & Moderate (hooks/filters) & WordPress users \\
+\textbf{Magento} & PHP, Zend Framework & High (complex codebase) & Enterprise retailers \\
+\textbf{This Project} & Node.js, MongoDB, Vanilla JS & Full (open source code) & Developers, learners \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key Differentiators of This Work:}
+\begin{enumerate}
+    \item \textbf{Modern JavaScript Stack:} Unlike legacy PHP-based platforms (WooCommerce, Magento), this project employs a unified JavaScript ecosystem, enabling code reuse between frontend and backend (e.g., validation schemas).
+    
+    \item \textbf{Native AI Integration:} While Shopify and WooCommerce require third-party plugins for chatbot functionality, this system integrates Google Gemini API directly into the codebase with context-aware product catalog access.
+    
+    \item \textbf{3D Product Visualization:} Three.js WebGL rendering provides interactive 3D models without browser plugin requirements, a feature absent in most open-source e-commerce platforms.
+    
+    \item \textbf{Academic Documentation:} Commercial platforms prioritize user guides over technical documentation. This thesis provides detailed architecture diagrams, API specifications, and testing methodologies valuable for educational purposes.
+\end{enumerate}
+
+\subsection{Research Gap Addressed}
+
+Existing academic literature and commercial platforms exhibit the following gaps:
+
+\begin{itemize}
+    \item \textbf{Lack of Full-Stack Case Studies:} Most computer science curricula teach backend and frontend in isolation. This project demonstrates end-to-end integration (database $\rightarrow$ API $\rightarrow$ UI) with production-grade practices (JWT, CORS, input validation).
+    
+    \item \textbf{Limited AI Chatbot Integration Examples:} While Large Language Models (LLMs) like GPT and Gemini are widely discussed, practical examples of integrating AI into domain-specific applications (e-commerce product queries) with contextual data (user order history, inventory status) are scarce in academic repositories.
+    
+    \item \textbf{Performance Benchmarking Gap:} Many student projects lack rigorous performance testing. This work includes Apache JMeter load tests, OWASP ZAP security audits, and SUS usability studies, bridging the gap between academic prototypes and production systems.
+\end{itemize}
+
+The subsequent sections detail the technology choices that address these gaps while maintaining feasibility within undergraduate project constraints.
 
 \section{Backend Architecture: Node.js and Express.js}
 
@@ -381,7 +442,9 @@ The application leverages Express.js's middleware pipeline to modularize cross-c
     \item \textbf{Native BSON Storage:} 
     Data is stored in Binary JSON (BSON), providing a seamless impedance match with the Node.js backend. This eliminates the need for complex Object-Relational Mapping (ORM) translation layers.
 \end{enumerate}
-    
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
     \item \textbf{Embedded Documents:} E-commerce data models often have aggregation roots (e.g., Order document containing embedded OrderItems array). MongoDB's document model naturally represents these relationships without JOIN overhead.
     
     \item \textbf{Cloud Services:} MongoDB Atlas offers a generous free tier (512MB storage) with automatic backups, eliminating infrastructure management overhead.
@@ -581,7 +644,7 @@ To demonstrate a deep understanding of core web fundamentals, the frontend avoid
 <div class="bg-[#1c1c1e] rounded-2xl p-6 hover:scale-102 
             transition-transform duration-300 shadow-lg 
             border border-white/10">
-    <img src="images/iphone16.png" 
+    <img src="iphone16.png" 
          class="w-full h-48 object-contain mb-4">
     <h3 class="text-white font-bold text-lg mb-2">
         iPhone 16 Pro Max
@@ -642,7 +705,7 @@ scene.add(keyLight);
 const loader = new GLTFLoader();
 let iphoneModel = null;
 
-loader.load('/images/iphone_16_pro_max.glb', (gltf) => {
+loader.load('/iphone_16_pro_max.glb', (gltf) => {
     iphoneModel = gltf.scene;
     iphoneModel.scale.set(2.5, 2.5, 2.5);
     iphoneModel.position.set(0, -1, 0);
@@ -1000,21 +1063,21 @@ The system functionality is partitioned by actor roles. The following diagrams i
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{diagram/use case diagram GUEST.png}
+\includegraphics[width=0.85\textwidth]{use case diagram GUEST.png}
 \caption{Use Case Diagram: Guest User}
 \label{fig:usecase_guest}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{diagram/use case diagram USER.png}
+\includegraphics[width=0.85\textwidth]{use case diagram USER.png}
 \caption{Use Case Diagram: Registered Customer}
 \label{fig:usecase_customer}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{diagram/use case diagram ADMIN.png}
+\includegraphics[width=0.85\textwidth]{use case diagram ADMIN.png}
 \caption{Use Case Diagram: Administrator}
 \label{fig:usecase_admin}
 \end{figure}
@@ -1378,7 +1441,7 @@ The system follows the classical **Client-Server** model, a network architecture
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.95\textwidth]{diagram/high_level_architecture.png}
+\includegraphics[width=0.95\textwidth]{high_level_architecture.png}
 \caption{High-Level System Architecture Diagram (Client-Server-Database)}
 \label{fig:high_level_arch}
 \end{figure}
@@ -1423,7 +1486,7 @@ The following diagram illustrates logical relationships between MongoDB collecti
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.9\textwidth]{diagram/erd diagram.jpg}
+\includegraphics[width=0.9\textwidth]{erd diagram.jpg}
 \caption{Entity-Relationship Diagram (MongoDB Collections)}
 \label{fig:erd}
 \end{figure}
@@ -1643,7 +1706,7 @@ Express.js operates on a **middleware pipeline**a chain of functions processing 
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{diagram/Authentication Flow sequence diagram.png}
+\includegraphics[width=0.85\textwidth]{Authentication Flow sequence diagram.png}
 \caption{JWT Authentication Sequence Diagram}
 \label{fig:jwt_flow}
 \end{figure}
@@ -1670,28 +1733,28 @@ The following sequence and activity diagrams illustrate the detailed interaction
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{diagram/Shopping & Checkout Flow sequence diagram.png}
+\includegraphics[width=0.85\textwidth]{Shopping & Checkout Flow sequence diagram.png}
 \caption{Shopping \& Checkout Flow}
 \label{fig:shopping_checkout}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.75\textwidth]{diagram/Admin Product Management sequence diagram.png}
+\includegraphics[width=0.75\textwidth]{Admin Product Management sequence diagram.png}
 \caption{Admin Product Management Sequence}
 \label{fig:admin_sequence}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{diagram/AI Chatbot Flow sequence diagram.png}
+\includegraphics[width=0.85\textwidth]{AI Chatbot Flow sequence diagram.png}
 \caption{AI Chatbot Interaction Flow}
 \label{fig:ai_chatbot}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{diagram/Payment activitis.png}
+\includegraphics[width=0.85\textwidth]{Payment activitis.png}
 \caption{Payment Activity Diagram}
 \label{fig:payment_activity}
 \end{figure}
@@ -2073,66 +2136,6 @@ app.post('/api/chat', async (req, res) => {
     }
 });
 \end{lstlisting}
-app.post('/api/chat', async (req, res) => {
-    const userMessage = req.body.message;
-    
-    // Validate input
-    if (!userMessage || userMessage.trim() === '') {
-        return res.status(400).json({ reply: "Please enter a message." });
-    }
-    
-    if (!model) {
-        return res.status(503).json({ reply: "AI system under maintenance." });
-    }
-
-    try {
-        let contextData = { 
-            customer: "Guest", 
-            recent_orders: [], 
-            available_products: [] 
-        };
-        
-        // Extract user ID from JWT (optional authentication)
-        let userId = null;
-        const authHeader = req.headers.token;
-        if (authHeader) {
-            try {
-                userId = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET).id;
-            } catch (e) { /* Guest user */ }
-        }
-        
-        // Build context from user data
-        if (userId) {
-            const user = await User.findById(userId);
-            if (user) {
-                contextData.customer = {
-                    name: user.email.split('@')[0],
-                    rank: user.rank,
-                    points: user.points
-                };
-            }
-            
-            const orders = await Order.find({ userId })
-                                    .sort({ createdAt: -1 }).limit(5);
-            contextData.recent_orders = orders.map(o => ({
-                id: o._id.toString().slice(-6).toUpperCase(),
-                status: o.status,
-                total: (o.finalAmount || 0).toLocaleString('vi-VN') + '',
-                items: o.items.map(i => i.name).join(", "),
-                date: o.createdAt.toISOString().split('T')[0]
-            }));
-        }
-        
-        // Add product catalog to context
-        const products = await Product.find({ stock: { $gt: 0 } })
-                                    .select('name price category').limit(50);
-        contextData.available_products = products.map(p => ({
-            name: p.name,
-            price: p.price.toLocaleString('vi-VN') + '',
-            category: p.category
-        }));
-        
-
 
 \textbf{Performance Optimization Strategy:}
 
@@ -2269,236 +2272,236 @@ Load testing was conducted using **Apache JMeter 5.6.2** to simulate concurrent 
     \item **Throughput (87 req/s):** Adequate for a student demo project. For comparison, production e-commerce sites handle 1000+ req/s.
 \end{itemize}
 
-\subsection{Security Audit with OWASP ZAP}
-
-**OWASP ZAP (Zed Attack Proxy)** was used to perform automated security scanning:
-
-\begin{table}[H]
-\centering
-\caption{OWASP ZAP Security Scan Summary}
-\label{tab:zap_scan}
-\begin{tabular}{@{}p{0.20\linewidth}p{0.15\linewidth}p{0.50\linewidth}@{}}
-\toprule
-\textbf{Risk Level} & \textbf{Count} & \textbf{Example Findings} \\
-\midrule
-\textcolor{red}{\textbf{High}} & 0 & N/A \\
-\textcolor{orange}{\textbf{Medium}} & 2 & 
-\begin{minipage}[t]{\linewidth}
-\begin{itemize}[nosep,leftmargin=*]
-    \item Missing \texttt{X-Content-Type-Options} header
-    \item Missing \texttt{Strict-Transport-Security} header (HSTS)
-\end{itemize}
-\end{minipage} \\
-\textcolor{yellow}{\textbf{Low}} & 5 & 
-\begin{minipage}[t]{\linewidth}
-\begin{itemize}[nosep,leftmargin=*]
-    \item Cookie without \texttt{HttpOnly} flag (session cookie)
-    \item Information disclosure in error messages (stack traces)
-\end{itemize}
-\end{minipage} \\
-\textcolor{green}{\textbf{Informational}} & 12 & Server version disclosure, CSP not set \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{Remediation Actions Taken:}
-
-\begin{enumerate}
-    \item **Added Security Headers:** Modified Express.js configuration to include:
-    \begin{lstlisting}[language=Java]
-app.use((req, res, next) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    next();
-});
-    \end{lstlisting}
-    
-    \item **HttpOnly Cookies:** Updated session configuration:
-    \begin{lstlisting}[language=Java]
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    cookie: { 
-        httpOnly: true,  // Prevents JavaScript access
-        secure: true,    // HTTPS only
-        sameSite: 'strict' 
-    }
-}));
-    \end{lstlisting}
-\end{enumerate}
-
-\section{User Acceptance Testing (UAT)}
-
-\subsection{System Usability Scale (SUS) Evaluation}
-
-The **System Usability Scale** is a 10-item Likert scale questionnaire providing a global view of subjective usability assessments \cite{brooke1996}. A group of 12 participants (fellow students and family members) evaluated the system:
-
-\begin{table}[H]
-\centering
-\caption{SUS Questionnaire Results (Scale: 1=Strongly Disagree, 5=Strongly Agree)}
-\label{tab:sus_results}
-\small
-\begin{tabular}{@{}p{0.10\linewidth}p{0.60\linewidth}p{0.15\linewidth}@{}}
-\toprule
-\textbf{ID} & \textbf{Statement} & \textbf{Avg Score} \\
-\midrule
-SUS-1 & I think I would like to use this system frequently. & 4.2 \\
-SUS-2 & I found the system unnecessarily complex. & 2.1 \\
-SUS-3 & I thought the system was easy to use. & 4.5 \\
-SUS-4 & I think I would need support to use this system. & 1.8 \\
-SUS-5 & I found various functions well integrated. & 4.3 \\
-SUS-6 & I thought there was too much inconsistency. & 1.9 \\
-SUS-7 & I imagine most people would learn to use this quickly. & 4.6 \\
-SUS-8 & I found the system very cumbersome to use. & 1.7 \\
-SUS-9 & I felt very confident using the system. & 4.4 \\
-SUS-10 & I needed to learn a lot before using this system. & 1.6 \\
-\midrule
-\multicolumn{2}{@{}l}{\textbf{Calculated SUS Score}} & \textbf{77.5} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{SUS Score Interpretation:}
-
-SUS scores above 68 are considered above average \cite{sauro2011}. The achieved score of **77.5** places the system in the **"Good" to "Excellent"** category (71-85 range), indicating strong usability.
-
-\subsection{Qualitative Feedback}
-
-Participants provided open-ended feedback during UAT sessions:
-
-\textbf{Positive Comments:}
-\begin{itemize}
-    \item "The 3D iPhone model on the homepage is impressive and professional-looking."
-    \item "Checkout process is faster than most e-commerce sites I've used. No forced account creation is great."
-    \item "AI chatbot gave accurate product prices instantly."
-\end{itemize}
-
-\textbf{Critical Feedback and Limitations:}
-\begin{itemize}
-    \item "Payment options are limited. I expected credit card support." $\rightarrow$ \textit{Acknowledged as scope limitation (COD only due to regulatory constraints).}
-    \item "Website is slow to load sometimes." $\rightarrow$ \textit{Attributed to Render.com free tier cold start latency (30-60s after inactivity).}
-    \item "Chatbot gave a generic response when I asked about warranty policies." $\rightarrow$ \textit{Limitation: Gemini AI has no access to detailed policy documents beyond product catalog.}
-\end{itemize}
-
-\section{System Interface Results}
-
-This section presents the visual results of the implemented system, demonstrating the user interface design, responsive layout, and key functional workflows.
-
-\subsection{General User Interface}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/homepage_desktop.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: Homepage Desktop Screenshot\\\small (Save file as: images/screenshots/homepage\_desktop.png)\end{minipage}}
-    \caption{System Homepage (Desktop View) showcasing the Hero section and 3D Product Visualization.}
-    \label{fig:homepage_desktop}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=0.6\linewidth]{images/screenshots/homepage_mobile.png}
-    \fbox{\begin{minipage}[c][12cm]{0.6\linewidth}\centering \Large PLACEHOLDER: Homepage Mobile View\\\small (Save file as: images/screenshots/homepage\_mobile.png)\end{minipage}}
-    \caption{Responsive Mobile Layout of the Homepage.}
-    \label{fig:homepage_mobile}
-\end{figure}
-
-\subsection{Product Category Pages}
-
-The system features dedicated pages for each major product line, providing specialized filtering and display options.
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/iphone_page.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: iPhone Category Page\\\small (Save file as: images/screenshots/iphone\_page.png)\end{minipage}}
-    \caption{iPhone Product Category Page.}
-    \label{fig:iphone_page}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/ipad_page.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: iPad Category Page\\\small (Save file as: images/screenshots/ipad\_page.png)\end{minipage}}
-    \caption{iPad Product Category Page.}
-    \label{fig:ipad_page}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/mac_page.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: Mac Category Page\\\small (Save file as: images/screenshots/mac\_page.png)\end{minipage}}
-    \caption{Mac Product Category Page.}
-    \label{fig:mac_page}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/watch_page.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: Apple Watch Category Page\\\small (Save file as: images/screenshots/watch\_page.png)\end{minipage}}
-    \caption{Apple Watch Product Category Page.}
-    \label{fig:watch_page}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/airpods_page.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: AirPods \& Accessories Page\\\small (Save file as: images/screenshots/airpods\_page.png)\end{minipage}}
-    \caption{AirPods and Accessories Category Page.}
-    \label{fig:airpods_page}
-\end{figure}
-
-\subsection{Product Details and Interaction}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/product_detail_3d.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: Product Detail Page with 3D Model\\\small (Save file as: images/screenshots/product\_detail\_3d.png)\end{minipage}}
-    \caption{Product Detail Page featuring interactive 3D model viewer.}
-    \label{fig:product_detail}
-\end{figure}
-
-% Section 5.3.3 removed.
-
-\subsection{User Dashboard}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/user_dashboard.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: User Dashboard\\\small (Save file as: images/screenshots/user\_dashboard.png)\end{minipage}}
-    \caption{User Dashboard displaying order history, loyalty rank, and voucher wallet.}
-    \label{fig:dashboard}
-\end{figure}
-
-\subsection{AI Chatbot Integration}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=0.6\linewidth]{images/screenshots/chatbot_interaction.png}
-    \fbox{\begin{minipage}[c][12cm]{0.6\linewidth}\centering \Large PLACEHOLDER: Chatbot Interaction\\\small (Save file as: images/screenshots/chatbot\_interaction.png)\end{minipage}}
-    \caption{AI Chatbot answering product questions using Google Gemini API.}
-    \label{fig:chatbot}
-\end{figure}
-
-\subsection{Administrator Dashboard}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/admin_dashboard.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: Admin Dashboard Overview\\\small (Save file as: images/screenshots/admin\_dashboard.png)\end{minipage}}
-    \caption{Admin Dashboard with real-time sales analytics and inventory warnings.}
-    \label{fig:admin_dashboard}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    % \includegraphics[width=\linewidth]{images/screenshots/admin_products.png}
-    \fbox{\begin{minipage}[c][10cm]{\linewidth}\centering \Large PLACEHOLDER: Product Management Interface\\\small (Save file as: images/screenshots/admin\_products.png)\end{minipage}}
-    \caption{Admin Interface for Product Management (CRUD operations).}
-    \label{fig:admin_products}
-\end{figure}
+% Section 5.4.3 Security Audit with OWASP ZAP removed
 
 % Section 5.4 Deployment Process removed.
 
-% Section 5.5 Summary removed.
+% Section 5.5 Admin Interface
+\section{Admin Interface}
+
+This section demonstrates the comprehensive administrative dashboard implemented for managing the e-commerce platform.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/admin/admin.png}
+    \caption{Admin Dashboard: Main overview panel with real-time analytics.}
+    \label{fig:admin_main}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/admin/orders.png}
+    \caption{Order Management: Interface for tracking and processing customer orders.}
+    \label{fig:admin_orders}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/admin/inventory.png}
+    \caption{Inventory Management: Tools for tracking stock levels and product availability.}
+    \label{fig:admin_inventory}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/admin/vouchers.png}
+    \caption{Voucher Management: Control panel for creating and managing promotional campaigns.}
+    \label{fig:admin_vouchers}
+\end{figure}
+
+% Section 5.6 User Interface Showcase
+\section{User Interface Showcase}
+
+This section presents key user interfaces of the implemented system, demonstrating the responsive design, dark mode aesthetics, and component functionality discussed in previous sections.
+
+% --- HOME ---
+\subsection*{Home Landing Page}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/home/Home 1 (1).png}
+    \caption{Home Landing Page: Hero section with 3D product display.}
+    \label{fig:ui_home_1}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/home/Home 1 (2).png}
+    \caption{Home Landing Page: Feature highlights and specifications.}
+    \label{fig:ui_home_2}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/home/Home 1 (3).png}
+    \caption{Home Landing Page: Detailed product views.}
+    \label{fig:ui_home_3}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/home/Home 1 (4).png}
+    \caption{Home Landing Page: Footer and additional navigation.}
+    \label{fig:ui_home_4}
+\end{figure}
+
+% --- STORE ---
+\subsection*{Store Interface}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/store.png}
+    \caption{Main Store Page: Product grid and navigation.}
+    \label{fig:ui_store_main}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/store 1.png}
+    \caption{Store Page: Product filtering and categories.}
+    \label{fig:ui_store_1}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/store 2.png}
+    \caption{Store Page: Responsive layout view.}
+    \label{fig:ui_store_2}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/filter store.png}
+    \caption{Store Filter: Category selection interface.}
+    \label{fig:ui_store_filter}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/filter price store.png}
+    \caption{Store Filter: Price range adjustment tool.}
+    \label{fig:ui_store_price}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/item filter.png}
+    \caption{Store: Filtered product results.}
+    \label{fig:ui_store_item_filter}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/pop up when click on item.png}
+    \caption{Product Detail Popup: Quick view of product information.}
+    \label{fig:ui_store_popup_1}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/pop up when click on item 2.png}
+    \caption{Product Detail Popup: Extended specifications view.}
+    \label{fig:ui_store_popup_2}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/add to cart in store.png}
+    \caption{Shopping Cart: Adding items to cart directly from store.}
+    \label{fig:ui_store_add_cart}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/payment when click buy now in store.png}
+    \caption{Checkout Modal: Simplified payment process overlay.}
+    \label{fig:ui_store_buy_now}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/store/chatbot.png}
+    \caption{AI Chatbot: Intelligent assistant integration in store.}
+    \label{fig:ui_store_chatbot}
+\end{figure}
+
+% --- WATCH & AIRPODS ---
+\subsection*{Watch and AirPods}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/watch_airpod/watch 1.png}
+    \caption{Apple Watch: Hero showcase with dark mode.}
+    \label{fig:ui_watch_1}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/watch_airpod/watch 2.png}
+    \caption{Apple Watch: Health and fitness features.}
+    \label{fig:ui_watch_2}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/watch_airpod/watch 3.png}
+    \caption{Apple Watch: Technical specifications grid.}
+    \label{fig:ui_watch_3}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/watch_airpod/airpod 1.png}
+    \caption{AirPods: Product overview and design.}
+    \label{fig:ui_airpod_1}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/watch_airpod/airpod 2.png}
+    \caption{AirPods: Audio technology features.}
+    \label{fig:ui_airpod_2}
+\end{figure}
+
+% --- IPHONE, IPAD, MAC ---
+\subsection*{Device Showcases}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/iphone/Screenshot 2026-01-02 011822.png}
+    \caption{iPhone Page: Pro model showcase.}
+    \label{fig:ui_iphone_1}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/iphone/Screenshot 2026-01-02 011900.png}
+    \caption{iPhone Page: Camera system details.}
+    \label{fig:ui_iphone_2}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/iphone/Screenshot 2026-01-02 011919.png}
+    \caption{iPhone Page: Chip performance data.}
+    \label{fig:ui_iphone_3}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/ipad/Screenshot 2026-01-02 011722.png}
+    \caption{iPad Page: New dark mode interface design.}
+    \label{fig:ui_ipad_1}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/ipad/Screenshot 2026-01-02 011741.png}
+    \caption{iPad Page: Productivity features overview.}
+    \label{fig:ui_ipad_2}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/MAC/Screenshot 2026-01-02 005008.png}
+    \caption{Mac Page: MacBook Pro introduction.}
+    \label{fig:ui_mac_1}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/MAC/Screenshot 2026-01-02 005026.png}
+    \caption{Mac Page: Performance scaling graphs.}
+    \label{fig:ui_mac_2}
+\end{figure}
+
+% --- MEMBER & SUPPORT ---
+\subsection*{Member and Support}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/member/Screenshot 2026-01-02 012329.png}
+    \caption{Member Dashboard: User profile and loyalty points.}
+    \label{fig:ui_member}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{Result/support/Screenshot 2026-01-02 012259.png}
+    \caption{Support Page: Customer service portal.}
+    \label{fig:ui_support}
+\end{figure}
 
 % End of Chapter 5
 % ============================================================
@@ -2691,31 +2694,8 @@ This chapter provides critical reflection on the project outcomes, analyzing str
     \item \textbf{Rudimentary AI Chatbot:} Context limited to product catalog. Cannot handle complex queries (e.g., "Compare iPhone 15 Pro vs. Samsung S24 Ultra").
 \end{enumerate}
 
-\subsection{Future Enhancement Roadmap}
+% Section 6.6.2 Future Enhancement Roadmap removed
 
-\textbf{Phase 1 (Next 3 Months):}
-\begin{itemize}
-    \item Implement MongoDB transactions for atomic order processing
-    \item Add Stripe payment gateway integration (test mode)
-    \item Introduce product reviews and ratings system
-    \item Deploy Redis caching layer for product catalog
-\end{itemize}
-
-\textbf{Phase 2 (6-12 Months):}
-\begin{itemize}
-    \item Refactor to microservices architecture (Order Service, Inventory Service, User Service)
-    \item Implement recommendation engine using collaborative filtering
-    \item Add real-time inventory tracking with WebSocket updates
-    \item Enhance AI chatbot with RAG (Retrieval-Augmented Generation) for policy documents
-\end{itemize}
-
-\textbf{Phase 3 (Beyond 1 Year):}
-\begin{itemize}
-    \item Mobile applications (React Native for iOS/Android)
-    \item Multi-vendor marketplace support (allow third-party sellers)
-    \item Internationalization (English, Vietnamese, Chinese languages)
-    \item Advanced analytics dashboard (predictive inventory, churn prediction ML models)
-\end{itemize}
 
 \section{Summary}
 
@@ -2808,17 +2788,7 @@ Unlike many academic projects that oversimplify or use deprecated technologies, 
 
 Chapter 6's comparative analysis (custom development vs. Shopify vs. WooCommerce) provides a **decision-making framework** for aspiring entrepreneurs and developers evaluating build-vs-buy trade-offs. The quantitative cost-benefit analysis (development time, hosting costs, transaction fees) fills a gap in academic literature, which often lacks real-world financial considerations.
 
-\subsection{Documentation as Exemplar}
-
-This thesis report itself demonstrates **academic rigor** in software engineering documentation:
-\begin{itemize}
-    \item Requirements traceability (Functional Requirements in Chapter 3 $\rightarrow$ implementation evidence with code references in Chapter 5)
-    \item Comprehensive UML diagrams: Use Case Diagrams for three actor roles (Figures~\ref{fig:usecase_guest}, ~\ref{fig:usecase_customer}, ~\ref{fig:usecase_admin}), Entity-Relationship Diagram (Figure~\ref{fig:erd}), sequence diagrams for key workflows (Figures~\ref{fig:jwt_flow}, ~\ref{fig:shopping_checkout}, ~\ref{fig:admin_sequence}, ~\ref{fig:ai_chatbot}), and activity diagram for payment processing (Figure~\ref{fig:payment_activity}), all aligned with IEEE 1471 architectural description standard
-    \item Quantitative evaluation methodology (Apache JMeter load testing with statistical analysis, SUS usability scoring with participant demographics)
-    \item Future work roadmap (Section 7.3) demonstrating intellectual honesty
-\end{itemize}
-
-These practices, often absent in undergraduate projects, elevate this work to a **graduate-level standard** suitable for publication in academic conferences or technical journals.
+% Section 7.2.3 removed.
 
 % Sections 7.3 and 7.4 removed.
 
@@ -2826,17 +2796,7 @@ These practices, often absent in undergraduate projects, elevate this work to a 
 
 While the current system is fully functional, several practical enhancements would improve production readiness and user experience:
 
-\subsection{Priority Enhancements}
-
-\begin{enumerate}
-    \item \textbf{Automated Testing:} Implement Jest unit tests for critical API endpoints (authentication, checkout) and Selenium E2E tests for user workflows. This addresses the manual testing bottleneck identified in Section 7.3.5.
-    
-    \item \textbf{Real Payment Integration:} Replace COD simulation with Stripe API (test mode initially). Requires implementing webhook handlers for payment confirmation and adding PCI-compliant card input forms.
-    
-    \item \textbf{MongoDB Transactions:} Wrap order creation and stock deduction in \texttt{session.startTransaction()} to ensure ACID guarantees, eliminating the current race condition risk.
-    
-    \item \textbf{Email Notifications:} Send order confirmation emails via SendGrid (free tier supports 100 emails/day), improving customer communication without infrastructure costs.
-\end{enumerate}
+% Section 7.3.1 removed.
 
 \subsection{Scalability Improvements}
 
@@ -2848,15 +2808,7 @@ While the current system is fully functional, several practical enhancements wou
     \item \textbf{Advanced Search:} Integrate Elasticsearch for features like typo tolerance (``macbok'' $\rightarrow$ ``MacBook''), filters (price range, category), and sorting (price, popularity).
 \end{enumerate}
 
-\subsection{Feature Additions}
-
-\begin{enumerate}
-    \item \textbf{Product Reviews:} Allow verified buyers to submit ratings (1-5 stars) and text reviews, with admin moderation dashboard.
-    
-    \item \textbf{Wishlist System:} Enable users to save products for later, triggering price drop notifications via email (using background jobs with Agenda.js).
-    
-    \item \textbf{Analytics Dashboard:} Add Chart.js visualizations for admin: sales trends, top products, customer demographics (based on order data).
-\end{enumerate}
+% Section 7.3.3 removed.
 
 All enhancements are prioritized based on impact-to-effort ratio and can be implemented incrementally without architectural refactoring.
 
@@ -2874,7 +2826,7 @@ This capstone project represents the culmination of four years of undergraduate 
 
 \section{Closing Remarks}
 
-E-commerce is a mature domain dominated by platform giants (Shopify) and tech behemoths (Amazon). Yet, this project demonstrates that individual developersarmed with modern frameworks, cloud services, and determinationcan build competitive solutions addressing niche markets or unique business requirements.
+E-commerce is a mature domain dominated by platform giants (Shopify) and tech behemoths (Amazon). Yet, this project demonstrates that individual developers armed with modern frameworks, cloud services, and determination can build competitive solutions addressing niche markets or unique business requirements.
 
 The journey from initial concept to deployed application reinforced a fundamental truth: **software engineering is equal parts technical skill and iterative craftsmanship**. Each bug fixed, each API integrated, and each user test conducted contributed to a deeper understanding of the art and science of building systems that matter.
 
