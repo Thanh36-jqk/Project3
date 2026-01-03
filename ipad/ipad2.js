@@ -130,25 +130,25 @@ document.addEventListener('DOMContentLoaded', function () {
       name: "iPad Pro",
       desc: "The ultimate iPad experience with M4 chip and Ultra Retina XDR display.",
       price: "25,000,000₫",
-      img: "../images/ipadprom4.jpg"
+      img: "../images/ipad pro m4/ipad pro m4 black.png"
     },
     {
       name: "iPad Air",
       desc: "Serious performance in a thin and light design with M2 chip.",
       price: "15,000,000₫",
-      img: "../images/ipad air m2 gold.jpg"
+      img: "../images/ipad air m2/ipad air m2 gold.png"
     },
     {
       name: "iPad",
       desc: "The colorful, all-screen iPad for the things you do every day.",
       price: "9,900,000₫",
-      img: "../images/ipad gen 10.webp"
+      img: "../images/ipad (10th gen)/ipad gen 10 yellow.webp"
     },
     {
       name: "iPad mini",
       desc: "The full iPad experience designed to fit in one hand.",
       price: "11,500,000₫",
-      img: "../images/ipad mini6.webp"
+      img: "../images/ipad mini 6/ipad mini 6 purple.png"
     }
   ];
 

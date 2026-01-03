@@ -5,15 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>iPad - Thinpossible - Apple</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -57,29 +58,54 @@
         }
 
         /* Prevent zoom on double tap */
-        button, a {
+        button,
+        a {
             touch-action: manipulation;
         }
 
         /* Smooth Animations */
         @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
         }
 
         @keyframes slideUp {
-            0% { opacity: 0; transform: translateY(30px); }
-            100% { opacity: 1; transform: translateY(0); }
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
 
         @keyframes slideIndicator {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(var(--indicator-offset)); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(var(--indicator-offset));
+            }
         }
 
         .animate-float {
@@ -186,7 +212,8 @@
                 </button>
                 <div class="relative cursor-pointer hover:text-white transition-colors">
                     <i class="fas fa-shopping-bag text-base"></i>
-                    <span class="absolute -top-1 -right-1 bg-white text-black text-[9px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full cart-count">0</span>
+                    <span
+                        class="absolute -top-1 -right-1 bg-white text-black text-[9px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full cart-count">0</span>
                 </div>
             </div>
         </nav>
@@ -196,22 +223,28 @@
     <div id="tab-nav" class="fixed top-14 w-full z-40 bg-black/70 backdrop-blur-xl border-b border-white/10">
         <div class="max-w-7xl mx-auto px-6">
             <div class="relative flex items-center justify-center space-x-2 overflow-x-auto no-scrollbar">
-                <a href="#hero" data-section="hero" class="tab-link active px-8 py-4 text-sm font-semibold text-white transition-colors relative z-10">
+                <a href="#hero" data-section="hero"
+                    class="tab-link active px-8 py-4 text-sm font-semibold text-white transition-colors relative z-10">
                     All iPad
                 </a>
-                <a href="#pro" data-section="pro" class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
+                <a href="#pro" data-section="pro"
+                    class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
                     iPad Pro
                 </a>
-                <a href="#air" data-section="air" class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
+                <a href="#air" data-section="air"
+                    class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
                     iPad Air
                 </a>
-                <a href="#regular" data-section="regular" class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
+                <a href="#regular" data-section="regular"
+                    class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
                     iPad
                 </a>
-                <a href="#mini" data-section="mini" class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
+                <a href="#mini" data-section="mini"
+                    class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
                     iPad mini
                 </a>
-                <a href="#compare" data-section="compare" class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
+                <a href="#compare" data-section="compare"
+                    class="tab-link px-8 py-4 text-sm font-medium text-gray-400 hover:text-white transition-colors relative z-10">
                     Compare
                 </a>
                 <div class="tab-indicator" style="width: 88px;"></div>
@@ -222,24 +255,30 @@
     <main class="pt-14">
 
         <!-- ==================== CINEMATIC HERO SECTION ==================== -->
-        <section id="hero" class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black pt-20 pb-32">
+        <section id="hero"
+            class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black pt-20 pb-32">
             <!-- Background Gradient -->
             <div class="absolute inset-0 bg-gradient-to-b from-blue-950/20 via-black to-black"></div>
 
             <!-- Content -->
             <div class="relative z-10 text-center max-w-6xl px-6 mb-12">
                 <h2 class="text-2xl md:text-3xl font-semibold text-gray-400 mb-4 animate-fade-in">iPad Pro</h2>
-                <h1 class="text-6xl md:text-8xl lg:text-9xl font-bold gradient-text mb-6 tracking-tight leading-none animate-slide-up">
+                <h1
+                    class="text-6xl md:text-8xl lg:text-9xl font-bold gradient-text mb-6 tracking-tight leading-none animate-slide-up">
                     Thinpossible.
                 </h1>
-                <p class="text-xl md:text-2xl lg:text-3xl text-gray-300 font-light mb-12 max-w-3xl mx-auto animate-slide-up" style="animation-delay: 0.2s;">
-                    The new iPad Pro with M4 chip. Outrageous performance. Incredibly advanced displays. Superfast wireless.
+                <p class="text-xl md:text-2xl lg:text-3xl text-gray-300 font-light mb-12 max-w-3xl mx-auto animate-slide-up"
+                    style="animation-delay: 0.2s;">
+                    The new iPad Pro with M4 chip. Outrageous performance. Incredibly advanced displays. Superfast
+                    wireless.
                 </p>
                 <div class="flex flex-wrap gap-4 justify-center animate-slide-up" style="animation-delay: 0.4s;">
-                    <a href="#shop" class="px-8 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all shadow-glow active:scale-95">
+                    <a href="#shop"
+                        class="px-8 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all shadow-glow active:scale-95">
                         Buy now
                     </a>
-                    <a href="#features" class="px-8 py-3 bg-white/10 backdrop-blur-xl text-white border border-white/20 rounded-full font-semibold hover:bg-white/20 transition-all active:scale-95">
+                    <a href="#features"
+                        class="px-8 py-3 bg-white/10 backdrop-blur-xl text-white border border-white/20 rounded-full font-semibold hover:bg-white/20 transition-all active:scale-95">
                         Learn more
                     </a>
                 </div>
@@ -247,7 +286,8 @@
 
             <!-- Hero Image with Float Animation -->
             <div class="relative w-full max-w-5xl px-6 animate-float">
-                <img src="../images/ipadprom4.jpg" alt="iPad Pro M4" class="w-full h-auto object-contain drop-shadow-2xl">
+                <img src="../images/ipad pro m4/ipad pro m4 black.png" alt="iPad Pro M4"
+                    class="w-full h-auto object-contain drop-shadow-2xl">
             </div>
 
             <!-- Scroll Indicator -->
@@ -261,12 +301,14 @@
             <div class="max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div class="reveal">
-                        <span class="text-accent-blue font-bold uppercase tracking-widest text-sm mb-4 block">Ultra Retina XDR</span>
+                        <span class="text-accent-blue font-bold uppercase tracking-widest text-sm mb-4 block">Ultra
+                            Retina XDR</span>
                         <h2 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
                             The world's most advanced display.
                         </h2>
                         <p class="text-xl text-gray-600 mb-8 leading-relaxed">
-                            The breakthrough tandem OLED technology delivers extreme brightness and contrast. Experience HDR content like never before with stunning precision.
+                            The breakthrough tandem OLED technology delivers extreme brightness and contrast. Experience
+                            HDR content like never before with stunning precision.
                         </p>
                         <ul class="space-y-4 text-lg">
                             <li class="flex items-start">
@@ -284,14 +326,16 @@
                         </ul>
                     </div>
                     <div class="reveal" style="animation-delay: 0.2s;">
-                        <img src="../images/screenipad.jpg" alt="iPad Display" class="w-full h-auto rounded-3xl shadow-apple-lg">
+                        <img src="../images/screenipad.jpg" alt="iPad Display"
+                            class="w-full h-auto rounded-3xl shadow-apple-lg">
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- ==================== M4 CHIP SECTION ==================== -->
-        <section id="pro" class="relative py-32 px-6 bg-gradient-to-br from-gray-900 via-black to-blue-950 text-white overflow-hidden">
+        <section id="pro"
+            class="relative py-32 px-6 bg-gradient-to-br from-gray-900 via-black to-blue-950 text-white overflow-hidden">
             <div class="max-w-7xl mx-auto text-center">
                 <div class="reveal mb-16">
                     <i class="fas fa-microchip text-7xl text-accent-blue mb-8"></i>
@@ -301,7 +345,8 @@
                         <span class="text-gray-400">Outrageous performance.</span>
                     </h2>
                     <p class="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                        The new M4 chip brings next-generation performance to iPad Pro. With up to 10-core CPU and 10-core GPU, it's built for the most demanding workflows.
+                        The new M4 chip brings next-generation performance to iPad Pro. With up to 10-core CPU and
+                        10-core GPU, it's built for the most demanding workflows.
                     </p>
                 </div>
 
@@ -310,11 +355,13 @@
                         <h3 class="text-6xl font-bold text-accent-blue mb-2">4x</h3>
                         <p class="text-lg text-gray-400">Faster rendering than M1</p>
                     </div>
-                    <div class="reveal bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10" style="animation-delay: 0.1s;">
+                    <div class="reveal bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10"
+                        style="animation-delay: 0.1s;">
                         <h3 class="text-6xl font-bold text-accent-blue mb-2">10</h3>
                         <p class="text-lg text-gray-400">CPU and GPU cores</p>
                     </div>
-                    <div class="reveal bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10" style="animation-delay: 0.2s;">
+                    <div class="reveal bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10"
+                        style="animation-delay: 0.2s;">
                         <h3 class="text-6xl font-bold text-accent-blue mb-2">16GB</h3>
                         <p class="text-lg text-gray-400">Unified memory</p>
                     </div>
@@ -323,21 +370,25 @@
         </section>
 
         <!-- ==================== APPLE PENCIL SECTION ==================== -->
-        <section class="relative py-32 px-6 bg-gradient-to-br from-purple-50 via-white to-blue-50 text-black overflow-hidden">
+        <section
+            class="relative py-32 px-6 bg-gradient-to-br from-purple-50 via-white to-blue-50 text-black overflow-hidden">
             <div class="max-w-7xl mx-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                     <div class="reveal order-2 lg:order-1">
                         <img src="../images/ipad pencil.jpg" alt="Apple Pencil Pro" class="w-full h-auto">
                     </div>
                     <div class="reveal order-1 lg:order-2">
-                        <span class="text-accent-purple font-bold uppercase tracking-widest text-sm mb-4 block">Apple Pencil Pro</span>
+                        <span class="text-accent-purple font-bold uppercase tracking-widest text-sm mb-4 block">Apple
+                            Pencil Pro</span>
                         <h2 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
                             Dream it up.
                             <br />
                             Jot it down.
                         </h2>
                         <p class="text-xl text-gray-600 mb-8 leading-relaxed">
-                            Apple Pencil Pro adds even more magical capabilities to help bring your ideas to life. New advanced features make marking up, taking notes, and creating a masterpiece easier than ever.
+                            Apple Pencil Pro adds even more magical capabilities to help bring your ideas to life. New
+                            advanced features make marking up, taking notes, and creating a masterpiece easier than
+                            ever.
                         </p>
                         <ul class="space-y-4 text-lg">
                             <li class="flex items-start">
@@ -366,12 +417,14 @@
                         Crushes pro apps.
                     </h2>
                     <p class="text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                        iPad Pro handles the most demanding creative apps with ease. Video editing, 3D rendering, and AAA gaming — all at incredible speeds.
+                        iPad Pro handles the most demanding creative apps with ease. Video editing, 3D rendering, and
+                        AAA gaming — all at incredible speeds.
                     </p>
                 </div>
 
                 <div class="reveal">
-                    <img src="../images/ipadhero3.jpg" alt="iPad Apps" class="w-full h-auto rounded-3xl shadow-apple-lg">
+                    <img src="../images/ipadhero3.jpg" alt="iPad Apps"
+                        class="w-full h-auto rounded-3xl shadow-apple-lg">
                 </div>
             </div>
         </section>
@@ -390,21 +443,25 @@
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    
+
                     <!-- iPad Pro -->
                     <div class="group flex flex-col items-center text-center reveal tilt-card ipad-product-card">
                         <div class="w-full aspect-[4/5] mb-6 relative">
-                            <img src="../images/ipadprom4.jpg" alt="iPad Pro" class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                            <img src="../images/ipad pro m4/ipad pro m4 black.png" alt="iPad Pro"
+                                class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
                         </div>
                         <div class="flex gap-2 mb-4">
-                            <span class="w-4 h-4 rounded-full bg-[#3d3d3d] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
-                            <span class="w-4 h-4 rounded-full bg-[#e3e3e3] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-[#3d3d3d] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-[#e3e3e3] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
                         </div>
                         <span class="text-xs text-orange-600 font-semibold mb-2">NEW</span>
                         <h3 class="text-3xl font-bold mb-2">iPad Pro</h3>
                         <p class="text-sm text-gray-600 mb-6 px-4 h-12">The ultimate iPad experience with M4 chip.</p>
                         <p class="text-xl font-semibold mb-6">From 25,000,000₫</p>
-                        <button class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
+                        <button
+                            class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
                             Buy
                         </button>
 
@@ -417,21 +474,29 @@
                     </div>
 
                     <!-- iPad Air -->
-                    <div class="group flex flex-col items-center text-center reveal tilt-card ipad-product-card" style="animation-delay: 0.1s;">
+                    <div class="group flex flex-col items-center text-center reveal tilt-card ipad-product-card"
+                        style="animation-delay: 0.1s;">
                         <div class="w-full aspect-[4/5] mb-6 relative">
-                            <img src="../images/ipad air m2 gold.jpg" alt="iPad Air" class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                            <img src="../images/ipad air m2/ipad air m2 gold.png" alt="iPad Air"
+                                class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
                         </div>
                         <div class="flex gap-2 mb-4">
-                            <span class="w-4 h-4 rounded-full bg-[#E5D7C2] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
-                            <span class="w-4 h-4 rounded-full bg-[#B8B8B8] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
-                            <span class="w-4 h-4 rounded-full bg-[#8E8B89] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
-                            <span class="w-4 h-4 rounded-full bg-[#D4D6D9] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-[#E5D7C2] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-[#B8B8B8] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-[#8E8B89] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-[#D4D6D9] border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
                         </div>
                         <span class="text-xs text-transparent mb-2">NEW</span>
                         <h3 class="text-3xl font-bold mb-2">iPad Air</h3>
-                        <p class="text-sm text-gray-600 mb-6 px-4 h-12">Serious performance in a thin and light design.</p>
+                        <p class="text-sm text-gray-600 mb-6 px-4 h-12">Serious performance in a thin and light design.
+                        </p>
                         <p class="text-xl font-semibold mb-6">From 15,000,000₫</p>
-                        <button class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
+                        <button
+                            class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
                             Buy
                         </button>
 
@@ -444,21 +509,29 @@
                     </div>
 
                     <!-- iPad -->
-                    <div id="regular" class="group flex flex-col items-center text-center reveal tilt-card ipad-product-card" style="animation-delay: 0.2s;">
+                    <div id="regular"
+                        class="group flex flex-col items-center text-center reveal tilt-card ipad-product-card"
+                        style="animation-delay: 0.2s;">
                         <div class="w-full aspect-[4/5] mb-6 relative">
-                            <img src="../images/ipad gen 10.webp" alt="iPad" class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                            <img src="../images/ipad (10th gen)/ipad gen 10 yellow.webp" alt="iPad"
+                                class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
                         </div>
                         <div class="flex gap-2 mb-4">
-                            <span class="w-4 h-4 rounded-full bg-yellow-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
-                            <span class="w-4 h-4 rounded-full bg-pink-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
-                            <span class="w-4 h-4 rounded-full bg-blue-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
-                            <span class="w-4 h-4 rounded-full bg-gray-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-yellow-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-pink-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-blue-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-gray-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
                         </div>
                         <span class="text-xs text-transparent mb-2">NEW</span>
                         <h3 class="text-3xl font-bold mb-2">iPad</h3>
                         <p class="text-sm text-gray-600 mb-6 px-4 h-12">The colorful, all-screen iPad for everyday.</p>
                         <p class="text-xl font-semibold mb-6">From 9,900,000₫</p>
-                        <button class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
+                        <button
+                            class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
                             Buy
                         </button>
 
@@ -471,20 +544,27 @@
                     </div>
 
                     <!-- iPad Mini -->
-                    <div id="mini" class="group flex flex-col items-center text-center reveal tilt-card ipad-product-card" style="animation-delay: 0.3s;">
+                    <div id="mini"
+                        class="group flex flex-col items-center text-center reveal tilt-card ipad-product-card"
+                        style="animation-delay: 0.3s;">
                         <div class="w-full aspect-[4/5] mb-6 relative">
-                            <img src="../images/ipad mini6.webp" alt="iPad Mini" class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                            <img src="../images/ipad mini 6/ipad mini 6 purple.png" alt="iPad Mini"
+                                class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-105 transition-transform duration-500">
                         </div>
                         <div class="flex gap-2 mb-4">
-                            <span class="w-4 h-4 rounded-full bg-purple-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
-                            <span class="w-4 h-4 rounded-full bg-gray-200 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
-                            <span class="w-4 h-4 rounded-full bg-pink-200 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-purple-300 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-gray-200 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
+                            <span
+                                class="w-4 h-4 rounded-full bg-pink-200 border-2 border-gray-300 cursor-pointer hover:scale-110 transition-transform"></span>
                         </div>
                         <span class="text-xs text-transparent mb-2">NEW</span>
                         <h3 class="text-3xl font-bold mb-2">iPad mini</h3>
                         <p class="text-sm text-gray-600 mb-6 px-4 h-12">The full iPad experience in one hand.</p>
                         <p class="text-xl font-semibold mb-6">From 11,500,000₫</p>
-                        <button class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
+                        <button
+                            class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
                             Buy
                         </button>
 
@@ -576,7 +656,8 @@
     <!-- ==================== FOOTER ==================== -->
     <footer class="bg-apple-gray py-12 px-6 text-xs text-gray-500 border-t border-white/10">
         <div class="max-w-7xl mx-auto space-y-4">
-            <p>1. The displays have rounded corners. When measured diagonally as a rectangle, the iPad Pro 13‑inch is 13 inches.</p>
+            <p>1. The displays have rounded corners. When measured diagonally as a rectangle, the iPad Pro 13‑inch is 13
+                inches.</p>
             <p>2. Data plan required. Check with your carrier for details.</p>
             <div class="mt-10 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center">
                 <p>Copyright © 2024 Apple Inc. All rights reserved.</p>
@@ -590,10 +671,14 @@
     </footer>
 
     <!-- ==================== ORDER MODAL ==================== -->
-    <div id="ipad-order-modal" class="fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-black/80 backdrop-blur-md">
-        <div class="order-modal bg-white w-full md:max-w-lg md:mx-4 rounded-t-3xl md:rounded-3xl shadow-2xl p-8 relative overflow-hidden text-black max-h-[90vh] overflow-y-auto">
+    <div id="ipad-order-modal"
+        class="fixed inset-0 z-[100] flex items-end md:items-center justify-center bg-black/80 backdrop-blur-md">
+        <div
+            class="order-modal bg-white w-full md:max-w-lg md:mx-4 rounded-t-3xl md:rounded-3xl shadow-2xl p-8 relative overflow-hidden text-black max-h-[90vh] overflow-y-auto">
             <!-- Close Button -->
-            <button class="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors" onclick="closeIpadOrderModal()">
+            <button
+                class="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors"
+                onclick="closeIpadOrderModal()">
                 <i class="fas fa-times text-lg"></i>
             </button>
 
@@ -612,13 +697,18 @@
             <!-- Form -->
             <form id="ipad-order-form" class="space-y-5">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input required name="recipientName" type="text" placeholder="Full Name" class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all">
-                    <input required name="recipientPhone" type="tel" placeholder="Phone Number" class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all">
+                    <input required name="recipientName" type="text" placeholder="Full Name"
+                        class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all">
+                    <input required name="recipientPhone" type="tel" placeholder="Phone Number"
+                        class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all">
                 </div>
-                <input required name="recipientAddress" type="text" placeholder="Shipping Address" class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all">
-                <textarea name="recipientNotes" placeholder="Notes (optional)" rows="2" class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all resize-none"></textarea>
+                <input required name="recipientAddress" type="text" placeholder="Shipping Address"
+                    class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all">
+                <textarea name="recipientNotes" placeholder="Notes (optional)" rows="2"
+                    class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all resize-none"></textarea>
 
-                <select required name="paymentMethod" class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all appearance-none cursor-pointer">
+                <select required name="paymentMethod"
+                    class="w-full px-4 py-3 rounded-xl bg-gray-100 border border-gray-300 focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/20 outline-none transition-all appearance-none cursor-pointer">
                     <option value="">Select Payment Method</option>
                     <option value="COD">Cash on Delivery (COD)</option>
                     <option value="bank">Bank Transfer</option>
@@ -629,12 +719,14 @@
                 <input type="hidden" name="productPrice">
                 <input type="hidden" name="productImage">
 
-                <button type="submit" class="w-full py-4 bg-accent-blue hover:bg-blue-600 text-white font-bold rounded-2xl shadow-lg active:scale-95 transition-all">
+                <button type="submit"
+                    class="w-full py-4 bg-accent-blue hover:bg-blue-600 text-white font-bold rounded-2xl shadow-lg active:scale-95 transition-all">
                     Complete Order
                 </button>
             </form>
 
-            <div id="order-success-msg" class="hidden mt-6 p-4 bg-green-100 text-green-800 rounded-xl text-center font-medium"></div>
+            <div id="order-success-msg"
+                class="hidden mt-6 p-4 bg-green-100 text-green-800 rounded-xl text-center font-medium"></div>
         </div>
     </div>
 
