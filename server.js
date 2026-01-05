@@ -61,7 +61,7 @@ app.use(express.static(__dirname));
 // ==================================================================
 const mongoUrl = process.env.MONGO_URL;
 if (!mongoUrl) {
-    console.error("❌ FATAL: MONGO_URL chưa được cấu hình trong .env");
+    console.error("❌ FATAL: MONGO_URL not configured in .env");
     process.exit(1);
 }
 
@@ -81,7 +81,7 @@ if (apiKey) {
     console.log('✅ Gemini AI Configured (Model: gemini-2.5-flash)');
 } else {
 
-    console.warn("⚠️ WARNING: GEMINI_API_KEY thiếu. Chatbot sẽ không hoạt động.");
+    console.warn("⚠️ WARNING: GEMINI_API_KEY missing. Chatbot will not work.");
 }
 
 // ==================================================================
@@ -156,12 +156,12 @@ const verifyToken = (req, res, next) => {
     if (authHeader) {
         const token = authHeader.split(" ")[1];
         jwt.verify(token, process.env.JWT_SECRET, (err, userPayload) => {
-            if (err) return res.status(403).json({ message: "Token không hợp lệ!" });
+            if (err) return res.status(403).json({ message: "Invalid token" });
             req.user = userPayload;
             next();
         });
     } else {
-        return res.status(401).json({ message: "Bạn chưa đăng nhập!" });
+        return res.status(401).json({ message: "Not authenticated" });
     }
 };
 
@@ -170,7 +170,7 @@ const verifyAdmin = (req, res, next) => {
         if (req.user.role === 'admin') {
             next();
         } else {
-            res.status(403).json({ message: "Yêu cầu quyền Admin!" });
+            res.status(403).json({ message: "Admin access required" });
         }
     });
 };
@@ -236,17 +236,17 @@ app.get('/', (req, res) => res.send('Apple Store API is Running... Access /store
 app.post('/api/register', async (req, res) => {
     try {
         const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ message: 'Thiếu thông tin' });
+        if (!email || !password) return res.status(400).json({ message: 'Missing required fields' });
 
         const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ message: 'Email đã tồn tại' });
+        if (existingUser) return res.status(400).json({ message: 'Email already exists' });
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const role = email.includes('admin') ? 'admin' : 'user';
 
         const newUser = new User({ email, password: hashedPassword, role, rank: 'Silver' });
         await newUser.save();
-        res.status(201).json({ message: 'Đăng ký thành công!' });
+        res.status(201).json({ message: 'Registration successful' });
     } catch (error) { res.status(500).json({ message: error.message }); }
 });
 
@@ -254,10 +254,10 @@ app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });
-        if (!user) return res.status(401).json({ message: 'Email không đúng' });
+        if (!user) return res.status(401).json({ message: 'Invalid email' });
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({ message: 'Mật khẩu không đúng' });
+        if (!isMatch) return res.status(401).json({ message: 'Invalid password' });
 
         const accessToken = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "3d" });
         const { password: p, ...userInfo } = user._doc;
@@ -308,7 +308,7 @@ app.post('/api/cart/add', verifyToken, async (req, res) => {
 app.delete('/api/cart/item/:productId', verifyToken, async (req, res) => {
     try {
         const cart = await Cart.findOne({ userId: req.user.id });
-        if (!cart) return res.status(404).json({ message: "Giỏ hàng trống" });
+        if (!cart) return res.status(404).json({ message: "Cart is empty" });
         cart.items = cart.items.filter(item => item.productId && item.productId.toString() !== req.params.productId);
         await cart.save();
         res.status(200).json(cart);
@@ -329,9 +329,9 @@ app.post('/api/vouchers/redeem', verifyToken, async (req, res) => {
         const user = await User.findById(req.user.id);
         const voucher = await Voucher.findById(voucherId);
 
-        if (!voucher || !voucher.isActive || voucher.quantity <= 0) return res.status(400).json({ message: "Voucher không khả dụng" });
-        if (user.points < voucher.pointsRequired) return res.status(400).json({ message: "Bạn không đủ điểm thưởng" });
-        if (user.myVouchers.some(v => v.code === voucher.code)) return res.status(400).json({ message: "Bạn đã đổi voucher này rồi" });
+        if (!voucher || !voucher.isActive || voucher.quantity <= 0) return res.status(400).json({ message: "Voucher not available" });
+        if (user.points < voucher.pointsRequired) return res.status(400).json({ message: "Insufficient points" });
+        if (user.myVouchers.some(v => v.code === voucher.code)) return res.status(400).json({ message: "Voucher already redeemed" });
 
         user.points -= voucher.pointsRequired;
         user.myVouchers.push({ code: voucher.code, discountAmount: voucher.discountAmount, isUsed: false });
@@ -340,7 +340,7 @@ app.post('/api/vouchers/redeem', verifyToken, async (req, res) => {
         voucher.quantity -= 1;
         await voucher.save();
 
-        res.status(200).json({ message: "Đổi voucher thành công", user });
+        res.status(200).json({ message: "Voucher redeemed successfully", user });
     } catch (error) { res.status(500).json({ message: error.message }); }
 });
 
@@ -375,7 +375,7 @@ app.post('/api/orders', async (req, res) => {
                 continue;
             }
 
-            if (product.stock < item.qty) return res.status(400).json({ message: `Sản phẩm "${item.name}" chỉ còn lại ${product.stock} chiếc.` });
+            if (product.stock < item.qty) return res.status(400).json({ message: `Product "${item.name}" has only ${product.stock} units remaining` });
 
             calculatedTotal += product.price * item.qty;
             product.stock -= item.qty;
@@ -425,7 +425,7 @@ app.post('/api/orders', async (req, res) => {
             if (newRank !== updatedUser.rank) { updatedUser.rank = newRank; await updatedUser.save(); }
         }
 
-        res.status(201).json({ message: 'Đặt hàng thành công!', order: savedOrder });
+        res.status(201).json({ message: 'Order placed successfully', order: savedOrder });
     } catch (error) { res.status(500).json({ message: 'Lỗi server: ' + error.message }); }
 });
 
@@ -460,10 +460,10 @@ app.get('/api/admin/products', verifyAdmin, async (req, res) => {
 app.put('/api/admin/products/:id/stock', verifyAdmin, async (req, res) => {
     try {
         const { newStock } = req.body;
-        if (newStock < 0) return res.status(400).json({ message: "Tồn kho không thể âm" });
+        if (newStock < 0) return res.status(400).json({ message: "Stock cannot be negative" });
 
         const product = await Product.findByIdAndUpdate(req.params.id, { stock: newStock }, { new: true });
-        res.status(200).json({ message: "Cập nhật kho thành công", product });
+        res.status(200).json({ message: "Stock updated successfully", product });
     } catch (error) { res.status(500).json({ message: error.message }); }
 });
 
@@ -533,7 +533,7 @@ app.post('/api/chat', async (req, res) => {
     if (!userMessage || typeof userMessage !== 'string' || userMessage.trim() === '') {
         console.log('❌ Empty or invalid message');
         return res.status(400).json({
-            reply: "⚠️ Vui lòng nhập nội dung tin nhắn."
+            reply: "⚠️ Please enter a message."
         });
     }
 
@@ -541,7 +541,7 @@ app.post('/api/chat', async (req, res) => {
     console.log('Model status:', model ? 'INITIALIZED' : 'NOT INITIALIZED');
     if (!model) {
         console.error('❌ Gemini model not initialized');
-        return res.status(503).json({ reply: "Hệ thống AI đang bảo trì." });
+        return res.status(503).json({ reply: "AI system is under maintenance." });
     }
 
     try {
@@ -654,17 +654,17 @@ app.post('/api/chat', async (req, res) => {
                         type: 'product_card',
                         products: formattedProducts,
                         message: products.length === 1
-                            ? `Đây là thông tin về ${products[0].name}:`
-                            : `Tôi tìm thấy ${products.length} sản phẩm phù hợp:`
+                            ? `Here is information about ${products[0].name}:`
+                            : `I found ${products.length} matching products:`
                     });
                 } else {
                     // No products found
                     return res.json({
                         type: 'text',
-                        reply: `❓ Xin lỗi, tôi không tìm thấy sản phẩm "${productName}" trong kho. Bạn có thể:
-• Thử từ khóa khác (VD: "iPhone 16", "MacBook Pro")
-• Xem toàn bộ sản phẩm tại /store.html
-• Liên hệ: 0962923329`
+                        reply: `❓ Sorry, I couldn't find any product matching "${productName}" in our stock. You can:
+• Try other keywords (e.g., "iPhone 16", "MacBook Pro")
+• View all products at /store.html
+• Contact us: 0962923329`
                     });
                 }
             }
@@ -674,13 +674,13 @@ app.post('/api/chat', async (req, res) => {
         console.log('💬 General query - calling Gemini AI');
 
         const systemPrompt = `
-        BẠN LÀ: Trợ lý ảo AI của Apple Store.
-        DỮ LIỆU:
-        - Khách: ${JSON.stringify(contextData.customer)}
-        - Đơn hàng gần đây: ${JSON.stringify(contextData.recent_orders)}
-        - Sản phẩm: ${JSON.stringify(contextData.available_products)}
-        NHIỆM VỤ: Trả lời ngắn gọn, chính xác về đơn hàng, khuyến mãi, và tư vấn.
-        User hỏi: "${userMessage}"
+        YOU ARE: AI assistant for Apple Store.
+        DATA:
+        - Customer: ${JSON.stringify(contextData.customer)}
+        - Recent orders: ${JSON.stringify(contextData.recent_orders)}
+        - Products: ${JSON.stringify(contextData.available_products)}
+        TASK: Answer concisely and accurately about orders, promotions, and consultations.
+        User asks: "${userMessage}"
         `;
 
         console.log('🤖 Calling Gemini API...');
@@ -708,7 +708,7 @@ app.post('/api/chat', async (req, res) => {
         if (!replyText || replyText.trim() === '') {
             console.warn('⚠️ Gemini returned empty response');
             return res.json({
-                reply: "Xin lỗi, tôi không thể tạo câu trả lời lúc này. Vui lòng thử lại hoặc hỏi câu khác."
+                reply: "Sorry, I couldn't generate a response at this time. Please try again or ask a different question."
             });
         }
 
@@ -729,17 +729,17 @@ app.post('/api/chat', async (req, res) => {
         }
 
         // Enhanced fallback messages based on error type
-        let fallbackReply = "Xin lỗi, tôi đang gặp sự cố kỹ thuật. Vui lòng thử lại sau.";
+        let fallbackReply = "Sorry, I'm experiencing technical issues. Please try again later.";
 
         // Check for specific error types
         const errorMsg = error.message?.toLowerCase() || '';
 
         if (errorMsg.includes('quota') || errorMsg.includes('rate limit') || errorMsg.includes('resource_exhausted')) {
-            fallbackReply = "⚠️ Hiện tại tôi đang quá tải. Vui lòng liên hệ hotline: 0962923329 để được hỗ trợ ngay.";
+            fallbackReply = "⚠️ I am currently overloaded. Please contact hotline: 0962923329 for immediate support.";
         } else if (errorMsg.includes('network') || errorMsg.includes('timeout') || errorMsg.includes('econnrefused')) {
-            fallbackReply = "🔌 Kết nối AI bị gián đoạn. Vui lòng thử lại sau vài giây.";
+            fallbackReply = "🔌 AI connection interrupted. Please try again in a few seconds.";
         } else if (errorMsg.includes('invalid') || errorMsg.includes('api key')) {
-            fallbackReply = "🔧 Hệ thống AI đang bảo trì. Vui lòng liên hệ: nthanhtat51@gmail.com";
+            fallbackReply = "🔧 AI system is under maintenance. Please contact: nthanhtat51@gmail.com";
         }
 
         res.status(500).json({

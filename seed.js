@@ -10,8 +10,8 @@ if (!mongoUrl) {
 }
 
 mongoose.connect(mongoUrl)
-    .then(() => console.log('✅ Đã kết nối MongoDB...'))
-    .catch(err => console.error('❌ Lỗi kết nối:', err));
+    .then(() => console.log('✅ MongoDB Connected...'))
+    .catch(err => console.error('❌ Connection Error:', err));
 
 // Định nghĩa lại Schema Product để script hiểu
 const productSchema = new mongoose.Schema({
@@ -70,12 +70,12 @@ const products = [
 const seedDB = async () => {
     try {
         await Product.deleteMany({});
-        console.log('🧹 Đã xóa sạch dữ liệu cũ...');
+        console.log('🧹 Old data cleaned...');
 
         await Product.insertMany(products);
-        console.log(`🎉 Đã nạp thành công ${products.length} sản phẩm vào Database!`);
+        console.log(`🎉 Successfully loaded ${products.length} products into Database!`);
     } catch (error) {
-        console.error('❌ Lỗi:', error);
+        console.error('❌ Error:', error);
     } finally {
         mongoose.connection.close();
     }
