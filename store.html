@@ -1257,41 +1257,54 @@
             }
 
             // Update badge
-            badge.textContent = wishlistProducts.length;
+            badge.textContent = wishlistProducts.length.toString();
             badge.style.opacity = wishlistProducts.length > 0 ? '1' : '0';
             headerCount.textContent = `(${wishlistProducts.length} ${wishlistProducts.length === 1 ? 'item' : 'items'})`;
 
-            // Re-render products to update heart icons immediately
-            const currentProducts = Array.from(document.querySelectorAll('#product-list-container li')).length > 0
-                ? allProducts
-                : allProducts;
+            // Update heart icons directly without re-rendering everything (preserves hover state)
+            updateHeartIcons();
+        }
 
-            // Get currently displayed products (respect current filters/search)
-            const searchTerm = document.getElementById('global-search').value.toLowerCase();
-            let displayedProducts = allProducts;
+        function updateHeartIcons() {
+            // Helper to check if ID is in wishlist
+            const checkInWishlist = (id) => wishlist.some(item => (item._id || item) === id);
 
-            if (searchTerm) {
-                displayedProducts = allProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
-            } else {
-                // Check if any filters are active
-                const catFilters = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
-                const priceFilters = Array.from(document.querySelectorAll('input[name="price"]:checked')).map(cb => cb.value);
+            // 1. Update Product Cards
+            const productCards = document.querySelectorAll('li[data-product-id]');
+            productCards.forEach(card => {
+                const productId = card.getAttribute('data-product-id');
+                const heartIcon = card.querySelector('.wishlist-heart');
 
-                if (catFilters.length > 0) {
-                    displayedProducts = displayedProducts.filter(p => catFilters.includes(p.category));
+                if (heartIcon) {
+                    const isAdded = checkInWishlist(productId);
+                    if (isAdded) {
+                        heartIcon.classList.remove('far');
+                        heartIcon.classList.add('fas');
+                        heartIcon.style.color = '#ef4444'; // Red
+                    } else {
+                        heartIcon.classList.remove('fas');
+                        heartIcon.classList.add('far');
+                        heartIcon.style.color = ''; // Reset
+                    }
                 }
+            });
 
-                if (priceFilters.length > 0) {
-                    displayedProducts = displayedProducts.filter(p => priceFilters.some(range => {
-                        const [min, max] = range.split('-').map(Number);
-                        return p.price >= min && p.price <= max;
-                    }));
+            // 2. Update Product Modal if open
+            if (currentModalProduct) {
+                const modalHeart = document.getElementById('wishlist-heart-modal');
+                if (modalHeart) {
+                    const isAdded = checkInWishlist(currentModalProduct._id);
+                    if (isAdded) {
+                        modalHeart.classList.remove('far');
+                        modalHeart.classList.add('fas');
+                        modalHeart.style.color = '#ef4444';
+                    } else {
+                        modalHeart.classList.remove('fas');
+                        modalHeart.classList.add('far');
+                        modalHeart.style.color = '';
+                    }
                 }
             }
-
-            // Re-render with sorting applied
-            const sorted = sortProducts(displayedProducts);
-            renderProducts(sorted);
         }
 
         window.toggleWishlistSidebar = () => {
