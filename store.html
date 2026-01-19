@@ -1261,22 +1261,37 @@
             badge.style.opacity = wishlistProducts.length > 0 ? '1' : '0';
             headerCount.textContent = `(${wishlistProducts.length} ${wishlistProducts.length === 1 ? 'item' : 'items'})`;
 
-            // Update heart icons on product cards and modal
-            updateHeartIcons();
-        }
+            // Re-render products to update heart icons immediately
+            const currentProducts = Array.from(document.querySelectorAll('#product-list-container li')).length > 0
+                ? allProducts
+                : allProducts;
 
-        function updateHeartIcons() {
-            // Update all heart icons on the page
-            const productCards = document.querySelectorAll('[data-product-id]');
-            productCards.forEach(card => {
-                const productId = card.getAttribute('data-product-id');
-                const heartIcon = card.querySelector('.wishlist-heart');
-                if (heartIcon) {
-                    const isInWishlist = wishlist.some(p => (p._id || p) === productId);
-                    heartIcon.className = isInWishlist ? 'fas fa-heart wishlist-heart' : 'far fa-heart wishlist-heart';
-                    heartIcon.style.color = isInWishlist ? '#ef4444' : '';
+            // Get currently displayed products (respect current filters/search)
+            const searchTerm = document.getElementById('global-search').value.toLowerCase();
+            let displayedProducts = allProducts;
+
+            if (searchTerm) {
+                displayedProducts = allProducts.filter(p => p.name.toLowerCase().includes(searchTerm));
+            } else {
+                // Check if any filters are active
+                const catFilters = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
+                const priceFilters = Array.from(document.querySelectorAll('input[name="price"]:checked')).map(cb => cb.value);
+
+                if (catFilters.length > 0) {
+                    displayedProducts = displayedProducts.filter(p => catFilters.includes(p.category));
                 }
-            });
+
+                if (priceFilters.length > 0) {
+                    displayedProducts = displayedProducts.filter(p => priceFilters.some(range => {
+                        const [min, max] = range.split('-').map(Number);
+                        return p.price >= min && p.price <= max;
+                    }));
+                }
+            }
+
+            // Re-render with sorting applied
+            const sorted = sortProducts(displayedProducts);
+            renderProducts(sorted);
         }
 
         window.toggleWishlistSidebar = () => {
