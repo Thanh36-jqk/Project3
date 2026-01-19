@@ -131,6 +131,13 @@
                     </div>
                 </div>
 
+                <button onclick="toggleWishlistSidebar()"
+                    class="text-gray-300 hover:text-white transition-colors relative" title="Wishlist">
+                    <i class="far fa-heart text-sm"></i>
+                    <span id="wishlist-badge"
+                        class="absolute -top-2 -right-2 bg-red-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                </button>
+
                 <button onclick="toggleCart()" class="text-gray-300 hover:text-white transition-colors relative">
                     <i class="fas fa-shopping-bag text-sm"></i>
                     <span id="cart-badge"
@@ -356,6 +363,40 @@
         class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300">
     </div>
 
+    <!-- WISHLIST SIDEBAR -->
+    <div id="wishlist-sidebar"
+        class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#1c1c1e] border-l border-white/10 transform translate-x-full transition-transform duration-300 z-[100] shadow-2xl flex flex-col">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center bg-[#1c1c1e]/90 backdrop-blur">
+            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                <i class="far fa-heart text-red-500"></i> Wishlist
+                <span id="wishlist-count-header" class="text-gray-500 text-sm font-normal">(0 items)</span>
+            </h2>
+            <button onclick="toggleWishlistSidebar()"
+                class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6" id="wishlist-items-container">
+            <div class="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+                <i class="far fa-heart text-6xl mb-4"></i>
+                <p>Your wishlist is empty.</p>
+                <button onclick="toggleWishlistSidebar()" class="text-blue-500 hover:underline">Browse Products</button>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-white/10 bg-[#1c1c1e]">
+            <button onclick="addAllWishlistToCart()"
+                class="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-red-900/20">
+                <i class="fas fa-shopping-bag"></i> Add All to Cart
+            </button>
+        </div>
+    </div>
+
+    <div id="wishlist-overlay" onclick="toggleWishlistSidebar()"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300">
+    </div>
+
     <div id="product-modal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeModal()"></div>
 
@@ -413,9 +454,9 @@
                                 class="flex-1 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
                                 <i class="fas fa-shopping-bag"></i> Add to Bag
                             </button>
-                            <button
+                            <button id="modal-wishlist-btn" onclick="toggleWishlist(currentModalProduct._id)"
                                 class="w-14 h-14 border border-white/20 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors text-blue-500">
-                                <i class="far fa-heart"></i>
+                                <i id="wishlist-heart-modal" class="far fa-heart"></i>
                             </button>
                         </div>
                         <button onclick="buyNow()"
@@ -669,6 +710,7 @@
             : 'https://project3-icy1.onrender.com';
         let allProducts = [];
         let cart = JSON.parse(localStorage.getItem('apple_cart')) || [];
+        let wishlist = []; // Loaded from API or localStorage
         let currentModalProduct = null;
 
         // Dữ liệu mẫu (Fallback) nếu Server chưa có SP để Store không bị trống
@@ -790,6 +832,7 @@
 
                 renderProducts(allProducts);
                 updateCartUI(); // Load cart from local storage
+                initWishlist(); // Load wishlist
             }
         }
 
@@ -812,13 +855,18 @@
 
             products.forEach(p => {
                 const hasColors = productColorVariants[p.name] && productColorVariants[p.name].length > 0;
+                const isInWishlist = wishlist.some(item => (item._id || item) === p._id);
 
                 const li = document.createElement('li');
                 li.className = 'bg-[#1c1c1e] rounded-2xl overflow-hidden group hover:shadow-2xl hover:shadow-blue-900/10 transition-all duration-300 border border-white/5 flex flex-col h-full hover:-translate-y-1 cursor-pointer';
+                li.setAttribute('data-product-id', p._id);
                 li.innerHTML = `
                     <div class="relative h-64 bg-[#000] flex items-center justify-center p-6 overflow-hidden">
                         <img src="${p.image_url}" alt="${p.name}" class="h-full w-full object-contain group-hover:scale-110 transition-transform duration-500">
-                        <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="event.stopPropagation(); toggleWishlist('${p._id}')" class="bg-white/90 backdrop-blur text-black p-2 rounded-full shadow-lg hover:bg-white transition-colors" title="Add to Wishlist">
+                                <i class="${isInWishlist ? 'fas' : 'far'} fa-heart wishlist-heart" style="${isInWishlist ? 'color: #ef4444;' : ''}"></i>
+                            </button>
                             <button class="bg-white text-black p-2 rounded-full shadow-lg hover:bg-gray-200">
                                 <i class="fas fa-expand-alt"></i>
                             </button>
@@ -1085,6 +1133,207 @@
         };
 
         // ==================================================================
+        // WISHLIST SYSTEM
+        // ==================================================================
+        async function initWishlist() {
+            const token = getToken();
+            if (token) {
+                // Logged-in user: Fetch from API
+                try {
+                    const res = await fetch(`${API_URL}/api/wishlist`, {
+                        headers: { 'token': `Bearer ${token}` }
+                    });
+                    const data = await res.json();
+                    wishlist = data.wishlist.map(item => item.productId);
+                } catch (error) {
+                    console.error('Failed to load wishlist:', error);
+                    wishlist = JSON.parse(localStorage.getItem('apple_wishlist')) || [];
+                }
+            } else {
+                // Guest: Load from localStorage
+                wishlist = JSON.parse(localStorage.getItem('apple_wishlist')) || [];
+            }
+            updateWishlistUI();
+        }
+
+        window.toggleWishlist = async (productId) => {
+            const token = getToken();
+            const isInWishlist = wishlist.some(p => (p._id || p) === productId);
+
+            if (isInWishlist) {
+                // Remove from wishlist
+                if (token) {
+                    try {
+                        const res = await fetch(`${API_URL}/api/wishlist/remove/${productId}`, {
+                            method: 'DELETE',
+                            headers: { 'token': `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+                        wishlist = data.wishlist.map(item => item.productId);
+                        showToast('Removed from wishlist', 'success');
+                    } catch (error) {
+                        console.error('Failed to remove from wishlist:', error);
+                    }
+                } else {
+                    wishlist = wishlist.filter(p => (p._id || p) !== productId);
+                    localStorage.setItem('apple_wishlist', JSON.stringify(wishlist));
+                    showToast('Removed from wishlist', 'success');
+                }
+            } else {
+                // Add to wishlist
+                if (token) {
+                    try {
+                        const res = await fetch(`${API_URL}/api/wishlist/add`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'token': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ productId })
+                        });
+                        const data = await res.json();
+                        wishlist = data.wishlist.map(item => item.productId);
+                        showToast('Added to wishlist ❤️', 'success');
+                    } catch (error) {
+                        console.error('Failed to add to wishlist:', error);
+                    }
+                } else {
+                    const product = allProducts.find(p => p._id === productId);
+                    if (product) {
+                        wishlist.push(product);
+                        localStorage.setItem('apple_wishlist', JSON.stringify(wishlist));
+                        showToast('Added to wishlist ❤️', 'success');
+                    }
+                }
+            }
+
+            updateWishlistUI();
+        };
+
+        function updateWishlistUI() {
+            const container = document.getElementById('wishlist-items-container');
+            const badge = document.getElementById('wishlist-badge');
+            const headerCount = document.getElementById('wishlist-count-header');
+
+            container.innerHTML = '';
+
+            // Get full product details for wishlist items
+            const wishlistProducts = wishlist.map(item => {
+                const productId = item._id || item;
+                return allProducts.find(p => p._id === productId);
+            }).filter(p => p !== undefined);
+
+            if (wishlistProducts.length === 0) {
+                container.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+                        <i class="far fa-heart text-6xl mb-4"></i>
+                        <p>Your wishlist is empty.</p>
+                        <button onclick="toggleWishlistSidebar()" class="text-blue-500 hover:underline">Browse Products</button>
+                    </div>
+                `;
+            } else {
+                wishlistProducts.forEach(product => {
+                    container.innerHTML += `
+                        <div class="flex gap-4 p-4 bg-black/20 rounded-xl hover:bg-black/30 transition-colors border border-white/5">
+                            <img src="${product.image_url}" alt="${product.name}" class="w-20 h-20 object-contain bg-white/5 rounded-lg">
+                            <div class="flex-1">
+                                <h4 class="font-bold text-white text-sm mb-1">${product.name}</h4>
+                                <p class="text-xs text-gray-400 mb-2">${product.category}</p>
+                                <p class="text-blue-400 font-bold">${formatPrice(product.price)}</p>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <button onclick="event.stopPropagation(); addToCart('${product._id}')" 
+                                    class="px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white text-xs flex items-center gap-1">
+                                    <i class="fas fa-shopping-bag text-xs"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); toggleWishlist('${product._id}')" 
+                                    class="px-3 py-2 bg-red-600/20 hover:bg-red-600/30 rounded-lg text-red-400 text-xs">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Update badge
+            badge.textContent = wishlistProducts.length;
+            badge.style.opacity = wishlistProducts.length > 0 ? '1' : '0';
+            headerCount.textContent = `(${wishlistProducts.length} ${wishlistProducts.length === 1 ? 'item' : 'items'})`;
+
+            // Update heart icons on product cards and modal
+            updateHeartIcons();
+        }
+
+        function updateHeartIcons() {
+            // Update all heart icons on the page
+            const productCards = document.querySelectorAll('[data-product-id]');
+            productCards.forEach(card => {
+                const productId = card.getAttribute('data-product-id');
+                const heartIcon = card.querySelector('.wishlist-heart');
+                if (heartIcon) {
+                    const isInWishlist = wishlist.some(p => (p._id || p) === productId);
+                    heartIcon.className = isInWishlist ? 'fas fa-heart wishlist-heart' : 'far fa-heart wishlist-heart';
+                    heartIcon.style.color = isInWishlist ? '#ef4444' : '';
+                }
+            });
+        }
+
+        window.toggleWishlistSidebar = () => {
+            const sidebar = document.getElementById('wishlist-sidebar');
+            const overlay = document.getElementById('wishlist-overlay');
+            const isOpen = !sidebar.classList.contains('translate-x-full');
+
+            if (isOpen) {
+                sidebar.classList.add('translate-x-full');
+                overlay.classList.remove('opacity-100');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            } else {
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    sidebar.classList.remove('translate-x-full');
+                    overlay.classList.add('opacity-100');
+                }, 10);
+            }
+        };
+
+        window.addAllWishlistToCart = () => {
+            const wishlistProducts = wishlist.map(item => {
+                const productId = item._id || item;
+                return allProducts.find(p => p._id === productId);
+            }).filter(p => p !== undefined);
+
+            if (wishlistProducts.length === 0) {
+                showToast('Your wishlist is empty', 'error');
+                return;
+            }
+
+            wishlistProducts.forEach(product => {
+                const existingItem = cart.find(item => item.productId === product._id);
+                if (existingItem) {
+                    existingItem.quantity += 1;
+                } else {
+                    cart.push({
+                        productId: product._id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image_url,
+                        quantity: 1
+                    });
+                }
+            });
+
+            saveCart();
+            updateCartUI();
+            showToast(`Added ${wishlistProducts.length} item(s) to cart`, 'success');
+
+            // Auto open cart
+            const sidebar = document.getElementById('cart-sidebar');
+            if (sidebar.classList.contains('translate-x-full')) toggleCart();
+        };
+
+
+        // ==================================================================
         // 6. MODAL & CHECKOUT
         // ==================================================================
         window.openProductModal = (product) => {
@@ -1104,6 +1353,14 @@
 
             // Color Selection Logic
             renderColorOptions(product);
+
+            // Update wishlist heart icon based on current state
+            const isInWishlist = wishlist.some(item => (item._id || item) === product._id);
+            const heartIcon = document.getElementById('wishlist-heart-modal');
+            if (heartIcon) {
+                heartIcon.className = isInWishlist ? 'fas fa-heart' : 'far fa-heart';
+                heartIcon.style.color = isInWishlist ? '#ef4444' : '';
+            }
 
             document.getElementById('product-modal').classList.remove('hidden');
         };

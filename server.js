@@ -97,6 +97,10 @@ const userSchema = new mongoose.Schema({
     totalSpending: { type: Number, default: 0 },
     myVouchers: [{
         code: String, discountAmount: Number, isUsed: { type: Boolean, default: false }, redeemedAt: { type: Date, default: Date.now }
+    }],
+    wishlist: [{
+        productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+        addedAt: { type: Date, default: Date.now }
     }]
 }, { timestamps: true });
 const User = mongoose.model('User', userSchema);
@@ -314,6 +318,61 @@ app.delete('/api/cart/item/:productId', verifyToken, async (req, res) => {
         res.status(200).json(cart);
     } catch (error) { res.status(500).json({ message: error.message }); }
 });
+
+// ---------------- WISHLIST MANAGEMENT ----------------
+app.get('/api/wishlist', verifyToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).populate('wishlist.productId');
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Filter out any null products (in case product was deleted)
+        const validWishlist = user.wishlist.filter(item => item.productId !== null);
+
+        res.status(200).json({ wishlist: validWishlist });
+    } catch (error) { res.status(500).json({ message: error.message }); }
+});
+
+app.post('/api/wishlist/add', verifyToken, async (req, res) => {
+    try {
+        const { productId } = req.body;
+        if (!productId) return res.status(400).json({ message: "Product ID is required" });
+
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Check if product exists
+        const product = await Product.findById(productId);
+        if (!product) return res.status(404).json({ message: "Product not found" });
+
+        // Check if product already in wishlist
+        const alreadyExists = user.wishlist.some(item => item.productId.toString() === productId);
+        if (alreadyExists) return res.status(400).json({ message: "Product already in wishlist" });
+
+        // Add to wishlist
+        user.wishlist.push({ productId, addedAt: new Date() });
+        await user.save();
+
+        // Return populated wishlist
+        const updatedUser = await User.findById(req.user.id).populate('wishlist.productId');
+        res.status(200).json({ message: "Added to wishlist", wishlist: updatedUser.wishlist });
+    } catch (error) { res.status(500).json({ message: error.message }); }
+});
+
+app.delete('/api/wishlist/remove/:productId', verifyToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Remove from wishlist
+        user.wishlist = user.wishlist.filter(item => item.productId.toString() !== req.params.productId);
+        await user.save();
+
+        // Return populated wishlist
+        const updatedUser = await User.findById(req.user.id).populate('wishlist.productId');
+        res.status(200).json({ message: "Removed from wishlist", wishlist: updatedUser.wishlist });
+    } catch (error) { res.status(500).json({ message: error.message }); }
+});
+
 
 // ---------------- VOUCHER SYSTEM ----------------
 app.get('/api/vouchers/available', verifyToken, async (req, res) => {
