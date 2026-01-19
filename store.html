@@ -872,8 +872,44 @@
                 }));
             }
 
-            renderProducts(filtered);
+            // Apply sorting before rendering
+            const sorted = sortProducts(filtered);
+            renderProducts(sorted);
         }
+
+        // ==================================================================
+        // SORTING FUNCTIONALITY
+        // ==================================================================
+        function sortProducts(products) {
+            const sortOption = document.getElementById('sort-options').value;
+
+            // Create a copy to avoid mutating the original array
+            const sorted = [...products];
+
+            switch (sortOption) {
+                case 'price-asc':
+                    // Sort by price: Low to High
+                    return sorted.sort((a, b) => a.price - b.price);
+
+                case 'price-desc':
+                    // Sort by price: High to Low
+                    return sorted.sort((a, b) => b.price - a.price);
+
+                case 'name-asc':
+                    // Sort by name: A-Z
+                    return sorted.sort((a, b) => a.name.localeCompare(b.name));
+
+                case 'default':
+                default:
+                    // Featured: Keep original order
+                    return sorted;
+            }
+        }
+
+        // Add event listener for sort dropdown
+        document.getElementById('sort-options').addEventListener('change', () => {
+            applyFilters(); // Re-apply filters with new sort
+        });
 
         // Lọc nhanh từ Hero Button
         window.filterByHero = (cat) => {
@@ -891,7 +927,8 @@
         window.resetFilters = () => {
             checkboxes.forEach(cb => cb.checked = false);
             document.getElementById('global-search').value = '';
-            renderProducts(allProducts);
+            const sorted = sortProducts(allProducts);
+            renderProducts(sorted);
         };
 
         // Search Global Logic
@@ -921,8 +958,9 @@
                 });
             }
 
-            // Realtime filter main grid
-            renderProducts(results);
+            // Realtime filter main grid with sorting applied
+            const sorted = sortProducts(results);
+            renderProducts(sorted);
         });
 
         // ==================================================================
