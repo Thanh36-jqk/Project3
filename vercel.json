@@ -1,27 +1,27 @@
 {
   "version": 2,
   "builds": [
-    { "src": "**/*.html", "use": "@vercel/static" },
-    { "src": "**/*.css", "use": "@vercel/static" },
-    { "src": "**/*.js", "use": "@vercel/static" },
-    { "src": "**/*.json", "use": "@vercel/static" },
-    { "src": "**/*.jpg", "use": "@vercel/static" },
-    { "src": "**/*.jpeg", "use": "@vercel/static" },
-    { "src": "**/*.png", "use": "@vercel/static" },
-    { "src": "**/*.gif", "use": "@vercel/static" },
-    { "src": "**/*.webp", "use": "@vercel/static" },
-    { "src": "**/*.svg", "use": "@vercel/static" },
-    { "src": "**/*.mp4", "use": "@vercel/static" },
-    { "src": "**/*.webm", "use": "@vercel/static" },
-    { "src": "**/*.woff", "use": "@vercel/static" },
-    { "src": "**/*.woff2", "use": "@vercel/static" },
-    { "src": "**/*.ttf", "use": "@vercel/static" },
-    { "src": "**/*.glb", "use": "@vercel/static" }, 
-    { "src": "**/*.gltf", "use": "@vercel/static" },
-    { "src": "**/*.bin", "use": "@vercel/static" }
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
   ],
   "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/$1" }
+    {
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "public/$1"
+    }
   ]
 }

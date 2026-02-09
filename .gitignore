@@ -1,4 +1,47 @@
-node_modules
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment Variables
 .env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
-debug-key.js
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build Output
+dist/
+build/
+.cache/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary
+.tmp/
+temp/
+*.tmp
+
+# Database
+*.sqlite
+*.db
+
+# Vercel
+.vercel

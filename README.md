@@ -91,6 +91,8 @@ npm install
 cp .env.example .env
 ```
 
+Then edit `.env` and fill in your actual values for database, API keys, etc.
+
 4. Configure environment variables (see [Environment Variables](#environment-variables))
 
 5. Run the application
@@ -204,24 +206,79 @@ The application will be available at `http://localhost:3000` (or your configured
 
 ```
 Project3/
-├── server.js                 # Main Express server (821 lines)
-├── package.json              # Node dependencies and scripts
-├── vercel.json              # Vercel deployment configuration
-├── .env                     # Environment variables (not tracked)
-├── index.html               # Landing page
-├── store.html               # Product catalog page
-├── checkout.html            # Checkout page
-├── login/                   # Login page directory
-├── register/                # Registration page directory
-├── admin/                   # Admin dashboard
-│   ├── index.html          # Dashboard overview
-│   ├── products.html       # Product management
-│   ├── orders.html         # Order management
-│   └── vouchers.html       # Voucher management
-├── images/                  # Product images and assets
-├── model/                   # 3D model files
-├── 3d/                      # Three.js 3D viewer assets
-└── README.md               # Project documentation
+├── src/                      # Backend source code
+│   ├── config/              # Configuration files
+│   │   ├── database.js      # MongoDB connection
+│   │   ├── passport.js      # Passport strategies
+│   │   └── gemini.js        # Gemini AI setup
+│   ├── models/              # Mongoose schemas
+│   │   ├── User.js
+│   │   ├── Product.js
+│   │   ├── Cart.js
+│   │   ├── Order.js
+│   │   └── Voucher.js
+│   ├── controllers/         # Business logic
+│   │   ├── authController.js
+│   │   ├── productController.js
+│   │   ├── cartController.js
+│   │   ├── orderController.js
+│   │   ├── voucherController.js
+│   │   ├── wishlistController.js
+│   │   ├── chatbotController.js
+│   │   └── adminController.js
+│   ├── routes/              # API routes
+│   │   ├── index.js         # Main router
+│   │   ├── authRoutes.js
+│   │   ├── productRoutes.js
+│   │   ├── cartRoutes.js
+│   │   ├── orderRoutes.js
+│   │   ├── voucherRoutes.js
+│   │   ├── wishlistRoutes.js
+│   │   ├── chatbotRoutes.js
+│   │   └── adminRoutes.js
+│   ├── middleware/          # Express middleware
+│   │   ├── auth.js          # Authentication
+│   │   └── errorHandler.js  # Error handling
+│   └── utils/               # Helper functions
+├── public/                  # Frontend static files
+│   ├── index.html           # Landing page
+│   ├── store.html           # Product catalog
+│   ├── checkout.html        # Checkout page
+│   ├── support.html         # Support page
+│   ├── ACCOUNT.html         # Account page
+│   ├── watch.html           # Apple Watch page
+│   ├── css/                 # Stylesheets
+│   │   ├── checkout.css
+│   │   ├── pages/           # Page-specific styles
+│   │   └── components/      # Component styles
+│   ├── js/                  # JavaScript
+│   │   ├── 3d-viewer.js     # Three.js viewer
+│   │   ├── products/        # Product scripts
+│   │   └── utils/           # Utility functions
+│   ├── pages/               # Sub-pages
+│   │   ├── auth/            # Login, Register
+│   │   ├── products/        # Mac, iPad, iPhone
+│   │   ├── account/         # Account management
+│   │   └── admin/           # Admin dashboard
+│   └── assets/              # Static assets
+│       ├── images/          # Product images
+│       ├── models/          # 3D models
+│       └── 3d/              # Three.js assets
+├── scripts/                 # Utility scripts
+│   ├── seed.js              # Database seeding
+│   ├── importProducts.js    # Product import
+│   ├── verify-models.js     # Model verification
+│   └── test-ai.js           # AI testing
+├── docs/                    # Documentation
+│   ├── diagram/             # Architecture diagrams
+│   └── references.bib       # References
+├── tests/                   # Test files (future)
+├── server.js                # Main entry point
+├── package.json             # Dependencies
+├── vercel.json              # Vercel configuration
+├── .env.example             # Environment template
+├── .gitignore               # Git ignore rules
+└── README.md                # Documentation
 ```
 
 ## Usage
