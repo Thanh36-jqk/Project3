@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,48 +9,50 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
+
         body {
             font-family: 'Inter', sans-serif;
         }
-        
+
         .banner-image {
             transition: transform 10s ease;
         }
-        
+
         .right-pane:hover .banner-image {
             transform: scale(1.05);
         }
-        
+
         .glass-effect {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
-        
+
         .input-focus-effect:focus {
             box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
         }
-        
+
         .tab-indicator {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
+
 <body class="h-screen overflow-hidden">
 
     <div class="flex h-full w-full">
-        
+
         <!-- LEFT PANE: LOGIN FORM -->
         <div class="flex-1 max-w-[500px] bg-white flex flex-col justify-center px-16 py-10 relative overflow-y-auto">
-            
+
             <!-- Header -->
             <div class="mb-10">
                 <i class="fab fa-apple text-[40px] text-gray-900 mb-5 block"></i>
                 <h2 class="text-4xl font-bold text-gray-900 mb-3 tracking-tight">Welcome Back</h2>
                 <p class="text-gray-500 text-base">
-                    Sign in to continue. 
-                    <a href="../register/register.html" class="text-blue-600 font-medium hover:underline">Create account?</a>
+                    Sign in to continue.
+                    <a href="../register/register.html" class="text-blue-600 font-medium hover:underline">Create
+                        account?</a>
                 </p>
             </div>
 
@@ -57,18 +60,16 @@
             <div class="relative mb-8">
                 <div class="bg-gray-100 rounded-2xl p-1 relative">
                     <!-- Animated Background Indicator -->
-                    <div id="tab-indicator" class="tab-indicator absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-xl shadow-md transition-transform duration-300"></div>
-                    
+                    <div id="tab-indicator"
+                        class="tab-indicator absolute top-1 bottom-1 w-[calc(50%-4px)] bg-white rounded-xl shadow-md transition-transform duration-300">
+                    </div>
+
                     <div class="relative flex">
-                        <button 
-                            onclick="switchTab('customer')" 
-                            id="tab-customer" 
+                        <button onclick="switchTab('customer')" id="tab-customer"
                             class="flex-1 py-3 text-sm font-semibold rounded-xl transition-colors duration-200 relative z-10 text-gray-900">
                             <i class="fas fa-user mr-2"></i>Customer
                         </button>
-                        <button 
-                            onclick="switchTab('admin')" 
-                            id="tab-admin" 
+                        <button onclick="switchTab('admin')" id="tab-admin"
                             class="flex-1 py-3 text-sm font-semibold rounded-xl transition-colors duration-200 relative z-10 text-gray-400">
                             <i class="fas fa-shield-alt mr-2"></i>Admin
                         </button>
@@ -81,7 +82,7 @@
 
             <!-- Login Form -->
             <form id="login-form" onsubmit="event.preventDefault(); handleLogin();">
-                
+
                 <!-- Error/Success Message -->
                 <div id="login-message" class="hidden mb-5 p-4 rounded-xl text-sm items-center gap-2">
                     <i class="fas fa-exclamation-circle"></i>
@@ -94,12 +95,9 @@
                         Email or Username
                     </label>
                     <div class="relative">
-                        <input 
-                            type="text" 
-                            id="login-identifier" 
-                            class="input-focus-effect w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl text-base outline-none transition-all focus:bg-white focus:border-blue-600" 
-                            placeholder="name@example.com" 
-                            required>
+                        <input type="text" id="login-identifier"
+                            class="input-focus-effect w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl text-base outline-none transition-all focus:bg-white focus:border-blue-600"
+                            placeholder="name@example.com" required>
                         <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     </div>
                 </div>
@@ -110,16 +108,11 @@
                         Password
                     </label>
                     <div class="relative">
-                        <input 
-                            type="password" 
-                            id="login-password" 
-                            class="input-focus-effect w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl text-base outline-none transition-all focus:bg-white focus:border-blue-600" 
-                            placeholder="••••••••" 
-                            required>
+                        <input type="password" id="login-password"
+                            class="input-focus-effect w-full px-4 py-4 pl-12 bg-gray-50 border border-gray-200 rounded-xl text-base outline-none transition-all focus:bg-white focus:border-blue-600"
+                            placeholder="••••••••" required>
                         <i class="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <button 
-                            type="button" 
-                            onclick="togglePassword()" 
+                        <button type="button" onclick="togglePassword()"
                             class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                             <i id="password-icon" class="fas fa-eye"></i>
                         </button>
@@ -127,26 +120,25 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button 
-                    type="submit" 
+                <button type="submit"
                     class="w-full bg-gray-900 text-white py-4 rounded-xl font-semibold text-base transition-all hover:bg-gray-800 hover:-translate-y-0.5 active:scale-[0.98] mt-2 flex items-center justify-center gap-2">
                     <span id="btn-text">Sign In</span>
                     <i class="fas fa-arrow-right text-xs"></i>
                 </button>
-<div class="relative my-6">
-    <div class="absolute inset-0 flex items-center">
-        <div class="w-full border-t border-gray-200"></div>
-    </div>
-    <div class="relative flex justify-center text-sm">
-        <span class="px-2 bg-white text-gray-500">Or continue with</span>
-    </div>
-</div>
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">Or continue with</span>
+                    </div>
+                </div>
 
-<a href="https://project3-icy1.onrender.com/auth/google" 
-   class="w-full bg-white text-gray-700 border border-gray-200 py-4 rounded-xl font-semibold text-base transition-all hover:bg-gray-50 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-3">
-    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="h-5 w-5" alt="Google">
-    <span>Sign in with Google</span>
-</a>
+                <a href="https://project3-icy1.onrender.com/auth/google"
+                    class="w-full bg-white text-gray-700 border border-gray-200 py-4 rounded-xl font-semibold text-base transition-all hover:bg-gray-50 hover:-translate-y-0.5 active:scale-[0.98] flex items-center justify-center gap-3">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="h-5 w-5" alt="Google">
+                    <span>Sign in with Google</span>
+                </a>
             </form>
 
             <!-- Footer Links -->
@@ -168,28 +160,28 @@
 
         <!-- RIGHT PANE: PROMOTIONAL BANNER -->
         <div class="right-pane flex-[1.5] bg-black relative overflow-hidden hidden lg:flex items-center justify-center">
-            
+
             <!-- Background Image -->
-            <img 
-                src="../images/bannerlogin.png" 
-                alt="Apple Store Banner" 
+            <img src="../../assets/images/bannerlogin.png" alt="Apple Store Banner"
                 class="banner-image absolute inset-0 w-full h-full object-cover opacity-80">
-            
+
             <!-- Gradient Overlay -->
             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-            
+
             <!-- Content -->
             <div class="absolute bottom-16 left-16 right-16 text-white z-10">
-                <span class="glass-effect inline-block px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 border border-white/30">
+                <span
+                    class="glass-effect inline-block px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 border border-white/30">
                     Exclusive Member Benefits
                 </span>
                 <h1 class="text-5xl font-bold leading-tight mb-4">
                     Your Apple.<br>Your Way.
                 </h1>
                 <p class="text-lg text-white/80 max-w-md leading-relaxed">
-                    Access personalized recommendations, exclusive deals, and seamless checkout experience. All in one place.
+                    Access personalized recommendations, exclusive deals, and seamless checkout experience. All in one
+                    place.
                 </p>
-                
+
                 <!-- Feature Pills -->
                 <div class="flex gap-3 mt-8">
                     <div class="glass-effect px-4 py-2 rounded-full text-sm border border-white/20">
@@ -207,7 +199,7 @@
             <!-- Decorative Element -->
             <div class="absolute top-10 right-10 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
             <div class="absolute bottom-20 left-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl"></div>
-            
+
         </div>
 
     </div>
@@ -256,7 +248,7 @@
         function togglePassword() {
             const passwordInput = document.getElementById('login-password');
             const icon = document.getElementById('password-icon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 icon.classList.remove('fa-eye');
@@ -339,4 +331,5 @@
         }
     </script>
 </body>
+
 </html>

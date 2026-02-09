@@ -4,14 +4,18 @@
   "description": "Full-stack e-commerce platform for Apple products with AI chatbot and 3D visualization",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --coverage --verbose",
+    "test:watch": "jest --watch",
+    "test:unit": "jest tests/unit --coverage",
+    "test:integration": "jest tests/integration --coverage",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "server": "nodemon server.js",
     "frontend": "live-server . --open=public/index.html",
     "dev:full": "concurrently \"npm run server\" \"npm run frontend\"",
     "seed": "node scripts/seed.js",
-    "import-products": "node scripts/importProducts.js"
+    "import-products": "node scripts/importProducts.js",
+    "push": "git add . && git commit -m \"Update: automated push\" && git push"
   },
   "keywords": [
     "ecommerce",
@@ -41,6 +45,10 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0",
+    "@types/jest": "^29.5.12",
+    "mongodb-memory-server": "^9.1.6"
   }
 }

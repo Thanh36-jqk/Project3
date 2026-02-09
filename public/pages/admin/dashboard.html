@@ -1,40 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Apple Store</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #F5F5F7; 
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F7;
             color: #1D1D1F;
         }
-        
+
         .premium-card {
             background: #FFFFFF;
             border-radius: 20px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: 1px solid rgba(0,0,0,0.02);
+            border: 1px solid rgba(0, 0, 0, 0.02);
         }
+
         .premium-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
         }
 
         /* --- GRADIENTS --- */
-        .bg-gradient-blue { background: linear-gradient(135deg, #0071e3 0%, #4facfe 100%); }
-        .bg-gradient-purple { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .bg-gradient-orange { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .bg-gradient-dark { background: linear-gradient(135deg, #232526 0%, #414345 100%); }
-        .bg-gradient-green { background: linear-gradient(135deg, #2ecc71 0%, #26de81 100%); }
+        .bg-gradient-blue {
+            background: linear-gradient(135deg, #0071e3 0%, #4facfe 100%);
+        }
+
+        .bg-gradient-purple {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .bg-gradient-orange {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .bg-gradient-dark {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+        }
+
+        .bg-gradient-green {
+            background: linear-gradient(135deg, #2ecc71 0%, #26de81 100%);
+        }
 
         /* --- NAVIGATION --- */
         .nav-item {
@@ -42,40 +58,108 @@
             transition: all 0.2s;
             color: #86868B;
         }
+
         .nav-item:hover {
             background-color: rgba(0, 0, 0, 0.03);
             color: #1D1D1F;
         }
+
         .nav-item.active {
             background-color: #1D1D1F;
             color: #FFFFFF;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         /* --- STATUS PILLS --- */
-        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 5px; }
-        .status-completed { background: #E8F5E9; color: #1B5E20; border: 1px solid #C8E6C9; }
-        .status-pending { background: #FFF8E1; color: #F57F17; border: 1px solid #FFE0B2; }
-        .status-cancelled { background: #FFEBEE; color: #B71C1C; border: 1px solid #FFCDD2; }
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-completed {
+            background: #E8F5E9;
+            color: #1B5E20;
+            border: 1px solid #C8E6C9;
+        }
+
+        .status-pending {
+            background: #FFF8E1;
+            color: #F57F17;
+            border: 1px solid #FFE0B2;
+        }
+
+        .status-cancelled {
+            background: #FFEBEE;
+            color: #B71C1C;
+            border: 1px solid #FFCDD2;
+        }
 
         /* --- TOAST NOTIFICATION (NEW PROFESSIONAL FEATURE) --- */
-        #toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
-        .toast {
-            min-width: 300px; padding: 16px; border-radius: 12px; background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px); box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px;
-            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid rgba(0,0,0,0.05); font-size: 14px; font-weight: 500;
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .toast.show { transform: translateX(0); }
-        .toast-success { border-left: 4px solid #00C851; }
-        .toast-error { border-left: 4px solid #ff4444; }
-        .toast-info { border-left: 4px solid #33b5e5; }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #C1C1C1; border-radius: 10px; }
-        ::-webkit-scrollbar-track { background: transparent; }
+        .toast {
+            min-width: 300px;
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            border-left: 4px solid #00C851;
+        }
+
+        .toast-error {
+            border-left: 4px solid #ff4444;
+        }
+
+        .toast-info {
+            border-left: 4px solid #33b5e5;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #C1C1C1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
     </style>
 </head>
+
 <body class="flex h-screen overflow-hidden selection:bg-blue-500 selection:text-white">
 
     <div id="toast-container"></div>
@@ -83,11 +167,13 @@
     <aside class="w-72 bg-white border-r border-gray-100 flex flex-col z-30 h-full hidden md:flex">
         <div class="h-24 flex items-center px-8">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center text-2xl shadow-lg">
+                <div
+                    class="w-10 h-10 bg-black text-white rounded-xl flex items-center justify-center text-2xl shadow-lg">
                     <i class="fab fa-apple"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg tracking-tight leading-none">Store<br><span class="text-gray-400 text-sm font-medium">Admin Pro</span></h1>
+                    <h1 class="font-bold text-lg tracking-tight leading-none">Store<br><span
+                            class="text-gray-400 text-sm font-medium">Admin Pro</span></h1>
                 </div>
             </div>
         </div>
@@ -95,23 +181,27 @@
         <nav class="flex-1 px-4 space-y-6 py-4 overflow-y-auto">
             <div>
                 <p class="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Overview</p>
-                <a href="#" onclick="showSection('dashboard')" id="nav-dashboard" class="nav-item active flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
+                <a href="#" onclick="showSection('dashboard')" id="nav-dashboard"
+                    class="nav-item active flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
                     <i class="fas fa-th-large w-5 text-center"></i> Dashboard
                 </a>
             </div>
-            
+
             <div>
                 <p class="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">Management</p>
                 <div class="space-y-1">
-                    <a href="#" onclick="showSection('orders')" id="nav-orders" class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
+                    <a href="#" onclick="showSection('orders')" id="nav-orders"
+                        class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
                         <i class="fas fa-box w-5 text-center"></i> Orders
                     </a>
-                    
-                    <a href="#" onclick="showSection('inventory')" id="nav-inventory" class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
+
+                    <a href="#" onclick="showSection('inventory')" id="nav-inventory"
+                        class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
                         <i class="fas fa-warehouse w-5 text-center"></i> Inventory
                     </a>
 
-                    <a href="#" onclick="showSection('vouchers')" id="nav-vouchers" class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
+                    <a href="#" onclick="showSection('vouchers')" id="nav-vouchers"
+                        class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
                         <i class="fas fa-ticket-alt w-5 text-center"></i> Vouchers
                     </a>
                 </div>
@@ -119,22 +209,27 @@
         </nav>
 
         <div class="p-6 border-t border-gray-100">
-            <button onclick="logout()" class="w-full flex items-center justify-center gap-2 text-gray-500 hover:text-red-500 py-2 transition-colors text-sm font-medium">
+            <button onclick="logout()"
+                class="w-full flex items-center justify-center gap-2 text-gray-500 hover:text-red-500 py-2 transition-colors text-sm font-medium">
                 <i class="fas fa-sign-out-alt"></i> Sign Out
             </button>
         </div>
     </aside>
 
     <div class="flex-1 flex flex-col h-screen relative w-full">
-        
-        <header class="h-20 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-20 border-b border-gray-100/50">
+
+        <header
+            class="h-20 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-20 border-b border-gray-100/50">
             <div>
                 <h2 class="text-xl font-bold text-gray-800" id="page-title">Dashboard Overview</h2>
                 <p class="text-xs text-gray-500 mt-0.5" id="current-date">Loading date...</p>
             </div>
             <div class="flex items-center gap-4">
-                <button onclick="loadInventory(); showToast('Data refreshed', 'info')" class="md:hidden p-2 text-gray-500"><i class="fas fa-sync"></i></button>
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-gray-800 to-gray-600 text-white flex items-center justify-center text-sm font-bold shadow-md">A</div>
+                <button onclick="loadInventory(); showToast('Data refreshed', 'info')"
+                    class="md:hidden p-2 text-gray-500"><i class="fas fa-sync"></i></button>
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-tr from-gray-800 to-gray-600 text-white flex items-center justify-center text-sm font-bold shadow-md">
+                    A</div>
             </div>
         </header>
 
@@ -143,26 +238,42 @@
             <div id="dashboard-section" class="content-section animate-fade-in space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="premium-card p-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 text-blue-600"><i class="fas fa-wallet text-6xl"></i></div>
-                        <div class="w-10 h-10 rounded-full bg-gradient-blue flex items-center justify-center text-white mb-4 shadow-md shadow-blue-200"><i class="fas fa-dollar-sign"></i></div>
+                        <div
+                            class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 text-blue-600">
+                            <i class="fas fa-wallet text-6xl"></i></div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-blue flex items-center justify-center text-white mb-4 shadow-md shadow-blue-200">
+                            <i class="fas fa-dollar-sign"></i></div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Revenue</p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-revenue">0₫</h3>
                     </div>
                     <div class="premium-card p-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 text-purple-600"><i class="fas fa-shopping-bag text-6xl"></i></div>
-                        <div class="w-10 h-10 rounded-full bg-gradient-purple flex items-center justify-center text-white mb-4 shadow-md shadow-purple-200"><i class="fas fa-box-open"></i></div>
+                        <div
+                            class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 text-purple-600">
+                            <i class="fas fa-shopping-bag text-6xl"></i></div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-purple flex items-center justify-center text-white mb-4 shadow-md shadow-purple-200">
+                            <i class="fas fa-box-open"></i></div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Orders</p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-orders">0</h3>
                     </div>
                     <div class="premium-card p-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 text-green-600"><i class="fas fa-cubes text-6xl"></i></div>
-                        <div class="w-10 h-10 rounded-full bg-gradient-green flex items-center justify-center text-white mb-4 shadow-md shadow-green-200"><i class="fas fa-warehouse"></i></div>
+                        <div
+                            class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 text-green-600">
+                            <i class="fas fa-cubes text-6xl"></i></div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-green flex items-center justify-center text-white mb-4 shadow-md shadow-green-200">
+                            <i class="fas fa-warehouse"></i></div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Products</p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-products">0</h3>
                     </div>
                     <div class="premium-card p-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 text-pink-500"><i class="fas fa-ticket-alt text-6xl"></i></div>
-                        <div class="w-10 h-10 rounded-full bg-gradient-orange flex items-center justify-center text-white mb-4 shadow-md shadow-pink-200"><i class="fas fa-gift"></i></div>
+                        <div
+                            class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all transform group-hover:scale-110 text-pink-500">
+                            <i class="fas fa-ticket-alt text-6xl"></i></div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-orange flex items-center justify-center text-white mb-4 shadow-md shadow-pink-200">
+                            <i class="fas fa-gift"></i></div>
                         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Vouchers</p>
                         <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-vouchers">0</h3>
                     </div>
@@ -180,7 +291,7 @@
                         <div class="flex-1 overflow-y-auto pr-2" id="top-products-list"></div>
                     </div>
                 </div>
-                
+
                 <div class="premium-card p-8">
                     <h3 class="text-lg font-bold text-gray-900 mb-6">Recent Orders Activity</h3>
                     <div class="overflow-x-auto">
@@ -203,7 +314,8 @@
             <div id="orders-section" class="content-section hidden animate-fade-in space-y-6">
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-bold text-gray-900">Order Management</h2>
-                    <button onclick="loadOrders(); showToast('Orders refreshed', 'info')" class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                    <button onclick="loadOrders(); showToast('Orders refreshed', 'info')"
+                        class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
                         <i class="fas fa-sync-alt mr-1"></i> Refresh
                     </button>
                 </div>
@@ -230,7 +342,8 @@
                         <h2 class="text-2xl font-bold text-gray-900">Inventory Management</h2>
                         <p class="text-xs text-gray-500 mt-1">Manage stock levels in real-time</p>
                     </div>
-                    <button onclick="loadInventory(); showToast('Stock data refreshed', 'info')" class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                    <button onclick="loadInventory(); showToast('Stock data refreshed', 'info')"
+                        class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
                         <i class="fas fa-sync-alt mr-1"></i> Refresh
                     </button>
                 </div>
@@ -246,7 +359,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50 text-sm">
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -257,23 +370,35 @@
                     <div class="lg:col-span-1">
                         <div class="premium-card p-6 sticky top-6">
                             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-                                <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center"><i class="fas fa-plus"></i></div>
+                                <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center">
+                                    <i class="fas fa-plus"></i></div>
                                 <h3 class="font-bold text-lg">Create Voucher</h3>
                             </div>
-                            <form id="create-voucher-form" onsubmit="event.preventDefault(); createVoucher();" class="space-y-4">
-                                <input type="text" id="v-code" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 font-mono font-bold uppercase" placeholder="CODE" required>
+                            <form id="create-voucher-form" onsubmit="event.preventDefault(); createVoucher();"
+                                class="space-y-4">
+                                <input type="text" id="v-code"
+                                    class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-blue-500 font-mono font-bold uppercase"
+                                    placeholder="CODE" required>
                                 <div class="grid grid-cols-2 gap-4">
-                                    <input type="number" id="v-amount" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="Discount (VNĐ)" required>
-                                    <input type="number" id="v-points" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="Points Cost" required>
+                                    <input type="number" id="v-amount"
+                                        class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm"
+                                        placeholder="Discount (VNĐ)" required>
+                                    <input type="number" id="v-points"
+                                        class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm"
+                                        placeholder="Points Cost" required>
                                 </div>
-                                <input type="number" id="v-qty" class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm" placeholder="Quantity" required>
-                                <button type="submit" class="w-full bg-black text-white font-bold py-3.5 rounded-xl text-sm shadow-lg hover:shadow-xl transition-all">Create</button>
+                                <input type="number" id="v-qty"
+                                    class="w-full px-4 py-3 bg-gray-50 border-none rounded-xl text-sm"
+                                    placeholder="Quantity" required>
+                                <button type="submit"
+                                    class="w-full bg-black text-white font-bold py-3.5 rounded-xl text-sm shadow-lg hover:shadow-xl transition-all">Create</button>
                             </form>
                         </div>
                     </div>
                     <div class="lg:col-span-2 premium-card overflow-hidden">
                         <table class="w-full text-left" id="vouchers-table">
-                            <thead class="bg-gray-50/50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase">
+                            <thead
+                                class="bg-gray-50/50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase">
                                 <tr>
                                     <th class="px-6 py-4">Code</th>
                                     <th class="px-6 py-4">Discount</th>
@@ -299,14 +424,14 @@
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         function init() {
-            if (!token) { window.location.href = '../login/login.html'; return; }
-            
+            if (!token) { window.location.href = '../../pages/auth/login.html'; return; }
+
             loadAllData();
             loadInventory(); // [ADDED] Load inventory in background
 
             // Tab logic
             document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', function() {
+                item.addEventListener('click', function () {
                     document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
                     this.classList.add('active');
                 });
@@ -317,13 +442,13 @@
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            
+
             let icon = 'fa-check-circle';
             let colorClass = 'toast-success';
             let textColor = 'text-green-600';
 
-            if(type === 'error') { icon = 'fa-exclamation-circle'; colorClass = 'toast-error'; textColor = 'text-red-600'; }
-            if(type === 'info') { icon = 'fa-info-circle'; colorClass = 'toast-info'; textColor = 'text-blue-600'; }
+            if (type === 'error') { icon = 'fa-exclamation-circle'; colorClass = 'toast-error'; textColor = 'text-red-600'; }
+            if (type === 'info') { icon = 'fa-info-circle'; colorClass = 'toast-info'; textColor = 'text-blue-600'; }
 
             toast.className = `toast ${colorClass}`;
             toast.innerHTML = `
@@ -339,15 +464,15 @@
             }, 3000);
         }
 
-        function logout() { localStorage.clear(); window.location.href = '../index.html'; }
+        function logout() { localStorage.clear(); window.location.href = '../../index.html'; }
 
         function showSection(id) {
             document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(id + '-section').classList.remove('hidden');
             document.getElementById('page-title').innerText = id === 'dashboard' ? 'Overview' : id.charAt(0).toUpperCase() + id.slice(1);
-            
-            if(id === 'inventory') loadInventory();
-            else if(id !== 'dashboard') loadAllData();
+
+            if (id === 'inventory') loadInventory();
+            else if (id !== 'dashboard') loadAllData();
         }
 
         // --- [ADDED] INVENTORY LOGIC ---
@@ -355,12 +480,12 @@
             try {
                 const res = await fetch(`${API_URL}/admin/products`, { headers: { 'token': `Bearer ${token}` } });
                 const products = await res.json();
-                
+
                 // Update Dashboard Stat
                 document.getElementById('stat-products').innerText = products.length;
 
                 const tbody = document.querySelector('#inventory-table tbody');
-                if(products.length === 0) {
+                if (products.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No products found.</td></tr>';
                     return;
                 }
@@ -368,7 +493,7 @@
                 tbody.innerHTML = products.map(p => `
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 flex items-center gap-3">
-                            <img src="../${p.image_url}" class="w-10 h-10 object-contain rounded border border-gray-100" onerror="this.src='../images/default.jpg'">
+                            <img src="../../${p.image_url}" class="w-10 h-10 object-contain rounded border border-gray-100" onerror="this.src='../../assets/images/default.jpg'">
                             <span class="font-bold text-gray-900">${p.name}</span>
                         </td>
                         <td class="px-6 py-4">
@@ -420,7 +545,7 @@
                 const orderRes = await fetch(`${API_URL}/admin/orders`, { headers: { 'token': `Bearer ${token}` } });
                 const orders = await orderRes.json();
                 const revenue = orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.finalAmount || o.totalAmountNumeric || 0), 0);
-                
+
                 document.getElementById('stat-revenue').innerText = revenue.toLocaleString('vi-VN') + '₫';
                 document.getElementById('stat-orders').innerText = orders.length;
 
@@ -438,16 +563,16 @@
         }
 
         // ... (Giữ nguyên các hàm renderOrdersTable, renderVouchersTable, createVoucher, renderChart...)
-        
+
         function renderRecentActivity(orders) {
-            const recentOrders = orders.slice(0, 5); 
+            const recentOrders = orders.slice(0, 5);
             const tbody = document.querySelector('#recent-orders-table tbody');
             tbody.innerHTML = recentOrders.map(o => {
                 let statusClass = 'text-yellow-600 bg-yellow-50';
-                if(o.status === 'Completed') statusClass = 'text-green-600 bg-green-50';
-                if(o.status === 'Cancelled') statusClass = 'text-red-600 bg-red-50';
+                if (o.status === 'Completed') statusClass = 'text-green-600 bg-green-50';
+                if (o.status === 'Cancelled') statusClass = 'text-red-600 bg-red-50';
                 const total = (o.finalAmount || o.totalAmountNumeric).toLocaleString('vi-VN') + '₫';
-                return `<tr><td class="py-3 font-mono text-xs text-gray-400">#${o._id.slice(-4).toUpperCase()}</td><td class="py-3 font-medium text-gray-900">${o.recipientName}</td><td class="py-3 font-bold text-gray-800">${total}</td><td class="py-3"><span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase ${statusClass}">${o.status}</span></td><td class="py-3 text-right text-xs text-gray-400">${new Date(o.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td></tr>`;
+                return `<tr><td class="py-3 font-mono text-xs text-gray-400">#${o._id.slice(-4).toUpperCase()}</td><td class="py-3 font-medium text-gray-900">${o.recipientName}</td><td class="py-3 font-bold text-gray-800">${total}</td><td class="py-3"><span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase ${statusClass}">${o.status}</span></td><td class="py-3 text-right text-xs text-gray-400">${new Date(o.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td></tr>`;
             }).join('');
         }
 
@@ -466,13 +591,13 @@
                 await fetch(`${API_URL}/admin/orders/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` }, body: JSON.stringify({ status }) });
                 showToast(`Order marked as ${status}`, status === 'Completed' ? 'success' : 'info');
                 loadAllData();
-            } catch(e) { showToast("Error updating status", 'error'); }
+            } catch (e) { showToast("Error updating status", 'error'); }
         }
 
         function renderTopProducts(orders) {
-            const productMap = {}; orders.filter(o => o.status === 'Completed').forEach(order => { order.items.forEach(item => { if(productMap[item.name]) productMap[item.name].qty += item.qty; else productMap[item.name] = { name: item.name, image: item.image, qty: item.qty }; }); });
+            const productMap = {}; orders.filter(o => o.status === 'Completed').forEach(order => { order.items.forEach(item => { if (productMap[item.name]) productMap[item.name].qty += item.qty; else productMap[item.name] = { name: item.name, image: item.image, qty: item.qty }; }); });
             const sorted = Object.values(productMap).sort((a, b) => b.qty - a.qty).slice(0, 5);
-            document.getElementById('top-products-list').innerHTML = sorted.map((p, i) => `<div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0"><div class="w-6 h-6 rounded bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center">${i + 1}</div><img src="../${p.image}" class="w-10 h-10 object-contain rounded bg-white border border-gray-100" onerror="this.src='../images/default.jpg'"><div class="flex-1"><p class="text-xs font-bold text-gray-900 truncate w-32">${p.name}</p><p class="text-[10px] text-gray-500">${p.qty} sold</p></div></div>`).join('') || '<p class="text-xs text-gray-400 italic">No sales data.</p>';
+            document.getElementById('top-products-list').innerHTML = sorted.map((p, i) => `<div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0"><div class="w-6 h-6 rounded bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center">${i + 1}</div><img src="../../${p.image}" class="w-10 h-10 object-contain rounded bg-white border border-gray-100" onerror="this.src='../../assets/images/default.jpg'"><div class="flex-1"><p class="text-xs font-bold text-gray-900 truncate w-32">${p.name}</p><p class="text-[10px] text-gray-500">${p.qty} sold</p></div></div>`).join('') || '<p class="text-xs text-gray-400 italic">No sales data.</p>';
         }
 
         function renderVouchersTable(vouchers) {
@@ -481,13 +606,13 @@
 
         async function createVoucher() {
             const data = { code: document.getElementById('v-code').value.toUpperCase().trim(), discountAmount: Number(document.getElementById('v-amount').value), pointsRequired: Number(document.getElementById('v-points').value), quantity: Number(document.getElementById('v-qty').value) };
-            if(!data.code) { showToast("Code required", 'error'); return; }
-            try { await fetch(`${API_URL}/admin/vouchers`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` }, body: JSON.stringify(data) }); showToast("Voucher created successfully", 'success'); document.getElementById('create-voucher-form').reset(); loadAllData(); } catch(e) { showToast("Failed to create voucher", 'error'); }
+            if (!data.code) { showToast("Code required", 'error'); return; }
+            try { await fetch(`${API_URL}/admin/vouchers`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` }, body: JSON.stringify(data) }); showToast("Voucher created successfully", 'success'); document.getElementById('create-voucher-form').reset(); loadAllData(); } catch (e) { showToast("Failed to create voucher", 'error'); }
         }
 
         function renderChart(orders) {
             const ctx = document.getElementById('revenueChart').getContext('2d');
-            const last7Days = Array.from({length: 7}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6-i)); return { label: d.toLocaleDateString('en-US', {day:'numeric', month:'short'}), iso: d.toISOString().split('T')[0] }; });
+            const last7Days = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return { label: d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }), iso: d.toISOString().split('T')[0] }; });
             const dataPoints = last7Days.map(day => orders.filter(o => o.status === 'Completed' && new Date(o.createdAt).toISOString().split('T')[0] === day.iso).reduce((sum, o) => sum + (o.finalAmount || o.totalAmountNumeric || 0), 0));
             if (revenueChart) revenueChart.destroy();
             revenueChart = new Chart(ctx, { type: 'line', data: { labels: last7Days.map(d => d.label), datasets: [{ label: 'Revenue', data: dataPoints, borderColor: '#0071E3', borderWidth: 2, backgroundColor: ctx.createLinearGradient(0, 0, 0, 300), pointBackgroundColor: '#FFFFFF', pointBorderColor: '#0071E3', pointBorderWidth: 2, pointRadius: 4, fill: true, tension: 0.35 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { border: { display: false }, grid: { color: '#F5F5F7', borderDash: [4, 4] }, ticks: { display: false } } } } });
@@ -496,4 +621,5 @@
         init();
     </script>
 </body>
+
 </html>
