@@ -105,9 +105,9 @@
                 <a href="index.html" class="text-lg hover:text-white transition-colors"><i class="fab fa-apple"></i></a>
                 <div class="hidden md:flex gap-6">
                     <a href="store.html" class="hover:text-white transition-colors">Store</a>
-                    <a href="Mac/mac.html" class="hover:text-white transition-colors">Mac</a>
-                    <a href="ipad/ipad.html" class="hover:text-white transition-colors">iPad</a>
-                    <a href="iphone/iphone.html" class="hover:text-white transition-colors">iPhone</a>
+                    <a href="pages/products/mac.html" class="hover:text-white transition-colors">Mac</a>
+                    <a href="pages/products/ipad.html" class="hover:text-white transition-colors">iPad</a>
+                    <a href="pages/products/iphone.html" class="hover:text-white transition-colors">iPhone</a>
                     <a href="watch.html" class="hover:text-white transition-colors">Watch & AirPods</a>
                     <a href="support.html" class="hover:text-white transition-colors">Support</a>
                 </div>
@@ -275,7 +275,7 @@
         const API_URL = 'https://project3-icy1.onrender.com/api';
         const token = localStorage.getItem('accessToken');
 
-        if (!token) window.location.href = 'login/login.html';
+        if (!token) window.location.href = 'pages/auth/login.html';
 
         // --- UI FUNCTIONS ---
         function switchTab(tabName) {

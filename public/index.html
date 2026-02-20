@@ -248,7 +248,8 @@
         <section
             class="h-[80vh] flex flex-col justify-center relative overflow-hidden pointer-events-auto border-y border-white/5 bg-black">
             <div class="absolute inset-0 z-0 opacity-40">
-                <img src="assets/images/XDR.jpg" class="w-full h-full object-cover scale-110 blur-sm" alt="XDR Background">
+                <img src="assets/images/XDR.jpg" class="w-full h-full object-cover scale-110 blur-sm"
+                    alt="XDR Background">
                 <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
             </div>
             <div class="marquee-container py-10 opacity-30 relative z-10 mix-blend-overlay">
@@ -434,7 +435,7 @@
         const loader = new GLTFLoader(manager);
         let iphoneModel = null;
 
-        loader.load('/assets/3d/iphone_16_pro_max.glb', (gltf) => {
+        loader.load('/assets/images/iphone_16_pro_max.glb', (gltf) => {
             iphoneModel = gltf.scene;
             updateModelScale(iphoneModel);
             iphoneModel.position.set(0, -1, 0);
@@ -453,7 +454,7 @@
             scene.add(iphoneModel);
         }, undefined, (error) => {
             console.error('Dùng backup model...');
-            loader.load('/assets/3d/apple_iphone_15_pro_max_black.glb', (gltf) => {
+            loader.load('/assets/images/apple_iphone_15_pro_max_black.glb', (gltf) => {
                 iphoneModel = gltf.scene;
                 updateModelScale(iphoneModel);
                 iphoneModel.position.set(0, -1, 0);
