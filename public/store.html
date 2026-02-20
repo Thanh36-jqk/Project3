@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -349,7 +349,7 @@
         <div class="p-6 border-t border-white/10 bg-[#1c1c1e]">
             <div class="flex justify-between items-center mb-4 text-gray-400 text-sm">
                 <span>Subtotal</span>
-                <span id="cart-subtotal" class="text-white font-bold text-lg">0₫</span>
+                <span id="cart-subtotal" class="text-white font-bold text-lg">0â‚«</span>
             </div>
             <p class="text-xs text-gray-500 mb-6">Shipping and taxes calculated at checkout.</p>
             <button onclick="openCheckout()"
@@ -422,7 +422,7 @@
                 <h2 id="modal-title" class="text-3xl md:text-4xl font-bold text-white mb-2 leading-tight">Product Name
                 </h2>
                 <div class="flex items-center gap-4 mb-6">
-                    <span id="modal-price" class="text-2xl font-semibold text-blue-400">0₫</span>
+                    <span id="modal-price" class="text-2xl font-semibold text-blue-400">0â‚«</span>
                     <span class="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded border border-green-500/20">In
                         Stock</span>
                 </div>
@@ -500,7 +500,7 @@
                 <div class="bg-blue-900/20 p-4 rounded-xl border border-blue-500/20 mt-4">
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-300">Total to Pay</span>
-                        <span id="checkout-total" class="text-xl font-bold text-blue-400">0₫</span>
+                        <span id="checkout-total" class="text-xl font-bold text-blue-400">0â‚«</span>
                     </div>
                 </div>
 
@@ -628,11 +628,11 @@
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-gray-300 font-medium">Order Total</span>
                             <span id="buynow-total"
-                                class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">0₫</span>
+                                class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">0â‚«</span>
                         </div>
                         <p class="text-xs text-gray-400 flex items-center gap-1">
                             <i class="fas fa-shield-alt text-green-400"></i>
-                            Secure payment • Free shipping on orders over 10M
+                            Secure payment â€¢ Free shipping on orders over 10M
                         </p>
                     </div>
 
@@ -713,7 +713,7 @@
         let wishlist = []; // Loaded from API or localStorage
         let currentModalProduct = null;
 
-        // Dữ liệu mẫu (Fallback) nếu Server chưa có SP để Store không bị trống
+        // Dá»¯ liá»‡u máº«u (Fallback) náº¿u Server chÆ°a cÃ³ SP Ä‘á»ƒ Store khÃ´ng bá»‹ trá»‘ng
         // Using no-background images from color folders for cleaner look
         const fallbackProducts = [
             // --- IPHONE ---
@@ -756,12 +756,12 @@
         ];
 
         // ==================================================================
-        // 2. HELPER FUNCTIONS (TIỆN ÍCH)
+        // 2. HELPER FUNCTIONS (TIá»†N ÃCH)
         // ==================================================================
         const formatPrice = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
         const getToken = () => localStorage.getItem('accessToken');
 
-        // Custom Toast Notification (Thay thế alert)
+        // Custom Toast Notification (Thay tháº¿ alert)
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -801,18 +801,18 @@
             const chatWindow = document.getElementById('chat-window');
 
             if (user) {
-                // User is logged in → SHOW chatbot
+                // User is logged in â†’ SHOW chatbot
                 if (chatBubble) chatBubble.style.display = 'flex';
                 if (chatWindow) chatWindow.style.display = 'flex';
             } else {
-                // User is NOT logged in → HIDE chatbot
+                // User is NOT logged in â†’ HIDE chatbot
                 if (chatBubble) chatBubble.style.display = 'none';
                 if (chatWindow) chatWindow.style.display = 'none';
             }
 
             // Fetch Products
             try {
-                // Thử lấy từ API
+                // Thá»­ láº¥y tá»« API
                 const res = await fetch(`${API_URL}/api/products/search?limit=100`);
                 const data = await res.json();
 
@@ -826,7 +826,7 @@
                 console.error("Fetch Error, using fallback:", e);
                 allProducts = fallbackProducts;
             } finally {
-                // Tắt Loader & Render
+                // Táº¯t Loader & Render
                 document.getElementById('page-loader').style.opacity = '0';
                 setTimeout(() => document.getElementById('page-loader').remove(), 500);
 
@@ -890,7 +890,7 @@
                         </div>
                     </div>
                 `;
-                // Click vào card thì mở Modal
+                // Click vÃ o card thÃ¬ má»Ÿ Modal
                 li.onclick = () => openProductModal(p);
                 container.appendChild(li);
             });
@@ -899,7 +899,7 @@
         // ==================================================================
         // 4. FILTERING & SEARCH
         // ==================================================================
-        // Lắng nghe sự kiện checkbox thay đổi
+        // Láº¯ng nghe sá»± kiá»‡n checkbox thay Ä‘á»•i
         const checkboxes = document.querySelectorAll('input[name="category"], input[name="price"]');
         checkboxes.forEach(cb => cb.addEventListener('change', applyFilters));
 
@@ -959,15 +959,15 @@
             applyFilters(); // Re-apply filters with new sort
         });
 
-        // Lọc nhanh từ Hero Button
+        // Lá»c nhanh tá»« Hero Button
         window.filterByHero = (cat) => {
             // Reset checkbox
             checkboxes.forEach(cb => cb.checked = false);
-            // Check mục tương ứng
+            // Check má»¥c tÆ°Æ¡ng á»©ng
             const targetCb = document.querySelector(`input[name="category"][value="${cat}"]`);
             if (targetCb) targetCb.checked = true;
             applyFilters();
-            // Scroll xuống lưới
+            // Scroll xuá»‘ng lÆ°á»›i
             document.getElementById('product-list-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         };
 
@@ -991,8 +991,8 @@
             const term = e.target.value.toLowerCase();
             const results = allProducts.filter(p => p.name.toLowerCase().includes(term));
 
-            // Nếu enter thì render ra main grid
-            // Ở đây làm search mini dropdown
+            // Náº¿u enter thÃ¬ render ra main grid
+            // á»ž Ä‘Ã¢y lÃ m search mini dropdown
             const list = document.getElementById('search-results-mini');
             list.innerHTML = '';
 
@@ -1193,7 +1193,7 @@
                         });
                         const data = await res.json();
                         wishlist = data.wishlist.map(item => item.productId);
-                        showToast('Added to wishlist ❤️', 'success');
+                        showToast('Added to wishlist â¤ï¸', 'success');
                     } catch (error) {
                         console.error('Failed to add to wishlist:', error);
                     }
@@ -1202,7 +1202,7 @@
                     if (product) {
                         wishlist.push(product);
                         localStorage.setItem('apple_wishlist', JSON.stringify(wishlist));
-                        showToast('Added to wishlist ❤️', 'success');
+                        showToast('Added to wishlist â¤ï¸', 'success');
                     }
                 }
             }
@@ -1397,121 +1397,121 @@
         const productColorVariants = {
             // ========== IPHONE MODELS ==========
             'iPhone 11': [
-                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 11/11 white.png' },
-                { name: 'Green', hex: '#aee1cd', image: 'images/iphone 11/11green.png' },
-                { name: 'Yellow', hex: '#ffe681', image: 'images/iphone 11/iphone 11 yellow.png' },
-                { name: 'Red', hex: '#ba0c2f', image: 'images/iphone 11/iphone-11 red.png' }
+                { name: 'White', hex: '#f5f5f7', image: 'assets/images/iphone 11/11 white.png' },
+                { name: 'Green', hex: '#aee1cd', image: 'assets/images/iphone 11/11green.png' },
+                { name: 'Yellow', hex: '#ffe681', image: 'assets/images/iphone 11/iphone 11 yellow.png' },
+                { name: 'Red', hex: '#ba0c2f', image: 'assets/images/iphone 11/iphone-11 red.png' }
             ],
             'iPhone 12': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 12/iphone 12 black.png' },
-                { name: 'Purple', hex: '#b9b5d7', image: 'images/iphone 12/iphone 12 purple.png' },
-                { name: 'Red', hex: '#ba0c2f', image: 'images/iphone 12/iphone 12 red.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/iphone 12/iphone 12 black.png' },
+                { name: 'Purple', hex: '#b9b5d7', image: 'assets/images/iphone 12/iphone 12 purple.png' },
+                { name: 'Red', hex: '#ba0c2f', image: 'assets/images/iphone 12/iphone 12 red.png' }
             ],
             'iPhone 13': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 13/iphone 13 black.png' },
-                { name: 'Blue', hex: '#276787', image: 'images/iphone 13/iphone 13 blue.png' },
-                { name: 'Gold', hex: '#fad7bd', image: 'images/iphone 13/iphone 13 gold.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/iphone 13/iphone 13 black.png' },
+                { name: 'Blue', hex: '#276787', image: 'assets/images/iphone 13/iphone 13 blue.png' },
+                { name: 'Gold', hex: '#fad7bd', image: 'assets/images/iphone 13/iphone 13 gold.png' }
             ],
             'iPhone 14': [
-                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 14/iPhone_14 white.png' },
-                { name: 'Red', hex: '#ba0c2f', image: 'images/iphone 14/iphone 14 red.png' },
-                { name: 'Purple', hex: '#e0d1e8', image: 'images/iphone 14/iphone_14_purple.png' },
-                { name: 'Yellow', hex: '#f9e179', image: 'images/iphone 14/iphone_14_yellow.png' }
+                { name: 'White', hex: '#f5f5f7', image: 'assets/images/iphone 14/iPhone_14 white.png' },
+                { name: 'Red', hex: '#ba0c2f', image: 'assets/images/iphone 14/iphone 14 red.png' },
+                { name: 'Purple', hex: '#e0d1e8', image: 'assets/images/iphone 14/iphone_14_purple.png' },
+                { name: 'Yellow', hex: '#f9e179', image: 'assets/images/iphone 14/iphone_14_yellow.png' }
             ],
             'iPhone 14 Pro Max': [
-                { name: 'Purple', hex: '#594f63', image: 'images/iphone 14 pro max/14_pro_max_purple-removebg-preview.png' },
-                { name: 'Gold', hex: '#fad7a0', image: 'images/iphone 14 pro max/14_promax_gold-removebg-preview.png' },
-                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 14 pro max/iphone 14 pro max black.png' },
-                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 14 pro max/iphone 14 pro max white.png' }
+                { name: 'Purple', hex: '#594f63', image: 'assets/images/iphone 14 pro max/14_pro_max_purple-removebg-preview.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'assets/images/iphone 14 pro max/14_promax_gold-removebg-preview.png' },
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/iphone 14 pro max/iphone 14 pro max black.png' },
+                { name: 'White', hex: '#f5f5f7', image: 'assets/images/iphone 14 pro max/iphone 14 pro max white.png' }
             ],
             'iPhone 15 Plus': [
-                { name: 'Yellow', hex: '#f9e179', image: 'images/iphone 15 plus/15_plus_yellow-removebg-preview.png' },
-                { name: 'Green', hex: '#d5e8d4', image: 'images/iphone 15 plus/iPhone_15_Plus-removebg-preview.png' },
-                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 15 plus/iphone_15_plus_black-removebg-preview.png' },
-                { name: 'Blue', hex: '#a8c5dd', image: 'images/iphone 15 plus/iphone_15_plus_blue-removebg-preview.png' },
-                { name: 'Rose', hex: '#f4c2c2', image: 'images/iphone 15 plus/iphone_15_plus_rose-removebg-preview.png' }
+                { name: 'Yellow', hex: '#f9e179', image: 'assets/images/iphone 15 plus/15_plus_yellow-removebg-preview.png' },
+                { name: 'Green', hex: '#d5e8d4', image: 'assets/images/iphone 15 plus/iPhone_15_Plus-removebg-preview.png' },
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/iphone 15 plus/iphone_15_plus_black-removebg-preview.png' },
+                { name: 'Blue', hex: '#a8c5dd', image: 'assets/images/iphone 15 plus/iphone_15_plus_blue-removebg-preview.png' },
+                { name: 'Rose', hex: '#f4c2c2', image: 'assets/images/iphone 15 plus/iphone_15_plus_rose-removebg-preview.png' }
             ],
             'iPhone 15 Pro Max': [
-                { name: 'Silver', hex: '#e3e4e5', image: 'images/iphone 15 pro max/15_pro_max_silver-removebg-preview.png' },
-                { name: 'Blue', hex: '#2d5f7e', image: 'images/iphone 15 pro max/iphone-15-pro-max-blue-removebg-preview.png' },
-                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 15 pro max/iphone_15_pro_max_white-removebg-preview.png' }
+                { name: 'Silver', hex: '#e3e4e5', image: 'assets/images/iphone 15 pro max/15_pro_max_silver-removebg-preview.png' },
+                { name: 'Blue', hex: '#2d5f7e', image: 'assets/images/iphone 15 pro max/iphone-15-pro-max-blue-removebg-preview.png' },
+                { name: 'White', hex: '#f5f5f7', image: 'assets/images/iphone 15 pro max/iphone_15_pro_max_white-removebg-preview.png' }
             ],
             'iPhone 16 Pro Max': [
-                { name: 'Gold Rose', hex: '#e8c4b8', image: 'images/iphone 16 pro max/iphone 16 promax gold rose rm.png' },
-                { name: 'White', hex: '#f5f5f7', image: 'images/iphone 16 pro max/iphone 16 promax white remove.png' },
-                { name: 'Black', hex: '#1d1d1f', image: 'images/iphone 16 pro max/test1.png' }
+                { name: 'Gold Rose', hex: '#e8c4b8', image: 'assets/images/iphone 16 pro max/iphone 16 promax gold rose rm.png' },
+                { name: 'White', hex: '#f5f5f7', image: 'assets/images/iphone 16 pro max/iphone 16 promax white remove.png' },
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/iphone 16 pro max/test1.png' }
             ],
             'iPhone SE (3rd Gen)': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/iPhone SE (3rd Gen)/iphone se 3rd black.png' },
-                { name: 'Gold', hex: '#fad7a0', image: 'images/iPhone SE (3rd Gen)/iphone se 3rd gold.png' },
-                { name: 'Red', hex: '#ba0c2f', image: 'images/iPhone SE (3rd Gen)/iphone se 3rd red.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/iPhone SE (3rd Gen)/iphone se 3rd black.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'assets/images/iPhone SE (3rd Gen)/iphone se 3rd gold.png' },
+                { name: 'Red', hex: '#ba0c2f', image: 'assets/images/iPhone SE (3rd Gen)/iphone se 3rd red.png' }
             ],
 
             // ========== IPAD MODELS ==========
             'iPad (10th Gen)': [
-                { name: 'Blue', hex: '#a8dadc', image: 'images/ipad (10th gen)/ipad gen 10 blue.webp' },
-                { name: 'Pink', hex: '#ffc0cb', image: 'images/ipad (10th gen)/ipad gen 10 pink.png' },
-                { name: 'Yellow', hex: '#f9e179', image: 'images/ipad (10th gen)/ipad gen 10 yellow.webp' }
+                { name: 'Blue', hex: '#a8dadc', image: 'assets/images/ipad (10th gen)/ipad gen 10 blue.webp' },
+                { name: 'Pink', hex: '#ffc0cb', image: 'assets/images/ipad (10th gen)/ipad gen 10 pink.png' },
+                { name: 'Yellow', hex: '#f9e179', image: 'assets/images/ipad (10th gen)/ipad gen 10 yellow.webp' }
             ],
             'iPad Air M2': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/ipad air m2/ipad air m2 black.png' },
-                { name: 'Blue', hex: '#4a90e2', image: 'images/ipad air m2/ipad air m2 blue.png' },
-                { name: 'Gold', hex: '#fad7a0', image: 'images/ipad air m2/ipad air m2 gold.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/ipad air m2/ipad air m2 black.png' },
+                { name: 'Blue', hex: '#4a90e2', image: 'assets/images/ipad air m2/ipad air m2 blue.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'assets/images/ipad air m2/ipad air m2 gold.png' }
             ],
             'iPad mini 6': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/ipad mini 6/ipad mini 6 black.png' },
-                { name: 'Gold', hex: '#fad7a0', image: 'images/ipad mini 6/ipad mini 6 gold.png' },
-                { name: 'Purple', hex: '#b9b5d7', image: 'images/ipad mini 6/ipad mini 6 purple.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/ipad mini 6/ipad mini 6 black.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'assets/images/ipad mini 6/ipad mini 6 gold.png' },
+                { name: 'Purple', hex: '#b9b5d7', image: 'assets/images/ipad mini 6/ipad mini 6 purple.png' }
             ],
             'iPad Pro': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/ipad pro/ipad pro black.png' },
-                { name: 'Silver', hex: '#e3e4e5', image: 'images/ipad pro/ipad pro silver.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/ipad pro/ipad pro black.png' },
+                { name: 'Silver', hex: '#e3e4e5', image: 'assets/images/ipad pro/ipad pro silver.png' }
             ],
             'iPad Pro M4': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/ipad pro m4/ipad pro m4 black.png' },
-                { name: 'Silver', hex: '#e3e4e5', image: 'images/ipad pro m4/ipad pro m4 silver.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/ipad pro m4/ipad pro m4 black.png' },
+                { name: 'Silver', hex: '#e3e4e5', image: 'assets/images/ipad pro m4/ipad pro m4 silver.png' }
             ],
 
             // ========== APPLE WATCH MODELS ==========
             'Apple Watch Series 9': [
-                { name: 'Blue', hex: '#4a90e2', image: 'images/Apple Watch Series 9/watch series 9 blue.png' },
-                { name: 'Gold', hex: '#fad7a0', image: 'images/Apple Watch Series 9/watch series 9 gold.png' },
-                { name: 'Rose', hex: '#f4c2c2', image: 'images/Apple Watch Series 9/watch series 9 rose.png' },
-                { name: 'Black', hex: '#1d1d1f', image: 'images/Apple Watch Series 9/watch seris 9 black.png' }
+                { name: 'Blue', hex: '#4a90e2', image: 'assets/images/Apple Watch Series 9/watch series 9 blue.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'assets/images/Apple Watch Series 9/watch series 9 gold.png' },
+                { name: 'Rose', hex: '#f4c2c2', image: 'assets/images/Apple Watch Series 9/watch series 9 rose.png' },
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/Apple Watch Series 9/watch seris 9 black.png' }
             ],
             'Apple Watch SE': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/Apple Watch SE/se black.png' },
-                { name: 'Gold', hex: '#fad7a0', image: 'images/Apple Watch SE/se gold.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/Apple Watch SE/se black.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'assets/images/Apple Watch SE/se gold.png' }
             ],
             'Apple Watch Ultra 2': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/Apple Watch Ultra 2/Apple Watch Ultra 2 black.webp' },
-                { name: 'Blue', hex: '#4a90e2', image: 'images/Apple Watch Ultra 2/Apple Watch Ultra 2 blue.png' },
-                { name: 'Orange', hex: '#ff6b35', image: 'images/Apple Watch Ultra 2/Apple Watch Ultra 2 orange.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/Apple Watch Ultra 2/Apple Watch Ultra 2 black.webp' },
+                { name: 'Blue', hex: '#4a90e2', image: 'assets/images/Apple Watch Ultra 2/Apple Watch Ultra 2 blue.png' },
+                { name: 'Orange', hex: '#ff6b35', image: 'assets/images/Apple Watch Ultra 2/Apple Watch Ultra 2 orange.png' }
             ],
 
             // ========== AUDIO PRODUCTS ==========
             'AirPods Max': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/Air pod max/airpod max black.png' },
-                { name: 'Orange', hex: '#ff6b35', image: 'images/Air pod max/airpod max orange.webp' },
-                { name: 'White', hex: '#f5f5f7', image: 'images/Air pod max/airpod max white.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/Air pod max/airpod max black.png' },
+                { name: 'Orange', hex: '#ff6b35', image: 'assets/images/Air pod max/airpod max orange.webp' },
+                { name: 'White', hex: '#f5f5f7', image: 'assets/images/Air pod max/airpod max white.png' }
             ],
 
             // ========== MAC MODELS ==========
             'MacBook Air 15 M3': [
-                { name: 'Gold', hex: '#fad7a0', image: 'images/mac air 15/air 15 gold.png' },
-                { name: 'Grey', hex: '#535456', image: 'images/mac air 15/macbook air 15 grey.png' }
+                { name: 'Gold', hex: '#fad7a0', image: 'assets/images/mac air 15/air 15 gold.png' },
+                { name: 'Grey', hex: '#535456', image: 'assets/images/mac air 15/macbook air 15 grey.png' }
             ],
 
             // ========== IPHONE 7 & 8 PLUS (NEW) ==========
             'iPhone 7 Plus': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/Iphone 7 Plus/Iphone 7 plus black.png' },
-                { name: 'Gold', hex: '#fad7a0', image: 'images/Iphone 7 Plus/Iphone 7 plus gold.png' },
-                { name: 'Silver', hex: '#e3e4e5', image: 'images/Iphone 7 Plus/Iphone 7 plus silver.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/Iphone 7 Plus/Iphone 7 plus black.png' },
+                { name: 'Gold', hex: '#fad7a0', image: 'assets/images/Iphone 7 Plus/Iphone 7 plus gold.png' },
+                { name: 'Silver', hex: '#e3e4e5', image: 'assets/images/Iphone 7 Plus/Iphone 7 plus silver.png' }
             ],
             'iPhone 8 Plus': [
-                { name: 'Black', hex: '#1d1d1f', image: 'images/Iphone 8 Plus/iphone 8 plus black.png' },
-                { name: 'Grey', hex: '#8e8e93', image: 'images/Iphone 8 Plus/iphone 8 plus grey.png' },
-                { name: 'Red', hex: '#ba0c2f', image: 'images/Iphone 8 Plus/iphone 8 plus red.png' }
+                { name: 'Black', hex: '#1d1d1f', image: 'assets/images/Iphone 8 Plus/iphone 8 plus black.png' },
+                { name: 'Grey', hex: '#8e8e93', image: 'assets/images/Iphone 8 Plus/iphone 8 plus grey.png' },
+                { name: 'Red', hex: '#ba0c2f', image: 'assets/images/Iphone 8 Plus/iphone 8 plus red.png' }
             ]
         };
 
@@ -1818,7 +1818,7 @@
 
             // Call API
             try {
-                // Nếu chưa đăng nhập, vẫn cho đặt nhưng không lưu userId (Backend đã xử lý)
+                // Náº¿u chÆ°a Ä‘Äƒng nháº­p, váº«n cho Ä‘áº·t nhÆ°ng khÃ´ng lÆ°u userId (Backend Ä‘Ã£ xá»­ lÃ½)
                 const headers = { 'Content-Type': 'application/json' };
                 const token = getToken();
                 if (token) headers['token'] = `Bearer ${token}`;
@@ -1879,7 +1879,7 @@
             // 3. Call API
             try {
                 const token = getToken();
-                // Chatbot yêu cầu login để lấy context, nếu không có token thì backend sẽ xử lý như khách
+                // Chatbot yÃªu cáº§u login Ä‘á»ƒ láº¥y context, náº¿u khÃ´ng cÃ³ token thÃ¬ backend sáº½ xá»­ lÃ½ nhÆ° khÃ¡ch
                 const headers = { 'Content-Type': 'application/json' };
                 if (token) headers['token'] = `Bearer ${token}`;
 
@@ -1894,11 +1894,11 @@
                     document.getElementById(loadingId).remove();
 
                     if (res.status === 401) {
-                        appendMessage("⚠️ Please login for better chatbot experience. However, chatbot works for guests too.", 'ai');
+                        appendMessage("âš ï¸ Please login for better chatbot experience. However, chatbot works for guests too.", 'ai');
                     } else if (res.status === 503) {
-                        appendMessage("🔧 AI system under maintenance. Contact: 0962923329", 'ai');
+                        appendMessage("ðŸ”§ AI system under maintenance. Contact: 0962923329", 'ai');
                     } else {
-                        appendMessage("❌ Connection error. Please try again later.", 'ai');
+                        appendMessage("âŒ Connection error. Please try again later.", 'ai');
                     }
                     return;
                 }
@@ -1913,13 +1913,13 @@
                     appendMessage(data.reply, 'ai');
                 } else {
                     // Helpful fallback with suggestions
-                    appendMessage("❓ I didn't understand. You can ask about:\n• Product prices (e.g. iPhone 16 price)\n• Order status\n• Current promotions", 'ai');
+                    appendMessage("â“ I didn't understand. You can ask about:\nâ€¢ Product prices (e.g. iPhone 16 price)\nâ€¢ Order status\nâ€¢ Current promotions", 'ai');
                 }
 
             } catch (error) {
                 document.getElementById(loadingId).remove();
                 console.error('Chat error:', error);
-                appendMessage("🔌 Cannot connect to AI. Please check internet and try again.", 'ai');
+                appendMessage("ðŸ”Œ Cannot connect to AI. Please check internet and try again.", 'ai');
             }
         });
 
@@ -2055,7 +2055,7 @@
             // Show success message in chat (keep chat open per user request)
             appendMessage({
                 type: "text",
-                reply: `✅ Added <b>${product.name}</b> to bag!`
+                reply: `âœ… Added <b>${product.name}</b> to bag!`
             }, 'ai');
 
             // Auto open cart sidebar
