@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="../../assets/images/logo.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - Apple Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -51,7 +52,7 @@
                 <h2 class="text-4xl font-bold text-gray-900 mb-3 tracking-tight">Welcome Back</h2>
                 <p class="text-gray-500 text-base">
                     Sign in to continue.
-                    <a href="../register/register.html" class="text-blue-600 font-medium hover:underline">Create
+                    <a href="register.html" class="text-blue-600 font-medium hover:underline">Create
                         account?</a>
                 </p>
             </div>
@@ -292,7 +293,7 @@
                         }
                     } else {
                         showSuccess("Login Successful! Redirecting...");
-                        setTimeout(() => window.location.href = '../index.html', 1200);
+                        setTimeout(() => window.location.href = '../../index.html', 1200);
                     }
 
                 } else {
