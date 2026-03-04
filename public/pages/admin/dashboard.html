@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/png" href="../../assets/images/logo.png">
+    <link rel="icon" type="image/png" href="/assets/images/logo.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Apple Store</title>
 
@@ -346,30 +346,65 @@
             </div>
 
             <div id="inventory-section" class="content-section hidden animate-fade-in space-y-6">
-                <div class="flex justify-between items-center">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900">Inventory Management</h2>
                         <p class="text-xs text-gray-500 mt-1">Manage stock levels in real-time</p>
                     </div>
-                    <button onclick="loadInventory(); showToast('Stock data refreshed', 'info')"
-                        class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
-                        <i class="fas fa-sync-alt mr-1"></i> Refresh
-                    </button>
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <input type="text" id="inventory-search" oninput="filterInventory()"
+                                placeholder="Search products..."
+                                class="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none w-56 transition-all">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                        </div>
+                        <button onclick="loadInventory(); showToast('Stock data refreshed', 'info')"
+                            class="bg-black text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                            <i class="fas fa-sync-alt mr-1"></i> Refresh
+                        </button>
+                    </div>
                 </div>
 
-                <div class="premium-card overflow-hidden">
-                    <table class="w-full text-left" id="inventory-table">
-                        <thead class="bg-gray-50/50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase">
-                            <tr>
-                                <th class="px-6 py-4">Product</th>
-                                <th class="px-6 py-4">Current Stock</th>
-                                <th class="px-6 py-4">Update Stock</th>
-                                <th class="px-6 py-4 text-right">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50 text-sm">
-                        </tbody>
-                    </table>
+                <!-- Stats Bar -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="inventory-stats">
+                    <div class="premium-card p-4 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600"><i
+                                class="fas fa-boxes"></i></div>
+                        <div>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase">Total</p>
+                            <p class="text-lg font-bold text-gray-900" id="inv-total">0</p>
+                        </div>
+                    </div>
+                    <div class="premium-card p-4 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-600"><i
+                                class="fas fa-check-circle"></i></div>
+                        <div>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase">In Stock</p>
+                            <p class="text-lg font-bold text-green-600" id="inv-instock">0</p>
+                        </div>
+                    </div>
+                    <div class="premium-card p-4 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-600">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase">Low Stock</p>
+                            <p class="text-lg font-bold text-yellow-600" id="inv-low">0</p>
+                        </div>
+                    </div>
+                    <div class="premium-card p-4 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600"><i
+                                class="fas fa-times-circle"></i></div>
+                        <div>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase">Out of Stock</p>
+                            <p class="text-lg font-bold text-red-600" id="inv-out">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="inventory-grid">
+                    <p class="col-span-full text-center text-gray-400 py-12">Loading products...</p>
                 </div>
             </div>
 
@@ -485,44 +520,104 @@
             else if (id !== 'dashboard') loadAllData();
         }
 
-        // --- [ADDED] INVENTORY LOGIC ---
+        // --- INVENTORY LOGIC ---
+        let allInventoryProducts = [];
+
+        function getImageUrl(imageUrl) {
+            if (!imageUrl) return '/assets/images/logo.png';
+            if (imageUrl.startsWith('http')) return imageUrl;
+            if (imageUrl.startsWith('/')) return imageUrl;
+            return '/' + imageUrl; // Resolves to root, e.g., /images/iphone.jpg
+        }
+
+        function getStockColor(stock) {
+            if (stock === 0) return { bg: 'bg-red-50', text: 'text-red-600', bar: 'bg-red-500', border: 'border-red-200' };
+            if (stock < 10) return { bg: 'bg-yellow-50', text: 'text-yellow-600', bar: 'bg-yellow-500', border: 'border-yellow-200' };
+            return { bg: 'bg-green-50', text: 'text-green-600', bar: 'bg-green-500', border: 'border-green-200' };
+        }
+
+        function renderInventoryCards(products) {
+            const grid = document.getElementById('inventory-grid');
+            if (products.length === 0) {
+                grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-12"><i class="fas fa-box-open text-4xl mb-3 block opacity-30"></i>No products found.</p>';
+                return;
+            }
+
+            grid.innerHTML = products.map(p => {
+                const sc = getStockColor(p.stock);
+                const stockPercent = Math.min(100, (p.stock / 100) * 100);
+                const price = p.price ? Number(p.price).toLocaleString('vi-VN') + '₫' : '';
+                const imgUrl = getImageUrl(p.image_url);
+                const category = p.category || 'Product';
+
+                return `
+                <div class="premium-card overflow-hidden group inventory-card" data-name="${p.name.toLowerCase()}">
+                    <div class="relative bg-gradient-to-br from-gray-50 to-white h-44 flex items-center justify-center p-6 overflow-hidden">
+                        <img src="${imgUrl}" alt="${p.name}" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-lg" onerror="this.onerror=null; this.src='/assets/images/logo.png'; this.style.opacity='0.3';">
+                        <span class="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur text-gray-600 border border-gray-100 shadow-sm">${category}</span>
+                        ${p.stock === 0 ? '<div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center"><span class="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">OUT OF STOCK</span></div>' : ''}
+                    </div>
+                    <div class="p-5">
+                        <h4 class="font-bold text-gray-900 text-sm mb-1 truncate" title="${p.name}">${p.name}</h4>
+                        ${price ? `<p class="text-xs text-gray-400 mb-3">${price}</p>` : '<div class="mb-3"></div>'}
+
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-1.5">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Stock Level</span>
+                                <span class="text-sm font-bold ${sc.text}">${p.stock}</span>
+                            </div>
+                            <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                <div class="h-full ${sc.bar} rounded-full transition-all duration-500" style="width: ${stockPercent}%"></div>
+                            </div>
+                            ${p.stock > 0 && p.stock < 10 ? '<p class="text-[10px] text-yellow-600 font-semibold mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Low stock warning</p>' : ''}
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex-1">
+                                <button onclick="adjustStock('${p._id}', -1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">−</button>
+                                <input type="number" id="stock-${p._id}" value="${p.stock}" min="0" class="w-full text-center bg-transparent text-sm font-bold text-gray-900 outline-none py-2">
+                                <button onclick="adjustStock('${p._id}', 1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">+</button>
+                            </div>
+                            <button onclick="updateStock('${p._id}')" class="bg-black hover:bg-gray-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 whitespace-nowrap">
+                                <i class="fas fa-save mr-1"></i>Save
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function filterInventory() {
+            const query = document.getElementById('inventory-search').value.toLowerCase();
+            const filtered = allInventoryProducts.filter(p => p.name.toLowerCase().includes(query));
+            renderInventoryCards(filtered);
+        }
+
+        function adjustStock(productId, delta) {
+            const input = document.getElementById(`stock-${productId}`);
+            const newVal = Math.max(0, parseInt(input.value || 0) + delta);
+            input.value = newVal;
+        }
+
         async function loadInventory() {
             try {
                 const res = await fetch(`${API_URL}/admin/products`, { headers: { 'token': `Bearer ${token}` } });
                 const products = await res.json();
+                allInventoryProducts = products;
 
                 // Update Dashboard Stat
                 document.getElementById('stat-products').innerText = products.length;
 
-                const tbody = document.querySelector('#inventory-table tbody');
-                if (products.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No products found.</td></tr>';
-                    return;
-                }
+                // Update inventory stats
+                const inStock = products.filter(p => p.stock >= 10).length;
+                const lowStock = products.filter(p => p.stock > 0 && p.stock < 10).length;
+                const outStock = products.filter(p => p.stock === 0).length;
+                document.getElementById('inv-total').innerText = products.length;
+                document.getElementById('inv-instock').innerText = inStock;
+                document.getElementById('inv-low').innerText = lowStock;
+                document.getElementById('inv-out').innerText = outStock;
 
-                tbody.innerHTML = products.map(p => `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4 flex items-center gap-3">
-                            <img src="../../${p.image_url}" class="w-10 h-10 object-contain rounded border border-gray-100" onerror="this.src='../../assets/images/default.jpg'">
-                            <span class="font-bold text-gray-900">${p.name}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="font-mono font-bold ${p.stock < 10 ? 'text-red-500' : 'text-green-600'} text-base">
-                                ${p.stock}
-                            </span>
-                            ${p.stock < 10 ? '<span class="ml-2 text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">LOW</span>' : ''}
-                        </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-2">
-                                <input type="number" id="stock-${p._id}" value="${p.stock}" min="0" class="w-20 px-2 py-1.5 border border-gray-200 bg-white rounded-lg text-center text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                                <button onclick="updateStock('${p._id}')" class="bg-black hover:bg-gray-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md transition-all">Save</button>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            ${p.stock === 0 ? '<span class="status-pill status-cancelled">Out of Stock</span>' : '<span class="status-pill status-completed">In Stock</span>'}
-                        </td>
-                    </tr>
-                `).join('');
+                renderInventoryCards(products);
             } catch (e) { console.error(e); showToast('Failed to load inventory', 'error'); }
         }
 
@@ -607,7 +702,7 @@
         function renderTopProducts(orders) {
             const productMap = {}; orders.filter(o => o.status === 'Completed').forEach(order => { order.items.forEach(item => { if (productMap[item.name]) productMap[item.name].qty += item.qty; else productMap[item.name] = { name: item.name, image: item.image, qty: item.qty }; }); });
             const sorted = Object.values(productMap).sort((a, b) => b.qty - a.qty).slice(0, 5);
-            document.getElementById('top-products-list').innerHTML = sorted.map((p, i) => `<div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0"><div class="w-6 h-6 rounded bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center">${i + 1}</div><img src="../../${p.image}" class="w-10 h-10 object-contain rounded bg-white border border-gray-100" onerror="this.src='../../assets/images/default.jpg'"><div class="flex-1"><p class="text-xs font-bold text-gray-900 truncate w-32">${p.name}</p><p class="text-[10px] text-gray-500">${p.qty} sold</p></div></div>`).join('') || '<p class="text-xs text-gray-400 italic">No sales data.</p>';
+            document.getElementById('top-products-list').innerHTML = sorted.map((p, i) => `<div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0"><div class="w-6 h-6 rounded bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center">${i + 1}</div><img src="${getImageUrl(p.image)}" class="w-10 h-10 object-contain rounded bg-white border border-gray-100" onerror="this.src='/assets/images/default.jpg'"><div class="flex-1"><p class="text-xs font-bold text-gray-900 truncate w-32">${p.name}</p><p class="text-[10px] text-gray-500">${p.qty} sold</p></div></div>`).join('') || '<p class="text-xs text-gray-400 italic">No sales data.</p>';
         }
 
         function renderVouchersTable(vouchers) {
