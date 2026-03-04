@@ -1034,6 +1034,11 @@
         }
 
         window.addToCart = (id) => {
+            if (!getToken()) {
+                showToast('Please log in to add items to bag', 'error');
+                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
+                return;
+            }
             const product = allProducts.find(p => p._id === id);
             if (!product) return;
 
@@ -1327,6 +1332,11 @@
         };
 
         window.addAllWishlistToCart = () => {
+            if (!getToken()) {
+                showToast('Please log in to add items to bag', 'error');
+                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
+                return;
+            }
             const wishlistProducts = wishlist.map(item => {
                 const productId = item._id || item;
                 return allProducts.find(p => p._id === productId);
@@ -1585,6 +1595,11 @@
         window.closeModal = () => document.getElementById('product-modal').classList.add('hidden');
 
         window.addToCartFromModal = () => {
+            if (!getToken()) {
+                showToast('Please log in to add items to bag', 'error');
+                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
+                return;
+            }
             if (currentModalProduct) {
                 const product = currentModalProduct;
 
@@ -1630,6 +1645,11 @@
 
         // Buy Now - Direct Checkout
         window.buyNow = () => {
+            if (!getToken()) {
+                showToast('Please log in to purchase', 'error');
+                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
+                return;
+            }
             if (currentModalProduct) {
                 const product = currentModalProduct;
 
@@ -1672,6 +1692,11 @@
         let buyNowSelectedColor = null;
 
         window.openBuyNowModal = (product) => {
+            if (!getToken()) {
+                showToast('Please log in to purchase', 'error');
+                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
+                return;
+            }
             currentBuyNowProduct = product;
             buyNowSelectedColor = null;
 
@@ -1792,6 +1817,11 @@
         // Checkout
         // Checkout
         window.openCheckout = () => {
+            if (!getToken()) {
+                showToast('Please log in to checkout', 'error');
+                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
+                return;
+            }
             if (cart.length === 0) return showToast('Bag is empty', 'error');
             toggleCart(); // Close cart
             window.location.href = 'checkout.html';

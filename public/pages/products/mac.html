@@ -125,10 +125,126 @@
             <p>Mac works seamlessly with your iPhone, iPad, and Apple Watch. Start work on one device and finish on
                 another with Handoff, Universal Clipboard, and more.</p>
         </section>
+
+        <!-- ==================== PRODUCT SHOWCASE ==================== -->
+        <section class="py-24 px-6 bg-[#0a0a0a]" id="mac-products">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-5xl md:text-6xl font-bold text-white mb-4">Explore the Mac Lineup</h2>
+                    <p class="text-xl text-gray-400 max-w-2xl mx-auto">Find the perfect Mac for everything you do. Every
+                        model delivers incredible performance and an all-day battery life.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="mac-product-grid">
+                </div>
+            </div>
+        </section>
     </main>
 
+    <!-- Order Modal -->
+    <div id="mac-order-modal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4"
+        style="display:none;">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closeMacOrderModal()"></div>
+        <div
+            class="relative bg-gradient-to-br from-[#1c1c1e] to-[#2c2c2e] w-full max-w-2xl rounded-3xl overflow-hidden border border-white/20 shadow-2xl max-h-[95vh] overflow-y-auto">
+            <button onclick="closeMacOrderModal()"
+                class="absolute top-5 right-5 z-20 w-10 h-10 bg-white/10 text-white rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="bg-gradient-to-r from-gray-700 to-gray-900 p-8 pb-12">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
+                        <i class="fab fa-apple text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Quick Order</h2>
+                        <p class="text-gray-300 text-sm">Fast, secure checkout</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 -mt-6">
+                <div
+                    class="bg-white/5 backdrop-blur-xl rounded-2xl p-5 mb-8 border border-white/10 flex gap-5 items-center">
+                    <div class="w-24 h-24 bg-black/30 rounded-2xl p-3 flex items-center justify-center flex-shrink-0">
+                        <img id="mac-modal-img" src="" alt="" class="w-full h-full object-contain">
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-white mb-1" id="mac-modal-name"></h3>
+                        <p class="text-sm text-gray-400 mb-2" id="mac-modal-desc"></p>
+                        <p class="text-2xl font-bold text-blue-400" id="mac-modal-price"></p>
+                    </div>
+                </div>
+
+                <form id="mac-order-form" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-sm text-gray-300 font-medium"><i
+                                    class="fas fa-user text-blue-400 text-xs mr-1"></i>Full Name <span
+                                    class="text-red-400">*</span></label>
+                            <input type="text" name="recipientName" required placeholder="Your full name"
+                                class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm text-gray-300 font-medium"><i
+                                    class="fas fa-phone text-blue-400 text-xs mr-1"></i>Phone <span
+                                    class="text-red-400">*</span></label>
+                            <input type="tel" name="recipientPhone" required placeholder="0123 456 789"
+                                class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500">
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-sm text-gray-300 font-medium"><i
+                                class="fas fa-map-marker-alt text-blue-400 text-xs mr-1"></i>Address <span
+                                class="text-red-400">*</span></label>
+                        <input type="text" name="recipientAddress" required placeholder="Shipping address"
+                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-sm text-gray-300 font-medium"><i
+                                class="fas fa-sticky-note text-blue-400 text-xs mr-1"></i>Notes <span
+                                class="text-gray-500">(Optional)</span></label>
+                        <textarea name="recipientNotes" rows="2" placeholder="Special instructions..."
+                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500 resize-none"></textarea>
+                    </div>
+
+                    <input type="hidden" name="productName">
+                    <input type="hidden" name="productPrice">
+                    <input type="hidden" name="productImage">
+
+                    <button type="submit"
+                        class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg flex items-center justify-center gap-2">
+                        <i class="fas fa-check-circle"></i> Place Order
+                    </button>
+                </form>
+
+                <div id="mac-order-success"
+                    class="hidden mt-4 p-4 bg-green-500/20 border border-green-500/30 rounded-xl text-green-400 text-center font-semibold">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2"></div>
+
+    <!-- Footer -->
+    <footer class="bg-[#0a0a0a] py-12 px-6 border-t border-white/10">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+                <p>Copyright © 2024 Apple Inc. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Use</a>
+                    <a href="../../support.html" class="hover:text-white transition-colors">Support</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        // JavaScript for the 'Explore the Power' button smooth scroll
+        // ==================== SMOOTH SCROLL ====================
         const exploreBtn = document.querySelector('.btn-hero-mac');
         if (exploreBtn) {
             exploreBtn.addEventListener('click', function (e) {
@@ -136,6 +252,197 @@
                 document.getElementById('mac-power').scrollIntoView({ behavior: 'smooth' });
             });
         }
+
+        // ==================== PRODUCT DATA ====================
+        const macProducts = [
+            {
+                name: "MacBook Air 15 M3",
+                desc: "15.3-inch Liquid Retina display, M3 chip, up to 18 hours battery, MagSafe charging",
+                price: "32,990,000₫",
+                priceNum: 32990000,
+                img: "../../assets/images/mac air 15/macbook air 15 grey.png",
+                badge: "Popular",
+                highlights: ["M3 Chip", "15.3\" Display", "18h Battery", "1.51kg Light"]
+            },
+            {
+                name: "MacBook Pro 14 M3",
+                desc: "14.2-inch Liquid Retina XDR display, M3 Pro chip, ProMotion 120Hz, Thunderbolt 4",
+                price: "39,990,000₫",
+                priceNum: 39990000,
+                img: "../../assets/images/mac air 15/macbook air 15 grey.png",
+                badge: "Pro",
+                highlights: ["M3 Pro Chip", "XDR Display", "120Hz ProMotion", "Thunderbolt 4"]
+            },
+            {
+                name: "iMac 24 M3",
+                desc: "24-inch 4.5K Retina display, M3 chip, 7 vibrant colors, ultrathin all-in-one design",
+                price: "36,990,000₫",
+                priceNum: 36990000,
+                img: "../../assets/images/iMac 24 M3/iMac 24 M3.png",
+                badge: null,
+                highlights: ["M3 Chip", "4.5K Retina", "7 Colors", "1080p Camera"]
+            },
+            {
+                name: "Mac mini M2",
+                desc: "M2 chip, compact design, versatile connectivity, up to 24GB unified memory",
+                price: "14,990,000₫",
+                priceNum: 14990000,
+                img: "../../assets/images/Mac mini M2/MAC mini m2.png",
+                badge: "Value",
+                highlights: ["M2 Chip", "Compact Design", "24GB Memory", "Versatile Ports"]
+            }
+        ];
+
+        // ==================== RENDER PRODUCTS ====================
+        function renderMacProducts() {
+            const grid = document.getElementById('mac-product-grid');
+            grid.innerHTML = '';
+
+            macProducts.forEach((product, index) => {
+                const card = document.createElement('div');
+                card.className = 'group bg-[#161618] rounded-3xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-900/10 flex flex-col';
+                card.style.animationDelay = `${index * 0.1}s`;
+
+                const badgeColor = product.badge === 'Pro' ? 'bg-purple-600' : product.badge === 'Value' ? 'bg-green-600' : 'bg-blue-600';
+
+                card.innerHTML = `
+                    <div class="relative bg-gradient-to-br from-gray-900 to-black p-8 h-56 flex items-center justify-center overflow-hidden">
+                        ${product.badge ? `<span class="absolute top-4 left-4 px-3 py-1 ${badgeColor} text-white text-[10px] font-bold rounded-full uppercase tracking-wider">${product.badge}</span>` : ''}
+                        <img src="${product.img}" alt="${product.name}" class="h-full object-contain group-hover:scale-110 transition-transform duration-700 drop-shadow-xl">
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col">
+                        <h3 class="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">${product.name}</h3>
+                        <p class="text-sm text-gray-400 mb-4 line-clamp-2 flex-1">${product.desc}</p>
+                        
+                        <div class="flex flex-wrap gap-1.5 mb-5">
+                            ${product.highlights.map(h => `<span class="text-[10px] px-2 py-1 bg-white/5 text-gray-300 rounded-full border border-white/10">${h}</span>`).join('')}
+                        </div>
+
+                        <div class="border-t border-white/5 pt-4 space-y-3">
+                            <p class="text-xl font-bold text-blue-400">${product.price}</p>
+                            <button onclick="openMacOrderModal('${product.name}')" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-900/30">
+                                <i class="fas fa-bolt"></i> Buy Now
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ==================== TOAST ====================
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colorClass = type === 'success' ? 'bg-green-500/20 border-green-500/30 text-green-400' : 'bg-red-500/20 border-red-500/30 text-red-400';
+            toast.className = `${colorClass} border px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transform translate-x-full transition-all duration-300`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i><span class="font-semibold">${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+            setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // ==================== ORDER MODAL ====================
+        function openMacOrderModal(productName) {
+            if (!localStorage.getItem('accessToken')) {
+                showToast('Please log in to purchase', 'error');
+                setTimeout(() => window.location.href = '../../pages/auth/login.html', 1200);
+                return;
+            }
+
+            const product = macProducts.find(p => p.name === productName);
+            if (!product) return;
+
+            document.getElementById('mac-modal-img').src = product.img;
+            document.getElementById('mac-modal-name').textContent = product.name;
+            document.getElementById('mac-modal-desc').textContent = product.desc;
+            document.getElementById('mac-modal-price').textContent = product.price;
+
+            document.querySelector('#mac-order-form input[name="productName"]').value = product.name;
+            document.querySelector('#mac-order-form input[name="productPrice"]').value = product.price;
+            document.querySelector('#mac-order-form input[name="productImage"]').value = product.img;
+
+            document.getElementById('mac-order-form').reset();
+            document.getElementById('mac-order-success').classList.add('hidden');
+
+            const modal = document.getElementById('mac-order-modal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMacOrderModal() {
+            document.getElementById('mac-order-modal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('mac-order-modal').addEventListener('click', function (e) {
+            if (e.target === this) closeMacOrderModal();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeMacOrderModal();
+        });
+
+        // ==================== ORDER SUBMISSION ====================
+        document.getElementById('mac-order-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.disabled = true;
+
+            const orderData = {
+                recipientName: form.recipientName.value,
+                recipientPhone: form.recipientPhone.value,
+                recipientAddress: form.recipientAddress.value,
+                recipientNotes: form.recipientNotes.value,
+                paymentMethod: 'COD',
+                items: [{
+                    name: form.productName.value,
+                    price: form.productPrice.value,
+                    qty: 1,
+                    image: form.productImage.value
+                }],
+                totalAmountString: form.productPrice.value,
+                totalAmountNumeric: Number(form.productPrice.value.replace(/[^\d]/g, ''))
+            };
+
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                const token = localStorage.getItem('accessToken');
+                if (token) headers['token'] = `Bearer ${token}`;
+
+                const res = await fetch('https://project3-icy1.onrender.com/api/orders', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(orderData)
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('mac-order-success').textContent = '✓ Order placed successfully! We will contact you soon.';
+                    document.getElementById('mac-order-success').classList.remove('hidden');
+                    showToast('Order placed successfully!', 'success');
+                    form.reset();
+                    setTimeout(() => closeMacOrderModal(), 2000);
+                } else {
+                    showToast(result.message || 'Order failed!', 'error');
+                }
+            } catch (err) {
+                showToast('Server connection error!', 'error');
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMacProducts();
+        });
     </script>
 </body>
 

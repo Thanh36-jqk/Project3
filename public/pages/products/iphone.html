@@ -499,6 +499,11 @@
 
     // Modal Functions
     function openOrderModal(productName) {
+      if (!localStorage.getItem('accessToken')) {
+        showToast('Please log in to purchase', 'error');
+        setTimeout(() => window.location.href = '../../pages/auth/login.html', 1200);
+        return;
+      }
       const product = iphoneProducts.find(p => p.name === productName);
       if (!product) return;
 

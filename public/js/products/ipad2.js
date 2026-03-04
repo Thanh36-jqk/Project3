@@ -163,6 +163,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Open modal function
   window.openIpadOrderModal = function (productName) {
+    if (!localStorage.getItem('accessToken')) {
+      alert('Please log in to purchase');
+      window.location.href = '../../pages/auth/login.html';
+      return;
+    }
     const product = productsData.find(p => p.name === productName);
     if (!product) return;
 
