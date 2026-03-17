@@ -50,7 +50,14 @@ exports.getProductById = async (req, res) => {
  */
 exports.createProduct = async (req, res) => {
     try {
-        const newProduct = new Product(req.body);
+        const productData = req.body;
+        
+        // Calculate total stock if color variants are provided
+        if (productData.colors && productData.colors.length > 0) {
+            productData.stock = productData.colors.reduce((total, color) => total + (Number(color.stock) || 0), 0);
+        }
+
+        const newProduct = new Product(productData);
         await newProduct.save();
         res.status(201).json(newProduct);
     } catch (error) {
@@ -63,9 +70,16 @@ exports.createProduct = async (req, res) => {
  */
 exports.updateProduct = async (req, res) => {
     try {
+        const updateData = req.body;
+
+        // Calculate total stock if color variants are provided
+        if (updateData.colors && updateData.colors.length > 0) {
+            updateData.stock = updateData.colors.reduce((total, color) => total + (Number(color.stock) || 0), 0);
+        }
+
         const product = await Product.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true }
         );
         res.status(200).json(product);
@@ -79,14 +93,26 @@ exports.updateProduct = async (req, res) => {
  */
 exports.updateStock = async (req, res) => {
     try {
-        const { newStock } = req.body;
-        if (newStock < 0) {
-            return res.status(400).json({ message: "Stock cannot be negative" });
+        const { newStock, colors } = req.body;
+        
+        let updateQuery = {};
+        
+        if (colors && Array.isArray(colors)) {
+            // Calculate total stock from colors
+            const calculatedStock = colors.reduce((total, color) => total + (Number(color.stock) || 0), 0);
+            updateQuery = { colors: colors, stock: calculatedStock };
+        } else if (newStock !== undefined) {
+             if (newStock < 0) {
+                 return res.status(400).json({ message: "Stock cannot be negative" });
+             }
+             updateQuery = { stock: newStock };
+        } else {
+             return res.status(400).json({ message: "Must provide newStock or colors array" });
         }
 
         const product = await Product.findByIdAndUpdate(
             req.params.id,
-            { stock: newStock },
+            updateQuery,
             { new: true }
         );
         res.status(200).json({ message: "Stock updated successfully", product });

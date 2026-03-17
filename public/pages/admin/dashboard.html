@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/js/admin/colors.js"></script>
 
     <style>
         body {
@@ -329,19 +330,21 @@
                     </button>
                 </div>
                 <div class="premium-card overflow-hidden">
-                    <table class="w-full text-left" id="orders-table">
-                        <thead class="bg-gray-50/50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase">
-                            <tr>
-                                <th class="px-6 py-4">ID</th>
-                                <th class="px-6 py-4">Customer</th>
-                                <th class="px-6 py-4">Total</th>
-                                <th class="px-6 py-4">Date</th>
-                                <th class="px-6 py-4">Status</th>
-                                <th class="px-6 py-4 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50 text-sm"></tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="orders-table">
+                            <thead>
+                                <tr class="bg-gray-50/80 border-b border-gray-100/80 text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+                                    <th class="px-6 py-4 whitespace-nowrap">Order ID</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Customer</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Total Amount</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Order Date</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Status</th>
+                                    <th class="px-6 py-4 whitespace-nowrap text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50 text-sm bg-white"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -550,36 +553,77 @@
                 const imgUrl = getImageUrl(p.image_url);
                 const category = p.category || 'Product';
 
+                // Check if product has color variants in our mapping
+                const colors = window.productColorVariants && window.productColorVariants[p.name];
+                
+                let stockControlsHtml = '';
+                
+                if (colors && colors.length > 0) {
+                    // Create an input for each color
+                    const pColorsArr = p.colors || [];
+                    
+                    stockControlsHtml = `
+                    <div class="space-y-3 mb-4 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
+                        ${colors.map(color => {
+                            // Find existing stock for this color, or default to 0
+                            const existingColorData = pColorsArr.find(c => c.name === color.name);
+                            const cStock = existingColorData ? existingColorData.stock : 0;
+                            
+                            return `
+                            <div class="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded-lg border border-gray-100">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded-full border border-gray-300 shadow-sm" style="background-color: ${color.hex}"></div>
+                                    <span class="text-xs font-medium text-gray-700 w-16 truncate" title="${color.name}">${color.name}</span>
+                                </div>
+                                <div class="flex items-center bg-white rounded border border-gray-200 overflow-hidden w-24">
+                                    <button onclick="adjustStockColor('${p._id}', '${color.name}', -1)" class="w-7 py-1 text-gray-500 hover:bg-gray-100 text-xs font-bold">−</button>
+                                    <input type="number" id="stock-${p._id}-${color.name.replace(/\s+/g, '')}" value="${cStock}" min="0" class="w-full text-center bg-transparent text-xs font-bold text-gray-900 outline-none py-1 color-stock-input-${p._id}" data-color-name="${color.name}">
+                                    <button onclick="adjustStockColor('${p._id}', '${color.name}', 1)" class="w-7 py-1 text-gray-500 hover:bg-gray-100 text-xs font-bold">+</button>
+                                </div>
+                            </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    `;
+                } else {
+                    // Standard generic product (no colors)
+                    stockControlsHtml = `
+                    <div class="flex items-center bg-gray-50 rounded-xl border border-gray-200 overflow-hidden mb-4">
+                        <button onclick="adjustStock('${p._id}', -1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">−</button>
+                        <input type="number" id="stock-${p._id}" value="${p.stock}" min="0" class="w-full text-center bg-transparent text-sm font-bold text-gray-900 outline-none py-2">
+                        <button onclick="adjustStock('${p._id}', 1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">+</button>
+                    </div>
+                    `;
+                }
+
                 return `
-                <div class="premium-card overflow-hidden group inventory-card" data-name="${p.name.toLowerCase()}">
-                    <div class="relative bg-gradient-to-br from-gray-50 to-white h-44 flex items-center justify-center p-6 overflow-hidden">
+                <div class="premium-card overflow-hidden group inventory-card flex flex-col h-full" data-name="${p.name.toLowerCase()}">
+                    <div class="relative bg-gradient-to-br from-gray-50 to-white h-44 flex flex-shrink-0 items-center justify-center p-6 overflow-hidden">
                         <img src="${imgUrl}" alt="${p.name}" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-lg" onerror="this.onerror=null; this.src='/assets/images/logo.png'; this.style.opacity='0.3';">
                         <span class="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur text-gray-600 border border-gray-100 shadow-sm">${category}</span>
-                        ${p.stock === 0 ? '<div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center"><span class="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">OUT OF STOCK</span></div>' : ''}
+                        ${p.stock === 0 ? '<div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10"><span class="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">OUT OF STOCK</span></div>' : ''}
                     </div>
-                    <div class="p-5">
-                        <h4 class="font-bold text-gray-900 text-sm mb-1 truncate" title="${p.name}">${p.name}</h4>
-                        ${price ? `<p class="text-xs text-gray-400 mb-3">${price}</p>` : '<div class="mb-3"></div>'}
-
-                        <div class="mb-4">
-                            <div class="flex justify-between items-center mb-1.5">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Stock Level</span>
-                                <span class="text-sm font-bold ${sc.text}">${p.stock}</span>
+                    <div class="p-5 flex-1 flex flex-col justify-between border-t border-gray-50">
+                        <div>
+                            <h4 class="font-bold text-gray-900 text-sm mb-1 truncate" title="${p.name}">${p.name}</h4>
+                            ${price ? `<p class="text-xs text-blue-600 font-mono mb-3">${price}</p>` : '<div class="mb-3"></div>'}
+                            
+                            <div class="mb-4">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Stock</span>
+                                    <span class="text-sm font-bold ${sc.text}">${p.stock}</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full ${sc.bar} rounded-full transition-all duration-500" style="width: ${stockPercent}%"></div>
+                                </div>
+                                ${p.stock > 0 && p.stock < 10 ? '<p class="text-[10px] text-yellow-600 font-semibold mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Low stock warning</p>' : ''}
                             </div>
-                            <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                                <div class="h-full ${sc.bar} rounded-full transition-all duration-500" style="width: ${stockPercent}%"></div>
-                            </div>
-                            ${p.stock > 0 && p.stock < 10 ? '<p class="text-[10px] text-yellow-600 font-semibold mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Low stock warning</p>' : ''}
                         </div>
 
-                        <div class="flex items-center gap-2">
-                            <div class="flex items-center bg-gray-50 rounded-xl border border-gray-200 overflow-hidden flex-1">
-                                <button onclick="adjustStock('${p._id}', -1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">−</button>
-                                <input type="number" id="stock-${p._id}" value="${p.stock}" min="0" class="w-full text-center bg-transparent text-sm font-bold text-gray-900 outline-none py-2">
-                                <button onclick="adjustStock('${p._id}', 1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">+</button>
-                            </div>
-                            <button onclick="updateStock('${p._id}')" class="bg-black hover:bg-gray-800 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 whitespace-nowrap">
-                                <i class="fas fa-save mr-1"></i>Save
+                        <div class="border-t border-gray-100 pt-3 mt-1">
+                            ${stockControlsHtml}
+                            <button onclick="updateStock('${p._id}', ${colors && colors.length > 0})" class="w-full bg-black hover:bg-gray-800 text-white px-4 py-3 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                                <i class="fas fa-save"></i> Save Inventory
                             </button>
                         </div>
                     </div>
@@ -599,9 +643,19 @@
             input.value = newVal;
         }
 
+        function adjustStockColor(productId, colorName, delta) {
+            const inputId = `stock-${productId}-${colorName.replace(/\s+/g, '')}`;
+            const input = document.getElementById(inputId);
+            if(input) {
+                const newVal = Math.max(0, parseInt(input.value || 0) + delta);
+                input.value = newVal;
+            }
+        }
+
         async function loadInventory() {
             try {
-                const res = await fetch(`${API_URL}/admin/products`, { headers: { 'token': `Bearer ${token}` } });
+                // Keep calling /api/products which returns all products
+                const res = await fetch(`${API_URL}/products`, { headers: { 'token': `Bearer ${token}` } });
                 const products = await res.json();
                 allInventoryProducts = products;
 
@@ -621,26 +675,43 @@
             } catch (e) { console.error(e); showToast('Failed to load inventory', 'error'); }
         }
 
-        async function updateStock(productId) {
-            const input = document.getElementById(`stock-${productId}`);
-            const newStock = parseInt(input.value);
-            if (isNaN(newStock) || newStock < 0) { showToast("Invalid stock number", 'error'); return; }
+        async function updateStock(productId, hasColors) {
+            let requestBody = {};
+
+            if (hasColors) {
+                // Collect all color stocks
+                const inputs = document.querySelectorAll(`.color-stock-input-${productId}`);
+                const colorArr = [];
+                inputs.forEach(input => {
+                    colorArr.push({
+                        name: input.getAttribute('data-color-name'),
+                        stock: parseInt(input.value) || 0
+                    });
+                });
+                requestBody = { colors: colorArr };
+            } else {
+                // Single stock updates
+                const input = document.getElementById(`stock-${productId}`);
+                const newStock = parseInt(input.value);
+                if (isNaN(newStock) || newStock < 0) { showToast("Invalid stock number", 'error'); return; }
+                requestBody = { newStock };
+            }
 
             try {
-                const res = await fetch(`${API_URL}/admin/products/${productId}/stock`, {
+                const res = await fetch(`${API_URL}/products/${productId}/stock`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
-                    body: JSON.stringify({ newStock })
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (res.ok) {
-                    showToast(`Stock updated to ${newStock}`, 'success');
+                    showToast(`Stock updated successfully`, 'success');
                     loadInventory(); // Refresh view
                 } else {
                     const data = await res.json();
                     showToast(data.message, 'error');
                 }
-            } catch (e) { showToast("Connection error", 'error'); }
+            } catch (e) { console.error(e); showToast("Connection error", 'error'); }
         }
 
         // --- EXISTING LOGIC (ORDERS, VOUCHERS, CHARTS) ---
@@ -685,9 +756,75 @@
             const tbody = document.querySelector('#orders-table tbody');
             tbody.innerHTML = orders.length ? orders.map(o => {
                 const amount = (o.finalAmount || o.totalAmountNumeric).toLocaleString('vi-VN') + '₫';
-                let badge = o.status === 'Completed' ? '<span class="status-pill status-completed">Completed</span>' : o.status === 'Cancelled' ? '<span class="status-pill status-cancelled">Cancelled</span>' : '<span class="status-pill status-pending">Pending</span>';
-                return `<tr class="hover:bg-gray-50 transition-colors group"><td class="px-6 py-4 font-mono text-xs text-gray-400">#${o._id.slice(-6).toUpperCase()}</td><td class="px-6 py-4 font-bold text-gray-900">${o.recipientName}</td><td class="px-6 py-4 font-bold text-gray-900">${amount}</td><td class="px-6 py-4 text-xs text-gray-500">${new Date(o.createdAt).toLocaleDateString()}</td><td class="px-6 py-4">${badge}</td><td class="px-6 py-4 text-right">${o.status === 'Pending' ? `<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all"><button onclick="updateStatus('${o._id}', 'Completed')" class="bg-green-100 hover:bg-green-200 text-green-700 p-2 rounded-lg transition-colors"><i class="fas fa-check"></i></button><button onclick="updateStatus('${o._id}', 'Cancelled')" class="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded-lg transition-colors"><i class="fas fa-times"></i></button></div>` : '<span class="text-xs text-gray-300 italic">Locked</span>'}</td></tr>`;
-            }).join('') : '<tr><td colspan="6" class="px-6 py-12 text-center text-gray-400">No orders yet.</td></tr>';
+                
+                let badgeClass = '';
+                let dotClass = '';
+                if (o.status === 'Completed') {
+                    badgeClass = 'bg-emerald-50 text-emerald-600 border border-emerald-100';
+                    dotClass = 'bg-emerald-500';
+                } else if (o.status === 'Cancelled') {
+                    badgeClass = 'bg-rose-50 text-rose-600 border border-rose-100';
+                    dotClass = 'bg-rose-500';
+                } else {
+                    badgeClass = 'bg-amber-50 text-amber-600 border border-amber-100';
+                    dotClass = 'bg-amber-500';
+                }
+                
+                const badge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${badgeClass}">
+                    <span class="w-1.5 h-1.5 rounded-full ${dotClass}"></span>${o.status}
+                </span>`;
+
+                return `
+                <tr class="hover:bg-gray-50/50 transition-colors group">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="font-mono text-xs font-semibold text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">#${o._id.slice(-6).toUpperCase()}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-500 font-bold text-xs shadow-inner">
+                                ${o.recipientName.charAt(0).toUpperCase()}
+                            </div>
+                            <span class="font-semibold text-gray-900">${o.recipientName}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="font-bold text-gray-900">${amount}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500 font-medium">
+                        ${new Date(o.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${badge}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        ${o.status === 'Pending' ? `
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <button onclick="updateStatus('${o._id}', 'Completed')" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-sm" title="Mark Completed">
+                                <i class="fas fa-check text-xs"></i>
+                            </button>
+                            <button onclick="updateStatus('${o._id}', 'Cancelled')" class="w-8 h-8 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100 hover:scale-105 active:scale-95 transition-all flex items-center justify-center shadow-sm" title="Cancel Order">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </div>
+                        ` : `
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-100">
+                            <i class="fas fa-lock text-[8px]"></i> LOCKED
+                        </span>
+                        `}
+                    </td>
+                </tr>`;
+            }).join('') : `
+            <tr>
+                <td colspan="6" class="px-6 py-16 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
+                            <i class="fas fa-box-open text-2xl"></i>
+                        </div>
+                        <p class="text-gray-500 font-medium text-sm">No orders found</p>
+                        <p class="text-gray-400 text-xs mt-1">When customers place orders, they will appear here.</p>
+                    </div>
+                </td>
+            </tr>`;
         }
 
         async function updateStatus(id, status) {

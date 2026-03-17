@@ -7,7 +7,11 @@ const productSchema = new mongoose.Schema({
     spec: String,
     image_url: String,
     category: String,
-    stock: { type: Number, default: 100 }
+    stock: { type: Number, default: 0 },
+    colors: [{
+        name: String,
+        stock: { type: Number, default: 0 }
+    }]
 });
 
 // Text index for search functionality
