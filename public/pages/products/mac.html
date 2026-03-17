@@ -43,10 +43,10 @@
             <!-- Icons -->
             <div class="flex items-center space-x-6">
                 <button class="hover:text-white transition-colors"><i class="fas fa-search text-base"></i></button>
-                <div class="relative cursor-pointer hover:text-white transition-colors">
+                <div class="relative cursor-pointer hover:text-white transition-colors" onclick="toggleCart()">
                     <i class="fas fa-shopping-bag text-base"></i>
-                    <span
-                        class="absolute -top-1 -right-1 bg-white text-black text-[9px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full">0</span>
+                    <span id="cart-badge"
+                        class="absolute -top-1 -right-1 bg-white text-black text-[9px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full cart-count">0</span>
                 </div>
             </div>
         </nav>
@@ -229,6 +229,44 @@
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2"></div>
 
+    <!-- CART SIDEBAR -->
+    <div id="cart-sidebar"
+        class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#1c1c1e] border-l border-white/10 transform translate-x-full transition-transform duration-300 z-[400] shadow-2xl flex flex-col">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center bg-[#1c1c1e]/90 backdrop-blur">
+            <h2 class="text-xl font-bold text-white">Your Bag <span id="cart-count-header"
+                    class="text-gray-500 text-sm font-normal">(0 items)</span></h2>
+            <button onclick="toggleCart()"
+                class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6" id="cart-items-container">
+            <div class="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+                <i class="fas fa-shopping-basket text-6xl mb-4"></i>
+                <p class="text-white">Your bag is empty.</p>
+                <button onclick="toggleCart()" class="text-blue-500 hover:underline">Start Shopping</button>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-white/10 bg-[#1c1c1e]">
+            <div class="flex justify-between items-center mb-4 text-gray-400 text-sm">
+                <span>Subtotal</span>
+                <span id="cart-subtotal" class="text-white font-bold text-lg">0₫</span>
+            </div>
+            <p class="text-xs text-gray-500 mb-6">Shipping and taxes calculated at checkout.</p>
+            <button onclick="window.location.href='../../checkout.html'"
+                class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
+                Check Out <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- CART OVERLAY -->
+    <div id="cart-overlay" onclick="toggleCart()"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[350] hidden opacity-0 transition-opacity duration-300">
+    </div>
+
     <!-- Footer -->
     <footer class="bg-[#0a0a0a] py-12 px-6 border-t border-white/10">
         <div class="max-w-5xl mx-auto">
@@ -320,9 +358,14 @@
 
                         <div class="border-t border-white/5 pt-4 space-y-3">
                             <p class="text-xl font-bold text-blue-400">${product.price}</p>
-                            <button onclick="openMacOrderModal('${product.name}')" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-900/30">
-                                <i class="fas fa-bolt"></i> Buy Now
-                            </button>
+                            <div class="flex gap-2 w-full">
+                                <button onclick="addToCartGeneric('${product.name}', '${product.name}', '${product.priceNum}', '${product.img}')" class="px-5 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-xl transition-all shadow-lg flex-shrink-0">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                                <button onclick="openMacOrderModal('${product.name}')" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-900/30">
+                                    <i class="fas fa-bolt"></i> Buy Now
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -444,6 +487,7 @@
             renderMacProducts();
         });
     </script>
+    <script src="../../js/cart-logic.js"></script>
 </body>
 
 </html>

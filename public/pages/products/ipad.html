@@ -211,9 +211,9 @@
                 <button class="hover:text-white transition-colors">
                     <i class="fas fa-search text-base"></i>
                 </button>
-                <div class="relative cursor-pointer hover:text-white transition-colors">
+                <div class="relative cursor-pointer hover:text-white transition-colors" onclick="toggleCart()">
                     <i class="fas fa-shopping-bag text-base"></i>
-                    <span
+                    <span id="cart-badge"
                         class="absolute -top-1 -right-1 bg-white text-black text-[9px] font-bold w-3.5 h-3.5 flex items-center justify-center rounded-full cart-count">0</span>
                 </div>
             </div>
@@ -461,10 +461,15 @@
                         <h3 class="text-3xl font-bold mb-2">iPad Pro</h3>
                         <p class="text-sm text-gray-600 mb-6 px-4 h-12">The ultimate iPad experience with M4 chip.</p>
                         <p class="text-xl font-semibold mb-6">From 25,000,000₫</p>
-                        <button
-                            class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
-                            Buy
-                        </button>
+                        <div class="flex gap-2 w-full px-4 text-sm">
+                            <button onclick="addToCartGeneric('iPad Pro', 'iPad Pro', 25000000, 'assets/images/ipad pro m4/ipad pro m4 black.png')" class="w-12 h-12 flex items-center justify-center bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-all flex-shrink-0">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button
+                                class="btn-buy-ipad flex-1 py-3 bg-accent-blue text-white rounded-xl font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
+                                Buy
+                            </button>
+                        </div>
 
                         <div class="mt-10 pt-8 border-t border-gray-300 w-full text-sm text-gray-600 space-y-3">
                             <p class="text-black font-bold text-base">M4 chip</p>
@@ -496,10 +501,15 @@
                         <p class="text-sm text-gray-600 mb-6 px-4 h-12">Serious performance in a thin and light design.
                         </p>
                         <p class="text-xl font-semibold mb-6">From 15,000,000₫</p>
-                        <button
-                            class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
-                            Buy
-                        </button>
+                        <div class="flex gap-2 w-full px-4 text-sm">
+                            <button onclick="addToCartGeneric('iPad Air', 'iPad Air', 15000000, 'assets/images/ipad air m2/ipad air m2 gold.png')" class="w-12 h-12 flex items-center justify-center bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-all flex-shrink-0">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button
+                                class="btn-buy-ipad flex-1 py-3 bg-accent-blue text-white rounded-xl font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
+                                Buy
+                            </button>
+                        </div>
 
                         <div class="mt-10 pt-8 border-t border-gray-300 w-full text-sm text-gray-600 space-y-3">
                             <p class="text-black font-bold text-base">M2 chip</p>
@@ -531,10 +541,15 @@
                         <h3 class="text-3xl font-bold mb-2">iPad</h3>
                         <p class="text-sm text-gray-600 mb-6 px-4 h-12">The colorful, all-screen iPad for everyday.</p>
                         <p class="text-xl font-semibold mb-6">From 9,900,000₫</p>
-                        <button
-                            class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
-                            Buy
-                        </button>
+                        <div class="flex gap-2 w-full px-4 text-sm">
+                            <button onclick="addToCartGeneric('iPad (10th gen)', 'iPad (10th gen)', 9900000, 'assets/images/ipad (10th gen)/ipad gen 10 yellow.webp')" class="w-12 h-12 flex items-center justify-center bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-all flex-shrink-0">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button
+                                class="btn-buy-ipad flex-1 py-3 bg-accent-blue text-white rounded-xl font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
+                                Buy
+                            </button>
+                        </div>
 
                         <div class="mt-10 pt-8 border-t border-gray-300 w-full text-sm text-gray-600 space-y-3">
                             <p class="text-black font-bold text-base">A14 Bionic</p>
@@ -564,10 +579,15 @@
                         <h3 class="text-3xl font-bold mb-2">iPad mini</h3>
                         <p class="text-sm text-gray-600 mb-6 px-4 h-12">The full iPad experience in one hand.</p>
                         <p class="text-xl font-semibold mb-6">From 11,500,000₫</p>
-                        <button
-                            class="btn-buy-ipad px-10 py-3 bg-accent-blue text-white rounded-full font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
-                            Buy
-                        </button>
+                        <div class="flex gap-2 w-full px-4 text-sm">
+                            <button onclick="addToCartGeneric('iPad mini', 'iPad mini', 11500000, 'assets/images/ipad mini 6/ipad mini 6 purple.png')" class="w-12 h-12 flex items-center justify-center bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition-all flex-shrink-0">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <button
+                                class="btn-buy-ipad flex-1 py-3 bg-accent-blue text-white rounded-xl font-semibold hover:bg-blue-600 transition-all active:scale-95 shadow-lg">
+                                Buy
+                            </button>
+                        </div>
 
                         <div class="mt-10 pt-8 border-t border-gray-300 w-full text-sm text-gray-600 space-y-3">
                             <p class="text-black font-bold text-base">A15 Bionic</p>
@@ -670,6 +690,47 @@
             </div>
         </div>
     </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2"></div>
+
+    <!-- CART SIDEBAR -->
+    <div id="cart-sidebar"
+        class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#1c1c1e] border-l border-white/10 transform translate-x-full transition-transform duration-300 z-[400] shadow-2xl flex flex-col text-white font-sans">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center bg-[#1c1c1e]/90 backdrop-blur">
+            <h2 class="text-xl font-bold text-white">Your Bag <span id="cart-count-header"
+                    class="text-gray-500 text-sm font-normal">(0 items)</span></h2>
+            <button onclick="toggleCart()"
+                class="text-gray-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-6" id="cart-items-container">
+            <div class="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+                <i class="fas fa-shopping-basket text-6xl mb-4 text-white"></i>
+                <p class="text-white">Your bag is empty.</p>
+                <button onclick="toggleCart()" class="text-blue-500 hover:underline">Start Shopping</button>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-white/10 bg-[#1c1c1e]">
+            <div class="flex justify-between items-center mb-4 text-gray-400 text-sm">
+                <span>Subtotal</span>
+                <span id="cart-subtotal" class="text-white font-bold text-lg">0₫</span>
+            </div>
+            <p class="text-xs text-gray-500 mb-6">Shipping and taxes calculated at checkout.</p>
+            <button onclick="window.location.href='../../checkout.html'"
+                class="w-full py-4 bg-accent-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
+                Check Out <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- CART OVERLAY -->
+    <div id="cart-overlay" onclick="toggleCart()"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[350] hidden opacity-0 transition-opacity duration-300">
+    </div>
 
     <!-- ==================== ORDER MODAL ==================== -->
     <div id="ipad-order-modal"

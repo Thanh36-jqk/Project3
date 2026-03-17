@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -834,6 +834,16 @@
                 renderProducts(allProducts);
                 updateCartUI(); // Load cart from local storage
                 initWishlist(); // Load wishlist
+                
+                // Open cart or wishlist if hash is present
+                if (window.location.hash === '#cart') {
+                    toggleCart();
+                    // Clear hash without scrolling
+                    history.replaceState(null, null, ' ');
+                } else if (window.location.hash === '#wishlist') {
+                    toggleWishlistSidebar();
+                    history.replaceState(null, null, ' ');
+                }
             }
         }
 
