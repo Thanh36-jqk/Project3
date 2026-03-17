@@ -53,6 +53,12 @@ function addToCartGeneric(id, name, price, image) {
         numericPrice = Number(price.replace(/[^\d]/g, ''));
     }
 
+    // Normalize image path to project-relative (remove leading ../ and /)
+    let normalizedImage = image ? image.replace(/^(\.\.\/)+/, '').replace(/^(\.\/)+/, '') : '';
+    if (normalizedImage.startsWith('/')) {
+        normalizedImage = normalizedImage.substring(1);
+    }
+
     const existingItem = cart.find(item => item.productId === id);
     if (existingItem) {
         existingItem.quantity += 1;
@@ -61,7 +67,7 @@ function addToCartGeneric(id, name, price, image) {
             productId: id,
             name: name,
             price: numericPrice,
-            image: image,
+            image: normalizedImage,
             quantity: 1
         });
     }
@@ -98,6 +104,13 @@ function updateCartUI() {
     let totalQty = 0;
     let totalPrice = 0;
 
+    // Determine base path based on current location
+    let basePath = '';
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('/pages/products/') || currentPath.includes('/pages/auth/') || currentPath.includes('/pages/admin/')) {
+        basePath = '../../';
+    }
+
     if (cart.length === 0) {
         container.innerHTML = `
             <div class="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
@@ -113,7 +126,7 @@ function updateCartUI() {
             container.innerHTML += `
                 <div class="flex gap-4 bg-[#2c2c2e] p-3 rounded-xl">
                     <div class="w-20 h-20 bg-white rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                        <img src="${item.image}" class="w-full h-full object-contain">
+                        <img src="${item.image && (item.image.startsWith('http') || item.image.startsWith('data:')) ? item.image : basePath + item.image}" class="w-full h-full object-contain">
                     </div>
                     <div class="flex-1 flex flex-col justify-between">
                         <div>
