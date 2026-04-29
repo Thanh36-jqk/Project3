@@ -2,11 +2,22 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const authController = require('../controllers/authController');
+const passwordController = require('../controllers/passwordController');
 const { verifyToken } = require('../middleware/auth');
+const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('../middleware/validate');
+const { authLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
 
-// Register and Login
-router.post('/api/register', authController.register);
-router.post('/api/login', authController.login);
+// Register and Login (with validation + rate limiting)
+router.post('/api/register', authLimiter, validateRegister, authController.register);
+router.post('/api/login', authLimiter, validateLogin, authController.login);
+
+// Token management
+router.post('/api/auth/refresh', authController.refreshAccessToken);
+router.post('/api/auth/logout', authController.logout);
+
+// Password reset (with rate limiting to prevent email spam)
+router.post('/api/auth/forgot-password', passwordResetLimiter, validateForgotPassword, passwordController.forgotPassword);
+router.post('/api/auth/reset-password', passwordResetLimiter, validateResetPassword, passwordController.resetPassword);
 
 // Google OAuth
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));

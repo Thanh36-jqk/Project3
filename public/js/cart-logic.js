@@ -29,52 +29,75 @@ function toggleCart() {
     }
 }
 
-function addToCartGeneric(id, name, price, image) {
-    if (!localStorage.getItem('accessToken')) {
-        // Find existing showToast function or use fallback alert
-        if (typeof showToast === 'function') {
-            showToast('Please log in to add items to bag', 'error');
-        } else {
-            alert('Please log in to add items to bag');
-        }
-        
-        // Ensure path correction based on current page
-        const loginPath = window.location.pathname.includes('pages/products') 
-            ? '../auth/login.html' 
-            : 'pages/auth/login.html';
-            
-        setTimeout(() => window.location.href = loginPath, 1200);
-        return;
-    }
-
+async function addToCartGeneric(id, name, price, image) {
+    const token = localStorage.getItem('accessToken');
+    
     // Convert string price like "21,990,000₫" to number if needed
     let numericPrice = price;
     if (typeof price === 'string') {
         numericPrice = Number(price.replace(/[^\d]/g, ''));
     }
 
-    // Normalize image path to project-relative (remove leading ../ and /)
+    // Normalize image path
     let normalizedImage = image ? image.replace(/^(\.\.\/)+/, '').replace(/^(\.\/)+/, '') : '';
     if (normalizedImage.startsWith('/')) {
         normalizedImage = normalizedImage.substring(1);
     }
 
-    const existingItem = cart.find(item => item.productId === id);
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        cart.push({
-            productId: id,
-            name: name,
-            price: numericPrice,
-            image: normalizedImage,
-            quantity: 1
-        });
+    // 1. If Logged In -> Sync with Backend
+    if (token) {
+        try {
+            const res = await fetch('/api/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ productId: id, quantity: 1 })
+            });
+            if (!res.ok) {
+                const data = await res.json();
+                if (typeof showToast === 'function') showToast(data.message || 'Error adding to cart', 'error');
+                return;
+            }
+            // Fetch updated cart to keep UI in sync
+            const cartRes = await fetch('/api/cart', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const cartData = await cartRes.json();
+            
+            // Map backend schema to frontend structure
+            cart = (cartData.items || []).map(item => ({
+                productId: item.productId,
+                name: item.name,
+                price: item.price,
+                image: item.image_url,
+                quantity: item.quantity
+            }));
+            saveCart();
+            updateCartUI();
+        } catch (err) {
+            console.error('Error syncing cart:', err);
+        }
+    } 
+    // 2. If Guest -> Save to LocalStorage only
+    else {
+        const existingItem = cart.find(item => item.productId === id);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            cart.push({
+                productId: id,
+                name: name,
+                price: numericPrice,
+                image: normalizedImage,
+                quantity: 1
+            });
+        }
+        saveCart();
+        updateCartUI();
     }
 
-    saveCart();
-    updateCartUI();
-    
     if (typeof showToast === 'function') {
         showToast(`Added ${name} to bag`);
     }

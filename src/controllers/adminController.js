@@ -58,11 +58,16 @@ exports.getAllOrders = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
     try {
         const { status } = req.body;
+        const allowedStatuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+        if (!status || !allowedStatuses.includes(status)) {
+            return res.status(400).json({ message: `Invalid status. Allowed: ${allowedStatuses.join(', ')}` });
+        }
         const order = await Order.findByIdAndUpdate(
             req.params.id,
             { status },
             { new: true }
         );
+        if (!order) return res.status(404).json({ message: 'Order not found' });
         res.status(200).json(order);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -89,11 +94,16 @@ exports.getAllUsers = async (req, res) => {
 exports.updateUserRank = async (req, res) => {
     try {
         const { rank } = req.body;
+        const allowedRanks = ['Silver', 'Gold', 'VIP'];
+        if (!rank || !allowedRanks.includes(rank)) {
+            return res.status(400).json({ message: `Invalid rank. Allowed: ${allowedRanks.join(', ')}` });
+        }
         const user = await User.findByIdAndUpdate(
             req.params.id,
             { rank },
             { new: true }
         ).select('-password');
+        if (!user) return res.status(404).json({ message: 'User not found' });
         res.status(200).json(user);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -117,7 +127,12 @@ exports.getAllVouchers = async (req, res) => {
  */
 exports.createVoucher = async (req, res) => {
     try {
-        const newVoucher = new Voucher(req.body);
+        // Whitelist: only allow known fields to prevent mass assignment
+        const { code, discountAmount, pointsRequired, quantity, isActive } = req.body;
+        if (!code || discountAmount == null || pointsRequired == null) {
+            return res.status(400).json({ message: 'code, discountAmount, and pointsRequired are required' });
+        }
+        const newVoucher = new Voucher({ code, discountAmount, pointsRequired, quantity, isActive });
         await newVoucher.save();
         res.status(201).json(newVoucher);
     } catch (error) {
@@ -130,11 +145,21 @@ exports.createVoucher = async (req, res) => {
  */
 exports.updateVoucher = async (req, res) => {
     try {
+        // Whitelist: only allow known fields
+        const { code, discountAmount, pointsRequired, quantity, isActive } = req.body;
+        const updateData = {};
+        if (code !== undefined) updateData.code = code;
+        if (discountAmount !== undefined) updateData.discountAmount = discountAmount;
+        if (pointsRequired !== undefined) updateData.pointsRequired = pointsRequired;
+        if (quantity !== undefined) updateData.quantity = quantity;
+        if (isActive !== undefined) updateData.isActive = isActive;
+
         const voucher = await Voucher.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true }
         );
+        if (!voucher) return res.status(404).json({ message: 'Voucher not found' });
         res.status(200).json(voucher);
     } catch (error) {
         res.status(500).json({ message: error.message });

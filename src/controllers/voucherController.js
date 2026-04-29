@@ -2,13 +2,19 @@ const Voucher = require('../models/Voucher');
 const User = require('../models/User');
 
 /**
- * Get available vouchers
+ * Get available vouchers (active, in-stock, and not expired)
  */
 exports.getAvailableVouchers = async (req, res) => {
     try {
+        const now = new Date();
         const vouchers = await Voucher.find({
             isActive: true,
-            quantity: { $gt: 0 }
+            quantity: { $gt: 0 },
+            $or: [
+                { expiresAt: null },          // No expiry set
+                { expiresAt: { $exists: false } },
+                { expiresAt: { $gt: now } }   // Not yet expired
+            ]
         });
         res.status(200).json(vouchers);
     } catch (error) {
@@ -29,6 +35,11 @@ exports.redeemVoucher = async (req, res) => {
             return res.status(400).json({ message: "Voucher not available" });
         }
 
+        // Check expiry
+        if (voucher.expiresAt && new Date() > voucher.expiresAt) {
+            return res.status(400).json({ message: "Voucher has expired" });
+        }
+
         if (user.points < voucher.pointsRequired) {
             return res.status(400).json({ message: "Insufficient points" });
         }
@@ -46,6 +57,7 @@ exports.redeemVoucher = async (req, res) => {
         await user.save();
 
         voucher.quantity -= 1;
+        voucher.usageCount = (voucher.usageCount || 0) + 1;
         await voucher.save();
 
         res.status(200).json({ message: "Voucher redeemed successfully", user });

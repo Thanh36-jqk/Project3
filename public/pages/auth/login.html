@@ -270,18 +270,22 @@
             hideMessage();
 
             try {
-                const response = await fetch('https://project3-icy1.onrender.com/api/login', {
+                // Get guest cart to merge
+                const guestCart = JSON.parse(localStorage.getItem('apple_cart')) || [];
+
+                const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify({ email, password, guestCart })
                 });
 
                 const result = await response.json();
 
                 if (response.ok) {
-                    // --- SỬA LỖI Ở ĐÂY: DÙNG LOCALSTORAGE THAY VÌ SESSIONSTORAGE ---
                     localStorage.setItem('accessToken', result.accessToken);
                     localStorage.setItem('user', JSON.stringify(result));
+                    // Clear local guest cart since it has been merged into MongoDB
+                    localStorage.removeItem('apple_cart');
 
                     if (currentRole === 'admin') {
                         if (result.role === 'admin') {

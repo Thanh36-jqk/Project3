@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="../assets/images/logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Result - Apple Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        @keyframes checkmark {
+            0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(-45deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.2; }
+            100% { transform: scale(0.9); opacity: 0.5; }
+        }
+        .animate-icon { animation: checkmark 0.6s ease-out 0.3s both; }
+        .animate-content { animation: fadeUp 0.5s ease-out 0.5s both; }
+        .animate-ring { animation: pulse-ring 2s ease-in-out infinite; }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full">
+        <!-- Success State -->
+        <div id="success-card" class="hidden bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Green Gradient Header -->
+            <div class="relative bg-gradient-to-br from-emerald-400 to-green-600 px-8 pt-12 pb-16 text-center">
+                <div class="absolute inset-0 bg-white/5 animate-ring rounded-full w-40 h-40 mx-auto mt-6"></div>
+                <div class="relative w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 ring-4 ring-white/30">
+                    <i class="fas fa-check text-4xl text-white animate-icon"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white animate-content">Payment Successful!</h1>
+                <p class="text-white/80 mt-2 animate-content">Your transaction has been completed.</p>
+            </div>
+
+            <!-- Order Details -->
+            <div class="px-8 -mt-8 relative z-10 animate-content">
+                <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Order ID</span>
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">Confirmed</span>
+                    </div>
+                    <p id="success-order-id" class="text-sm font-mono font-bold text-gray-900 break-all">#---</p>
+                </div>
+            </div>
+
+            <div class="px-8 py-6 space-y-3 animate-content">
+                <a href="/index.html"
+                    class="block w-full bg-gray-900 hover:bg-gray-800 text-white text-center font-medium py-3.5 px-6 rounded-xl transition-all hover:-translate-y-0.5">
+                    <i class="fas fa-home mr-2"></i>Back to Store
+                </a>
+                <a href="/pages/auth/login.html"
+                    class="block w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-center font-medium py-3.5 px-6 rounded-xl transition-all">
+                    <i class="fas fa-box mr-2"></i>View My Orders
+                </a>
+            </div>
+        </div>
+
+        <!-- Failed State -->
+        <div id="failed-card" class="hidden bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <!-- Red Gradient Header -->
+            <div class="relative bg-gradient-to-br from-red-400 to-rose-600 px-8 pt-12 pb-16 text-center">
+                <div class="relative w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 ring-4 ring-white/30">
+                    <i class="fas fa-times text-4xl text-white animate-icon"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white animate-content">Payment Failed</h1>
+                <p class="text-white/80 mt-2 animate-content">Your payment could not be processed.</p>
+            </div>
+
+            <!-- Order Details -->
+            <div class="px-8 -mt-8 relative z-10 animate-content">
+                <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Order ID</span>
+                        <span class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full font-medium">Failed</span>
+                    </div>
+                    <p id="failed-order-id" class="text-sm font-mono font-bold text-gray-900 break-all">#---</p>
+                    <p class="text-xs text-gray-500 mt-3">Your order has been saved. You can retry payment or switch to Cash on Delivery.</p>
+                </div>
+            </div>
+
+            <div class="px-8 py-6 space-y-3 animate-content">
+                <a href="/checkout.html"
+                    class="block w-full bg-gray-900 hover:bg-gray-800 text-white text-center font-medium py-3.5 px-6 rounded-xl transition-all hover:-translate-y-0.5">
+                    <i class="fas fa-redo mr-2"></i>Try Again
+                </a>
+                <a href="/index.html"
+                    class="block w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-center font-medium py-3.5 px-6 rounded-xl transition-all">
+                    <i class="fas fa-home mr-2"></i>Back to Store
+                </a>
+            </div>
+        </div>
+
+        <!-- Invalid State -->
+        <div id="invalid-card" class="hidden bg-white rounded-3xl shadow-2xl overflow-hidden">
+            <div class="relative bg-gradient-to-br from-amber-400 to-orange-500 px-8 pt-12 pb-16 text-center">
+                <div class="relative w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 ring-4 ring-white/30">
+                    <i class="fas fa-exclamation-triangle text-4xl text-white animate-icon"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-white animate-content">Invalid Response</h1>
+                <p class="text-white/80 mt-2 animate-content">The payment verification failed. Please contact support.</p>
+            </div>
+            <div class="px-8 py-6 animate-content">
+                <a href="/index.html"
+                    class="block w-full bg-gray-900 hover:bg-gray-800 text-white text-center font-medium py-3.5 px-6 rounded-xl transition-all">
+                    <i class="fas fa-home mr-2"></i>Back to Store
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-xs text-gray-400 mt-6">
+            <i class="fas fa-lock mr-1"></i>Secured by VNPay Payment Gateway
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const status = params.get('status');
+            const orderId = params.get('orderId') || 'N/A';
+
+            if (status === 'success') {
+                document.getElementById('success-card').classList.remove('hidden');
+                document.getElementById('success-order-id').textContent = orderId;
+                // Clear cart since payment succeeded
+                localStorage.removeItem('apple_cart');
+            } else if (status === 'failed') {
+                document.getElementById('failed-card').classList.remove('hidden');
+                document.getElementById('failed-order-id').textContent = orderId;
+            } else {
+                document.getElementById('invalid-card').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

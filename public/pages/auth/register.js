@@ -36,18 +36,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const usernameInput = document.getElementById('register-username');
+        const username = usernameInput ? usernameInput.value.trim() : '';
+
         // Prepare data to send to the server
         const dataToSend = {
             email: email,
-            password: password
-            // username: username // Will be added later if backend is updated
+            password: password,
+            name: username,
+            guestCart: JSON.parse(localStorage.getItem('apple_cart')) || []
         };
 
         console.log('Sending registration data:', dataToSend);
 
         // Send POST request to backend API using fetch API
         try {
-            const response = await fetch('https://project3-icy1.onrender.com/api/register', {
+            const response = await fetch('/api/register', {
                 method: 'POST', // Use POST method
                 headers: {
                     'Content-Type': 'application/json' // Let server know we’re sending JSON

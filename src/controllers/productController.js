@@ -9,7 +9,8 @@ exports.searchProducts = async (req, res) => {
         if (!q) return res.status(200).json({ products: [] });
 
         const products = await Product.find({
-            name: { $regex: q, $options: 'i' }
+            name: { $regex: q, $options: 'i' },
+            isActive: true
         }).limit(parseInt(limit) || 20);
 
         res.status(200).json({ products });
@@ -23,7 +24,7 @@ exports.searchProducts = async (req, res) => {
  */
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find().sort({ name: 1 });
+        const products = await Product.find({ isActive: true }).sort({ name: 1 });
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -36,7 +37,7 @@ exports.getAllProducts = async (req, res) => {
 exports.getProductById = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
-        if (!product) {
+        if (!product || !product.isActive) {
             return res.status(404).json({ message: 'Product not found' });
         }
         res.status(200).json(product);
@@ -122,12 +123,19 @@ exports.updateStock = async (req, res) => {
 };
 
 /**
- * Delete product (Admin only)
+ * Delete product — SOFT DELETE (Admin only)
+ * Sets isActive=false instead of removing from DB.
+ * This preserves order history integrity — old orders can still reference this product.
  */
 exports.deleteProduct = async (req, res) => {
     try {
-        await Product.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: 'Product deleted successfully' });
+        const product = await Product.findByIdAndUpdate(
+            req.params.id,
+            { isActive: false },
+            { new: true }
+        );
+        if (!product) return res.status(404).json({ message: 'Product not found' });
+        res.status(200).json({ message: 'Product deactivated successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -11,7 +11,7 @@ exports.handleChat = async (req, res) => {
     console.log('=== CHAT REQUEST RECEIVED ===');
 
     // Optional authentication - support both logged-in users and guests
-    const authHeader = req.headers.token;
+    const authHeader = req.headers.authorization || req.headers.token;
     let userId = null;
 
     if (authHeader) {
