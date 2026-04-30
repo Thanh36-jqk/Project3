@@ -727,7 +727,7 @@
                 const token = localStorage.getItem('accessToken');
                 if (token) headers['token'] = `Bearer ${token}`;
 
-                const res = await fetch('/api/orders', {
+                const res = await fetch('https://project3-icy1.onrender.com/api/orders', {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify(orderData)

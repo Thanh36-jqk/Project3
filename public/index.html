@@ -575,7 +575,7 @@
                 window.history.replaceState({}, document.title, window.location.pathname);
 
                 // 4. (Tùy chọn) Gọi API lấy thông tin user để lưu vào localStorage luôn
-                fetch('/api/users/profile', {
+                fetch('https://project3-icy1.onrender.com/api/users/profile', {
                     headers: { 'token': 'Bearer ' + token }
                 })
                     .then(res => res.json())

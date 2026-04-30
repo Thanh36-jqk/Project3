@@ -145,3 +145,6 @@ app.listen(PORT, () => {
     logger.info(`Access at: http://localhost:${PORT}`);
     logger.info(`Helmet: enabled | CORS: restricted | Rate Limiting: active`);
 });
+
+// Export the app for Vercel Serverless Functions
+module.exports = app;

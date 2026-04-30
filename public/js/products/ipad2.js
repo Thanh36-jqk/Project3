@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     try {
-      const response = await fetch('/api/orders', {
+      const response = await fetch('https://project3-icy1.onrender.com/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)

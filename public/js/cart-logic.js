@@ -47,7 +47,7 @@ async function addToCartGeneric(id, name, price, image) {
     // 1. If Logged In -> Sync with Backend
     if (token) {
         try {
-            const res = await fetch('/api/cart/add', {
+            const res = await fetch('https://project3-icy1.onrender.com/api/cart/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ async function addToCartGeneric(id, name, price, image) {
                 return;
             }
             // Fetch updated cart to keep UI in sync
-            const cartRes = await fetch('/api/cart', {
+            const cartRes = await fetch('https://project3-icy1.onrender.com/api/cart', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const cartData = await cartRes.json();
