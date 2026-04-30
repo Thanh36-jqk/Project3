@@ -706,9 +706,7 @@
         // ==================================================================
         // 1. CONFIGURATION & STATE
         // ==================================================================
-        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
-            ? 'http://localhost:3000'
-            : 'https://project3-icy1.onrender.com';
+        const API_URL = '';
         let allProducts = [];
         let cart = JSON.parse(localStorage.getItem('apple_cart')) || [];
         let wishlist = []; // Loaded from API or localStorage
