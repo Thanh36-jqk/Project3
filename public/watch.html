@@ -649,12 +649,6 @@
 
         // ==================== ORDER MODAL ====================
         function openWatchOrderModal(productName) {
-            if (!localStorage.getItem('accessToken')) {
-                showToast('Please log in to purchase', 'error');
-                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
-                return;
-            }
-
             const product = watchProducts.find(p => p.name === productName);
             if (!product) return;
 

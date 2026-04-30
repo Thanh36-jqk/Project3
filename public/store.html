@@ -1042,11 +1042,6 @@
         }
 
         window.addToCart = (id) => {
-            if (!getToken()) {
-                showToast('Please log in to add items to bag', 'error');
-                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
-                return;
-            }
             const product = allProducts.find(p => p._id === id);
             if (!product) return;
 
@@ -1603,11 +1598,6 @@
         window.closeModal = () => document.getElementById('product-modal').classList.add('hidden');
 
         window.addToCartFromModal = () => {
-            if (!getToken()) {
-                showToast('Please log in to add items to bag', 'error');
-                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
-                return;
-            }
             if (currentModalProduct) {
                 const product = currentModalProduct;
 
@@ -1653,11 +1643,6 @@
 
         // Buy Now - Direct Checkout
         window.buyNow = () => {
-            if (!getToken()) {
-                showToast('Please log in to purchase', 'error');
-                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
-                return;
-            }
             if (currentModalProduct) {
                 const product = currentModalProduct;
 
