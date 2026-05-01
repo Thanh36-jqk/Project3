@@ -1,12 +1,13 @@
 // importProducts.js
 
+require('dotenv').config();
 const mongoose = require('mongoose');
 
 // --- CẤU HÌNH KẾT NỐI DB ---
-// Đảm bảo chuỗi kết nối này giống với trong server.js
-const dbURI = 'mongodb://localhost:27017/my-auth-db';
+// Lấy chuỗi kết nối từ file .env (Cloud MongoDB)
+const dbURI = process.env.MONGO_URL || 'mongodb://localhost:27017/my-auth-db';
 
-const Product = require('./model/Product'); // Nếu importProducts.js ở thư mục 'model'
+const Product = require('../src/models/Product'); // Sửa lại đường dẫn import đúng model
 
 
 // --- PRODUCT DATA TO IMPORT ---
