@@ -1,4 +1,4 @@
-const Order = require('../models/Order');
+const prisma = require('../config/postgres');
 const vnpayService = require('../services/vnpayService');
 
 /**
@@ -41,7 +41,7 @@ exports.vnpayIpn = async (req, res) => {
         const transactionNo = vnp_Params['vnp_TransactionNo'];
 
         try {
-            const order = await Order.findById(orderId);
+            const order = await prisma.order.findUnique({ where: { id: orderId } });
             
             if (!order) {
                 return res.status(200).json({ RspCode: '01', Message: 'Order not found' });
@@ -54,16 +54,23 @@ exports.vnpayIpn = async (req, res) => {
 
             if (responseCode === '00') {
                 // Payment Success
-                order.paymentStatus = 'Paid';
-                order.transactionId = transactionNo;
-                // You could also change order.status from Pending to Confirmed here
-                order.status = 'Confirmed';
-                await order.save();
+                await prisma.order.update({
+                    where: { id: orderId },
+                    data: {
+                        paymentStatus: 'Paid',
+                        transactionId: transactionNo,
+                        status: 'Confirmed'
+                    }
+                });
                 return res.status(200).json({ RspCode: '00', Message: 'Confirm Success' });
             } else {
                 // Payment Failed
-                order.paymentStatus = 'Failed';
-                await order.save();
+                await prisma.order.update({
+                    where: { id: orderId },
+                    data: {
+                        paymentStatus: 'Failed'
+                    }
+                });
                 return res.status(200).json({ RspCode: '00', Message: 'Confirm Success (Failed recorded)' });
             }
         } catch (error) {

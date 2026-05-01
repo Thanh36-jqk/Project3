@@ -1,7 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const bcrypt = require('bcrypt');
-const User = require('../models/User');
+const prisma = require('../config/postgres');
 
 /**
  * Configure Passport authentication strategies
@@ -13,7 +13,7 @@ const configurePassport = () => {
     // Deserialize user from session
     passport.deserializeUser(async (id, done) => {
         try {
-            const user = await User.findById(id);
+            const user = await prisma.user.findUnique({ where: { id } });
             done(null, user);
         } catch (err) {
             done(err, null);
@@ -32,31 +32,39 @@ const configurePassport = () => {
                 const googleId = profile.id;
 
                 // Try to find user by googleId first (most reliable), then by email
-                let user = await User.findOne({ googleId }) || await User.findOne({ email });
+                let user = await prisma.user.findUnique({ where: { googleId } });
+                if (!user) {
+                    user = await prisma.user.findUnique({ where: { email } });
+                }
 
                 if (!user) {
                     // Create new user from Google profile
                     console.log("Creating new user via Google...");
                     const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
-                    user = new User({
-                        email,
-                        password: randomPassword,
-                        googleId,
-                        name: profile.displayName || '',
-                        avatar: profile.photos?.[0]?.value || '',
-                        role: 'user',
-                        rank: 'Silver',
-                        points: 0,
-                        isEmailVerified: true  // Google emails are already verified
+                    user = await prisma.user.create({
+                        data: {
+                            email,
+                            password: randomPassword,
+                            googleId,
+                            name: profile.displayName || '',
+                            avatar: profile.photos?.[0]?.value || '',
+                            role: 'user',
+                            rank: 'Silver',
+                            points: 0,
+                            isEmailVerified: true  // Google emails are already verified
+                        }
                     });
-                    await user.save();
                 } else if (!user.googleId) {
                     // Link Google account to existing email-based user
-                    user.googleId = googleId;
-                    if (!user.name && profile.displayName) user.name = profile.displayName;
-                    if (!user.avatar && profile.photos?.[0]?.value) user.avatar = profile.photos[0].value;
-                    user.isEmailVerified = true;
-                    await user.save();
+                    user = await prisma.user.update({
+                        where: { id: user.id },
+                        data: {
+                            googleId,
+                            name: user.name || profile.displayName,
+                            avatar: user.avatar || profile.photos?.[0]?.value,
+                            isEmailVerified: true
+                        }
+                    });
                 }
 
                 return done(null, user);

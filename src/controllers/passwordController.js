@@ -1,7 +1,9 @@
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
-const User = require('../models/User');
+const prisma = require('../config/postgres');
 const { sendEmail } = require('../services/emailService');
+const rabbitmqService = require('../services/rabbitmqService');
+const rabbitmqConfig = require('../config/rabbitmq');
 
 /**
  * Request password reset — generates a token and (in production) sends an email.
@@ -10,7 +12,7 @@ const { sendEmail } = require('../services/emailService');
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await User.findOne({ email: email.toLowerCase() });
+        const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
 
         // Always respond with success to prevent email enumeration attacks
         if (!user) {
@@ -21,9 +23,16 @@ exports.forgotPassword = async (req, res) => {
 
         // Generate reset token (valid for 1 hour)
         const resetToken = crypto.randomBytes(32).toString('hex');
-        user.passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-        user.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-        await user.save();
+        const passwordResetToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        const passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+        
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                passwordResetToken,
+                passwordResetExpires
+            }
+        });
 
         // Build reset URL
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -46,16 +55,32 @@ exports.forgotPassword = async (req, res) => {
         `;
 
         try {
-            await sendEmail({
+            const queued = await rabbitmqService.publishToQueue(rabbitmqConfig.queues.EMAIL_QUEUE, {
                 to: user.email,
                 subject: 'Apple Store - Password Reset Request',
                 html: emailHtml
             });
+
+            // If RabbitMQ is not available, fallback to direct email (Small Project Mode)
+            if (!queued) {
+                console.log('RabbitMQ not available, sending email directly...');
+                await sendEmail({
+                    to: user.email,
+                    subject: 'Apple Store - Password Reset Request',
+                    html: emailHtml
+                });
+            }
         } catch (emailError) {
             console.error('Failed to send reset email:', emailError);
-            user.passwordResetToken = undefined;
-            user.passwordResetExpires = undefined;
-            await user.save();
+            
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    passwordResetToken: null,
+                    passwordResetExpires: null
+                }
+            });
+            
             return res.status(500).json({ message: 'Error sending email. Please try again later.' });
         }
 
@@ -79,9 +104,11 @@ exports.resetPassword = async (req, res) => {
         // Hash the token to compare with stored hash
         const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-        const user = await User.findOne({
-            passwordResetToken: hashedToken,
-            passwordResetExpires: { $gt: new Date() }  // Token not expired
+        const user = await prisma.user.findFirst({
+            where: {
+                passwordResetToken: hashedToken,
+                passwordResetExpires: { gt: new Date() }  // Token not expired
+            }
         });
 
         if (!user) {
@@ -89,10 +116,16 @@ exports.resetPassword = async (req, res) => {
         }
 
         // Update password
-        user.password = await bcrypt.hash(newPassword, 10);
-        user.passwordResetToken = undefined;
-        user.passwordResetExpires = undefined;
-        await user.save();
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                password: hashedPassword,
+                passwordResetToken: null,
+                passwordResetExpires: null
+            }
+        });
 
         res.status(200).json({ message: 'Password reset successful. You can now log in with your new password.' });
 
