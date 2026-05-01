@@ -47,8 +47,7 @@ const validateOrder = [
     body('recipientName')
         .trim()
         .notEmpty().withMessage('Recipient name is required')
-        .isLength({ max: 100 }).withMessage('Name must be under 100 characters')
-        .escape(),
+        .isLength({ max: 100 }).withMessage('Name must be under 100 characters'),
     body('recipientPhone')
         .trim()
         .notEmpty().withMessage('Phone number is required')
@@ -56,13 +55,12 @@ const validateOrder = [
     body('recipientAddress')
         .trim()
         .notEmpty().withMessage('Address is required')
-        .isLength({ max: 500 }).withMessage('Address must be under 500 characters')
-        .escape(),
+        .isLength({ max: 500 }).withMessage('Address must be under 500 characters'),
     body('items')
         .isArray({ min: 1 }).withMessage('Order must contain at least one item'),
     body('items.*.productId')
         .notEmpty().withMessage('Each item must have a productId')
-        .isMongoId().withMessage('Invalid product ID format'),
+        .isString().withMessage('Invalid product ID format'),
     body('items.*.qty')
         .isInt({ min: 1, max: 99 }).withMessage('Quantity must be between 1 and 99'),
     handleValidationErrors
