@@ -515,7 +515,7 @@
         }
 
         // COD: Show success modal
-        showSuccessModal(data.order._id || "SUCCESS");
+        showSuccessModal(data.order.id || data.order._id || "SUCCESS");
 
         // Clear cart locally
         serverCartItems = [];
