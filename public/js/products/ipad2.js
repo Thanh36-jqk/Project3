@@ -157,124 +157,30 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.addEventListener('click', function (e) {
       e.preventDefault();
       const productName = this.closest('.ipad-product-card').querySelector('h3').textContent.trim();
-      openIpadOrderModal(productName);
+      handleBuyNow(productName);
     });
   });
 
-  // Open modal function
-  window.openIpadOrderModal = function (productName) {
+  // Open checkout function
+  window.handleBuyNow = function (productName) {
     const product = productsData.find(p => p.name === productName);
     if (!product) return;
 
-    // Populate modal with product info
-    document.getElementById('order-product-img').src = product.img;
-    document.getElementById('order-product-name').textContent = product.name;
-    document.getElementById('order-product-desc').textContent = product.desc;
-    document.getElementById('order-product-price').textContent = product.price;
+    const priceNum = Number(product.price.replace(/[^\d]/g, ''));
 
-    // Set hidden inputs
-    document.querySelector('input[name=productName]').value = product.name;
-    document.querySelector('input[name=productPrice]').value = product.price;
-    document.querySelector('input[name=productImage]').value = product.img;
-
-    // Reset form and messages
-    document.getElementById('ipad-order-form').reset();
-    document.getElementById('order-success-msg').classList.add('hidden');
-
-    // Show modal
-    document.getElementById('ipad-order-modal').classList.add('active');
-    document.body.style.overflow = 'hidden'; // Prevent background scroll
-  };
-
-  // Close modal function
-  window.closeIpadOrderModal = function () {
-    document.getElementById('ipad-order-modal').classList.remove('active');
-    document.body.style.overflow = ''; // Restore scroll
-  };
-
-  // Close modal on background click
-  document.getElementById('ipad-order-modal').addEventListener('click', function (e) {
-    if (e.target === this) {
-      closeIpadOrderModal();
-    }
-  });
-
-  // Close modal on Escape key
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      closeIpadOrderModal();
-    }
-  });
-
-  // Handle form submission
-  document.getElementById('ipad-order-form').addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    const form = e.target;
-    const submitButton = form.querySelector('button[type="submit"]');
-    const originalButtonText = submitButton.textContent;
-
-    // Show loading state
-    submitButton.textContent = 'Processing...';
-    submitButton.disabled = true;
-
-    const orderData = {
-      recipientName: form.recipientName.value,
-      recipientPhone: form.recipientPhone.value,
-      recipientAddress: form.recipientAddress.value,
-      recipientNotes: form.recipientNotes.value,
-      paymentMethod: form.paymentMethod.value,
-      items: [{
-        name: form.productName.value,
-        price: form.productPrice.value,
-        qty: 1,
-        image: form.productImage.value
-      }],
-      totalAmountString: form.productPrice.value,
-      totalAmountNumeric: Number(form.productPrice.value.replace(/[^\d]/g, ''))
+    const buyNowItem = {
+      productId: product.name,
+      name: product.name,
+      price: priceNum,
+      image: product.img,
+      category: 'iPad',
+      quantity: 1,
+      color: null
     };
 
-    try {
-      const response = await fetch('https://project3-icy1.onrender.com/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        // Success
-        document.getElementById('order-success-msg').textContent = '✓ Order placed successfully! We will contact you soon.';
-        document.getElementById('order-success-msg').classList.remove('hidden');
-        document.getElementById('order-success-msg').classList.remove('bg-red-100', 'text-red-800');
-        document.getElementById('order-success-msg').classList.add('bg-green-100', 'text-green-800');
-
-        form.reset();
-
-        // Close modal after delay
-        setTimeout(() => {
-          closeIpadOrderModal();
-        }, 2000);
-      } else {
-        // Error from server
-        document.getElementById('order-success-msg').textContent = result.message || 'Failed to place order. Please try again.';
-        document.getElementById('order-success-msg').classList.remove('hidden');
-        document.getElementById('order-success-msg').classList.remove('bg-green-100', 'text-green-800');
-        document.getElementById('order-success-msg').classList.add('bg-red-100', 'text-red-800');
-      }
-    } catch (error) {
-      // Network error
-      document.getElementById('order-success-msg').textContent = 'Network error. Please check your connection and try again.';
-      document.getElementById('order-success-msg').classList.remove('hidden');
-      document.getElementById('order-success-msg').classList.remove('bg-green-100', 'text-green-800');
-      document.getElementById('order-success-msg').classList.add('bg-red-100', 'text-red-800');
-    } finally {
-      // Restore button state
-      submitButton.textContent = originalButtonText;
-      submitButton.disabled = false;
-    }
-  });
+    localStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
+    window.location.href = '../../checkout.html';
+  };
 
   // ==================== TOUCH OPTIMIZATIONS ====================
 

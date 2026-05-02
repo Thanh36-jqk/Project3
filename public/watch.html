@@ -164,7 +164,7 @@
                     <p class="text-2xl text-gray-300 font-light max-w-xl mx-auto mb-10 fade-up delay-200">The most
                         rugged and capable Apple Watch pushes the limits again.</p>
                     <div class="flex gap-6 justify-center fade-up delay-300">
-                        <button onclick="openWatchOrderModal('Apple Watch Ultra 2')"
+                        <button onclick="handleBuyNow('Apple Watch Ultra 2')"
                             class="px-10 py-4 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-500 transition-all shadow-glow-blue hover:shadow-orange-500/50">Buy
                             — 21,990,000₫</button>
                         <button
@@ -244,7 +244,7 @@
                                 class="px-6 py-2.5 bg-gray-700 text-white rounded-full text-sm font-bold hover:bg-gray-600 transition-all hover:scale-105 active:scale-95">
                                 <i class="fas fa-shopping-cart"></i>
                             </button>
-                            <button onclick="openWatchOrderModal('Apple Watch SE')"
+                            <button onclick="handleBuyNow('Apple Watch SE')"
                                 class="px-8 py-2.5 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-500 transition-all hover:scale-105 active:scale-95">Buy
                                 Now</button>
                         </div>
@@ -274,7 +274,7 @@
                                 class="px-6 py-2.5 bg-gray-700 text-white rounded-full text-sm font-bold hover:bg-gray-600 transition-all hover:scale-105 active:scale-95">
                                 <i class="fas fa-shopping-cart"></i>
                             </button>
-                            <button onclick="openWatchOrderModal('Apple Watch Series 9')"
+                            <button onclick="handleBuyNow('Apple Watch Series 9')"
                                 class="px-8 py-2.5 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-500 transition-all hover:scale-105 active:scale-95">Buy
                                 Now</button>
                         </div>
@@ -307,7 +307,7 @@
                                 class="px-6 py-2.5 bg-gray-700 text-white rounded-full text-sm font-bold hover:bg-gray-600 transition-all hover:scale-105 active:scale-95">
                                 <i class="fas fa-shopping-cart"></i>
                             </button>
-                            <button onclick="openWatchOrderModal('Apple Watch Ultra 2')"
+                            <button onclick="handleBuyNow('Apple Watch Ultra 2')"
                                 class="px-8 py-2.5 bg-orange-600 text-white rounded-full text-sm font-bold hover:bg-orange-500 transition-all hover:scale-105 active:scale-95">Buy
                                 Now</button>
                         </div>
@@ -333,7 +333,7 @@
                         <p class="text-xl text-gray-400 mb-10 max-w-md">Computational audio. High-fidelity sound. Active
                             Noise Cancellation. It's a completely new listening experience.</p>
                         <div class="flex gap-4">
-                            <button onclick="openWatchOrderModal('AirPods Max')"
+                            <button onclick="handleBuyNow('AirPods Max')"
                                 class="px-8 py-3 bg-white text-black rounded-full font-bold hover:scale-105 transition-transform">Buy
                                 — 13,990,000₫</button>
                             <button
@@ -391,7 +391,7 @@
                                 class="px-6 py-2.5 bg-gray-700 text-white rounded-full text-sm font-bold hover:bg-gray-600 transition-all hover:scale-105 active:scale-95">
                                 <i class="fas fa-shopping-cart"></i>
                             </button>
-                            <button onclick="openWatchOrderModal('AirPods 3')"
+                            <button onclick="handleBuyNow('AirPods 3')"
                                 class="px-8 py-2.5 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-500 transition-all hover:scale-105 active:scale-95">Buy
                                 Now</button>
                         </div>
@@ -418,7 +418,7 @@
                                 class="px-6 py-2.5 bg-gray-700 text-white rounded-full text-sm font-bold hover:bg-gray-600 transition-all hover:scale-105 active:scale-95">
                                 <i class="fas fa-shopping-cart"></i>
                             </button>
-                            <button onclick="openWatchOrderModal('AirPods Pro 2')"
+                            <button onclick="handleBuyNow('AirPods Pro 2')"
                                 class="px-8 py-2.5 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-500 transition-all hover:scale-105 active:scale-95">Buy
                                 Now</button>
                         </div>
@@ -444,7 +444,7 @@
                                 class="px-6 py-2.5 bg-gray-700 text-white rounded-full text-sm font-bold hover:bg-gray-600 transition-all hover:scale-105 active:scale-95">
                                 <i class="fas fa-shopping-cart"></i>
                             </button>
-                            <button onclick="openWatchOrderModal('AirPods Max')"
+                            <button onclick="handleBuyNow('AirPods Max')"
                                 class="px-8 py-2.5 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-500 transition-all hover:scale-105 active:scale-95">Buy
                                 Now</button>
                         </div>
@@ -470,7 +470,7 @@
                                 class="px-6 py-2.5 bg-gray-700 text-white rounded-full text-sm font-bold hover:bg-gray-600 transition-all hover:scale-105 active:scale-95">
                                 <i class="fas fa-shopping-cart"></i>
                             </button>
-                            <button onclick="openWatchOrderModal('HomePod')"
+                            <button onclick="handleBuyNow('HomePod')"
                                 class="px-8 py-2.5 bg-blue-600 text-white rounded-full text-sm font-bold hover:bg-blue-500 transition-all hover:scale-105 active:scale-95">Buy
                                 Now</button>
                         </div>
@@ -480,89 +480,6 @@
         </div>
 
     </main>
-
-    <!-- ORDER MODAL -->
-    <div id="watch-order-modal" class="fixed inset-0 z-[200] items-center justify-center p-4" style="display:none;">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closeWatchOrderModal()"></div>
-        <div
-            class="relative bg-gradient-to-br from-[#1c1c1e] to-[#2c2c2e] w-full max-w-2xl rounded-3xl overflow-hidden border border-white/20 shadow-2xl max-h-[95vh] overflow-y-auto mx-auto">
-            <button onclick="closeWatchOrderModal()"
-                class="absolute top-5 right-5 z-20 w-10 h-10 bg-white/10 text-white rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center">
-                <i class="fas fa-times"></i>
-            </button>
-
-            <div id="modal-header-gradient" class="bg-gradient-to-r from-blue-700 to-blue-900 p-8 pb-12">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
-                        <i class="fab fa-apple text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-white">Quick Order</h2>
-                        <p class="text-blue-200 text-sm">Fast, secure checkout</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-8 -mt-6">
-                <div
-                    class="bg-white/5 backdrop-blur-xl rounded-2xl p-5 mb-8 border border-white/10 flex gap-5 items-center">
-                    <div class="w-24 h-24 bg-black/30 rounded-2xl p-3 flex items-center justify-center flex-shrink-0">
-                        <img id="watch-modal-img" src="" alt="" class="w-full h-full object-contain">
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="text-xl font-bold text-white mb-1" id="watch-modal-name"></h3>
-                        <p class="text-sm text-gray-400 mb-2" id="watch-modal-desc"></p>
-                        <p class="text-2xl font-bold text-blue-400" id="watch-modal-price"></p>
-                    </div>
-                </div>
-
-                <form id="watch-order-form" class="space-y-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="text-sm text-gray-300 font-medium"><i
-                                    class="fas fa-user text-blue-400 text-xs mr-1"></i>Full Name <span
-                                    class="text-red-400">*</span></label>
-                            <input type="text" name="recipientName" required placeholder="Your full name"
-                                class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-sm text-gray-300 font-medium"><i
-                                    class="fas fa-phone text-blue-400 text-xs mr-1"></i>Phone <span
-                                    class="text-red-400">*</span></label>
-                            <input type="tel" name="recipientPhone" required placeholder="0123 456 789"
-                                class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500">
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-sm text-gray-300 font-medium"><i
-                                class="fas fa-map-marker-alt text-blue-400 text-xs mr-1"></i>Address <span
-                                class="text-red-400">*</span></label>
-                        <input type="text" name="recipientAddress" required placeholder="Shipping address"
-                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-sm text-gray-300 font-medium"><i
-                                class="fas fa-sticky-note text-blue-400 text-xs mr-1"></i>Notes <span
-                                class="text-gray-500">(Optional)</span></label>
-                        <textarea name="recipientNotes" rows="2" placeholder="Special instructions..."
-                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500 resize-none"></textarea>
-                    </div>
-                    <input type="hidden" name="productName">
-                    <input type="hidden" name="productPrice">
-                    <input type="hidden" name="productImage">
-
-                    <button type="submit"
-                        class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg flex items-center justify-center gap-2">
-                        <i class="fas fa-check-circle"></i> Place Order
-                    </button>
-                </form>
-
-                <div id="watch-order-success"
-                    class="hidden mt-4 p-4 bg-green-500/20 border border-green-500/30 rounded-xl text-green-400 text-center font-semibold">
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2"></div>
@@ -647,104 +564,26 @@
             setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // ==================== ORDER MODAL ====================
-        function openWatchOrderModal(productName) {
+        // ==================== BUY NOW FLOW ====================
+        function handleBuyNow(productName) {
             const product = watchProducts.find(p => p.name === productName);
             if (!product) return;
 
-            // Set header gradient based on product type
-            const header = document.getElementById('modal-header-gradient');
-            if (productName.includes('Ultra')) {
-                header.className = 'bg-gradient-to-r from-orange-700 to-orange-900 p-8 pb-12';
-            } else {
-                header.className = 'bg-gradient-to-r from-blue-700 to-blue-900 p-8 pb-12';
-            }
+            const priceNum = Number(product.price.replace(/[^\d]/g, ''));
 
-            document.getElementById('watch-modal-img').src = product.img;
-            document.getElementById('watch-modal-name').textContent = product.name;
-            document.getElementById('watch-modal-desc').textContent = product.desc;
-            document.getElementById('watch-modal-price').textContent = product.price;
-
-            document.querySelector('#watch-order-form input[name="productName"]').value = product.name;
-            document.querySelector('#watch-order-form input[name="productPrice"]').value = product.price;
-            document.querySelector('#watch-order-form input[name="productImage"]').value = product.img;
-
-            document.getElementById('watch-order-form').reset();
-            document.getElementById('watch-order-success').classList.add('hidden');
-
-            const modal = document.getElementById('watch-order-modal');
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeWatchOrderModal() {
-            document.getElementById('watch-order-modal').style.display = 'none';
-            document.body.style.overflow = '';
-        }
-
-        document.getElementById('watch-order-modal').addEventListener('click', function (e) {
-            if (e.target === this) closeWatchOrderModal();
-        });
-
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closeWatchOrderModal();
-        });
-
-        // ==================== ORDER SUBMISSION ====================
-        document.getElementById('watch-order-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const form = e.target;
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            submitBtn.disabled = true;
-
-            const orderData = {
-                recipientName: form.recipientName.value,
-                recipientPhone: form.recipientPhone.value,
-                recipientAddress: form.recipientAddress.value,
-                recipientNotes: form.recipientNotes.value,
-                paymentMethod: 'COD',
-                items: [{
-                    name: form.productName.value,
-                    price: form.productPrice.value,
-                    qty: 1,
-                    image: form.productImage.value
-                }],
-                totalAmountString: form.productPrice.value,
-                totalAmountNumeric: Number(form.productPrice.value.replace(/[^\d]/g, ''))
+            const buyNowItem = {
+                productId: product.name,
+                name: product.name,
+                price: priceNum,
+                image: product.img,
+                category: 'Watch & AirPods',
+                quantity: 1,
+                color: null
             };
 
-            try {
-                const headers = { 'Content-Type': 'application/json' };
-                const token = localStorage.getItem('accessToken');
-                if (token) headers['token'] = `Bearer ${token}`;
-
-                const res = await fetch('https://project3-icy1.onrender.com/api/orders', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(orderData)
-                });
-
-                const result = await res.json();
-
-                if (res.ok) {
-                    document.getElementById('watch-order-success').textContent = '✓ Order placed successfully! We will contact you soon.';
-                    document.getElementById('watch-order-success').classList.remove('hidden');
-                    showToast('Order placed successfully!', 'success');
-                    form.reset();
-                    setTimeout(() => closeWatchOrderModal(), 2000);
-                } else {
-                    showToast(result.message || 'Order failed!', 'error');
-                }
-            } catch (err) {
-                showToast('Server connection error!', 'error');
-            } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        });
+            localStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
+            window.location.href = 'checkout.html';
+        }
 
         // ==================== SCROLL ANIMATIONS ====================
         document.addEventListener('DOMContentLoaded', () => {

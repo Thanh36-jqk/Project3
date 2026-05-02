@@ -1335,11 +1335,6 @@
         };
 
         window.addAllWishlistToCart = () => {
-            if (!getToken()) {
-                showToast('Please log in to add items to bag', 'error');
-                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
-                return;
-            }
             const wishlistProducts = wishlist.map(item => {
                 const productId = item._id || item;
                 return allProducts.find(p => p._id === productId);
@@ -1682,117 +1677,7 @@
         // BUY NOW MODAL FUNCTIONS
         // ==================================================================
         let currentBuyNowProduct = null;
-        let buyNowSelectedColor = null;
-
-        window.openBuyNowModal = (product) => {
-            if (!getToken()) {
-                showToast('Please log in to purchase', 'error');
-                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
-                return;
-            }
-            currentBuyNowProduct = product;
-            buyNowSelectedColor = null;
-
-            // Populate product info
-            document.getElementById('buynow-product-image').src = product.image_url;
-            document.getElementById('buynow-product-category').textContent = product.category;
-            document.getElementById('buynow-product-name').textContent = product.name;
-            document.getElementById('buynow-product-price').textContent = formatPrice(product.price);
-            document.getElementById('buynow-total').textContent = formatPrice(product.price);
-
-            // Handle color selection
-            const colors = productColorVariants[product.name];
-            const colorSection = document.getElementById('buynow-color-section');
-            const colorContainer = document.getElementById('buynow-color-options');
-
-            if (colors && colors.length > 0) {
-                colorSection.style.display = 'block';
-                colorContainer.innerHTML = '';
-                buyNowSelectedColor = colors[0]; // Default to first color
-
-                colors.forEach((color, index) => {
-                    const swatch = document.createElement('button');
-                    swatch.type = 'button';
-                    swatch.className = `w-10 h-10 rounded-full border-2 transition-all hover:scale-110 ${index === 0 ? 'border-white ring-2 ring-blue-500' : 'border-gray-600 hover:border-gray-400'}`;
-                    swatch.style.backgroundColor = color.hex;
-                    swatch.title = color.name;
-                    swatch.onclick = () => selectBuyNowColor(color, swatch);
-                    colorContainer.appendChild(swatch);
-                });
-
-                document.getElementById('buynow-selected-color-name').textContent = `Selected: ${buyNowSelectedColor.name}`;
-                document.getElementById('buynow-product-image').src = buyNowSelectedColor.image;
-            } else {
-                colorSection.style.display = 'none';
-            }
-
-            // Show modal
-            document.getElementById('buynow-modal').classList.remove('hidden');
-            document.getElementById('buynow-modal').classList.add('flex');
-        };
-
-        function selectBuyNowColor(color, swatchElement) {
-            buyNowSelectedColor = color;
-
-            // Update visual selection
-            document.querySelectorAll('#buynow-color-options button').forEach(btn => {
-                btn.className = 'w-10 h-10 rounded-full border-2 transition-all hover:scale-110 border-gray-600 hover:border-gray-400';
-            });
-            swatchElement.className = 'w-10 h-10 rounded-full border-2 transition-all hover:scale-110 border-white ring-2 ring-blue-500';
-
-            // Update color name and image
-            document.getElementById('buynow-selected-color-name').textContent = `Selected: ${color.name}`;
-            if (color.image) {
-                document.getElementById('buynow-product-image').src = color.image;
-            }
-        }
-
-        window.closeBuyNowModal = () => {
-            document.getElementById('buynow-modal').classList.add('hidden');
-            document.getElementById('buynow-modal').classList.remove('flex');
-            document.getElementById('buynow-form').reset();
-        };
-
-        // Handle Buy Now form submission
-        document.getElementById('buynow-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            if (!currentBuyNowProduct) return;
-
-            const product = currentBuyNowProduct;
-            const hasColorVariants = productColorVariants[product.name] && productColorVariants[product.name].length > 0;
-
-            // Validate color selection
-            if (hasColorVariants && !buyNowSelectedColor) {
-                showToast('Please select a color', 'error');
-                return;
-            }
-
-            const orderData = {
-                recipientName: document.getElementById('buynow-name').value.trim(),
-                recipientPhone: document.getElementById('buynow-phone').value.trim(),
-                recipientAddress: document.getElementById('buynow-address').value.trim(),
-                recipientNotes: document.getElementById('buynow-notes').value.trim(),
-                paymentMethod: 'COD',
-                items: [{
-                    name: buyNowSelectedColor ? `${product.name} (${buyNowSelectedColor.name})` : product.name,
-                    price: String(product.price),
-                    qty: 1,
-                    image: buyNowSelectedColor && buyNowSelectedColor.image ? buyNowSelectedColor.image : product.image_url
-                }],
-                appliedVoucher: null
-            };
-
-            try {
-                const headers = { 'Content-Type': 'application/json' };
-                const token = getToken();
-                if (token) headers['token'] = `Bearer ${token}`;
-
-                const res = await fetch(`${API_URL}/api/orders`, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(orderData),
-                });
+        
 
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message || "Order failed.");
@@ -1810,11 +1695,6 @@
         // Checkout
         // Checkout
         window.openCheckout = () => {
-            if (!getToken()) {
-                showToast('Please log in to checkout', 'error');
-                setTimeout(() => window.location.href = 'pages/auth/login.html', 1200);
-                return;
-            }
             if (cart.length === 0) return showToast('Bag is empty', 'error');
             toggleCart(); // Close cart
             window.location.href = 'checkout.html';

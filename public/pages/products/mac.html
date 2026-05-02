@@ -141,90 +141,7 @@
         </section>
     </main>
 
-    <!-- Order Modal -->
-    <div id="mac-order-modal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4"
-        style="display:none;">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-xl" onclick="closeMacOrderModal()"></div>
-        <div
-            class="relative bg-gradient-to-br from-[#1c1c1e] to-[#2c2c2e] w-full max-w-2xl rounded-3xl overflow-hidden border border-white/20 shadow-2xl max-h-[95vh] overflow-y-auto">
-            <button onclick="closeMacOrderModal()"
-                class="absolute top-5 right-5 z-20 w-10 h-10 bg-white/10 text-white rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center">
-                <i class="fas fa-times"></i>
-            </button>
 
-            <div class="bg-gradient-to-r from-gray-700 to-gray-900 p-8 pb-12">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
-                        <i class="fab fa-apple text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-white">Quick Order</h2>
-                        <p class="text-gray-300 text-sm">Fast, secure checkout</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-8 -mt-6">
-                <div
-                    class="bg-white/5 backdrop-blur-xl rounded-2xl p-5 mb-8 border border-white/10 flex gap-5 items-center">
-                    <div class="w-24 h-24 bg-black/30 rounded-2xl p-3 flex items-center justify-center flex-shrink-0">
-                        <img id="mac-modal-img" src="" alt="" class="w-full h-full object-contain">
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="text-xl font-bold text-white mb-1" id="mac-modal-name"></h3>
-                        <p class="text-sm text-gray-400 mb-2" id="mac-modal-desc"></p>
-                        <p class="text-2xl font-bold text-blue-400" id="mac-modal-price"></p>
-                    </div>
-                </div>
-
-                <form id="mac-order-form" class="space-y-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-1">
-                            <label class="text-sm text-gray-300 font-medium"><i
-                                    class="fas fa-user text-blue-400 text-xs mr-1"></i>Full Name <span
-                                    class="text-red-400">*</span></label>
-                            <input type="text" name="recipientName" required placeholder="Your full name"
-                                class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-sm text-gray-300 font-medium"><i
-                                    class="fas fa-phone text-blue-400 text-xs mr-1"></i>Phone <span
-                                    class="text-red-400">*</span></label>
-                            <input type="tel" name="recipientPhone" required placeholder="0123 456 789"
-                                class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500">
-                        </div>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-sm text-gray-300 font-medium"><i
-                                class="fas fa-map-marker-alt text-blue-400 text-xs mr-1"></i>Address <span
-                                class="text-red-400">*</span></label>
-                        <input type="text" name="recipientAddress" required placeholder="Shipping address"
-                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-sm text-gray-300 font-medium"><i
-                                class="fas fa-sticky-note text-blue-400 text-xs mr-1"></i>Notes <span
-                                class="text-gray-500">(Optional)</span></label>
-                        <textarea name="recipientNotes" rows="2" placeholder="Special instructions..."
-                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-3.5 text-white outline-none transition-all placeholder-gray-500 resize-none"></textarea>
-                    </div>
-
-                    <input type="hidden" name="productName">
-                    <input type="hidden" name="productPrice">
-                    <input type="hidden" name="productImage">
-
-                    <button type="submit"
-                        class="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg flex items-center justify-center gap-2">
-                        <i class="fas fa-check-circle"></i> Place Order
-                    </button>
-                </form>
-
-                <div id="mac-order-success"
-                    class="hidden mt-4 p-4 bg-green-500/20 border border-green-500/30 rounded-xl text-green-400 text-center font-semibold">
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-[300] flex flex-col gap-2"></div>
@@ -362,7 +279,7 @@
                                 <button onclick="addToCartGeneric('${product.name}', '${product.name}', '${product.priceNum}', '${product.img}')" class="px-5 py-3 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded-xl transition-all shadow-lg flex-shrink-0">
                                     <i class="fas fa-shopping-cart"></i>
                                 </button>
-                                <button onclick="openMacOrderModal('${product.name}')" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-900/30">
+                                <button onclick="handleBuyNow('${product.name}')" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-900/30">
                                     <i class="fas fa-bolt"></i> Buy Now
                                 </button>
                             </div>
@@ -385,96 +302,24 @@
             setTimeout(() => { toast.classList.add('translate-x-full'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // ==================== ORDER MODAL ====================
-        function openMacOrderModal(productName) {
+        // ==================== BUY NOW FLOW ====================
+        function handleBuyNow(productName) {
             const product = macProducts.find(p => p.name === productName);
             if (!product) return;
 
-            document.getElementById('mac-modal-img').src = product.img;
-            document.getElementById('mac-modal-name').textContent = product.name;
-            document.getElementById('mac-modal-desc').textContent = product.desc;
-            document.getElementById('mac-modal-price').textContent = product.price;
-
-            document.querySelector('#mac-order-form input[name="productName"]').value = product.name;
-            document.querySelector('#mac-order-form input[name="productPrice"]').value = product.price;
-            document.querySelector('#mac-order-form input[name="productImage"]').value = product.img;
-
-            document.getElementById('mac-order-form').reset();
-            document.getElementById('mac-order-success').classList.add('hidden');
-
-            const modal = document.getElementById('mac-order-modal');
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeMacOrderModal() {
-            document.getElementById('mac-order-modal').style.display = 'none';
-            document.body.style.overflow = '';
-        }
-
-        document.getElementById('mac-order-modal').addEventListener('click', function (e) {
-            if (e.target === this) closeMacOrderModal();
-        });
-
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closeMacOrderModal();
-        });
-
-        // ==================== ORDER SUBMISSION ====================
-        document.getElementById('mac-order-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            const form = e.target;
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            submitBtn.disabled = true;
-
-            const orderData = {
-                recipientName: form.recipientName.value,
-                recipientPhone: form.recipientPhone.value,
-                recipientAddress: form.recipientAddress.value,
-                recipientNotes: form.recipientNotes.value,
-                paymentMethod: 'COD',
-                items: [{
-                    name: form.productName.value,
-                    price: form.productPrice.value,
-                    qty: 1,
-                    image: form.productImage.value
-                }],
-                totalAmountString: form.productPrice.value,
-                totalAmountNumeric: Number(form.productPrice.value.replace(/[^\d]/g, ''))
+            const buyNowItem = {
+                productId: product.name,
+                name: product.name,
+                price: product.priceNum,
+                image: product.img,
+                category: 'Mac',
+                quantity: 1,
+                color: null
             };
 
-            try {
-                const headers = { 'Content-Type': 'application/json' };
-                const token = localStorage.getItem('accessToken');
-                if (token) headers['token'] = `Bearer ${token}`;
-
-                const res = await fetch('https://project3-icy1.onrender.com/api/orders', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(orderData)
-                });
-
-                const result = await res.json();
-
-                if (res.ok) {
-                    document.getElementById('mac-order-success').textContent = '✓ Order placed successfully! We will contact you soon.';
-                    document.getElementById('mac-order-success').classList.remove('hidden');
-                    showToast('Order placed successfully!', 'success');
-                    form.reset();
-                    setTimeout(() => closeMacOrderModal(), 2000);
-                } else {
-                    showToast(result.message || 'Order failed!', 'error');
-                }
-            } catch (err) {
-                showToast('Server connection error!', 'error');
-            } finally {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        });
+            localStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
+            window.location.href = '../../checkout.html';
+        }
 
         // ==================== INIT ====================
         document.addEventListener('DOMContentLoaded', () => {

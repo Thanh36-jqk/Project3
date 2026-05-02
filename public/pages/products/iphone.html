@@ -333,59 +333,7 @@
     </div>
   </footer>
 
-  <!-- Order Modal -->
-  <div id="order-modal"
-    class="modal-overlay fixed inset-0 bg-black/90 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
-    <div class="modal-content glass-panel rounded-3xl max-w-2xl w-full p-8 relative">
-      <button onclick="closeOrderModal()"
-        class="absolute top-6 right-6 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-all">
-        <i class="fas fa-times"></i>
-      </button>
 
-      <h2 class="text-3xl font-bold mb-6">Complete Your Order</h2>
-
-      <div class="flex gap-6 mb-8 bg-white/5 p-4 rounded-2xl">
-        <img id="modal-product-img" src="" alt="" class="w-24 h-24 object-contain rounded-xl bg-white/10">
-        <div class="flex-1">
-          <h3 id="modal-product-name" class="text-xl font-bold mb-1"></h3>
-          <p id="modal-product-desc" class="text-gray-400 text-sm mb-2"></p>
-          <p id="modal-product-price" class="text-2xl font-bold price-tag"></p>
-        </div>
-      </div>
-
-      <form id="order-form" class="space-y-4">
-        <div class="grid md:grid-cols-2 gap-4">
-          <input type="text" name="recipientName" required placeholder="Full Name"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-all">
-          <input type="tel" name="recipientPhone" required placeholder="Phone Number"
-            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-all">
-        </div>
-        <input type="text" name="recipientAddress" required placeholder="Shipping Address"
-          class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-all">
-        <textarea name="recipientNotes" placeholder="Order Notes (Optional)" rows="3"
-          class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none transition-all resize-none"></textarea>
-        <select name="paymentMethod" required
-          class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-all">
-          <option value="" class="bg-gray-900">Select Payment Method</option>
-          <option value="COD" class="bg-gray-900">Cash on Delivery (COD)</option>
-          <option value="bank" class="bg-gray-900">Bank Transfer</option>
-        </select>
-
-        <input type="hidden" name="productName">
-        <input type="hidden" name="productPrice">
-        <input type="hidden" name="productImage">
-
-        <button type="submit"
-          class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-xl transition-all transform hover:scale-[1.02] shadow-lg shadow-blue-900/50">
-          Place Order
-        </button>
-      </form>
-
-      <div id="order-success"
-        class="hidden mt-6 p-4 bg-green-500/20 border border-green-500/30 rounded-xl text-green-400 text-center font-semibold">
-      </div>
-    </div>
-  </div>
 
   <!-- Toast Container -->
   <div id="toast-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-2"></div>
@@ -507,7 +455,7 @@
                                 <button onclick="addToCartGeneric('${product.name}', '${product.name}', '${product.price}', '${product.img}')" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-full transition-all transform hover:scale-105">
                                     <i class="fas fa-shopping-cart"></i>
                                 </button>
-                                <button onclick="openOrderModal('${product.name}')" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full transition-all transform hover:scale-105">
+                                <button onclick="handleBuyNow('${product.name}')" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-full transition-all transform hover:scale-105">
                                     Buy
                                 </button>
                             </div>
@@ -540,86 +488,33 @@
       }, 3000);
     }
 
-    // Modal Functions
-    function openOrderModal(productName) {
+    // Buy Now Logic
+    function handleBuyNow(productName) {
       const product = iphoneProducts.find(p => p.name === productName);
       if (!product) return;
 
-      document.getElementById('modal-product-img').src = product.img;
-      document.getElementById('modal-product-name').textContent = product.name;
-      document.getElementById('modal-product-desc').textContent = product.desc;
-      document.getElementById('modal-product-price').textContent = product.price;
+      const priceNum = Number(product.price.replace(/[^\d]/g, ''));
 
-      document.querySelector('input[name="productName"]').value = product.name;
-      document.querySelector('input[name="productPrice"]').value = product.price;
-      document.querySelector('input[name="productImage"]').value = product.img;
-
-      document.getElementById('order-success').classList.add('hidden');
-      document.getElementById('order-form').reset();
-      document.getElementById('order-modal').classList.add('active');
-    }
-
-    function closeOrderModal() {
-      document.getElementById('order-modal').classList.remove('active');
-    }
-
-    // Form Submission
-    document.getElementById('order-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = e.target;
-
-      const data = {
-        recipientName: form.recipientName.value,
-        recipientPhone: form.recipientPhone.value,
-        recipientAddress: form.recipientAddress.value,
-        recipientNotes: form.recipientNotes.value,
-        paymentMethod: form.paymentMethod.value,
-        items: [{
-          name: form.productName.value,
-          price: form.productPrice.value,
-          qty: 1,
-          image: form.productImage.value
-        }],
-        totalAmountString: form.productPrice.value,
-        totalAmountNumeric: Number(form.productPrice.value.replace(/[^\d]/g, ''))
+      const buyNowItem = {
+        productId: product.name,
+        name: product.name,
+        price: priceNum,
+        image: product.img,
+        category: 'iPhone',
+        quantity: 1,
+        color: null
       };
 
-      try {
-        const res = await fetch('https://project3-icy1.onrender.com/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        const result = await res.json();
-
-        if (res.ok) {
-          form.style.display = 'none';
-          document.getElementById('order-success').textContent = '✓ Order placed successfully! We will contact you soon.';
-          document.getElementById('order-success').classList.remove('hidden');
-          showToast('Order placed successfully!', 'success');
-
-          setTimeout(() => {
-            closeOrderModal();
-            form.style.display = 'block';
-          }, 2000);
-        } else {
-          showToast(result.message || 'Order failed!', 'error');
-        }
-      } catch (err) {
-        showToast('Server connection error!', 'error');
-      }
-    });
+      localStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
+      window.location.href = '../../checkout.html';
+    }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       renderProducts();
     });
 
-    // Close modal on overlay click
-    document.getElementById('order-modal').addEventListener('click', (e) => {
-      if (e.target.id === 'order-modal') closeOrderModal();
-    });
+
   </script>
   <script src="../../js/cart-logic.js"></script>
 </body>
