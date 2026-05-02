@@ -393,8 +393,8 @@
             const res = await fetch('https://project3-icy1.onrender.com/api/products');
             const data = await res.json();
             
-            // Filter iPhones
-            iphoneProducts = data.filter(p => p.category && p.category.toLowerCase() === 'iphone');
+            // Filter iPhones (category in DB is 'Phone')
+            iphoneProducts = data.filter(p => p.category && p.category.toLowerCase() === 'phone');
             
             // Sort by newest/price to show latest first
             iphoneProducts.sort((a, b) => b.price - a.price);
