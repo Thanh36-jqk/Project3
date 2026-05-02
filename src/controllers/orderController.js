@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const prisma = require('../config/postgres');
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 const vnpayService = require('../services/vnpayService');
@@ -56,26 +57,43 @@ exports.createOrder = async (req, res) => {
                 throw new Error('Each item must have a valid productId and qty >= 1');
             }
 
-            const result = await Product.updateOne(
-                { _id: item.productId, stock: { $gte: item.qty } },
-                { $inc: { stock: -item.qty } }
-            );
+            if (mongoose.Types.ObjectId.isValid(item.productId)) {
+                const result = await Product.updateOne(
+                    { _id: item.productId, stock: { $gte: item.qty } },
+                    { $inc: { stock: -item.qty } }
+                );
 
-            if (result.modifiedCount === 0) {
-                throw new Error(`Product stock deduction failed for ${item.productId}. Out of stock or invalid.`);
+                if (result.modifiedCount === 0) {
+                    throw new Error(`Product stock deduction failed for ${item.productId}. Out of stock or invalid.`);
+                }
+                successfullyDeductedItems.push(item);
+
+                const product = await Product.findById(item.productId);
+                calculatedTotal += product.price * item.qty;
+
+                secureItems.push({
+                    productId: product._id.toString(),
+                    name: product.name,
+                    price: product.price,
+                    qty: item.qty,
+                    image: product.image_url || ''
+                });
+            } else {
+                // Handle hardcoded/dummy products from frontend that aren't in MongoDB
+                const itemPrice = Number(item.price);
+                if (isNaN(itemPrice)) {
+                    throw new Error(`Invalid price for item ${item.productId}`);
+                }
+                calculatedTotal += itemPrice * item.qty;
+                
+                secureItems.push({
+                    productId: item.productId,
+                    name: item.name || item.productId,
+                    price: itemPrice,
+                    qty: item.qty,
+                    image: item.image || ''
+                });
             }
-            successfullyDeductedItems.push(item);
-
-            const product = await Product.findById(item.productId);
-            calculatedTotal += product.price * item.qty;
-
-            secureItems.push({
-                productId: product._id.toString(),
-                name: product.name,
-                price: product.price,
-                qty: item.qty,
-                image: product.image_url || ''
-            });
         }
 
         // 2. CHECK VOUCHERS IN POSTGRESQL
