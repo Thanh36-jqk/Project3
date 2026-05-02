@@ -811,13 +811,12 @@
 
             // Fetch Products
             try {
-                // Thử lấy từ API
-                const res = await fetch(`${API_URL}/api/products`);
+                // Thá»­ láº¥y tá»« API
+                const res = await fetch(`${API_URL}/api/products/search?limit=100`);
                 const data = await res.json();
 
-                // getAllProducts returns an array directly
-                if (Array.isArray(data) && data.length > 0) {
-                    allProducts = data;
+                if (data.products && data.products.length > 0) {
+                    allProducts = data.products;
                 } else {
                     console.warn("API Empty, using fallback data.");
                     allProducts = fallbackProducts;
@@ -833,7 +832,7 @@
                 renderProducts(allProducts);
                 updateCartUI(); // Load cart from local storage
                 initWishlist(); // Load wishlist
-                
+
                 // Open cart or wishlist if hash is present
                 if (window.location.hash === '#cart') {
                     toggleCart();
