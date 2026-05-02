@@ -422,11 +422,11 @@
         const isFeatured = index < 2; // First two (most expensive) are featured
         const card = document.createElement('div');
         
-        card.className = `product-card glass-panel rounded-[2.5rem] overflow-hidden group cursor-pointer border border-white/5 hover:border-white/20 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,113,227,0.15)] flex flex-col ${isFeatured ? 'md:col-span-2' : ''}`;
+        card.className = `product-card glass-panel rounded-3xl overflow-hidden group cursor-pointer border border-white/5 hover:border-white/20 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,113,227,0.15)] flex flex-col ${isFeatured ? 'md:col-span-2' : ''}`;
         card.style.animationDelay = `${index * 0.1}s`;
         card.classList.add('animate-fade-in-up');
 
-        const imgUrl = product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `/${product.image_url}`) : '../../assets/images/placeholder.png';
+        const imgUrl = product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `https://project3-icy1.onrender.com/${product.image_url}`) : '../../assets/images/placeholder.png';
         const glowGradient = getGlowColor(product.name);
 
         card.innerHTML = `
