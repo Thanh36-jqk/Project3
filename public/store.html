@@ -327,7 +327,7 @@
             </div>
         </main>
 
-    </div> ```
+    </div>
     <div id="cart-sidebar"
         class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-[#1c1c1e] border-l border-white/10 transform translate-x-full transition-transform duration-300 z-[100] shadow-2xl flex flex-col">
         <div class="p-6 border-b border-white/10 flex justify-between items-center bg-[#1c1c1e]/90 backdrop-blur">
@@ -1677,13 +1677,129 @@
         // BUY NOW MODAL FUNCTIONS
         // ==================================================================
         let currentBuyNowProduct = null;
-        
+        let selectedBuyNowColor = null;
+
+        window.openBuyNowModal = (product) => {
+            currentBuyNowProduct = product;
+            selectedBuyNowColor = null;
+
+            // Populate product info
+            document.getElementById('buynow-product-image').src = product.image_url;
+            document.getElementById('buynow-product-name').textContent = product.name;
+            document.getElementById('buynow-product-category').textContent = product.category;
+            document.getElementById('buynow-product-price').textContent = formatPrice(product.price);
+            document.getElementById('buynow-total').textContent = formatPrice(product.price);
+
+            // Render color options for Buy Now modal
+            const colorSection = document.getElementById('buynow-color-section');
+            const colorContainer = document.getElementById('buynow-color-options');
+            const colorNameDisplay = document.getElementById('buynow-selected-color-name');
+            const colors = productColorVariants[product.name];
+
+            colorContainer.innerHTML = '';
+            if (colors && colors.length > 0) {
+                colorSection.style.display = 'block';
+                selectedBuyNowColor = colors[0];
+                colorNameDisplay.textContent = `Selected: ${colors[0].name}`;
+                // Also update image to first color
+                document.getElementById('buynow-product-image').src = colors[0].image;
+
+                colors.forEach((color, index) => {
+                    const swatch = document.createElement('button');
+                    swatch.type = 'button';
+                    swatch.className = `w-10 h-10 rounded-full border-2 transition-all hover:scale-110 ${index === 0 ? 'border-white ring-2 ring-blue-500' : 'border-gray-600 hover:border-gray-400'}`;
+                    swatch.style.backgroundColor = color.hex;
+                    swatch.title = color.name;
+                    swatch.onclick = () => {
+                        selectedBuyNowColor = color;
+                        colorNameDisplay.textContent = `Selected: ${color.name}`;
+                        document.getElementById('buynow-product-image').src = color.image;
+                        colorContainer.querySelectorAll('button').forEach(b => {
+                            b.className = 'w-10 h-10 rounded-full border-2 transition-all hover:scale-110 border-gray-600 hover:border-gray-400';
+                        });
+                        swatch.className = 'w-10 h-10 rounded-full border-2 transition-all hover:scale-110 border-white ring-2 ring-blue-500';
+                    };
+                    colorContainer.appendChild(swatch);
+                });
+            } else {
+                colorSection.style.display = 'none';
+            }
+
+            // Clear form fields
+            ['buynow-name', 'buynow-phone', 'buynow-address', 'buynow-notes'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+
+            // Pre-fill from saved user info
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                if (user.name) document.getElementById('buynow-name').value = user.name;
+                if (user.phone) document.getElementById('buynow-phone').value = user.phone;
+                if (user.address) document.getElementById('buynow-address').value = user.address;
+            }
+
+            // Show modal
+            const modal = document.getElementById('buynow-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        window.closeBuyNowModal = () => {
+            const modal = document.getElementById('buynow-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentBuyNowProduct = null;
+            selectedBuyNowColor = null;
+        };
+
+        document.getElementById('buynow-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentBuyNowProduct) return;
+
+            const product = currentBuyNowProduct;
+
+            // Validate color if required
+            const hasColorVariants = productColorVariants[product.name] && productColorVariants[product.name].length > 0;
+            if (hasColorVariants && !selectedBuyNowColor) {
+                showToast('Please select a color first', 'error');
+                return;
+            }
+
+            const colorName = selectedBuyNowColor ? selectedBuyNowColor.name : null;
+            const productImage = selectedBuyNowColor && selectedBuyNowColor.image ? selectedBuyNowColor.image : product.image_url;
+
+            const orderData = {
+                recipientName: document.getElementById('buynow-name').value,
+                recipientPhone: document.getElementById('buynow-phone').value,
+                recipientAddress: document.getElementById('buynow-address').value,
+                recipientNotes: document.getElementById('buynow-notes').value,
+                paymentMethod: 'COD',
+                items: [{
+                    productId: product._id,
+                    name: product.name + (colorName ? ` (${colorName})` : ''),
+                    price: String(product.price),
+                    qty: 1,
+                    image: productImage
+                }]
+            };
+
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                const token = getToken();
+                if (token) headers['token'] = `Bearer ${token}`;
+
+                const res = await fetch(`${API_URL}/api/orders`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(orderData)
+                });
 
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.message || "Order failed.");
 
                 closeBuyNowModal();
-                showToast(`Order placed successfully! Order ID: ${data.order._id || 'N/A'}`);
+                showToast(`Order placed successfully! Order ID: ${data.order?._id || 'N/A'}`);
 
             } catch (error) {
                 console.error(error);
