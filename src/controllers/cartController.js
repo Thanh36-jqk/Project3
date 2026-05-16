@@ -1,6 +1,7 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const dummyProducts = require('../utils/dummyProducts');
+const { mergeGuestCart } = require('../services/cartMergeService');
 
 /**
  * Get user's cart
@@ -93,6 +94,22 @@ exports.removeFromCart = async (req, res) => {
         );
 
         await cart.save();
+        res.status(200).json(cart);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * Merge guest cart into the authenticated user's cart (called after OAuth login)
+ */
+exports.mergeCart = async (req, res) => {
+    try {
+        const { guestCart } = req.body;
+        if (!guestCart || !Array.isArray(guestCart) || guestCart.length === 0) {
+            return res.status(200).json({ message: 'Nothing to merge' });
+        }
+        const cart = await mergeGuestCart(req.user.id, guestCart);
         res.status(200).json(cart);
     } catch (error) {
         res.status(500).json({ message: error.message });

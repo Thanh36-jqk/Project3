@@ -50,8 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Sending registration data:', dataToSend);
 
         // Send POST request to backend API using fetch API
+        const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3000'
+            : 'https://project3-icy1.onrender.com';
+
         try {
-            const response = await fetch('https://project3-icy1.onrender.com/api/register', {
+            const response = await fetch(`${apiUrl}/api/register`, {
                 method: 'POST', // Use POST method
                 headers: {
                     'Content-Type': 'application/json' // Let server know we’re sending JSON
@@ -66,13 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check if the request was successful (2xx status code)
             if (response.ok && response.status === 201) {
                 // Registration successful
-                successMessageDiv.textContent = result.message + ' You can log in now.'; // Show success message
+                successMessageDiv.textContent = result.message + ' Redirecting to login...';
                 successMessageDiv.style.display = 'block';
-                registerForm.reset(); // Clear form after successful registration
-                // Optional: Automatically redirect to login page after a few seconds
-                // setTimeout(() => {
-                //    window.location.href = 'login.html';
-                // }, 2000);
+                registerForm.reset();
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
             } else {
                 // Registration failed (e.g., email exists, server error)
                 errorMessageDiv.textContent = result.message || 'Registration failed. Please try again.'; // Show server error

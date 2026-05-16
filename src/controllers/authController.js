@@ -115,7 +115,7 @@ exports.login = async (req, res) => {
             await mergeGuestCart(user.id, req.body.guestCart);
         }
 
-        const { password: p, passwordResetToken: prt, passwordResetExpires: pre, ...userInfo } = user;
+        const { password: _pw, passwordResetToken: _prt, passwordResetExpires: _pre, emailVerificationToken: _evt, ...userInfo } = user;
         res.status(200).json({ ...userInfo, accessToken });
     } catch (error) {
         res.status(500).json({ message: error.message });

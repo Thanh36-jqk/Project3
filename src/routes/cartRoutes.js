@@ -6,6 +6,7 @@ const { verifyToken } = require('../middleware/auth');
 // All cart routes require authentication
 router.get('/', verifyToken, cartController.getCart);
 router.post('/add', verifyToken, cartController.addToCart);
+router.post('/merge', verifyToken, cartController.mergeCart);
 router.delete('/item/:productId', verifyToken, cartController.removeFromCart);
 router.delete('/clear', verifyToken, cartController.clearCart);
 
