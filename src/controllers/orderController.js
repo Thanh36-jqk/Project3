@@ -5,8 +5,37 @@ const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 const vnpayService = require('../services/vnpayService');
-
 const dummyProducts = require('../utils/dummyProducts');
+
+/**
+ * Finalize a confirmed order: clear cart, award points, update rank.
+ * Called immediately for COD; called by IPN handler for VNPay after payment confirmed.
+ * Voucher is consumed at order creation to prevent double-use.
+ */
+async function finalizeSuccessfulOrder(order) {
+    const { userId, finalAmount } = order;
+    if (!userId) return;
+
+    await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
+
+    const pointsEarned = Math.floor(finalAmount / 100000);
+    const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: {
+            points: { increment: pointsEarned },
+            totalSpending: { increment: finalAmount }
+        }
+    });
+
+    let newRank = updatedUser.rank;
+    if (updatedUser.totalSpending > 50000000) newRank = 'VIP';
+    else if (updatedUser.totalSpending > 20000000) newRank = 'Gold';
+    if (newRank !== updatedUser.rank) {
+        await prisma.user.update({ where: { id: userId }, data: { rank: newRank } });
+    }
+}
+
+exports.finalizeSuccessfulOrder = finalizeSuccessfulOrder;
 
 /**
  * Create new order (supports both authenticated and guest users)
@@ -16,11 +45,14 @@ exports.createOrder = async (req, res) => {
     let userId = null;
     if (authHeader) {
         try {
-            userId = jwt.verify(authHeader.split(" ")[1], process.env.JWT_SECRET).id;
+            userId = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET).id;
         } catch (e) { /* Guest user */ }
     }
 
-    const { recipientName, recipientPhone, recipientAddress, recipientNotes, paymentMethod, items, appliedVoucher, guestEmail, createAccount, guestPassword } = req.body;
+    const {
+        recipientName, recipientPhone, recipientAddress, recipientNotes,
+        paymentMethod, items, appliedVoucher, guestEmail, createAccount, guestPassword
+    } = req.body;
 
     if (!recipientName || !recipientPhone || !recipientAddress) {
         return res.status(400).json({ message: 'Recipient name, phone, and address are required' });
@@ -30,7 +62,12 @@ exports.createOrder = async (req, res) => {
         return res.status(400).json({ message: 'Order must contain at least one item' });
     }
 
-    // Guest auto-registration logic in PostgreSQL
+    // Guests must provide an email for order confirmation
+    if (!userId && !guestEmail) {
+        return res.status(400).json({ message: 'Email is required for guest checkout' });
+    }
+
+    // Guest auto-registration
     if (!userId && createAccount && guestEmail && guestPassword) {
         const existingUser = await prisma.user.findUnique({ where: { email: guestEmail.toLowerCase() } });
         if (!existingUser) {
@@ -53,7 +90,7 @@ exports.createOrder = async (req, res) => {
     let successfullyDeductedItems = [];
 
     try {
-        // 1. DEDUCT STOCK IN MONGODB (No global transaction spanning Postgres + Mongo)
+        // 1. DEDUCT STOCK IN MONGODB (atomic per-item)
         for (const item of items) {
             if (!item.productId || !item.qty || item.qty < 1) {
                 throw new Error('Each item must have a valid productId and qty >= 1');
@@ -64,15 +101,13 @@ exports.createOrder = async (req, res) => {
                     { _id: item.productId, stock: { $gte: item.qty } },
                     { $inc: { stock: -item.qty } }
                 );
-
                 if (result.modifiedCount === 0) {
-                    throw new Error(`Product stock deduction failed for ${item.productId}. Out of stock or invalid.`);
+                    throw new Error(`Out of stock or invalid product: ${item.productId}`);
                 }
                 successfullyDeductedItems.push(item);
 
                 const product = await Product.findById(item.productId);
                 calculatedTotal += product.price * item.qty;
-
                 secureItems.push({
                     productId: product._id.toString(),
                     name: product.name,
@@ -81,14 +116,9 @@ exports.createOrder = async (req, res) => {
                     image: product.image_url || ''
                 });
             } else {
-                // Handle hardcoded/dummy products from backend config
                 const dummyProduct = dummyProducts.find(p => p._id === item.productId);
-                if (!dummyProduct) {
-                    throw new Error(`Invalid product ID: ${item.productId}`);
-                }
-                
+                if (!dummyProduct) throw new Error(`Invalid product ID: ${item.productId}`);
                 calculatedTotal += dummyProduct.price * item.qty;
-                
                 secureItems.push({
                     productId: dummyProduct._id,
                     name: dummyProduct.name,
@@ -99,22 +129,23 @@ exports.createOrder = async (req, res) => {
             }
         }
 
-        // 2. CHECK VOUCHERS IN POSTGRESQL
+        // 2. CONSUME VOUCHER at order creation to prevent double-use across multiple orders.
+        //    On VNPay failure the IPN handler will restore it.
         let discountAmount = 0;
+        let validatedVoucherCode = null;
         if (appliedVoucher && userId) {
             const voucher = await prisma.voucher.findFirst({
                 where: { userId, code: appliedVoucher, isUsed: false }
             });
             if (voucher) {
                 discountAmount = voucher.discountAmount;
-                await prisma.voucher.update({
-                    where: { id: voucher.id },
-                    data: { isUsed: true }
-                });
+                validatedVoucherCode = voucher.code;
+                await prisma.voucher.update({ where: { id: voucher.id }, data: { isUsed: true } });
             }
         }
 
         const finalTotal = Math.max(0, calculatedTotal - discountAmount);
+        const isVNPay = paymentMethod === 'VNPay';
 
         // 3. CREATE ORDER IN POSTGRESQL
         const savedOrder = await prisma.order.create({
@@ -124,72 +155,43 @@ exports.createOrder = async (req, res) => {
                 recipientPhone,
                 recipientAddress,
                 recipientNotes,
-                paymentMethod: paymentMethod || 'COD',
+                paymentMethod: isVNPay ? 'VNPay' : 'COD',
                 subtotal: calculatedTotal,
                 discountAmount,
                 finalAmount: finalTotal,
-                appliedVoucher: appliedVoucher || null,
-                guestEmail: req.body.guestEmail || null,
-                status: 'Pending',
-                items: {
-                    create: secureItems
-                }
+                appliedVoucher: validatedVoucherCode || null,
+                guestEmail: !userId ? (guestEmail || null) : null,
+                // COD is confirmed immediately; VNPay waits for IPN
+                status: isVNPay ? 'Pending' : 'Confirmed',
+                paymentStatus: 'Pending',
+                items: { create: secureItems }
             },
-            include: { items: true } // Return items in response
+            include: { items: true }
         });
 
-        // 4. POST-ORDER UPDATES
-        if (userId) {
-            await Cart.findOneAndUpdate(
-                { userId },
-                { $set: { items: [] } }
-            );
-
-            const pointsEarned = Math.floor(finalTotal / 100000);
-            
-            const updatedUser = await prisma.user.update({
-                where: { id: userId },
-                data: {
-                    points: { increment: pointsEarned },
-                    totalSpending: { increment: finalTotal }
-                }
-            });
-
-            let newRank = updatedUser.rank;
-            if (updatedUser.totalSpending > 50000000) newRank = 'VIP';
-            else if (updatedUser.totalSpending > 20000000) newRank = 'Gold';
-            
-            if (newRank !== updatedUser.rank) {
-                await prisma.user.update({
-                    where: { id: userId },
-                    data: { rank: newRank }
-                });
-            }
+        // 4. POST-ORDER: finalize immediately for COD, defer to IPN for VNPay
+        if (!isVNPay) {
+            await finalizeSuccessfulOrder(savedOrder);
         }
 
         let paymentUrl = null;
-        if (paymentMethod === 'VNPay') {
+        if (isVNPay) {
             const returnUrl = process.env.VNPAY_RETURN_URL || 'http://localhost:3000/api/payments/vnpay_return';
             paymentUrl = vnpayService.createPaymentUrl(req, savedOrder.id, finalTotal, returnUrl);
         }
 
-        res.status(201).json({ 
-            message: 'Order placed successfully', 
+        res.status(201).json({
+            message: 'Order placed successfully',
             order: savedOrder,
             paymentUrl
         });
 
     } catch (error) {
         console.error('Order creation failed:', error.message);
-        
-        // COMPENSATING TRANSACTION: Restore stock in MongoDB if Postgres fails
+        // Compensating transaction: restore MongoDB stock on any failure
         for (const item of successfullyDeductedItems) {
-            await Product.updateOne(
-                { _id: item.productId },
-                { $inc: { stock: item.qty } }
-            );
+            await Product.updateOne({ _id: item.productId }, { $inc: { stock: item.qty } });
         }
-
         res.status(400).json({ message: error.message });
     }
 };

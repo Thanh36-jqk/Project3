@@ -59,7 +59,7 @@ exports.createPaymentUrl = (req, orderId, amount, returnUrl) => {
 
     let signData = qs.stringify(vnp_Params, { encode: false });
     let hmac = crypto.createHmac("sha512", secretKey);
-    let signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest("hex");
+    let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
     vnp_Params['vnp_SecureHash'] = signed;
     vnpUrl += '?' + qs.stringify(vnp_Params, { encode: false });
 
@@ -72,17 +72,18 @@ exports.createPaymentUrl = (req, orderId, amount, returnUrl) => {
  * @returns {boolean} - True if signature is valid
  */
 exports.verifySignature = (vnp_Params) => {
-    let secureHash = vnp_Params['vnp_SecureHash'];
+    const params = { ...vnp_Params };
+    let secureHash = params['vnp_SecureHash'];
 
-    delete vnp_Params['vnp_SecureHash'];
-    delete vnp_Params['vnp_SecureHashType'];
+    delete params['vnp_SecureHash'];
+    delete params['vnp_SecureHashType'];
 
-    vnp_Params = sortObject(vnp_Params);
+    const sortedParams = sortObject(params);
 
     let secretKey = process.env.VNPAY_HASH_SECRET;
-    let signData = qs.stringify(vnp_Params, { encode: false });
+    let signData = qs.stringify(sortedParams, { encode: false });
     let hmac = crypto.createHmac("sha512", secretKey);
-    let signed = hmac.update(new Buffer.from(signData, 'utf-8')).digest("hex");
+    let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex");
 
     return secureHash === signed;
 };
