@@ -7,6 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apple Store Online - Premium Reseller</title>
 
+    <!-- Preconnect to external CDNs to reduce DNS + TCP handshake time -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://project3-icy1.onrender.com">
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -161,6 +168,7 @@
     <section class="mt-14 relative h-[500px] w-full overflow-hidden flex items-center justify-center">
         <div class="absolute inset-0 z-0">
             <img src="assets/images/ipad hero.jpg"
+                fetchpriority="high"
                 class="w-full h-full object-cover opacity-70 hover:scale-105 transition-transform duration-[2s]"
                 alt="Apple Store Hero">
             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
@@ -785,63 +793,63 @@
         // ==================================================================
         // 3. CORE LOGIC (FETCH & RENDER)
         // ==================================================================
+        function hideLoader() {
+            const loader = document.getElementById(‘page-loader’);
+            if (loader) {
+                loader.style.opacity = ‘0’;
+                setTimeout(() => loader.remove(), 500);
+            }
+        }
+
         async function initStore() {
             // Check Auth UI
-            const user = JSON.parse(localStorage.getItem('user'));
+            const user = JSON.parse(localStorage.getItem(‘user’));
             if (user) {
-                document.getElementById('user-icon').classList.add('text-blue-500');
-                const tooltip = document.getElementById('user-tooltip');
-                tooltip.textContent = `Hi, ${user.email.split('@')[0]}`;
-                tooltip.classList.remove('hidden');
+                document.getElementById(‘user-icon’).classList.add(‘text-blue-500’);
+                const tooltip = document.getElementById(‘user-tooltip’);
+                tooltip.textContent = `Hi, ${user.email.split(‘@’)[0]}`;
+                tooltip.classList.remove(‘hidden’);
             }
 
             // Chatbot Visibility Control: Only show when logged in
-            const chatBubble = document.getElementById('chat-bubble');
-            const chatWindow = document.getElementById('chat-window');
-
+            const chatBubble = document.getElementById(‘chat-bubble’);
+            const chatWindow = document.getElementById(‘chat-window’);
             if (user) {
-                // User is logged in â†’ SHOW chatbot
-                if (chatBubble) chatBubble.style.display = 'flex';
-                if (chatWindow) chatWindow.style.display = 'flex';
+                if (chatBubble) chatBubble.style.display = ‘flex’;
+                if (chatWindow) chatWindow.style.display = ‘flex’;
             } else {
-                // User is NOT logged in â†’ HIDE chatbot
-                if (chatBubble) chatBubble.style.display = 'none';
-                if (chatWindow) chatWindow.style.display = 'none';
+                if (chatBubble) chatBubble.style.display = ‘none’;
+                if (chatWindow) chatWindow.style.display = ‘none’;
             }
 
-            // Fetch Products
+            // INSTANT RENDER: show fallback immediately — page is never blank
+            allProducts = fallbackProducts;
+            hideLoader();
+            renderProducts(allProducts);
+            updateCartUI();
+            initWishlist();
+
+            if (window.location.hash === ‘#cart’) {
+                toggleCart();
+                history.replaceState(null, null, ‘ ‘);
+            } else if (window.location.hash === ‘#wishlist’) {
+                toggleWishlistSidebar();
+                history.replaceState(null, null, ‘ ‘);
+            }
+
+            // BACKGROUND FETCH: silently replace with live DB data when server responds
             try {
-                // Thá»­ láº¥y tá»« API
-                const res = await fetch(`${API_URL}/api/products/search?limit=100`);
+                const res = await fetch(`${API_URL}/api/products`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
 
-                if (data.products && data.products.length > 0) {
-                    allProducts = data.products;
-                } else {
-                    console.warn("API Empty, using fallback data.");
-                    allProducts = fallbackProducts;
+                if (Array.isArray(data) && data.length > 0) {
+                    allProducts = data;
+                    applyFilters(); // re-apply any active filters on fresh data
                 }
             } catch (e) {
-                console.error("Fetch Error, using fallback:", e);
-                allProducts = fallbackProducts;
-            } finally {
-                // Táº¯t Loader & Render
-                document.getElementById('page-loader').style.opacity = '0';
-                setTimeout(() => document.getElementById('page-loader').remove(), 500);
-
-                renderProducts(allProducts);
-                updateCartUI(); // Load cart from local storage
-                initWishlist(); // Load wishlist
-
-                // Open cart or wishlist if hash is present
-                if (window.location.hash === '#cart') {
-                    toggleCart();
-                    // Clear hash without scrolling
-                    history.replaceState(null, null, ' ');
-                } else if (window.location.hash === '#wishlist') {
-                    toggleWishlistSidebar();
-                    history.replaceState(null, null, ' ');
-                }
+                // Server cold-starting or offline — fallback already visible, no action needed
+                console.warn("Background fetch failed, using local fallback:", e.message);
             }
         }
 
@@ -871,7 +879,7 @@
                 li.setAttribute('data-product-id', p._id);
                 li.innerHTML = `
                     <div class="relative h-64 bg-[#000] flex items-center justify-center p-6 overflow-hidden">
-                        <img src="${p.image_url}" alt="${p.name}" class="h-full w-full object-contain group-hover:scale-110 transition-transform duration-500">
+                        <img src="${p.image_url}" alt="${p.name}" loading="lazy" decoding="async" class="h-full w-full object-contain group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onclick="event.stopPropagation(); toggleWishlist('${p._id}')" class="bg-white/90 backdrop-blur text-black p-2 rounded-full shadow-lg hover:bg-white transition-colors" title="Add to Wishlist">
                                 <i class="${isInWishlist ? 'fas' : 'far'} fa-heart wishlist-heart" style="${isInWishlist ? 'color: #ef4444;' : ''}"></i>

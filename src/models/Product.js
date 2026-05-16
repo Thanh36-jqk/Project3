@@ -27,6 +27,10 @@ const productSchema = new mongoose.Schema({
 // Text index for search functionality
 productSchema.index({ name: 'text', category: 'text', short_description: 'text' });
 
+// Compound index for the most common query pattern (getAllProducts, filter by category)
+productSchema.index({ isActive: 1, category: 1 });
+productSchema.index({ isActive: 1, price: 1 });
+
 // Auto-generate slug from name if not provided
 productSchema.pre('save', function(next) {
     if (!this.slug && this.name) {

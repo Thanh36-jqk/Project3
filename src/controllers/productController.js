@@ -3,6 +3,8 @@ const Product = require('../models/Product');
 /**
  * Search products
  */
+const PRODUCT_LIST_FIELDS = 'name slug price compareAtPrice short_description image_url category stock colors ratings isActive';
+
 exports.searchProducts = async (req, res) => {
     try {
         const { q, limit } = req.query;
@@ -11,7 +13,10 @@ exports.searchProducts = async (req, res) => {
         const products = await Product.find({
             name: { $regex: q, $options: 'i' },
             isActive: true
-        }).limit(parseInt(limit) || 20);
+        })
+            .select(PRODUCT_LIST_FIELDS)
+            .limit(parseInt(limit) || 20)
+            .lean();
 
         res.status(200).json({ products });
     } catch (error) {
@@ -24,7 +29,20 @@ exports.searchProducts = async (req, res) => {
  */
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find({ isActive: true }).sort({ name: 1 });
+        const { category, limit, page } = req.query;
+        const query = { isActive: true };
+        if (category) query.category = category;
+
+        const pageSize = Math.min(parseInt(limit) || 100, 200);
+        const skip = (parseInt(page) - 1 || 0) * pageSize;
+
+        const products = await Product.find(query)
+            .select(PRODUCT_LIST_FIELDS)
+            .sort({ name: 1 })
+            .skip(skip)
+            .limit(pageSize)
+            .lean();
+
         res.status(200).json(products);
     } catch (error) {
         res.status(500).json({ message: error.message });
