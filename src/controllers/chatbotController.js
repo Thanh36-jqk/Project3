@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { getModel } = require('../config/gemini');
-const User = require('../models/User');
-const Order = require('../models/Order');
+const prisma = require('../config/postgres');
 const Product = require('../models/Product');
 
 /**
@@ -51,7 +50,7 @@ exports.handleChat = async (req, res) => {
         if (userId) {
             try {
                 console.log('📊 Fetching user data...');
-                const user = await User.findById(userId);
+                const user = await prisma.user.findUnique({ where: { id: userId } });
                 if (user) {
                     contextData.customer = {
                         name: user.email.split('@')[0],
@@ -62,9 +61,14 @@ exports.handleChat = async (req, res) => {
                 }
 
                 console.log('📊 Fetching orders...');
-                const orders = await Order.find({ userId }).sort({ createdAt: -1 }).limit(5);
+                const orders = await prisma.order.findMany({
+                    where: { userId },
+                    orderBy: { createdAt: 'desc' },
+                    take: 5,
+                    include: { items: true }
+                });
                 contextData.recent_orders = orders.map(o => ({
-                    id: o._id.toString().slice(-6).toUpperCase(),
+                    id: o.id.slice(-6).toUpperCase(),
                     status: o.status,
                     total: (o.finalAmount || 0).toLocaleString('vi-VN') + 'đ',
                     items: o.items.map(i => i.name).join(", "),

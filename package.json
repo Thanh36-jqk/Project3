@@ -15,7 +15,6 @@
     "dev:full": "concurrently \"npm run server\" \"npm run frontend\"",
     "seed": "node scripts/seed.js",
     "import-products": "node scripts/importProducts.js",
-    "push": "git add . && git commit -m \"Update: automated push\" && git push",
     "postinstall": "prisma generate"
   },
   "keywords": [

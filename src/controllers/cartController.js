@@ -1,5 +1,6 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
+const dummyProducts = require('../utils/dummyProducts');
 
 /**
  * Get user's cart
@@ -16,7 +17,7 @@ exports.getCart = async (req, res) => {
 /**
  * Add item to cart
  * SECURITY: Only accepts productId and quantity from client.
- * Price, name, and image are fetched from DB to prevent price manipulation.
+ * Price, name, and image are fetched from DB or backend config to prevent price manipulation.
  */
 exports.addToCart = async (req, res) => {
     try {
@@ -27,8 +28,22 @@ exports.addToCart = async (req, res) => {
             return res.status(400).json({ message: "Product ID and valid quantity are required" });
         }
 
-        // Fetch authoritative product data from DB
-        const product = await Product.findById(productId);
+        // Fetch authoritative product data from DB or Dummy List
+        let product = await Product.findById(productId);
+        
+        if (!product) {
+            // Check if it's a dummy product
+            const dummy = dummyProducts.find(p => p._id === productId);
+            if (dummy) {
+                product = {
+                    _id: dummy._id,
+                    name: dummy.name,
+                    price: dummy.price,
+                    image_url: dummy.image_url
+                };
+            }
+        }
+
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
@@ -44,15 +59,15 @@ exports.addToCart = async (req, res) => {
 
         if (itemIndex > -1) {
             cart.items[itemIndex].quantity += quantity;
-            // Refresh price from DB in case it changed
+            // Refresh price in case it changed
             cart.items[itemIndex].price = product.price;
         } else {
             cart.items.push({
-                productId: product._id,
+                productId: product._id.toString(),
                 quantity,
                 name: product.name,
-                price: product.price,       // Always from DB, never from client
-                image_url: product.image_url // Always from DB
+                price: product.price,       // Always from server, never from client
+                image_url: product.image_url // Always from server
             });
         }
 

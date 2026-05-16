@@ -45,3 +45,19 @@ temp/
 
 # Vercel
 .vercel
+
+# Dev scripts / junk
+scratch/
+scratch_update_urls.js
+my-auth-db.products.json
+skills/
+test
+
+# Security: never expose backend model files publicly
+public/assets/models/
+
+# Windows shortcuts
+*.lnk
+
+# Non-CSS files in image folder
+public/assets/images/*.css

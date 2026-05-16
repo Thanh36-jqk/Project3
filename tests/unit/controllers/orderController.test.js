@@ -36,7 +36,7 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
                 recipientAddress: '123 Test St',
                 paymentMethod: 'VNPay',
                 items: [
-                    { productId: 'mock-product-id', qty: 2 }
+                    { productId: '507f1f77bcf86cd799439011', qty: 2 }
                 ]
             }
         };
@@ -54,7 +54,7 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
         // 1. Mock Product Stock Deduction
         Product.updateOne.mockResolvedValue({ modifiedCount: 1 });
         Product.findById.mockResolvedValue({
-            _id: 'mock-product-id',
+            _id: '507f1f77bcf86cd799439011',
             name: 'iPhone 15',
             price: 20000000,
             image_url: 'iphone.jpg'
@@ -72,7 +72,7 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
 
         // Assertions
         expect(Product.updateOne).toHaveBeenCalledWith(
-            { _id: 'mock-product-id', stock: { $gte: 2 } },
+            { _id: '507f1f77bcf86cd799439011', stock: { $gte: 2 } },
             { $inc: { stock: -2 } }
         );
 
@@ -105,7 +105,7 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
         Product.updateOne.mockResolvedValueOnce({ modifiedCount: 1 }); // Deduct
         Product.updateOne.mockResolvedValueOnce({ modifiedCount: 1 }); // Rollback
         Product.findById.mockResolvedValue({
-            _id: 'mock-product-id',
+            _id: '507f1f77bcf86cd799439011',
             name: 'iPhone 15',
             price: 20000000
         });
@@ -124,7 +124,7 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
         expect(Product.updateOne).toHaveBeenCalledTimes(2);
         // Second call should be the rollback
         expect(Product.updateOne).toHaveBeenNthCalledWith(2,
-            { _id: 'mock-product-id' },
+            { _id: '507f1f77bcf86cd799439011' },
             { $inc: { stock: 2 } } // Restoring 2 items
         );
     });
@@ -144,5 +144,45 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
 
         // Order should not be created
         expect(prisma.order.create).not.toHaveBeenCalled();
+    });
+
+    it('should create an order successfully with dummy/hardcoded products', async () => {
+        // Change request to use a dummy product ID (e.g., ip4)
+        req.body.items = [{ productId: 'ip4', qty: 1 }];
+        req.body.paymentMethod = 'COD';
+
+        // Mock Order Creation in Postgres
+        const mockOrder = { id: 'dummy-order-uuid', items: [] };
+        prisma.order.create.mockResolvedValue(mockOrder);
+
+        // Execute
+        await createOrder(req, res);
+
+        // Assertions
+        // It should NOT call Product.updateOne for dummy products
+        expect(Product.updateOne).not.toHaveBeenCalled();
+
+        expect(prisma.order.create).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({
+                subtotal: 19990000, // Price of ip4 from dummyProducts.js
+                finalAmount: 19990000,
+                items: {
+                    create: expect.arrayContaining([
+                        expect.objectContaining({
+                            productId: 'ip4',
+                            name: 'iPhone 15',
+                            price: 19990000
+                        })
+                    ])
+                }
+            })
+        }));
+
+        expect(res.status).toHaveBeenCalledWith(201);
+        expect(res.json).toHaveBeenCalledWith({
+            message: 'Order placed successfully',
+            order: mockOrder,
+            paymentUrl: null
+        });
     });
 });

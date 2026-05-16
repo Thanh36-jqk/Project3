@@ -6,6 +6,8 @@ const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 const vnpayService = require('../services/vnpayService');
 
+const dummyProducts = require('../utils/dummyProducts');
+
 /**
  * Create new order (supports both authenticated and guest users)
  */
@@ -79,19 +81,20 @@ exports.createOrder = async (req, res) => {
                     image: product.image_url || ''
                 });
             } else {
-                // Handle hardcoded/dummy products from frontend that aren't in MongoDB
-                const itemPrice = Number(item.price);
-                if (isNaN(itemPrice)) {
-                    throw new Error(`Invalid price for item ${item.productId}`);
+                // Handle hardcoded/dummy products from backend config
+                const dummyProduct = dummyProducts.find(p => p._id === item.productId);
+                if (!dummyProduct) {
+                    throw new Error(`Invalid product ID: ${item.productId}`);
                 }
-                calculatedTotal += itemPrice * item.qty;
+                
+                calculatedTotal += dummyProduct.price * item.qty;
                 
                 secureItems.push({
-                    productId: item.productId,
-                    name: item.name || item.productId,
-                    price: itemPrice,
+                    productId: dummyProduct._id,
+                    name: dummyProduct.name,
+                    price: dummyProduct.price,
                     qty: item.qty,
-                    image: item.image || ''
+                    image: dummyProduct.image_url || ''
                 });
             }
         }
