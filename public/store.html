@@ -720,7 +720,7 @@
         let wishlist = []; // Loaded from API or localStorage
         let currentModalProduct = null;
 
-        // Dá»¯ liá»‡u máº«u (Fallback) náº¿u Server chÆ°a cÃ³ SP Ä‘á»ƒ Store khÃ´ng bá»‹ trá»‘ng
+        // Dá»¯ liá»‡u máº«u (Fallback) náº¿u Server chÆ°a cÃ³ SP Ä'á»ƒ Store khÃ´ng bá»‹ trá»'ng
         // Using no-background images from color folders for cleaner look
         const fallbackProducts = [
             // --- IPHONE ---
@@ -794,47 +794,47 @@
         // 3. CORE LOGIC (FETCH & RENDER)
         // ==================================================================
         function hideLoader() {
-            const loader = document.getElementById(‘page-loader’);
+            const loader = document.getElementById('page-loader');
             if (loader) {
-                loader.style.opacity = ‘0’;
+                loader.style.opacity = '0';
                 setTimeout(() => loader.remove(), 500);
             }
         }
 
         async function initStore() {
             // Check Auth UI
-            const user = JSON.parse(localStorage.getItem(‘user’));
+            const user = JSON.parse(localStorage.getItem('user'));
             if (user) {
-                document.getElementById(‘user-icon’).classList.add(‘text-blue-500’);
-                const tooltip = document.getElementById(‘user-tooltip’);
-                tooltip.textContent = `Hi, ${user.email.split(‘@’)[0]}`;
-                tooltip.classList.remove(‘hidden’);
+                document.getElementById('user-icon').classList.add('text-blue-500');
+                const tooltip = document.getElementById('user-tooltip');
+                tooltip.textContent = `Hi, ${user.email.split('@')[0]}`;
+                tooltip.classList.remove('hidden');
             }
 
             // Chatbot Visibility Control: Only show when logged in
-            const chatBubble = document.getElementById(‘chat-bubble’);
-            const chatWindow = document.getElementById(‘chat-window’);
+            const chatBubble = document.getElementById('chat-bubble');
+            const chatWindow = document.getElementById('chat-window');
             if (user) {
-                if (chatBubble) chatBubble.style.display = ‘flex’;
-                if (chatWindow) chatWindow.style.display = ‘flex’;
+                if (chatBubble) chatBubble.style.display = 'flex';
+                if (chatWindow) chatWindow.style.display = 'flex';
             } else {
-                if (chatBubble) chatBubble.style.display = ‘none’;
-                if (chatWindow) chatWindow.style.display = ‘none’;
+                if (chatBubble) chatBubble.style.display = 'none';
+                if (chatWindow) chatWindow.style.display = 'none';
             }
 
-            // INSTANT RENDER: show fallback immediately — page is never blank
+            // INSTANT RENDER: show fallback immediately -- page is never blank
             allProducts = fallbackProducts;
             hideLoader();
             renderProducts(allProducts);
             updateCartUI();
             initWishlist();
 
-            if (window.location.hash === ‘#cart’) {
+            if (window.location.hash === '#cart') {
                 toggleCart();
-                history.replaceState(null, null, ‘ ‘);
-            } else if (window.location.hash === ‘#wishlist’) {
+                history.replaceState(null, null, ' ');
+            } else if (window.location.hash === '#wishlist') {
                 toggleWishlistSidebar();
-                history.replaceState(null, null, ‘ ‘);
+                history.replaceState(null, null, ' ');
             }
 
             // BACKGROUND FETCH: silently replace with live DB data when server responds
@@ -848,7 +848,7 @@
                     applyFilters(); // re-apply any active filters on fresh data
                 }
             } catch (e) {
-                // Server cold-starting or offline — fallback already visible, no action needed
+                // Server cold-starting or offline -- fallback already visible, no action needed
                 console.warn("Background fetch failed, using local fallback:", e.message);
             }
         }
@@ -916,7 +916,7 @@
         // ==================================================================
         // 4. FILTERING & SEARCH
         // ==================================================================
-        // Láº¯ng nghe sá»± kiá»‡n checkbox thay Ä‘á»•i
+        // Láº¯ng nghe sá»± kiá»‡n checkbox thay Ä'á»•i
         const checkboxes = document.querySelectorAll('input[name="category"], input[name="price"]');
         checkboxes.forEach(cb => cb.addEventListener('change', applyFilters));
 
@@ -984,7 +984,7 @@
             const targetCb = document.querySelector(`input[name="category"][value="${cat}"]`);
             if (targetCb) targetCb.checked = true;
             applyFilters();
-            // Scroll xuá»‘ng lÆ°á»›i
+            // Scroll xuá»'ng lÆ°á»›i
             document.getElementById('product-list-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         };
 
@@ -1009,7 +1009,7 @@
             const results = allProducts.filter(p => p.name.toLowerCase().includes(term));
 
             // Náº¿u enter thÃ¬ render ra main grid
-            // á»ž Ä‘Ã¢y lÃ m search mini dropdown
+            // á»ž Ä'Ã¢y lÃ m search mini dropdown
             const list = document.getElementById('search-results-mini');
             list.innerHTML = '';
 
@@ -1846,7 +1846,7 @@
 
             // Call API
             try {
-                // Náº¿u chÆ°a Ä‘Äƒng nháº­p, váº«n cho Ä‘áº·t nhÆ°ng khÃ´ng lÆ°u userId (Backend Ä‘Ã£ xá»­ lÃ½)
+                // Náº¿u chÆ°a Ä'Äƒng nháº­p, váº«n cho Ä'áº·t nhÆ°ng khÃ´ng lÆ°u userId (Backend Ä'Ã£ xá»­ lÃ½)
                 const headers = { 'Content-Type': 'application/json' };
                 const token = getToken();
                 if (token) headers['token'] = `Bearer ${token}`;
@@ -1907,7 +1907,7 @@
             // 3. Call API
             try {
                 const token = getToken();
-                // Chatbot yÃªu cáº§u login Ä‘á»ƒ láº¥y context, náº¿u khÃ´ng cÃ³ token thÃ¬ backend sáº½ xá»­ lÃ½ nhÆ° khÃ¡ch
+                // Chatbot yÃªu cáº§u login Ä'á»ƒ láº¥y context, náº¿u khÃ´ng cÃ³ token thÃ¬ backend sáº½ xá»­ lÃ½ nhÆ° khÃ¡ch
                 const headers = { 'Content-Type': 'application/json' };
                 if (token) headers['token'] = `Bearer ${token}`;
 
@@ -1922,11 +1922,11 @@
                     document.getElementById(loadingId).remove();
 
                     if (res.status === 401) {
-                        appendMessage("âš ï¸ Please login for better chatbot experience. However, chatbot works for guests too.", 'ai');
+                        appendMessage("⚠️ Please login for better chatbot experience. However, chatbot works for guests too.", 'ai');
                     } else if (res.status === 503) {
-                        appendMessage("ðŸ”§ AI system under maintenance. Contact: 0962923329", 'ai');
+                        appendMessage("🔧 AI system under maintenance. Contact: 0962923329", 'ai');
                     } else {
-                        appendMessage("âŒ Connection error. Please try again later.", 'ai');
+                        appendMessage("❌ Connection error. Please try again later.", 'ai');
                     }
                     return;
                 }
@@ -1941,13 +1941,13 @@
                     appendMessage(data.reply, 'ai');
                 } else {
                     // Helpful fallback with suggestions
-                    appendMessage("â“ I didn't understand. You can ask about:\nâ€¢ Product prices (e.g. iPhone 16 price)\nâ€¢ Order status\nâ€¢ Current promotions", 'ai');
+                    appendMessage("❓ I didn't understand. You can ask about:\n• Product prices (e.g. iPhone 16 price)\n• Order status\n• Current promotions", 'ai');
                 }
 
             } catch (error) {
                 document.getElementById(loadingId).remove();
                 console.error('Chat error:', error);
-                appendMessage("ðŸ”Œ Cannot connect to AI. Please check internet and try again.", 'ai');
+                appendMessage("📌 Cannot connect to AI. Please check internet and try again.", 'ai');
             }
         });
 
