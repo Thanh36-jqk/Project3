@@ -84,8 +84,8 @@ describe('Static File Serving Tests', () => {
             expect(response.headers['content-type']).toMatch(/css/);
         });
 
-        test('GET /pages/auth/register.css should serve auth CSS', async () => {
-            const response = await request(app).get('/pages/auth/register.css');
+        test('GET /pages/auth/registercss.css should serve auth CSS', async () => {
+            const response = await request(app).get('/pages/auth/registercss.css');
             expect(response.status).toBe(200);
             expect(response.headers['content-type']).toMatch(/css/);
         });

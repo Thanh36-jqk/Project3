@@ -1,13 +1,35 @@
 const request = require('supertest');
 const express = require('express');
-const productRoutes = require('../../src/routes/productRoutes');
 
-// Mock dependencies
-jest.mock('../../src/controllers/productController');
-jest.mock('../../src/middleware/auth');
+const controllerImpl = {
+    getAllProducts: (req, res) => res.status(200).json([]),
+    searchProducts: (req, res) => res.status(200).json([]),
+    getProductById: (req, res) => res.status(200).json({ _id: req.params.id }),
+    createProduct: (req, res) => res.status(201).json({ _id: 'new', ...req.body }),
+    updateProduct: (req, res) => res.status(200).json({ _id: req.params.id, ...req.body }),
+    updateStock: (req, res) => res.status(200).json({ _id: req.params.id, stock: req.body.stock }),
+    deleteProduct: (req, res) => res.status(200).json({ message: 'Product deleted successfully' }),
+};
+const middlewareImpl = {
+    verifyAdmin: (req, res, next) => { req.user = { role: 'admin' }; next(); },
+    verifyToken: (req, res, next) => { req.user = { id: 'user', role: 'user' }; next(); },
+};
 
-const productController = require('../../src/controllers/productController');
-const { verifyAdmin } = require('../../src/middleware/auth');
+jest.mock('../../../src/controllers/productController', () => ({
+    getAllProducts: (...a) => controllerImpl.getAllProducts(...a),
+    searchProducts: (...a) => controllerImpl.searchProducts(...a),
+    getProductById: (...a) => controllerImpl.getProductById(...a),
+    createProduct: (...a) => controllerImpl.createProduct(...a),
+    updateProduct: (...a) => controllerImpl.updateProduct(...a),
+    updateStock: (...a) => controllerImpl.updateStock(...a),
+    deleteProduct: (...a) => controllerImpl.deleteProduct(...a),
+}));
+jest.mock('../../../src/middleware/auth', () => ({
+    verifyToken: (...a) => middlewareImpl.verifyToken(...a),
+    verifyAdmin: (...a) => middlewareImpl.verifyAdmin(...a),
+}));
+
+const productRoutes = require('../../../src/routes/productRoutes');
 
 describe('Product Routes Integration Tests', () => {
     let app;
@@ -18,22 +40,22 @@ describe('Product Routes Integration Tests', () => {
         app.use('/api/products', productRoutes);
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
+    beforeEach(() => {
+        controllerImpl.getAllProducts = (req, res) => res.status(200).json([
+            { name: 'iPhone 15', price: 20000000, stock: 10 }
+        ]);
+        controllerImpl.searchProducts = (req, res) => res.status(200).json([
+            { name: 'iPhone 15 Pro', price: 25000000 }
+        ]);
+        controllerImpl.getProductById = (req, res) => res.status(200).json({
+            _id: req.params.id, name: 'iPhone 15', price: 20000000, stock: 10
+        });
+        middlewareImpl.verifyAdmin = (req, res, next) => { req.user = { role: 'admin' }; next(); };
     });
 
     describe('GET /api/products', () => {
         test('should return all products', async () => {
-            productController.getAllProducts = jest.fn((req, res) => {
-                res.status(200).json([
-                    { name: 'iPhone 15', price: 20000000, stock: 10 },
-                    { name: 'MacBook Pro', price: 45000000, stock: 5 }
-                ]);
-            });
-
             const response = await request(app).get('/api/products');
-
-            expect(productController.getAllProducts).toHaveBeenCalled();
             expect(response.status).toBe(200);
             expect(Array.isArray(response.body)).toBe(true);
         });
@@ -41,55 +63,33 @@ describe('Product Routes Integration Tests', () => {
 
     describe('GET /api/products/search', () => {
         test('should search products by keyword', async () => {
-            productController.searchProducts = jest.fn((req, res) => {
-                res.status(200).json([
-                    { name: 'iPhone 15 Pro', price: 25000000 }
-                ]);
-            });
-
             const response = await request(app)
                 .get('/api/products/search')
                 .query({ keyword: 'iphone' });
-
-            expect(productController.searchProducts).toHaveBeenCalled();
             expect(response.status).toBe(200);
         });
     });
 
     describe('GET /api/products/:id', () => {
         test('should return product by ID', async () => {
-            productController.getProductById = jest.fn((req, res) => {
-                res.status(200).json({
-                    _id: '123',
-                    name: 'iPhone 15',
-                    price: 20000000,
-                    stock: 10
-                });
-            });
-
             const response = await request(app).get('/api/products/123');
-
-            expect(productController.getProductById).toHaveBeenCalled();
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('_id');
         });
 
         test('should return 404 for non-existent product', async () => {
-            productController.getProductById = jest.fn((req, res) => {
+            controllerImpl.getProductById = (req, res) =>
                 res.status(404).json({ message: 'Product not found' });
-            });
 
             const response = await request(app).get('/api/products/999');
-
             expect(response.status).toBe(404);
         });
     });
 
     describe('POST /api/products (Admin Only)', () => {
         test('should require admin authentication', async () => {
-            verifyAdmin.mockImplementation((req, res, next) => {
+            middlewareImpl.verifyAdmin = (req, res) =>
                 res.status(403).json({ message: 'Admin access required' });
-            });
 
             const response = await request(app)
                 .post('/api/products')
@@ -99,19 +99,6 @@ describe('Product Routes Integration Tests', () => {
         });
 
         test('should create product when admin authenticated', async () => {
-            verifyAdmin.mockImplementation((req, res, next) => {
-                req.user = { role: 'admin' };
-                next();
-            });
-
-            productController.createProduct = jest.fn((req, res) => {
-                res.status(201).json({
-                    _id: 'new-id',
-                    name: 'New Product',
-                    price: 10000000
-                });
-            });
-
             const response = await request(app)
                 .post('/api/products')
                 .set('token', 'Bearer admin-token')
@@ -123,19 +110,6 @@ describe('Product Routes Integration Tests', () => {
 
     describe('PUT /api/products/:id (Admin Only)', () => {
         test('should update product when admin authenticated', async () => {
-            verifyAdmin.mockImplementation((req, res, next) => {
-                req.user = { role: 'admin' };
-                next();
-            });
-
-            productController.updateProduct = jest.fn((req, res) => {
-                res.status(200).json({
-                    _id: '123',
-                    name: 'Updated Product',
-                    price: 15000000
-                });
-            });
-
             const response = await request(app)
                 .put('/api/products/123')
                 .set('token', 'Bearer admin-token')
@@ -147,18 +121,6 @@ describe('Product Routes Integration Tests', () => {
 
     describe('PUT /api/products/:id/stock (Admin Only)', () => {
         test('should update stock when admin authenticated', async () => {
-            verifyAdmin.mockImplementation((req, res, next) => {
-                req.user = { role: 'admin' };
-                next();
-            });
-
-            productController.updateStock = jest.fn((req, res) => {
-                res.status(200).json({
-                    _id: '123',
-                    stock: 20
-                });
-            });
-
             const response = await request(app)
                 .put('/api/products/123/stock')
                 .set('token', 'Bearer admin-token')
@@ -170,15 +132,6 @@ describe('Product Routes Integration Tests', () => {
 
     describe('DELETE /api/products/:id (Admin Only)', () => {
         test('should delete product when admin authenticated', async () => {
-            verifyAdmin.mockImplementation((req, res, next) => {
-                req.user = { role: 'admin' };
-                next();
-            });
-
-            productController.deleteProduct = jest.fn((req, res) => {
-                res.status(200).json({ message: 'Product deleted successfully' });
-            });
-
             const response = await request(app)
                 .delete('/api/products/123')
                 .set('token', 'Bearer admin-token');

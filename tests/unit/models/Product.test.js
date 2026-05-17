@@ -1,4 +1,4 @@
-const Product = require('../../src/models/Product');
+const Product = require('../../../src/models/Product');
 
 describe('Product Model Tests', () => {
     describe('Schema Validation', () => {

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { verifyToken, verifyAdmin } = require('../../src/middleware/auth');
+const { verifyToken, verifyAdmin } = require('../../../src/middleware/auth');
 
 describe('Auth Middleware Tests', () => {
     let req, res, next;
@@ -23,15 +23,15 @@ describe('Auth Middleware Tests', () => {
             verifyToken(req, res, next);
 
             expect(next).toHaveBeenCalled();
-            expect(req.userId).toBe('user123');
-            expect(req.userRole).toBe('user');
+            expect(req.user.id).toBe('user123');
+            expect(req.user.role).toBe('user');
         });
 
         test('should return 401 without token', () => {
             verifyToken(req, res, next);
 
             expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.json).toHaveBeenCalledWith({ message: 'Unauthorized' });
+            expect(res.json).toHaveBeenCalledWith({ message: 'Not authenticated' });
             expect(next).not.toHaveBeenCalled();
         });
 
@@ -41,7 +41,7 @@ describe('Auth Middleware Tests', () => {
             verifyToken(req, res, next);
 
             expect(res.status).toHaveBeenCalledWith(403);
-            expect(res.json).toHaveBeenCalledWith({ message: 'Invalid or expired token' });
+            expect(res.json).toHaveBeenCalledWith({ message: 'Invalid token' });
             expect(next).not.toHaveBeenCalled();
         });
 
@@ -58,6 +58,16 @@ describe('Auth Middleware Tests', () => {
             expect(res.status).toHaveBeenCalledWith(403);
             expect(next).not.toHaveBeenCalled();
         });
+
+        test('should accept Authorization header (lowercase) as well as token header', () => {
+            const token = jwt.sign({ id: 'user456', role: 'user' }, process.env.JWT_SECRET);
+            req.headers.authorization = `Bearer ${token}`;
+
+            verifyToken(req, res, next);
+
+            expect(next).toHaveBeenCalled();
+            expect(req.user.id).toBe('user456');
+        });
     });
 
     describe('verifyAdmin', () => {
@@ -68,8 +78,8 @@ describe('Auth Middleware Tests', () => {
             verifyAdmin(req, res, next);
 
             expect(next).toHaveBeenCalled();
-            expect(req.userId).toBe('admin123');
-            expect(req.userRole).toBe('admin');
+            expect(req.user.id).toBe('admin123');
+            expect(req.user.role).toBe('admin');
         });
 
         test('should return 403 for non-admin user', () => {
@@ -87,7 +97,7 @@ describe('Auth Middleware Tests', () => {
             verifyAdmin(req, res, next);
 
             expect(res.status).toHaveBeenCalledWith(401);
-            expect(res.json).toHaveBeenCalledWith({ message: 'Unauthorized' });
+            expect(res.json).toHaveBeenCalledWith({ message: 'Not authenticated' });
             expect(next).not.toHaveBeenCalled();
         });
 

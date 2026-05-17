@@ -39,4 +39,4 @@ Uses default label vocabulary (needs-triage, needs-info, ready-for-agent, ready-
 
 ### Domain docs
 
-Multi-context layout — CONTEXT-MAP.md at root points to per-context CONTEXT.md files. See `docs/agents/domain.md`.
+Single-context layout — one CONTEXT.md + docs/adr/ at repo root. See `docs/agents/domain.md`.

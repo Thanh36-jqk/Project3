@@ -1,14 +1,69 @@
 const request = require('supertest');
 const express = require('express');
-const authRoutes = require('../../src/routes/authRoutes');
 
-// Mock dependencies
-jest.mock('../../src/controllers/authController');
-jest.mock('../../src/middleware/auth');
-jest.mock('passport');
+// Controllers/middleware are mocked with implementations that the route
+// will capture at module-load time. Tests override behavior via the
+// `controllerImpl` lookup inside each mock factory.
+const controllerImpl = {
+    register: (req, res) => res.status(201).json({ message: 'Registration successful' }),
+    login: (req, res) => res.status(200).json({ accessToken: 'fake-token', user: { email: 'x', role: 'user' } }),
+    getProfile: (req, res) => res.status(200).json({ email: 'x' }),
+    googleCallback: (req, res) => res.redirect('/'),
+    refreshAccessToken: (req, res) => res.status(200).json({ ok: true }),
+    logout: (req, res) => res.status(200).json({ ok: true }),
+};
+const passwordImpl = {
+    forgotPassword: (req, res) => res.status(200).json({ ok: true }),
+    resetPassword: (req, res) => res.status(200).json({ ok: true }),
+};
+const middlewareImpl = {
+    verifyToken: (req, res, next) => { req.user = { id: 'test-user', role: 'user' }; next(); },
+    verifyAdmin: (req, res, next) => { req.user = { id: 'admin', role: 'admin' }; next(); },
+};
 
-const authController = require('../../src/controllers/authController');
-const { verifyToken } = require('../../src/middleware/auth');
+jest.mock('../../../src/controllers/authController', () => ({
+    register: (...a) => controllerImpl.register(...a),
+    login: (...a) => controllerImpl.login(...a),
+    getProfile: (...a) => controllerImpl.getProfile(...a),
+    googleCallback: (...a) => controllerImpl.googleCallback(...a),
+    refreshAccessToken: (...a) => controllerImpl.refreshAccessToken(...a),
+    logout: (...a) => controllerImpl.logout(...a),
+}));
+jest.mock('../../../src/controllers/passwordController', () => ({
+    forgotPassword: (...a) => passwordImpl.forgotPassword(...a),
+    resetPassword: (...a) => passwordImpl.resetPassword(...a),
+}));
+jest.mock('../../../src/middleware/auth', () => ({
+    verifyToken: (...a) => middlewareImpl.verifyToken(...a),
+    verifyAdmin: (...a) => middlewareImpl.verifyAdmin(...a),
+}));
+jest.mock('../../../src/middleware/validate', () => {
+    const pass = (req, res, next) => next();
+    return {
+        validateRegister: [pass],
+        validateLogin: [pass],
+        validateForgotPassword: [pass],
+        validateResetPassword: [pass],
+        validateOrder: [pass],
+        handleValidationErrors: pass,
+    };
+});
+jest.mock('../../../src/middleware/rateLimiter', () => ({
+    authLimiter: (req, res, next) => next(),
+    apiLimiter: (req, res, next) => next(),
+    chatLimiter: (req, res, next) => next(),
+    passwordResetLimiter: (req, res, next) => next(),
+}));
+jest.mock('passport', () => ({
+    authenticate: jest.fn(() => (req, res, next) => res.redirect('/')),
+    initialize: jest.fn(() => (req, res, next) => next()),
+    session: jest.fn(() => (req, res, next) => next()),
+    use: jest.fn(),
+    serializeUser: jest.fn(),
+    deserializeUser: jest.fn(),
+}));
+
+const authRoutes = require('../../../src/routes/authRoutes');
 
 describe('Auth Routes Integration Tests', () => {
     let app;
@@ -19,28 +74,26 @@ describe('Auth Routes Integration Tests', () => {
         app.use('/', authRoutes);
     });
 
-    afterEach(() => {
-        jest.clearAllMocks();
+    beforeEach(() => {
+        // Reset to defaults
+        controllerImpl.register = (req, res) => res.status(201).json({ message: 'Registration successful' });
+        controllerImpl.login = (req, res) => res.status(200).json({ accessToken: 'fake-token', user: { email: 'x', role: 'user' } });
+        controllerImpl.getProfile = (req, res) => res.status(200).json({ email: 'x' });
+        middlewareImpl.verifyToken = (req, res, next) => { req.user = { id: 'test', role: 'user' }; next(); };
     });
 
     describe('POST /api/register', () => {
         test('should call authController.register', async () => {
-            authController.register = jest.fn((req, res) => {
-                res.status(201).json({ message: 'Registration successful' });
-            });
-
             const response = await request(app)
                 .post('/api/register')
                 .send({ email: 'test@example.com', password: 'password123' });
 
-            expect(authController.register).toHaveBeenCalled();
             expect(response.status).toBe(201);
+            expect(response.body).toHaveProperty('message');
         });
 
         test('should handle registration with missing fields', async () => {
-            authController.register = jest.fn((req, res) => {
-                res.status(400).json({ message: 'Email and password required' });
-            });
+            controllerImpl.register = (req, res) => res.status(400).json({ message: 'Email and password required' });
 
             const response = await request(app)
                 .post('/api/register')
@@ -52,26 +105,16 @@ describe('Auth Routes Integration Tests', () => {
 
     describe('POST /api/login', () => {
         test('should call authController.login', async () => {
-            authController.login = jest.fn((req, res) => {
-                res.status(200).json({
-                    accessToken: 'fake-token',
-                    user: { email: 'test@example.com', role: 'user' }
-                });
-            });
-
             const response = await request(app)
                 .post('/api/login')
                 .send({ email: 'test@example.com', password: 'password123' });
 
-            expect(authController.login).toHaveBeenCalled();
             expect(response.status).toBe(200);
             expect(response.body).toHaveProperty('accessToken');
         });
 
         test('should handle invalid credentials', async () => {
-            authController.login = jest.fn((req, res) => {
-                res.status(401).json({ message: 'Invalid credentials' });
-            });
+            controllerImpl.login = (req, res) => res.status(401).json({ message: 'Invalid credentials' });
 
             const response = await request(app)
                 .post('/api/login')
@@ -83,29 +126,16 @@ describe('Auth Routes Integration Tests', () => {
 
     describe('GET /api/users/profile', () => {
         test('should require authentication', async () => {
-            verifyToken.mockImplementation((req, res, next) => {
-                res.status(401).json({ message: 'Unauthorized' });
-            });
+            middlewareImpl.verifyToken = (req, res) => res.status(401).json({ message: 'Unauthorized' });
 
-            const response = await request(app)
-                .get('/api/users/profile');
+            const response = await request(app).get('/api/users/profile');
 
             expect(response.status).toBe(401);
         });
 
         test('should return user profile when authenticated', async () => {
-            verifyToken.mockImplementation((req, res, next) => {
-                req.userId = 'test-user-id';
-                next();
-            });
-
-            authController.getProfile = jest.fn((req, res) => {
-                res.status(200).json({
-                    email: 'test@example.com',
-                    role: 'user',
-                    rank: 'Silver',
-                    points: 100
-                });
+            controllerImpl.getProfile = (req, res) => res.status(200).json({
+                email: 'test@example.com', role: 'user', rank: 'Silver', points: 100
             });
 
             const response = await request(app)
@@ -118,20 +148,13 @@ describe('Auth Routes Integration Tests', () => {
     });
 
     describe('Google OAuth Routes', () => {
-        test('GET /auth/google should redirect to Google', async () => {
-            // This is handled by Passport, just verify the route exists
+        test('GET /auth/google should redirect', async () => {
             const response = await request(app).get('/auth/google');
-            // May return 500 or redirect depending on Passport setup
             expect([302, 500]).toContain(response.status);
         });
 
         test('GET /auth/google/callback should handle callback', async () => {
-            authController.googleCallback = jest.fn((req, res) => {
-                res.redirect('/');
-            });
-
             const response = await request(app).get('/auth/google/callback');
-            // Will fail without proper Passport setup, but route should exist
             expect([302, 500]).toContain(response.status);
         });
     });
