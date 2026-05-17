@@ -1,41 +1,48 @@
-const nodemailer = require('nodemailer');
+const https = require('https');
 
-/**
- * Configure Nodemailer transport
- * Using SendGrid SMTP
- */
-const transporter = nodemailer.createTransport({
-    host: 'smtp.sendgrid.net',
-    port: 587,
-    auth: {
-        user: 'apikey', // This is the exact string 'apikey'
-        pass: process.env.SENDGRID_API_KEY
-    }
-});
-
-/**
- * Send an email
- * @param {Object} options - Email options
- * @param {string} options.to - Recipient email address
- * @param {string} options.subject - Email subject
- * @param {string} options.html - Email body (HTML format)
- * @returns {Promise<void>}
- */
 const sendEmail = async (options) => {
-    try {
-        const mailOptions = {
-            from: `"Apple Store" <${process.env.EMAIL_FROM}>`,
-            to: options.to,
-            subject: options.subject,
-            html: options.html
-        };
+    const apiKey = process.env.SENDGRID_API_KEY;
+    if (!apiKey) throw new Error('SENDGRID_API_KEY is not configured');
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`Email sent successfully to ${options.to}. Message ID: ${info.messageId}`);
-    } catch (error) {
-        console.error('Error sending email:', error);
-        throw error;
-    }
+    const payload = JSON.stringify({
+        personalizations: [{ to: [{ email: options.to }] }],
+        from: { email: process.env.EMAIL_FROM, name: 'Apple Store' },
+        subject: options.subject,
+        content: [{ type: 'text/html', value: options.html }]
+    });
+
+    return new Promise((resolve, reject) => {
+        const req = https.request({
+            hostname: 'api.sendgrid.com',
+            path: '/v3/mail/send',
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(payload)
+            },
+            timeout: 10000
+        }, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    console.log(`Email sent successfully to ${options.to}`);
+                    resolve();
+                } else {
+                    reject(new Error(`SendGrid error ${res.statusCode}: ${body}`));
+                }
+            });
+        });
+
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('SendGrid request timed out'));
+        });
+        req.on('error', reject);
+        req.write(payload);
+        req.end();
+    });
 };
 
 module.exports = { sendEmail };
