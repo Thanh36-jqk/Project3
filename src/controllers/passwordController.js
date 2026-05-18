@@ -2,8 +2,6 @@ const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const prisma = require('../config/postgres');
 const { sendEmail } = require('../services/emailService');
-const rabbitmqService = require('../services/rabbitmqService');
-const rabbitmqConfig = require('../config/rabbitmq');
 
 /**
  * Request password reset — generates a token and (in production) sends an email.
@@ -55,21 +53,11 @@ exports.forgotPassword = async (req, res) => {
         `;
 
         try {
-            const queued = await rabbitmqService.publishToQueue(rabbitmqConfig.queues.EMAIL_QUEUE, {
+            await sendEmail({
                 to: user.email,
                 subject: 'Apple Store - Password Reset Request',
                 html: emailHtml
             });
-
-            // If RabbitMQ is not available, fallback to direct email (Small Project Mode)
-            if (!queued) {
-                console.log('RabbitMQ not available, sending email directly...');
-                await sendEmail({
-                    to: user.email,
-                    subject: 'Apple Store - Password Reset Request',
-                    html: emailHtml
-                });
-            }
         } catch (emailError) {
             console.error('Failed to send reset email:', emailError);
             

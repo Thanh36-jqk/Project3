@@ -4,8 +4,6 @@ const jwt = require('jsonwebtoken');
 const prisma = require('../config/postgres');
 const { mergeGuestCart } = require('../services/cartMergeService');
 const { sendEmail } = require('../services/emailService');
-const rabbitmqService = require('../services/rabbitmqService');
-const rabbitmqConfig = require('../config/rabbitmq');
 
 const OTP_EXPIRY_MINUTES = 10;
 
@@ -124,8 +122,7 @@ exports.login = async (req, res) => {
 
         const emailData = { to: user.email, subject: 'Apple Store — Your Login Verification Code', html };
         try {
-            const queued = await rabbitmqService.publishToQueue(rabbitmqConfig.queues.EMAIL_QUEUE, emailData);
-            if (!queued) await sendEmail(emailData);
+            await sendEmail(emailData);
         } catch (emailErr) {
             console.error('OTP email failed:', emailErr.message);
             return res.status(500).json({ message: 'Failed to send verification code. Please try again later.' });

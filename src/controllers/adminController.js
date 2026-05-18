@@ -2,8 +2,6 @@ const prisma = require('../config/postgres');
 const Product = require('../models/Product');
 const Voucher = require('../models/Voucher');
 const { sendEmail } = require('../services/emailService');
-const rabbitmqService = require('../services/rabbitmqService');
-const rabbitmqConfig = require('../config/rabbitmq');
 
 const ORDER_STATUS_CONFIG = {
     Confirmed:  { subject: 'Order Confirmed — Apple Store',          color: '#0071e3', headline: 'Your order has been confirmed',    body: 'Great news! We\'ve confirmed your order and our team is getting it ready.' },
@@ -52,8 +50,7 @@ async function sendOrderStatusEmail(recipientEmail, recipientName, order, status
         </div>`;
 
     const emailData = { to: recipientEmail, subject: config.subject, html };
-    const queued = await rabbitmqService.publishToQueue(rabbitmqConfig.queues.EMAIL_QUEUE, emailData);
-    if (!queued) await sendEmail(emailData);
+    await sendEmail(emailData);
 }
 
 exports.getDashboardStats = async (req, res) => {
