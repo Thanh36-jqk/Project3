@@ -60,4 +60,19 @@ const passwordResetLimiter = rateLimit({
     }
 });
 
-module.exports = { authLimiter, apiLimiter, chatLimiter, passwordResetLimiter };
+/**
+ * Rate limiter for OTP verification (prevent brute-force on 6-digit codes)
+ * Strict: 5 attempts per 15 minutes per IP
+ */
+const otpLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        message: 'Too many OTP attempts. Please request a new code.',
+        retryAfter: 900
+    }
+});
+
+module.exports = { authLimiter, apiLimiter, chatLimiter, passwordResetLimiter, otpLimiter };

@@ -11,6 +11,7 @@ const wishlistRoutes = require('./wishlistRoutes');
 const chatbotRoutes = require('./chatbotRoutes');
 const adminRoutes = require('./adminRoutes');
 const paymentRoutes = require('./paymentRoutes');
+const addressRoutes = require('./addressRoutes');
 
 // Mount routes
 router.use('/', authRoutes);  // Mounts both /api/register, /api/login, AND /auth/google
@@ -22,5 +23,6 @@ router.use('/api/wishlist', wishlistRoutes);
 router.use('/api/chat', chatbotRoutes);
 router.use('/api/admin', adminRoutes);
 router.use('/api/payments', paymentRoutes);
+router.use('/api/users/addresses', addressRoutes);
 
 module.exports = router;

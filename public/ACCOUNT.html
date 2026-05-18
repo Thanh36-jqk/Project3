@@ -213,13 +213,15 @@
             <div class="lg:col-span-8">
 
                 <!-- Tabs Navigation -->
-                <div class="flex gap-8 border-b border-[#d2d2d7] mb-8 text-sm font-medium text-[#86868b]">
+                <div class="flex gap-8 border-b border-[#d2d2d7] mb-8 text-sm font-medium text-[#86868b] overflow-x-auto">
                     <button onclick="switchTab('orders')" id="tab-orders"
-                        class="tab-btn active pb-3 hover:text-[#1d1d1f] transition-colors">Order History</button>
+                        class="tab-btn active pb-3 hover:text-[#1d1d1f] transition-colors whitespace-nowrap">Order History</button>
                     <button onclick="switchTab('rewards')" id="tab-rewards"
-                        class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors">Redeem Rewards</button>
+                        class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors whitespace-nowrap">Redeem Rewards</button>
+                    <button onclick="switchTab('addresses')" id="tab-addresses"
+                        class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors whitespace-nowrap">My Addresses</button>
                     <button onclick="switchTab('settings')" id="tab-settings"
-                        class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors">Settings</button>
+                        class="tab-btn pb-3 hover:text-[#1d1d1f] transition-colors whitespace-nowrap">Settings</button>
                 </div>
 
                 <!-- 1. ORDER HISTORY TAB -->
@@ -259,7 +261,62 @@
                     </div>
                 </div>
 
-                <!-- 3. SETTINGS TAB (Placeholder) -->
+                <!-- 3. ADDRESSES TAB -->
+                <div id="content-addresses" class="hidden animate-fade-in space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-semibold text-[#1d1d1f]">Shipping Addresses</h2>
+                        <button onclick="showAddressForm()" id="btn-add-address"
+                            class="btn-apple px-5 py-2 text-sm font-medium shadow-sm">
+                            <i class="fas fa-plus mr-2"></i>Add Address
+                        </button>
+                    </div>
+
+                    <!-- Add / Edit Form (hidden by default) -->
+                    <div id="address-form-wrapper" class="hidden apple-card p-6 border-2 border-[#0071e3]/20">
+                        <h3 class="font-semibold text-[#1d1d1f] mb-4" id="address-form-title">New Address</h3>
+                        <input type="hidden" id="editing-address-id">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="text-xs font-medium text-[#86868b] uppercase tracking-wider">Label</label>
+                                <input id="addr-label" type="text" placeholder="Home / Work / Other"
+                                    class="mt-1 w-full border border-[#d2d2d7] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#0071e3] transition-colors">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-[#86868b] uppercase tracking-wider">Full Name</label>
+                                <input id="addr-fullname" type="text" placeholder="Nguyen Van A"
+                                    class="mt-1 w-full border border-[#d2d2d7] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#0071e3] transition-colors">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-[#86868b] uppercase tracking-wider">Phone</label>
+                                <input id="addr-phone" type="text" placeholder="0901 234 567"
+                                    class="mt-1 w-full border border-[#d2d2d7] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#0071e3] transition-colors">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-[#86868b] uppercase tracking-wider">Set as Default</label>
+                                <div class="mt-2 flex items-center gap-2">
+                                    <input id="addr-default" type="checkbox" class="w-4 h-4 accent-[#0071e3]">
+                                    <span class="text-sm text-[#86868b]">Use as default address</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="text-xs font-medium text-[#86868b] uppercase tracking-wider">Address</label>
+                            <textarea id="addr-address" rows="2" placeholder="123 Nguyen Hue, District 1, Ho Chi Minh City"
+                                class="mt-1 w-full border border-[#d2d2d7] rounded-xl px-4 py-2.5 text-sm outline-none focus:border-[#0071e3] transition-colors resize-none"></textarea>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="saveAddress()" class="btn-apple px-6 py-2.5 text-sm font-medium shadow-md">Save</button>
+                            <button onclick="hideAddressForm()" class="px-6 py-2.5 text-sm font-medium text-[#86868b] hover:text-[#1d1d1f] transition-colors">Cancel</button>
+                        </div>
+                    </div>
+
+                    <!-- Address List -->
+                    <div id="addresses-list" class="space-y-3">
+                        <p class="text-sm text-[#86868b] italic text-center py-8">Loading addresses...</p>
+                    </div>
+                </div>
+
+                <!-- 4. SETTINGS TAB (Placeholder) -->
                 <div id="content-settings" class="hidden animate-fade-in">
                     <div class="apple-card p-8 text-center text-gray-400">
                         <i class="fas fa-cog text-4xl mb-4 opacity-20"></i>
@@ -273,21 +330,20 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        const API_URL = 'https://project3-icy1.onrender.com/api';
+        const API_URL = '/api';
         const token = localStorage.getItem('accessToken');
 
         if (!token) window.location.href = 'pages/auth/login.html';
 
         // --- UI FUNCTIONS ---
         function switchTab(tabName) {
-            // Hide all content
-            ['orders', 'rewards', 'settings'].forEach(t => {
+            ['orders', 'rewards', 'addresses', 'settings'].forEach(t => {
                 document.getElementById(`content-${t}`).classList.add('hidden');
                 document.getElementById(`tab-${t}`).classList.remove('active');
             });
-            // Show selected
             document.getElementById(`content-${tabName}`).classList.remove('hidden');
             document.getElementById(`tab-${tabName}`).classList.add('active');
+            if (tabName === 'addresses') loadAddresses();
         }
 
         // --- DATA FUNCTIONS ---
@@ -328,9 +384,9 @@
                 } else {
                     orderBody.innerHTML = orders.map(o => `
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="py-4 px-6 font-mono text-xs text-[#0071e3]">#${o._id.slice(-6).toUpperCase()}</td>
+                            <td class="py-4 px-6 font-mono text-xs text-[#0071e3]">#${o.id.slice(-6).toUpperCase()}</td>
                             <td class="py-4 px-6 text-[#1d1d1f]">${new Date(o.createdAt).toLocaleDateString()}</td>
-                            <td class="py-4 px-6 font-medium">${o.totalAmountNumeric.toLocaleString()}₫</td>
+                            <td class="py-4 px-6 font-medium">${(o.finalAmount || 0).toLocaleString()}₫</td>
                             <td class="py-4 px-6 text-right">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                                 ${o.status === 'Completed' ? 'bg-green-100 text-green-800' :
@@ -438,6 +494,110 @@
                     alert("Error: " + data.message);
                 }
             } catch (e) { alert("Connection error"); }
+        }
+
+        // --- ADDRESS FUNCTIONS ---
+        async function loadAddresses() {
+            try {
+                const res = await fetch(`${API_URL}/users/addresses`, { headers: { 'token': `Bearer ${token}` } });
+                const addresses = await res.json();
+                renderAddresses(addresses);
+            } catch (e) { document.getElementById('addresses-list').innerHTML = '<p class="text-sm text-red-400 text-center py-4">Failed to load addresses.</p>'; }
+        }
+
+        function renderAddresses(addresses) {
+            const list = document.getElementById('addresses-list');
+            if (!addresses.length) {
+                list.innerHTML = '<div class="text-center py-12 text-[#86868b]"><i class="fas fa-map-marker-alt text-3xl mb-3 opacity-20 block"></i><p class="text-sm">No addresses saved yet.</p></div>';
+                return;
+            }
+            list.innerHTML = addresses.map(a => `
+                <div class="apple-card p-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 ${a.isDefault ? 'border-l-4 border-[#0071e3]' : ''}">
+                    <div class="flex gap-4 items-start">
+                        <div class="w-10 h-10 rounded-xl bg-[#f5f5f7] flex items-center justify-center text-[#1d1d1f] flex-shrink-0 mt-0.5">
+                            <i class="fas fa-${a.label === 'Work' ? 'briefcase' : 'home'} text-sm"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-semibold text-[#1d1d1f] text-sm">${a.label || 'Home'}</span>
+                                ${a.isDefault ? '<span class="text-[10px] font-bold uppercase tracking-wider text-[#0071e3] bg-blue-50 px-2 py-0.5 rounded-full">Default</span>' : ''}
+                            </div>
+                            <p class="text-sm text-[#1d1d1f] font-medium">${a.fullName || ''}</p>
+                            <p class="text-sm text-[#86868b]">${a.phone || ''}</p>
+                            <p class="text-sm text-[#86868b] mt-0.5">${a.address || ''}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        ${!a.isDefault ? `<button onclick="setDefaultAddress('${a.id}')" class="text-xs text-[#0071e3] hover:underline font-medium px-2 py-1">Set Default</button>` : ''}
+                        <button onclick="editAddress(${JSON.stringify(a).replace(/"/g, '&quot;')})" class="text-xs text-[#86868b] hover:text-[#1d1d1f] font-medium px-2 py-1 border border-[#d2d2d7] rounded-lg transition-colors">Edit</button>
+                        <button onclick="deleteAddress('${a.id}')" class="text-xs text-red-400 hover:text-red-600 font-medium px-2 py-1 border border-red-200 rounded-lg transition-colors">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAddressForm() {
+            document.getElementById('address-form-wrapper').classList.remove('hidden');
+            document.getElementById('address-form-title').innerText = 'New Address';
+            document.getElementById('editing-address-id').value = '';
+            ['addr-label','addr-fullname','addr-phone','addr-address'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('addr-default').checked = false;
+            document.getElementById('address-form-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function hideAddressForm() {
+            document.getElementById('address-form-wrapper').classList.add('hidden');
+        }
+
+        function editAddress(a) {
+            document.getElementById('address-form-wrapper').classList.remove('hidden');
+            document.getElementById('address-form-title').innerText = 'Edit Address';
+            document.getElementById('editing-address-id').value = a.id;
+            document.getElementById('addr-label').value = a.label || '';
+            document.getElementById('addr-fullname').value = a.fullName || '';
+            document.getElementById('addr-phone').value = a.phone || '';
+            document.getElementById('addr-address').value = a.address || '';
+            document.getElementById('addr-default').checked = a.isDefault || false;
+            document.getElementById('address-form-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        async function saveAddress() {
+            const id = document.getElementById('editing-address-id').value;
+            const body = {
+                label: document.getElementById('addr-label').value || 'Home',
+                fullName: document.getElementById('addr-fullname').value.trim(),
+                phone: document.getElementById('addr-phone').value.trim(),
+                address: document.getElementById('addr-address').value.trim(),
+                isDefault: document.getElementById('addr-default').checked
+            };
+            if (!body.fullName || !body.phone || !body.address) { alert('Please fill in Full Name, Phone, and Address.'); return; }
+
+            const url = id ? `${API_URL}/users/addresses/${id}` : `${API_URL}/users/addresses`;
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` }, body: JSON.stringify(body) });
+                if (!res.ok) { const err = await res.json(); alert(err.message || 'Failed to save address'); return; }
+                hideAddressForm();
+                loadAddresses();
+            } catch (e) { alert('Connection error'); }
+        }
+
+        async function deleteAddress(id) {
+            if (!confirm('Delete this address?')) return;
+            try {
+                const res = await fetch(`${API_URL}/users/addresses/${id}`, { method: 'DELETE', headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) { const err = await res.json(); alert(err.message); return; }
+                loadAddresses();
+            } catch (e) { alert('Connection error'); }
+        }
+
+        async function setDefaultAddress(id) {
+            try {
+                const res = await fetch(`${API_URL}/users/addresses/${id}/default`, { method: 'PUT', headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) { const err = await res.json(); alert(err.message); return; }
+                loadAddresses();
+            } catch (e) { alert('Connection error'); }
         }
 
         function logout() {

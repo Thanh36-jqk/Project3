@@ -1,7 +1,13 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const prisma = require('../config/postgres');
 const { mergeGuestCart } = require('../services/cartMergeService');
+const { sendEmail } = require('../services/emailService');
+const rabbitmqService = require('../services/rabbitmqService');
+const rabbitmqConfig = require('../config/rabbitmq');
+
+const OTP_EXPIRY_MINUTES = 10;
 
 // Access token: short-lived (15 minutes)
 const ACCESS_TOKEN_EXPIRY = '15m';
@@ -70,34 +76,97 @@ exports.register = async (req, res) => {
 };
 
 /**
- * Login user — returns access token + sets refresh token cookie
+ * Login step 1 — verify credentials, send OTP email
  * POST /api/login
+ * Returns: { requiresOtp: true, otpToken, maskedEmail }
  */
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-        
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
-        }
 
-        // Google OAuth users without a password must use Google login
-        if (!user.password) {
-            return res.status(401).json({ message: 'This account uses Google Sign-In. Please log in with Google.' });
-        }
+        if (!user) return res.status(401).json({ message: 'Invalid email or password' });
+        if (!user.password) return res.status(401).json({ message: 'This account uses Google Sign-In. Please log in with Google.' });
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+        if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
+
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+
+        // Sign short-lived OTP token (10 min) — embeds userId + otpHash, never the raw OTP
+        const otpToken = jwt.sign(
+            { userId: user.id, otpHash, purpose: 'login_otp' },
+            process.env.JWT_SECRET,
+            { expiresIn: `${OTP_EXPIRY_MINUTES}m` }
+        );
+
+        // Send OTP email
+        const maskedEmail = user.email.replace(/(.{2}).+(@.+)/, '$1***$2');
+        const html = `
+            <div style="font-family:-apple-system,BlinkMacSystemFont,'Inter',Arial,sans-serif;max-width:560px;margin:0 auto;padding:20px;background:#f5f5f7;border-radius:16px;">
+                <div style="background:#ffffff;border-radius:12px;padding:40px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+                    <div style="text-align:center;margin-bottom:28px;">
+                        <span style="font-size:36px;font-weight:700;color:#1d1d1f;">&#63743;</span>
+                        <p style="color:#86868b;font-size:13px;margin:4px 0 0;">Apple Store</p>
+                    </div>
+                    <h2 style="color:#1d1d1f;font-size:20px;font-weight:700;text-align:center;margin:0 0 8px;">Your Login Code</h2>
+                    <p style="color:#86868b;font-size:14px;text-align:center;margin:0 0 32px;">Use this code to complete your sign-in. It expires in ${OTP_EXPIRY_MINUTES} minutes.</p>
+                    <div style="background:#f5f5f7;border-radius:12px;padding:24px;text-align:center;margin-bottom:28px;">
+                        <span style="font-size:40px;font-weight:800;letter-spacing:12px;color:#1d1d1f;font-family:monospace;">${otp}</span>
+                    </div>
+                    <p style="color:#86868b;font-size:13px;text-align:center;margin:0;">If you did not attempt to sign in, please ignore this email.</p>
+                    <hr style="border:none;border-top:1px solid #f0f0f0;margin:24px 0 16px;" />
+                    <p style="color:#b0b0b5;font-size:12px;text-align:center;margin:0;">&copy; ${new Date().getFullYear()} Apple Store Clone. All rights reserved.</p>
+                </div>
+            </div>`;
+
+        const emailData = { to: user.email, subject: 'Apple Store — Your Login Verification Code', html };
+        const queued = await rabbitmqService.publishToQueue(rabbitmqConfig.queues.EMAIL_QUEUE, emailData);
+        if (!queued) await sendEmail(emailData);
+
+        res.status(200).json({ requiresOtp: true, otpToken, maskedEmail });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * Login step 2 — verify OTP, issue tokens
+ * POST /api/auth/verify-otp
+ */
+exports.verifyLoginOtp = async (req, res) => {
+    try {
+        const { otpToken, otp, guestCart } = req.body;
+        if (!otpToken || !otp) return res.status(400).json({ message: 'otpToken and otp are required' });
+
+        // Decode & verify OTP token
+        let payload;
+        try {
+            payload = jwt.verify(otpToken, process.env.JWT_SECRET);
+        } catch {
+            return res.status(401).json({ message: 'Verification code has expired. Please log in again.' });
         }
 
-        // Generate tokens
+        if (payload.purpose !== 'login_otp') {
+            return res.status(401).json({ message: 'Invalid token purpose' });
+        }
+
+        // Verify OTP matches
+        const otpHash = crypto.createHash('sha256').update(otp.trim()).digest('hex');
+        if (otpHash !== payload.otpHash) {
+            return res.status(401).json({ message: 'Incorrect verification code. Please try again.' });
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Issue tokens
         const accessToken = generateAccessToken(user);
         const clientIp = req.ip || req.connection?.remoteAddress || 'unknown';
-        
-        // Generate Refresh Token
-        const rawToken = require('crypto').randomBytes(40).toString('hex');
+        const rawToken = crypto.randomBytes(40).toString('hex');
+
         await prisma.refreshToken.create({
             data: {
                 userId: user.id,
@@ -107,12 +176,10 @@ exports.login = async (req, res) => {
             }
         });
 
-        // Set refresh token as httpOnly cookie
         setRefreshCookie(res, rawToken);
 
-        // Merge guest cart if provided
-        if (req.body.guestCart && Array.isArray(req.body.guestCart) && req.body.guestCart.length > 0) {
-            await mergeGuestCart(user.id, req.body.guestCart);
+        if (Array.isArray(guestCart) && guestCart.length > 0) {
+            await mergeGuestCart(user.id, guestCart).catch(() => {});
         }
 
         const { password: _pw, passwordResetToken: _prt, passwordResetExpires: _pre, emailVerificationToken: _evt, ...userInfo } = user;

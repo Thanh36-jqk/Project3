@@ -5,11 +5,14 @@ const authController = require('../controllers/authController');
 const passwordController = require('../controllers/passwordController');
 const { verifyToken } = require('../middleware/auth');
 const { validateRegister, validateLogin, validateForgotPassword, validateResetPassword } = require('../middleware/validate');
-const { authLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
+const { authLimiter, passwordResetLimiter, otpLimiter } = require('../middleware/rateLimiter');
 
 // Register and Login (with validation + rate limiting)
 router.post('/api/register', authLimiter, validateRegister, authController.register);
 router.post('/api/login', authLimiter, validateLogin, authController.login);
+
+// Login step 2 — OTP verification
+router.post('/api/auth/verify-otp', otpLimiter, authController.verifyLoginOtp);
 
 // Token management
 router.post('/api/auth/refresh', authController.refreshAccessToken);

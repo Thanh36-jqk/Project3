@@ -167,8 +167,7 @@
 
     <section class="mt-14 relative h-[500px] w-full overflow-hidden flex items-center justify-center">
         <div class="absolute inset-0 z-0">
-            <img src="assets/images/ipad hero.jpg"
-                fetchpriority="high"
+            <img src="assets/images/ipad hero.jpg" fetchpriority="high"
                 class="w-full h-full object-cover opacity-70 hover:scale-105 transition-transform duration-[2s]"
                 alt="Apple Store Hero">
             <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60"></div>
@@ -801,43 +800,6 @@
             }
         }
 
-        // Map old DB category names to the values the filter checkboxes expect
-        const CATEGORY_MAP = {
-            'phone': 'iPhone',
-            'laptop': 'Mac',
-            'desktop': 'Mac',
-            'tv & home': 'HeadPhone',
-            'headphone': 'HeadPhone',
-            'watch': 'Watch',
-            'ipad': 'iPad',
-            'iphone': 'iPhone',
-            'mac': 'Mac',
-        };
-
-        // Build a name → image_url lookup from the local fallback so we can
-        // patch API products whose image_url still points to the old seed paths.
-        const fallbackImageByName = {};
-        fallbackProducts.forEach(p => {
-            fallbackImageByName[p.name.toLowerCase()] = p.image_url;
-        });
-
-        function normalizeApiProduct(p) {
-            // Fix category
-            const cat = (p.category || '').toLowerCase().trim();
-            p.category = CATEGORY_MAP[cat] || p.category;
-
-            // Fix image_url: old seeds stored paths like "images/foo.jpg" without "assets/"
-            if (!p.image_url || !p.image_url.startsWith('assets/')) {
-                const fallback = fallbackImageByName[p.name.toLowerCase()];
-                p.image_url = fallback || 'assets/images/apple.webp';
-            }
-
-            // Fix description field name mismatch (DB: short_description, template: p.desc)
-            if (!p.desc) p.desc = p.short_description || '';
-
-            return p;
-        }
-
         async function initStore() {
             // Check Auth UI
             const user = JSON.parse(localStorage.getItem('user'));
@@ -881,7 +843,7 @@
                 const data = await res.json();
 
                 if (Array.isArray(data) && data.length > 0) {
-                    allProducts = data.map(normalizeApiProduct);
+                    allProducts = data;
                     applyFilters(); // re-apply any active filters on fresh data
                 }
             } catch (e) {
