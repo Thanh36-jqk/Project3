@@ -123,8 +123,13 @@ exports.login = async (req, res) => {
             </div>`;
 
         const emailData = { to: user.email, subject: 'Apple Store — Your Login Verification Code', html };
-        const queued = await rabbitmqService.publishToQueue(rabbitmqConfig.queues.EMAIL_QUEUE, emailData);
-        if (!queued) await sendEmail(emailData);
+        try {
+            const queued = await rabbitmqService.publishToQueue(rabbitmqConfig.queues.EMAIL_QUEUE, emailData);
+            if (!queued) await sendEmail(emailData);
+        } catch (emailErr) {
+            console.error('OTP email failed:', emailErr.message);
+            return res.status(500).json({ message: 'Failed to send verification code. Please try again later.' });
+        }
 
         res.status(200).json({ requiresOtp: true, otpToken, maskedEmail });
     } catch (error) {
