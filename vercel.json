@@ -16,6 +16,10 @@
       "dest": "server.js"
     },
     {
+      "src": "/images/(.*)",
+      "dest": "/assets/images/$1"
+    },
+    {
       "src": "/auth/(.*)",
       "dest": "server.js"
     },
