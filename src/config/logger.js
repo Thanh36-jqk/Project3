@@ -27,24 +27,19 @@ const fileFormat = winston.format.combine(
     winston.format.json()
 );
 
-const logger = winston.createLogger({
-    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-    defaultMeta: { service: 'apple-store' },
-    transports: [
-        // Console transport — always active
-        new winston.transports.Console({
-            format: consoleFormat
-        }),
+const transports = [
+    new winston.transports.Console({ format: consoleFormat })
+];
 
-        // Combined log file — all levels
+// File transports only in local dev where filesystem is writable
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'production') {
+    transports.push(
         new winston.transports.File({
             filename: path.join(logDir, 'combined.log'),
             format: fileFormat,
-            maxsize: 5242880,  // 5MB
+            maxsize: 5242880,
             maxFiles: 5
         }),
-
-        // Error-only log file
         new winston.transports.File({
             filename: path.join(logDir, 'error.log'),
             level: 'error',
@@ -52,7 +47,13 @@ const logger = winston.createLogger({
             maxsize: 5242880,
             maxFiles: 5
         })
-    ]
+    );
+}
+
+const logger = winston.createLogger({
+    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+    defaultMeta: { service: 'apple-store' },
+    transports
 });
 
 module.exports = logger;
