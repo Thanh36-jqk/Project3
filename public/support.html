@@ -5,83 +5,264 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/images/logo.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Support Check - Apple Style</title>
+    <title>Support — Apple Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=sf+pro+display:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'] },
-                    colors: {
-                        'glass': 'rgba(255, 255, 255, 0.05)',
-                        'glass-hover': 'rgba(255, 255, 255, 0.1)',
-                    },
+                    fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'] },
                     animation: {
-                        'blob': 'blob 10s infinite',
-                        'fade-up': 'fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'blob': 'blob 12s infinite',
+                        'fade-up': 'fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'fade-in': 'fadeIn 0.4s ease forwards',
+                        'bounce-soft': 'bounceSoft 2s ease-in-out infinite',
+                        'spin-slow': 'spin 3s linear infinite',
+                        'shimmer': 'shimmer 1.8s infinite',
+                        'pulse-ring': 'pulseRing 2s ease-in-out infinite',
                     },
                     keyframes: {
                         blob: {
-                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '0%': { transform: 'translate(0,0) scale(1)' },
+                            '33%': { transform: 'translate(40px,-60px) scale(1.1)' },
+                            '66%': { transform: 'translate(-30px,30px) scale(0.9)' },
+                            '100%': { transform: 'translate(0,0) scale(1)' },
                         },
                         fadeUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '0%': { opacity: '0', transform: 'translateY(28px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        bounceSoft: {
+                            '0%,100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-400px 0' },
+                            '100%': { backgroundPosition: '400px 0' },
+                        },
+                        pulseRing: {
+                            '0%,100%': { boxShadow: '0 0 0 0 rgba(59,130,246,0.4)' },
+                            '50%': { boxShadow: '0 0 0 8px rgba(59,130,246,0)' },
+                        },
                     }
                 }
             }
         }
     </script>
     <style>
-        body {
-            background-color: #000;
-            color: #f5f5f7;
-            overflow-x: hidden;
+        *, *::before, *::after { box-sizing: border-box; }
+        body { background: #000; color: #f5f5f7; overflow-x: hidden; }
+
+        /* ── Glass ── */
+        .glass {
+            background: rgba(28,28,30,0.55);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .glass-dark {
+            background: rgba(12,12,14,0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255,255,255,0.06);
         }
 
-        .scrollbar-none::-webkit-scrollbar {
-            display: none;
+        /* ── Gradient text ── */
+        .g-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .glass-panel {
-            background: rgba(28, 28, 30, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* ── Scrollbar ── */
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-thin::-webkit-scrollbar { width: 3px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+        /* ── Shimmer skeleton ── */
+        .skeleton {
+            background: linear-gradient(90deg,
+                rgba(255,255,255,0.04) 0%,
+                rgba(255,255,255,0.09) 50%,
+                rgba(255,255,255,0.04) 100%);
+            background-size: 400px 100%;
+            animation: shimmer 1.8s infinite;
         }
+
+        /* ── Hero glow ── */
+        .hero-bg {
+            background: radial-gradient(ellipse 90% 60% at 50% -5%, rgba(59,130,246,0.12) 0%, transparent 70%);
+        }
+
+        /* ── Rank progress bar ── */
+        .rank-bar {
+            height: 3px;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ── Voucher ── */
+        .voucher-active {
+            background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.08));
+            border: 1px solid rgba(59,130,246,0.25);
+        }
+        .voucher-used {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        /* ── Topic card ── */
+        .topic-card {
+            background: rgba(22,22,24,0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.28s cubic-bezier(0.16,1,0.3,1);
+        }
+        .topic-card:hover {
+            border-color: rgba(59,130,246,0.35);
+            background: rgba(22,22,24,0.9);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px -15px rgba(59,130,246,0.18);
+        }
+
+        /* ── Order status timeline ── */
+        .step-line {
+            position: absolute;
+            top: 13px; left: calc(50% + 14px);
+            width: calc(100% - 28px);
+            height: 2px;
+            background: rgba(255,255,255,0.08);
+        }
+        .step-done .step-line { background: linear-gradient(90deg,#22c55e,rgba(255,255,255,0.08)); }
+        .step-dot {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.15);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 6px;
+            font-size: 9px;
+            transition: all 0.4s;
+        }
+        .step-done .step-dot { background: #22c55e; border-color: #22c55e; box-shadow: 0 0 14px rgba(34,197,94,0.45); }
+        .step-active .step-dot { background: #3b82f6; border-color: #3b82f6; animation: pulseRing 2s ease-in-out infinite; }
+
+        /* ── FAQ ── */
+        .faq-tab {
+            padding: 7px 16px; border-radius: 99px;
+            font-size: 12px; font-weight: 500;
+            color: rgba(255,255,255,0.45);
+            cursor: pointer; white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .faq-tab.on { background: rgba(59,130,246,0.18); color: #60a5fa; border-color: rgba(59,130,246,0.3); }
+        .faq-tab:not(.on):hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.05); }
+        .faq-body { display: none; }
+        .faq-body.on { display: block; animation: fadeIn 0.3s ease; }
+        summary { list-style: none; cursor: pointer; }
+        summary::-webkit-details-marker { display: none; }
+        summary::marker { display: none; }
+        details[open] summary .faq-icon { transform: rotate(45deg); }
+        .faq-icon { transition: transform 0.25s; }
+
+        /* ── Contact card ── */
+        .contact-card {
+            background: rgba(18,18,20,0.6);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.28s;
+        }
+        .contact-card:hover { background: rgba(22,22,24,0.95); transform: translateY(-3px); }
+
+        /* ── Floating chat ── */
+        #chat-fab {
+            position: fixed; bottom: 28px; right: 28px; z-index: 200;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 32px rgba(37,99,235,0.45);
+            transition: all 0.3s;
+        }
+        #chat-fab:hover { transform: scale(1.1); box-shadow: 0 12px 48px rgba(37,99,235,0.65); }
+
+        #chat-panel {
+            position: fixed; bottom: 96px; right: 28px; z-index: 200;
+            width: 360px; height: 500px;
+            background: rgba(8,8,12,0.97);
+            backdrop-filter: blur(32px);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 24px;
+            display: none; flex-direction: column; overflow: hidden;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(59,130,246,0.08);
+        }
+        #chat-panel.open { display: flex; animation: fadeUp 0.3s cubic-bezier(0.16,1,0.3,1); }
+
+        #chat-messages {
+            flex: 1; overflow-y: auto; padding: 16px;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .bubble-bot {
+            max-width: 88%;
+            background: rgba(59,130,246,0.13);
+            border: 1px solid rgba(59,130,246,0.18);
+            color: #e2e8f0;
+            padding: 10px 14px; border-radius: 18px 18px 18px 4px;
+            font-size: 13px; line-height: 1.55;
+            animation: fadeIn 0.25s ease;
+        }
+        .bubble-user {
+            max-width: 88%; margin-left: auto;
+            background: rgba(37,99,235,0.35);
+            border: 1px solid rgba(59,130,246,0.3);
+            color: #fff;
+            padding: 10px 14px; border-radius: 18px 18px 4px 18px;
+            font-size: 13px; line-height: 1.55;
+            animation: fadeIn 0.25s ease;
+        }
+        .typing-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(255,255,255,0.35);
+            animation: bounceSoft 1.4s ease-in-out infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.18s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.36s; }
+
+        /* ── Announcement banner ── */
+        .banner-notice {
+            background: linear-gradient(90deg, rgba(37,99,235,0.15), rgba(124,58,237,0.12));
+            border: 1px solid rgba(59,130,246,0.2);
+        }
+
+        /* ── Misc ── */
+        .op0 { opacity: 0; }
+        input:focus { outline: none; }
     </style>
 </head>
 
-<body class="antialiased min-h-screen relative selection:bg-blue-500/30">
+<body class="antialiased min-h-screen">
 
-    <!-- Ambient Background -->
-    <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div
-            class="absolute top-0 left-1/4 w-96 h-96 bg-blue-900/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob">
-        </div>
-        <div class="absolute top-0 right-1/4 w-96 h-96 bg-purple-900/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"
-            style="animation-delay: 2s"></div>
-        <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-indigo-900/20 rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"
-            style="animation-delay: 4s"></div>
+    <!-- ══════ AMBIENT BACKGROUND ══════ -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div class="absolute top-0 left-[20%] w-[600px] h-[600px] bg-blue-900/12 rounded-full mix-blend-screen blur-[120px] animate-blob"></div>
+        <div class="absolute top-[20%] right-[10%] w-[500px] h-[500px] bg-purple-900/10 rounded-full mix-blend-screen blur-[100px] animate-blob" style="animation-delay:3s"></div>
+        <div class="absolute bottom-0 left-[35%] w-[700px] h-[400px] bg-indigo-900/08 rounded-full mix-blend-screen blur-[130px] animate-blob" style="animation-delay:7s"></div>
     </div>
 
-    <!-- Nav -->
-    <header
-        class="fixed top-0 w-full z-50 transition-all duration-300 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between text-xs font-medium text-gray-400">
-            <!-- Logo -->
-            <a href="index.html" class="text-xl text-white hover:opacity-80 transition-opacity"><i
-                    class="fab fa-apple"></i></a>
-
-            <!-- Desktop Menu -->
-            <div class="hidden md:flex space-x-10">
+    <!-- ══════ NAV ══════ -->
+    <header class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/[0.08]">
+        <nav class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between text-[12px] font-medium text-gray-400">
+            <a href="index.html" class="text-xl text-white hover:opacity-75 transition-opacity">
+                <i class="fab fa-apple"></i>
+            </a>
+            <div class="hidden md:flex gap-9">
                 <a href="store.html" class="hover:text-white transition-colors">Store</a>
                 <a href="pages/products/mac.html" class="hover:text-white transition-colors">Mac</a>
                 <a href="pages/products/ipad.html" class="hover:text-white transition-colors">iPad</a>
@@ -90,288 +271,818 @@
                 <a href="support.html" class="text-white">Support</a>
                 <a href="ACCOUNT.html" class="hover:text-white transition-colors">Member</a>
             </div>
-
-            <!-- Auth / Icons -->
-            <div class="flex items-center gap-4" id="auth-section">
+            <div id="auth-section" class="flex items-center gap-3">
                 <a href="pages/auth/login.html"
-                    class="text-xs font-medium text-white bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-full transition-all backdrop-blur-md">Sign
-                    In</a>
+                    class="text-[12px] font-medium text-white bg-white/10 hover:bg-white/18 px-4 py-1.5 rounded-full transition-all">
+                    Sign In
+                </a>
             </div>
         </nav>
     </header>
 
-    <main class="relative z-10 pt-32 pb-24 px-6 max-w-7xl mx-auto w-full">
+    <main class="relative z-10 pb-36">
 
-        <!-- Header -->
-        <section class="text-center space-y-6 mb-20 animate-fade-up">
-            <h1 class="text-5xl md:text-7xl font-bold tracking-tight text-white drop-shadow-2xl">
-                Support
-            </h1>
-            <p class="text-xl md:text-2xl text-gray-400 font-light max-w-2xl mx-auto">
-                Everything you need, all in one place.
-            </p>
-        </section>
+        <!-- ══════ HERO ══════ -->
+        <section class="hero-bg pt-36 pb-14 px-6 text-center">
+            <div class="max-w-3xl mx-auto">
 
-        <!-- DASHBOARD (Bento Grid) -->
-        <div id="user-dashboard" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-up"
-            style="animation-delay: 0.1s">
+                <!-- Status pill -->
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[11px] font-medium mb-7 animate-fade-up op0" style="animation-fill-mode:forwards">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                    Support Center &nbsp;·&nbsp; All systems operational
+                </div>
 
-            <!-- Welcome Card (Large) -->
-            <div
-                class="md:col-span-2 glass-panel rounded-[2rem] p-8 md:p-10 flex flex-col md:flex-row justify-between items-start md:items-center relative overflow-hidden group">
-                <div class="relative z-10">
-                    <p class="text-gray-400 text-sm font-medium uppercase tracking-wider mb-1">Overview</p>
-                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-2" id="user-name">Welcome Back</h2>
-                    <div class="flex items-center gap-3 mt-4">
-                        <span id="user-rank"
-                            class="px-3 py-1 rounded-full bg-white/10 text-xs font-bold text-white border border-white/10">Member</span>
-                        <span class="text-gray-400 text-sm">|</span>
-                        <span class="text-yellow-500 font-bold" id="user-points">0 pts</span>
+                <h1 class="text-5xl md:text-[72px] font-bold tracking-tight leading-none mb-5 animate-fade-up op0" style="animation-delay:.06s;animation-fill-mode:forwards">
+                    How can we <span class="g-text">help you?</span>
+                </h1>
+                <p class="text-lg text-gray-400 font-light mb-10 animate-fade-up op0" style="animation-delay:.12s;animation-fill-mode:forwards">
+                    Track orders, find answers, or chat with our AI support team.
+                </p>
+
+                <!-- Hero search bar -->
+                <form id="hero-form" class="max-w-xl mx-auto animate-fade-up op0" style="animation-delay:.18s;animation-fill-mode:forwards">
+                    <div class="relative group">
+                        <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 text-sm pointer-events-none"></i>
+                        <input id="hero-input" type="text" placeholder="Enter Order ID to track…"
+                            class="w-full bg-white/[0.05] border border-white/10 focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/15 rounded-2xl pl-12 pr-36 py-4 text-white placeholder-gray-600 font-mono text-sm transition-all">
+                        <button type="submit"
+                            class="absolute right-2 top-2 bottom-2 bg-blue-600 hover:bg-blue-500 text-white px-5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
+                            Track <i class="fas fa-arrow-right text-xs"></i>
+                        </button>
                     </div>
-                </div>
-                <div class="mt-8 md:mt-0 relative z-10">
-                    <button onclick="logout()"
-                        class="text-sm font-medium text-red-400 hover:text-red-300 transition-colors">Sign Out <i
-                            class="fas fa-arrow-right ml-1"></i></button>
-                </div>
-                <!-- Decor -->
-                <div
-                    class="absolute right-0 top-0 w-64 h-64 bg-gradient-to-br from-blue-600/10 to-transparent rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-600/20 transition-all duration-700">
-                </div>
-            </div>
-
-            <!-- Voucher Wallet (Tall) -->
-            <div
-                class="glass-panel rounded-[2rem] p-8 relative overflow-hidden group hover:border-white/20 transition-all duration-300">
-                <div class="flex justify-between items-center mb-6 relative z-10">
-                    <h3 class="text-xl font-bold text-white">Vouchers</h3>
-                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"><i
-                            class="fas fa-ticket-alt text-sm"></i></div>
-                </div>
-                <div id="voucher-list"
-                    class="space-y-3 relative z-10 h-[200px] overflow-y-auto scrollbar-none mask-image-gradient">
-                    <!-- JS Injected -->
-                    <p class="text-gray-500 text-sm">Loading...</p>
-                </div>
-            </div>
-
-            <!-- Recent Orders (Wide) -->
-            <div class="md:col-span-3 glass-panel rounded-[2rem] p-8 md:p-10">
-                <div class="flex justify-between items-end mb-8">
-                    <div>
-                        <h3 class="text-2xl font-bold text-white mb-1">Recent Activity</h3>
-                        <p class="text-gray-400 text-sm">Your latest purchase history</p>
-                    </div>
-                    <a href="store.html"
-                        class="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors">Video All
-                        Products <i class="fas fa-chevron-right text-xs"></i></a>
-                </div>
-
-                <div id="order-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Orders Injected -->
-                </div>
-            </div>
-        </div>
-
-        <!-- PUBLIC TOOLS -->
-        <div id="public-tools" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-fade-up"
-            style="animation-delay: 0.2s">
-
-            <!-- Quick Track -->
-            <div class="glass-panel rounded-[2rem] p-8 md:p-10 flex flex-col justify-center">
-                <div class="mb-6">
-                    <div
-                        class="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-700 flex items-center justify-center mb-4 shadow-lg shadow-green-900/20">
-                        <i class="fas fa-box text-xl text-white"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold text-white">Track an Order</h3>
-                    <p class="text-gray-400 mt-2 text-sm">See the status of any order without signing in.</p>
-                </div>
-
-                <form id="quick-track-form" class="relative group">
-                    <input type="text" id="track-id" placeholder="Enter Order ID"
-                        class="w-full bg-black/40 border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all font-mono text-sm">
-                    <button type="submit"
-                        class="absolute right-2 top-2 bottom-2 bg-white/10 hover:bg-white/20 text-white px-4 rounded-xl transition-all">
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
                 </form>
 
-                <!-- Result Area -->
-                <div id="quick-track-result"
-                    class="mt-4 hidden p-4 bg-black/40 rounded-xl border border-white/5 text-sm"></div>
+                <!-- Quick pill shortcuts -->
+                <div class="flex flex-wrap justify-center gap-2.5 mt-7 animate-fade-up op0" style="animation-delay:.24s;animation-fill-mode:forwards">
+                    <button onclick="goto('track-section')"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/10 border border-white/10 text-[12px] text-gray-300 hover:text-white transition-all">
+                        <i class="fas fa-box text-green-400 text-[11px]"></i> Track Order
+                    </button>
+                    <button onclick="goto('faq-section')"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/10 border border-white/10 text-[12px] text-gray-300 hover:text-white transition-all">
+                        <i class="fas fa-question-circle text-blue-400 text-[11px]"></i> FAQs
+                    </button>
+                    <button onclick="goto('contact-section')"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/10 border border-white/10 text-[12px] text-gray-300 hover:text-white transition-all">
+                        <i class="fas fa-headset text-purple-400 text-[11px]"></i> Contact Us
+                    </button>
+                    <button onclick="openChat()"
+                        class="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/10 border border-white/10 text-[12px] text-gray-300 hover:text-white transition-all">
+                        <i class="fas fa-robot text-pink-400 text-[11px]"></i> AI Chat
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div class="max-w-7xl mx-auto px-6 space-y-10">
+
+            <!-- ══════ USER DASHBOARD (logged-in only) ══════ -->
+            <section id="user-dashboard" class="hidden animate-fade-up op0" style="animation-fill-mode:forwards">
+
+                <!-- Stats mini bar -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <div class="glass rounded-2xl px-5 py-4 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-blue-500/15 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-star text-blue-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Points</p>
+                            <p class="text-base font-bold text-white" id="s-points">—</p>
+                        </div>
+                    </div>
+                    <div class="glass rounded-2xl px-5 py-4 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-shield-alt text-purple-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Rank</p>
+                            <p class="text-base font-bold text-white" id="s-rank">—</p>
+                        </div>
+                    </div>
+                    <div class="glass rounded-2xl px-5 py-4 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-green-500/15 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-shopping-bag text-green-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Orders</p>
+                            <p class="text-base font-bold text-white" id="s-orders">—</p>
+                        </div>
+                    </div>
+                    <div class="glass rounded-2xl px-5 py-4 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-yellow-500/15 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-ticket-alt text-yellow-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Vouchers</p>
+                            <p class="text-base font-bold text-white" id="s-vouchers">—</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bento grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                    <!-- Profile + rank progress (2 cols) -->
+                    <div class="md:col-span-2 glass rounded-[2rem] p-8 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-transparent to-purple-900/6 pointer-events-none"></div>
+                        <div class="relative z-10 flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-4 mb-6">
+                                    <div id="u-avatar"
+                                        class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-xl flex-shrink-0">
+                                        A
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] text-gray-500 uppercase tracking-widest font-medium mb-0.5">Welcome back</p>
+                                        <h2 class="text-2xl font-bold text-white" id="u-name">—</h2>
+                                    </div>
+                                </div>
+
+                                <!-- Rank progress -->
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-[11px]">
+                                        <span class="text-gray-500">Rank progress</span>
+                                        <span class="text-blue-400 font-medium" id="u-progress-label">—</span>
+                                    </div>
+                                    <div class="w-full h-[3px] bg-white/8 rounded-full overflow-hidden">
+                                        <div class="rank-bar" id="u-progress-bar" style="width:0%"></div>
+                                    </div>
+                                    <div class="flex justify-between text-[10px] text-gray-600">
+                                        <span>Member</span><span>Silver</span><span>Gold</span><span>Platinum</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex sm:flex-col gap-2 flex-shrink-0">
+                                <a href="ACCOUNT.html"
+                                    class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[12px] font-semibold transition-all flex items-center gap-2 justify-center whitespace-nowrap">
+                                    <i class="fas fa-user-circle"></i> My Account
+                                </a>
+                                <button onclick="logout()"
+                                    class="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-red-500/15 hover:border-red-500/30 border border-white/8 text-gray-400 hover:text-red-400 text-[12px] font-semibold transition-all flex items-center gap-2 justify-center whitespace-nowrap">
+                                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Voucher wallet (1 col) -->
+                    <div class="glass rounded-[2rem] p-7 relative overflow-hidden flex flex-col">
+                        <div class="flex items-center justify-between mb-5">
+                            <h3 class="text-lg font-bold text-white">Vouchers</h3>
+                            <span id="v-badge"
+                                class="px-2.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-[11px] font-bold border border-yellow-500/20">
+                                0
+                            </span>
+                        </div>
+                        <div id="voucher-list" class="space-y-2.5 overflow-y-auto scrollbar-thin flex-1 max-h-[200px]">
+                            <div class="skeleton h-14 rounded-xl"></div>
+                            <div class="skeleton h-14 rounded-xl opacity-60"></div>
+                        </div>
+                    </div>
+
+                    <!-- Recent orders (full width) -->
+                    <div class="md:col-span-3 glass rounded-[2rem] p-8">
+                        <div class="flex items-end justify-between mb-7">
+                            <div>
+                                <h3 class="text-2xl font-bold text-white">Recent Orders</h3>
+                                <p class="text-sm text-gray-500 mt-1">Click any order to track it</p>
+                            </div>
+                            <a href="store.html"
+                                class="text-blue-400 hover:text-blue-300 text-[12px] font-medium transition-colors flex items-center gap-1">
+                                Shop More <i class="fas fa-chevron-right text-[10px]"></i>
+                            </a>
+                        </div>
+                        <div id="order-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="skeleton h-36 rounded-2xl"></div>
+                            <div class="skeleton h-36 rounded-2xl opacity-70"></div>
+                            <div class="skeleton h-36 rounded-2xl opacity-40"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══════ SUPPORT TOPICS ══════ -->
+            <section class="animate-fade-up op0" style="animation-delay:.1s;animation-fill-mode:forwards">
+                <h2 class="text-2xl font-bold text-white mb-5">Browse support topics</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <button onclick="goto('track-section')" class="topic-card rounded-2xl p-5 text-left flex flex-col gap-3 group">
+                        <div class="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fas fa-box text-green-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Orders</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Track & manage</p>
+                        </div>
+                    </button>
+                    <button onclick="switchFaq('returns')" class="topic-card rounded-2xl p-5 text-left flex flex-col gap-3 group">
+                        <div class="w-10 h-10 rounded-xl bg-orange-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fas fa-undo text-orange-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Returns</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Policy & process</p>
+                        </div>
+                    </button>
+                    <button onclick="switchFaq('payment')" class="topic-card rounded-2xl p-5 text-left flex flex-col gap-3 group">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fas fa-credit-card text-blue-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Payment</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Billing & methods</p>
+                        </div>
+                    </button>
+                    <button onclick="switchFaq('products')" class="topic-card rounded-2xl p-5 text-left flex flex-col gap-3 group">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fab fa-apple text-purple-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Products</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Warranty & repair</p>
+                        </div>
+                    </button>
+                    <button onclick="switchFaq('account')" class="topic-card rounded-2xl p-5 text-left flex flex-col gap-3 group">
+                        <div class="w-10 h-10 rounded-xl bg-pink-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fas fa-user text-pink-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Account</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Profile & security</p>
+                        </div>
+                    </button>
+                    <button onclick="openChat()" class="topic-card rounded-2xl p-5 text-left flex flex-col gap-3 group">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fas fa-robot text-cyan-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">AI Support</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">Chat instantly</p>
+                        </div>
+                    </button>
+                </div>
+            </section>
+
+            <!-- ══════ ORDER TRACKING ══════ -->
+            <section id="track-section" class="animate-fade-up op0" style="animation-delay:.15s;animation-fill-mode:forwards">
+                <div class="glass rounded-[2rem] p-8 md:p-10">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+
+                        <!-- Left -->
+                        <div>
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-700 flex items-center justify-center mb-5 shadow-lg shadow-green-900/30">
+                                <i class="fas fa-map-marker-alt text-white text-lg"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-white mb-1.5">Track Your Order</h3>
+                            <p class="text-sm text-gray-400 mb-6 leading-relaxed">Enter your Order ID for real-time status. No sign-in required.</p>
+
+                            <form id="track-form" class="space-y-3">
+                                <input id="track-id" type="text" placeholder="e.g. 6842f3c8d9a…"
+                                    class="w-full bg-black/40 border border-white/8 focus:border-blue-500/40 focus:ring-1 focus:ring-blue-500/15 rounded-2xl px-5 py-3.5 text-white placeholder-gray-600 font-mono text-sm transition-all">
+                                <button type="submit"
+                                    class="w-full py-3.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-2xl text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-900/25">
+                                    <i class="fas fa-search"></i> Track Order
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Right: result or placeholder -->
+                        <div>
+                            <div id="track-placeholder" class="flex flex-col items-center justify-center text-center py-10">
+                                <div class="w-20 h-20 rounded-3xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center mb-4">
+                                    <i class="fas fa-box-open text-3xl text-gray-600"></i>
+                                </div>
+                                <p class="text-sm text-gray-500 leading-relaxed">Enter your Order ID<br>to see tracking details here</p>
+                            </div>
+                            <div id="track-result" class="hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ══════ FAQ ══════ -->
+            <section id="faq-section" class="animate-fade-up op0" style="animation-delay:.2s;animation-fill-mode:forwards">
+                <div class="glass rounded-[2rem] p-8 md:p-10">
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">Frequently Asked Questions</h3>
+                            <p class="text-sm text-gray-400 mt-1">Answers to the most common questions</p>
+                        </div>
+                        <!-- Tab bar -->
+                        <div class="flex flex-wrap gap-2" id="faq-tabs">
+                            <button class="faq-tab on" data-tab="orders"   onclick="switchFaqTab(this,'orders')">Orders</button>
+                            <button class="faq-tab"     data-tab="shipping" onclick="switchFaqTab(this,'shipping')">Shipping</button>
+                            <button class="faq-tab"     data-tab="returns"  onclick="switchFaqTab(this,'returns')">Returns</button>
+                            <button class="faq-tab"     data-tab="payment"  onclick="switchFaqTab(this,'payment')">Payment</button>
+                            <button class="faq-tab"     data-tab="products" onclick="switchFaqTab(this,'products')">Products</button>
+                            <button class="faq-tab"     data-tab="account"  onclick="switchFaqTab(this,'account')">Account</button>
+                        </div>
+                    </div>
+
+                    <div id="faq-orders"   class="faq-body on  space-y-3"></div>
+                    <div id="faq-shipping" class="faq-body     space-y-3"></div>
+                    <div id="faq-returns"  class="faq-body     space-y-3"></div>
+                    <div id="faq-payment"  class="faq-body     space-y-3"></div>
+                    <div id="faq-products" class="faq-body     space-y-3"></div>
+                    <div id="faq-account"  class="faq-body     space-y-3"></div>
+                </div>
+            </section>
+
+            <!-- ══════ SERVICE NOTICE BANNER ══════ -->
+            <div class="banner-notice rounded-2xl px-6 py-4 flex items-center gap-4 animate-fade-up op0" style="animation-delay:.25s;animation-fill-mode:forwards">
+                <div class="w-8 h-8 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-bell text-blue-400 text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white">Service Notice</p>
+                    <p class="text-[12px] text-gray-400 mt-0.5">Delivery may be delayed 1-2 days due to public holiday. We apologize for any inconvenience.</p>
+                </div>
+                <button onclick="this.closest('.banner-notice').remove()" class="text-gray-600 hover:text-gray-400 transition-colors flex-shrink-0">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
             </div>
 
-            <!-- FAQ Accordion -->
-            <div class="glass-panel rounded-[2rem] p-8 md:p-10">
-                <h3 class="text-2xl font-bold text-white mb-6">Common Questions</h3>
-                <div class="space-y-3">
-                    <details
-                        class="group bg-black/20 rounded-2xl overflow-hidden border border-white/5 open:bg-black/40 transition-colors">
-                        <summary
-                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white flex justify-between items-center">
-                            Return Policy <i
-                                class="fas fa-plus text-xs opacity-50 transition-transform group-open:rotate-45"></i>
-                        </summary>
-                        <div class="p-4 pt-0 text-sm text-gray-400 leading-relaxed">
-                            You have 14 calendar days to return an item from the date you received it.
+            <!-- ══════ CONTACT CENTER ══════ -->
+            <section id="contact-section" class="animate-fade-up op0" style="animation-delay:.3s;animation-fill-mode:forwards">
+                <h2 class="text-2xl font-bold text-white mb-5">Still need help?</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                    <!-- AI Chat -->
+                    <button onclick="openChat()" class="contact-card rounded-2xl p-6 text-left group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/15 border border-cyan-500/20 group-hover:border-cyan-500/40 flex items-center justify-center mb-4 transition-colors">
+                            <i class="fas fa-comment-dots text-cyan-400 text-lg"></i>
                         </div>
-                    </details>
-                    <details
-                        class="group bg-black/20 rounded-2xl overflow-hidden border border-white/5 open:bg-black/40 transition-colors">
-                        <summary
-                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white flex justify-between items-center">
-                            Shipping Times <i
-                                class="fas fa-plus text-xs opacity-50 transition-transform group-open:rotate-45"></i>
-                        </summary>
-                        <div class="p-4 pt-0 text-sm text-gray-400 leading-relaxed">
-                            Standard shipping takes 3-5 business days. Express options available.
+                        <h4 class="font-bold text-white mb-1">AI Chat Support</h4>
+                        <p class="text-[12px] text-gray-500 leading-relaxed">Instant answers from our AI assistant. Available 24/7, no wait time.</p>
+                        <div class="flex items-center gap-1.5 mt-4">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                            <span class="text-[11px] text-green-400 font-medium">Online now</span>
                         </div>
-                    </details>
-                    <details
-                        class="group bg-black/20 rounded-2xl overflow-hidden border border-white/5 open:bg-black/40 transition-colors">
-                        <summary
-                            class="p-4 cursor-pointer font-medium text-gray-300 group-hover:text-white flex justify-between items-center">
-                            Forgot Password? <i
-                                class="fas fa-plus text-xs opacity-50 transition-transform group-open:rotate-45"></i>
-                        </summary>
-                        <div class="p-4 pt-0 text-sm text-gray-400 leading-relaxed">
-                            Visit the login page and click "Forgot Password" to reset via email.
+                    </button>
+
+                    <!-- Phone -->
+                    <a href="tel:0962923329" class="contact-card rounded-2xl p-6 text-left group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/15 border border-green-500/20 group-hover:border-green-500/40 flex items-center justify-center mb-4 transition-colors">
+                            <i class="fas fa-phone text-green-400 text-lg"></i>
                         </div>
-                    </details>
+                        <h4 class="font-bold text-white mb-1">Call Support</h4>
+                        <p class="text-[12px] text-gray-500 leading-relaxed">Talk directly with a specialist for complex issues.</p>
+                        <p class="text-sm font-bold text-white mt-4">0962 923 329</p>
+                    </a>
+
+                    <!-- Email -->
+                    <a href="mailto:support@applestore.vn" class="contact-card rounded-2xl p-6 text-left group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/15 border border-purple-500/20 group-hover:border-purple-500/40 flex items-center justify-center mb-4 transition-colors">
+                            <i class="fas fa-envelope text-purple-400 text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">Email Us</h4>
+                        <p class="text-[12px] text-gray-500 leading-relaxed">We respond to all emails within 24 business hours.</p>
+                        <p class="text-[12px] text-purple-400 font-medium mt-4">support@applestore.vn</p>
+                    </a>
+
+                    <!-- Visit -->
+                    <div class="contact-card rounded-2xl p-6 text-left group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-orange-500/15 border border-yellow-500/20 group-hover:border-yellow-500/40 flex items-center justify-center mb-4 transition-colors">
+                            <i class="fas fa-store text-yellow-400 text-lg"></i>
+                        </div>
+                        <h4 class="font-bold text-white mb-1">Visit Our Store</h4>
+                        <p class="text-[12px] text-gray-500 leading-relaxed">Hands-on support and product demonstrations in person.</p>
+                        <p class="text-[12px] text-gray-400 mt-4 leading-relaxed">Mon – Sat&nbsp; 9:00 AM – 8:00 PM</p>
+                    </div>
                 </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ══════ FLOATING CHAT BUTTON ══════ -->
+    <button id="chat-fab" title="Chat with AI Support">
+        <i class="fas fa-comment-dots text-white text-xl" id="chat-fab-icon"></i>
+    </button>
+
+    <!-- ══════ CHAT PANEL ══════ -->
+    <div id="chat-panel">
+        <!-- Header -->
+        <div class="px-5 py-3.5 border-b border-white/8 flex items-center justify-between bg-gradient-to-r from-blue-900/25 to-purple-900/15 flex-shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-white">Apple AI Support</p>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                        <span class="text-[10px] text-green-400">Online</span>
+                    </div>
+                </div>
+            </div>
+            <button onclick="closeChat()"
+                class="w-7 h-7 rounded-full bg-white/5 hover:bg-white/12 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-messages" class="scrollbar-thin">
+            <div class="bubble-bot">Hi! I'm your Apple support assistant. How can I help you today? 👋</div>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="quickMsg('How do I track my order?')"
+                    class="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-[11px] text-gray-300 hover:text-white border border-white/8 transition-all">
+                    Track order
+                </button>
+                <button onclick="quickMsg('What is your return policy?')"
+                    class="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-[11px] text-gray-300 hover:text-white border border-white/8 transition-all">
+                    Returns
+                </button>
+                <button onclick="quickMsg('How do I reset my password?')"
+                    class="px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-[11px] text-gray-300 hover:text-white border border-white/8 transition-all">
+                    Reset password
+                </button>
             </div>
         </div>
 
-    </main>
+        <!-- Input -->
+        <div class="px-4 py-3 border-t border-white/8 flex-shrink-0">
+            <form id="chat-form" class="flex gap-2">
+                <input id="chat-input" type="text" placeholder="Ask anything…"
+                    class="flex-1 bg-white/5 border border-white/8 focus:border-blue-500/30 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 transition-all">
+                <button type="submit"
+                    class="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-500 flex items-center justify-center transition-all flex-shrink-0">
+                    <i class="fas fa-paper-plane text-white text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
 
-    <!-- JS Logic -->
+    <!-- ══════ JAVASCRIPT ══════ -->
     <script>
-        const API_BASE_URL = 'https://project3-icy1.onrender.com';
+        const API = 'https://project3-icy1.onrender.com';
+        let chatIsOpen = false;
 
+        // ── Init ──
         document.addEventListener('DOMContentLoaded', async () => {
-            const token = localStorage.getItem('accessToken');
-            const userDashboard = document.getElementById('user-dashboard');
-            const authSection = document.getElementById('auth-section');
+            buildFAQ();
 
+            const token = localStorage.getItem('accessToken');
             if (token) {
-                // Logged In
-                authSection.innerHTML = ``; // Hide 'Sign In' button
-                userDashboard.classList.remove('hidden');
-                await loadUserProfile(token);
+                document.getElementById('auth-section').innerHTML = '';
+                const dash = document.getElementById('user-dashboard');
+                dash.classList.remove('hidden');
+                dash.style.animationDelay = '0.05s';
+                await loadProfile(token);
             }
 
-            document.getElementById('quick-track-form').addEventListener('submit', handleQuickTrack);
+            document.getElementById('hero-form').addEventListener('submit', e => {
+                e.preventDefault();
+                const id = document.getElementById('hero-input').value.trim();
+                if (!id) return;
+                document.getElementById('track-id').value = id;
+                goto('track-section');
+                doTrack(id);
+            });
+
+            document.getElementById('track-form').addEventListener('submit', e => {
+                e.preventDefault();
+                const id = document.getElementById('track-id').value.trim();
+                if (id) doTrack(id);
+            });
+
+            document.getElementById('chat-form').addEventListener('submit', e => {
+                e.preventDefault();
+                const input = document.getElementById('chat-input');
+                const msg = input.value.trim();
+                if (!msg) return;
+                input.value = '';
+                sendChat(msg);
+            });
+
+            document.getElementById('chat-fab').addEventListener('click', () => chatIsOpen ? closeChat() : openChat());
         });
 
-        async function loadUserProfile(token) {
+        // ── Profile ──
+        async function loadProfile(token) {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await fetch(`${API}/api/users/profile`, { headers: { token: `Bearer ${token}` } });
                 const data = await res.json();
+                if (!res.ok) return;
 
-                if (res.ok) {
-                    // Profile
-                    document.getElementById('user-name').textContent = 'Hello, ' + data.user.email.split('@')[0];
-                    document.getElementById('user-points').textContent = data.user.points.toLocaleString() + ' pts';
-                    document.getElementById('user-rank').textContent = data.user.rank;
+                const u = data.user;
+                const username = (u.email || '').split('@')[0] || 'User';
 
-                    // Vouchers
-                    const voucherList = document.getElementById('voucher-list');
-                    voucherList.innerHTML = '';
-                    if (data.user.myVouchers?.length > 0) {
-                        data.user.myVouchers.forEach(v => {
-                            const div = document.createElement('div');
-                            div.className = `p-3 rounded-xl border border-white/5 flex justify-between items-center ${v.isUsed ? 'opacity-40 bg-black/20' : 'bg-white/5 hover:bg-white/10 transition-colors'}`;
-                            div.innerHTML = `
-                                <div>
-                                    <p class="font-mono text-xs font-bold text-white tracking-widest">${v.code}</p>
-                                    <p class="text-[10px] text-gray-400">-${v.discountAmount.toLocaleString()}₫</p>
-                                </div>
-                                ${!v.isUsed ? `<button onclick="copyToClipboard('${v.code}')" class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white text-white hover:text-black transition-all"><i class="fas fa-copy text-xs"></i></button>` : ''}
-                            `;
-                            voucherList.appendChild(div);
-                        });
-                    } else {
-                        voucherList.innerHTML = '<div class="text-center py-8 opacity-50 text-xs">No vouchers available</div>';
-                    }
+                document.getElementById('s-points').textContent = (u.points || 0).toLocaleString() + ' pts';
+                document.getElementById('s-rank').textContent = u.rank || 'Member';
+                document.getElementById('s-orders').textContent = data.orders?.length ?? 0;
+                document.getElementById('s-vouchers').textContent = (u.myVouchers || []).filter(v => !v.isUsed).length;
 
-                    // Orders
-                    const orderList = document.getElementById('order-list');
-                    orderList.innerHTML = '';
-                    if (data.orders?.length > 0) {
-                        data.orders.slice(0, 6).forEach(order => {
-                            const statusColor = getStatusColor(order.status);
-                            const div = document.createElement('div');
-                            div.className = 'bg-black/30 p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-all group';
-                            div.innerHTML = `
-                                <div class="flex justify-between items-start mb-3">
-                                    <span class="text-[10px] font-mono text-gray-500 bg-white/5 px-2 py-1 rounded">#${order._id.slice(-6).toUpperCase()}</span>
-                                    <span class="w-2 h-2 rounded-full ${statusColor}"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <p class="text-lg font-bold text-white">${parseInt(order.finalAmount || order.totalAmountNumeric).toLocaleString()} ₫</p>
-                                    <p class="text-xs text-gray-400 mt-0.5">${order.items.length} items • ${order.status}</p>
-                                </div>
-                                <button onclick="handleQuickTrack(null, '${order._id}')" class="w-full py-2 rounded-xl bg-white/5 hover:bg-white text-white hover:text-black text-xs font-bold transition-all">Track Order</button>
-                            `;
-                            orderList.appendChild(div);
-                        });
-                    } else {
-                        orderList.innerHTML = '<div class="md:col-span-3 text-center py-12 text-gray-600">No orders yet.</div>';
-                    }
-                }
-            } catch (e) {
-                console.error(e);
-            }
+                document.getElementById('u-name').textContent = username;
+                document.getElementById('u-avatar').textContent = username[0].toUpperCase();
+
+                setRankProgress(u.points || 0, u.rank || 'Member');
+                renderVouchers(u.myVouchers || []);
+                renderOrders(data.orders || []);
+            } catch (e) { console.error(e); }
         }
 
-        async function handleQuickTrack(e, idOverride) {
-            if (e) e.preventDefault();
-            const id = idOverride || document.getElementById('track-id').value.trim();
-            const resultDiv = document.getElementById('quick-track-result');
+        function setRankProgress(pts, rank) {
+            const tiers = [
+                { name: 'Member',   min: 0,     max: 1000 },
+                { name: 'Silver',   min: 1000,  max: 5000 },
+                { name: 'Gold',     min: 5000,  max: 15000 },
+                { name: 'Platinum', min: 15000, max: 15000 },
+            ];
+            const pct = Math.min((pts / 15000) * 100, 100);
+            document.getElementById('u-progress-bar').style.width = pct + '%';
 
-            if (!id) return;
+            const cur = tiers.find(t => t.name === rank) || tiers[0];
+            const next = tiers[tiers.indexOf(cur) + 1];
+            document.getElementById('u-progress-label').textContent = next
+                ? `${pts.toLocaleString()} / ${next.min.toLocaleString()} pts → ${next.name}`
+                : '🏆 Max rank achieved';
+        }
 
-            resultDiv.classList.remove('hidden');
-            resultDiv.innerHTML = '<span class="animate-pulse">Searching...</span>';
+        function renderVouchers(vouchers) {
+            const list = document.getElementById('voucher-list');
+            const badge = document.getElementById('v-badge');
+            const active = vouchers.filter(v => !v.isUsed);
+            badge.textContent = active.length;
 
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/orders/${id}`);
-                const data = await res.json();
-
-                if (res.ok) {
-                    resultDiv.innerHTML = `
-                        <div class="flex items-center gap-3">
-                           <div class="flex-1">
-                                <p class="text-green-400 font-bold text-xs uppercase tracking-wider mb-1">Found</p>
-                                <p class="text-white font-medium">${data.status}</p>
-                                <p class="text-gray-500 text-xs mt-0.5">${data.items.length} items for ${data.recipientName}</p>
-                           </div> 
-                           <div class="text-right">
-                                <p class="text-white font-bold">${parseInt(data.finalAmount).toLocaleString()}₫</p>
-                           </div>
+            list.innerHTML = '';
+            if (!vouchers.length) {
+                list.innerHTML = '<div class="text-center py-8 text-[12px] text-gray-600">No vouchers yet</div>';
+                return;
+            }
+            vouchers.forEach(v => {
+                const d = document.createElement('div');
+                d.className = v.isUsed ? 'voucher-used rounded-xl p-3 opacity-40' : 'voucher-active rounded-xl p-3';
+                d.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <p class="font-mono text-[12px] font-bold text-white tracking-widest truncate">${v.code}</p>
+                            <p class="text-[10px] text-gray-400 mt-0.5">Save ${(v.discountAmount || 0).toLocaleString()}₫${v.isUsed ? ' · Used' : ''}</p>
                         </div>
-                    `;
-                    if (!idOverride) resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        ${!v.isUsed
+                            ? `<button onclick="copyVoucher('${v.code}',this)" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all flex-shrink-0"><i class="fas fa-copy text-[11px] text-gray-300"></i></button>`
+                            : `<i class="fas fa-check-circle text-green-500/50 text-sm flex-shrink-0"></i>`
+                        }
+                    </div>`;
+                list.appendChild(d);
+            });
+        }
+
+        function renderOrders(orders) {
+            const list = document.getElementById('order-list');
+            list.innerHTML = '';
+            if (!orders.length) {
+                list.innerHTML = '<div class="md:col-span-3 text-center py-12 text-sm text-gray-600">No orders yet. <a href="store.html" class="text-blue-400 hover:underline">Start shopping</a></div>';
+                return;
+            }
+            orders.slice(0, 6).forEach(order => {
+                const s = statusStyle(order.status);
+                const date = new Date(order.createdAt).toLocaleDateString('vi-VN');
+                const d = document.createElement('div');
+                d.className = 'bg-black/30 rounded-2xl border border-white/5 hover:border-white/15 transition-all p-4 cursor-pointer group';
+                d.onclick = () => { document.getElementById('track-id').value = order._id; goto('track-section'); doTrack(order._id); };
+                d.innerHTML = `
+                    <div class="flex items-start justify-between mb-3">
+                        <span class="text-[10px] font-mono text-gray-500 bg-white/5 px-2 py-1 rounded-lg">#${order._id.slice(-8).toUpperCase()}</span>
+                        <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full ${s.bg} text-[10px] font-bold">
+                            <span class="w-1.5 h-1.5 rounded-full ${s.dot}"></span>${s.label}
+                        </span>
+                    </div>
+                    <p class="text-lg font-bold text-white">${parseInt(order.finalAmount || order.totalAmountNumeric || 0).toLocaleString()}₫</p>
+                    <p class="text-[11px] text-gray-500 mt-0.5">${order.items?.length ?? 0} item(s) · ${date}</p>
+                    <div class="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
+                        <span class="text-[11px] text-gray-500 truncate">${order.recipientName || '—'}</span>
+                        <i class="fas fa-chevron-right text-[10px] text-gray-600 group-hover:text-blue-400 transition-colors"></i>
+                    </div>`;
+                list.appendChild(d);
+            });
+        }
+
+        // ── Order tracking ──
+        async function doTrack(id) {
+            const placeholder = document.getElementById('track-placeholder');
+            const result = document.getElementById('track-result');
+            placeholder.classList.add('hidden');
+            result.classList.remove('hidden');
+            result.innerHTML = `
+                <div class="flex items-center gap-3 p-4 bg-white/[0.03] rounded-2xl border border-white/5">
+                    <div class="w-5 h-5 rounded-full border-2 border-blue-500 border-t-transparent animate-spin flex-shrink-0"></div>
+                    <span class="text-sm text-gray-400">Looking up your order…</span>
+                </div>`;
+            try {
+                const res = await fetch(`${API}/api/orders/${id}`);
+                const data = await res.json();
+                if (res.ok) {
+                    const step = orderStep(data.status);
+                    const steps = [
+                        { label: 'Placed',     icon: 'fa-receipt' },
+                        { label: 'Processing', icon: 'fa-cog' },
+                        { label: 'Shipped',    icon: 'fa-truck' },
+                        { label: 'Delivered',  icon: 'fa-check' },
+                    ];
+                    result.innerHTML = `
+                        <div class="bg-black/30 rounded-2xl border border-white/10 p-6 space-y-5 animate-fade-in">
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mb-1">Order Found</p>
+                                    <p class="text-lg font-bold text-white">${data.recipientName || '—'}</p>
+                                    ${data.recipientPhone ? `<p class="text-[11px] text-gray-500 mt-0.5"><i class="fas fa-phone w-3 mr-1"></i>${data.recipientPhone}</p>` : ''}
+                                </div>
+                                <div class="text-right flex-shrink-0">
+                                    <p class="text-xl font-bold text-white">${parseInt(data.finalAmount || 0).toLocaleString()}₫</p>
+                                    <p class="text-[11px] text-gray-500">${data.items?.length || 0} item(s)</p>
+                                </div>
+                            </div>
+
+                            <!-- 4-step timeline -->
+                            <div class="grid grid-cols-4 gap-0 pt-2 pb-1">
+                                ${steps.map((s, i) => `
+                                    <div class="relative text-center ${i < step ? 'step-done' : i === step ? 'step-active' : ''}">
+                                        ${i < steps.length - 1 ? '<div class="step-line"></div>' : ''}
+                                        <div class="step-dot mx-auto">
+                                            ${i < step ? '<i class="fas fa-check text-white" style="font-size:9px"></i>' : i === step ? '<i class="fas ' + s.icon + ' text-white" style="font-size:9px"></i>' : ''}
+                                        </div>
+                                        <p class="text-[10px] font-medium ${i <= step ? 'text-gray-300' : 'text-gray-600'}">${s.label}</p>
+                                    </div>`).join('')}
+                            </div>
+
+                            ${data.recipientAddress ? `
+                            <div class="flex items-start gap-2 pt-1">
+                                <i class="fas fa-map-marker-alt text-gray-600 mt-0.5 flex-shrink-0 text-[11px]"></i>
+                                <p class="text-[11px] text-gray-500 leading-relaxed">${data.recipientAddress}</p>
+                            </div>` : ''}
+                        </div>`;
                 } else {
-                    resultDiv.innerHTML = `<span class="text-red-400">Order not found.</span>`;
+                    result.innerHTML = `
+                        <div class="p-5 bg-red-500/5 border border-red-500/20 rounded-2xl flex items-center gap-3">
+                            <i class="fas fa-exclamation-circle text-red-400 flex-shrink-0"></i>
+                            <div>
+                                <p class="text-sm font-medium text-red-300">Order not found</p>
+                                <p class="text-[11px] text-gray-500 mt-0.5">Double-check the Order ID and try again.</p>
+                            </div>
+                        </div>`;
+                    placeholder.classList.remove('hidden');
                 }
-            } catch (err) {
-                resultDiv.innerHTML = `<span class="text-red-400">Error searching.</span>`;
+            } catch {
+                result.innerHTML = `<div class="p-4 bg-red-500/5 border border-red-500/20 rounded-2xl text-sm text-red-400 flex items-center gap-2"><i class="fas fa-wifi text-red-500"></i> Connection error. Please try again.</div>`;
             }
         }
 
-        function getStatusColor(status) {
+        function orderStep(status) {
+            return { Pending: 0, Processing: 1, Shipped: 2, Delivered: 3, Completed: 3 }[status] ?? 0;
+        }
+
+        function statusStyle(status) {
             switch (status) {
-                case 'Completed': return 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]';
-                case 'Shipped': return 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]';
-                default: return 'bg-yellow-500';
+                case 'Completed':
+                case 'Delivered': return { dot: 'bg-green-400', label: status, bg: 'bg-green-500/10 text-green-400' };
+                case 'Shipped':   return { dot: 'bg-blue-400',  label: 'Shipped', bg: 'bg-blue-500/10 text-blue-400' };
+                case 'Cancelled': return { dot: 'bg-red-400',   label: 'Cancelled', bg: 'bg-red-500/10 text-red-400' };
+                default:          return { dot: 'bg-yellow-400', label: status || 'Pending', bg: 'bg-yellow-500/10 text-yellow-400' };
             }
         }
 
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text);
-            alert('Copied: ' + text);
+        // ── FAQ ──
+        const FAQ = {
+            orders: [
+                { q: 'How do I track my order?', a: 'Enter your Order ID in the "Track Your Order" section above, or paste it in the search bar at the top of the page. No sign-in required.' },
+                { q: 'Can I cancel or modify my order?', a: 'Orders can be cancelled within 1 hour of placement. Contact us immediately via phone or AI Chat. Once the order ships, cancellation is no longer possible.' },
+                { q: 'How long does order processing take?', a: 'Orders are processed within 1-2 business days. You\'ll receive a confirmation once your order ships.' },
+                { q: 'What if my order is missing items?', a: 'Contact support within 48 hours of delivery with your Order ID and photos of the received package. We\'ll resolve it promptly.' },
+            ],
+            shipping: [
+                { q: 'What shipping options are available?', a: 'Standard (3-5 business days) and Express (1-2 business days). Free standard shipping on orders over 5,000,000₫.' },
+                { q: 'Do you ship internationally?', a: 'Currently we ship within Vietnam only. International shipping options are coming soon.' },
+                { q: 'What happens if no one is home for delivery?', a: 'The courier will leave a notice and attempt re-delivery the next business day, or you may arrange pickup at a nearby post office.' },
+                { q: 'Can I change my delivery address after ordering?', a: 'Address changes are only possible before the order ships. Contact us immediately via phone or chat if you need to update your address.' },
+            ],
+            returns: [
+                { q: 'What is the return policy?', a: 'You have 14 calendar days from the delivery date to return an item. Products must be unused, in original packaging, and include all accessories.' },
+                { q: 'How do I start a return?', a: 'Contact support with your Order ID via phone or chat. We\'ll arrange a pickup or provide a prepaid return label.' },
+                { q: 'When will I receive my refund?', a: 'Refunds are processed within 3-5 business days after we inspect the returned item. Funds are returned to your original payment method.' },
+                { q: 'What items cannot be returned?', a: 'Software, digital products, items with broken seals, and customized products are non-returnable unless defective.' },
+            ],
+            payment: [
+                { q: 'What payment methods do you accept?', a: 'We accept VNPay, bank transfer, credit/debit cards, and cash on delivery for eligible orders.' },
+                { q: 'Is my payment information secure?', a: 'Yes. All transactions use encrypted, secure channels. We never store your full card details on our servers.' },
+                { q: 'Can I pay in installments?', a: 'Installment plans are available for orders over 3,000,000₫ with select banks. Chat with us to learn more.' },
+                { q: 'What should I do if my payment fails?', a: 'Try a different payment method or contact your bank. If the problem persists, reach out to our support team.' },
+            ],
+            products: [
+                { q: 'What warranty comes with Apple products?', a: 'All Apple products include a 1-year limited warranty. Extended coverage (AppleCare+) is available for purchase at time of sale.' },
+                { q: 'How do I get my product repaired?', a: 'We offer in-store repair services. Book an appointment via phone or chat for a quick, hassle-free service.' },
+                { q: 'How do I verify my product is genuine?', a: 'All our products are official Apple goods. Verify authenticity using the serial number on Apple\'s coverage check page.' },
+                { q: 'How do I register my Apple product?', a: 'Register at appleid.apple.com with your Apple ID. Registration activates your warranty and enables priority support.' },
+            ],
+            account: [
+                { q: 'How do I reset my password?', a: 'On the Login page, click "Forgot Password", enter your email, and we\'ll send a reset link within minutes.' },
+                { q: 'How do I earn and redeem reward points?', a: 'You earn 1 point per 1,000₫ spent. Accumulate points to unlock exclusive vouchers and member discounts.' },
+                { q: 'What are the membership tiers?', a: 'Member (0-999 pts) → Silver (1,000-4,999 pts) → Gold (5,000-14,999 pts) → Platinum (15,000+ pts). Higher tiers unlock better rewards.' },
+                { q: 'How do I update my profile or address?', a: 'Visit your Account page to update personal info, saved addresses, and preferences. Changes save automatically.' },
+            ],
+        };
+
+        function buildFAQ() {
+            Object.entries(FAQ).forEach(([cat, items]) => {
+                const container = document.getElementById(`faq-${cat}`);
+                if (!container) return;
+                items.forEach(({ q, a }) => {
+                    const el = document.createElement('details');
+                    el.className = 'group bg-black/20 rounded-2xl border border-white/5 open:bg-black/35 transition-colors overflow-hidden';
+                    el.innerHTML = `
+                        <summary class="p-4 flex items-center justify-between gap-3 select-none font-medium text-gray-300 group-hover:text-white transition-colors">
+                            <span class="text-sm">${q}</span>
+                            <i class="fas fa-plus text-[11px] text-gray-500 faq-icon flex-shrink-0"></i>
+                        </summary>
+                        <div class="px-4 pb-4 text-[13px] text-gray-400 leading-relaxed">${a}</div>`;
+                    container.appendChild(el);
+                });
+            });
+        }
+
+        function switchFaqTab(btn, tab) {
+            document.querySelectorAll('.faq-tab').forEach(t => t.classList.remove('on'));
+            document.querySelectorAll('.faq-body').forEach(b => b.classList.remove('on'));
+            btn.classList.add('on');
+            document.getElementById(`faq-${tab}`).classList.add('on');
+        }
+
+        function switchFaq(tab) {
+            const btn = document.querySelector(`[data-tab="${tab}"]`);
+            if (btn) switchFaqTab(btn, tab);
+            goto('faq-section');
+        }
+
+        // ── Chat ──
+        function openChat() {
+            chatIsOpen = true;
+            document.getElementById('chat-panel').classList.add('open');
+            document.getElementById('chat-fab-icon').className = 'fas fa-times text-white text-xl';
+            setTimeout(() => document.getElementById('chat-input').focus(), 200);
+        }
+
+        function closeChat() {
+            chatIsOpen = false;
+            document.getElementById('chat-panel').classList.remove('open');
+            document.getElementById('chat-fab-icon').className = 'fas fa-comment-dots text-white text-xl';
+        }
+
+        function quickMsg(msg) {
+            sendChat(msg);
+        }
+
+        async function sendChat(msg) {
+            const messages = document.getElementById('chat-messages');
+
+            const userEl = document.createElement('div');
+            userEl.className = 'bubble-user';
+            userEl.textContent = msg;
+            messages.appendChild(userEl);
+
+            const typing = document.createElement('div');
+            typing.className = 'bubble-bot flex items-center gap-1.5 py-3';
+            typing.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+            messages.appendChild(typing);
+            messages.scrollTop = messages.scrollHeight;
+
+            try {
+                const token = localStorage.getItem('accessToken');
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers.token = `Bearer ${token}`;
+
+                const res = await fetch(`${API}/api/chat`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ message: msg }),
+                });
+                const data = await res.json();
+                typing.remove();
+
+                const botEl = document.createElement('div');
+                botEl.className = 'bubble-bot';
+                botEl.textContent = data.reply || data.message || 'I\'m here to help! Could you provide more details?';
+                messages.appendChild(botEl);
+            } catch {
+                typing.remove();
+                const botEl = document.createElement('div');
+                botEl.className = 'bubble-bot';
+                botEl.textContent = 'Sorry, I\'m having trouble connecting right now. Please call us at 0962 923 329.';
+                messages.appendChild(botEl);
+            }
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // ── Utils ──
+        function copyVoucher(code, btn) {
+            navigator.clipboard.writeText(code).then(() => {
+                btn.innerHTML = '<i class="fas fa-check text-[11px] text-green-400"></i>';
+                setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy text-[11px] text-gray-300"></i>'; }, 2000);
+            });
+        }
+
+        function goto(id) {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function logout() {
@@ -381,5 +1092,4 @@
         }
     </script>
 </body>
-
 </html>
