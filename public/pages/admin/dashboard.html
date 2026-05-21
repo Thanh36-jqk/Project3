@@ -776,7 +776,8 @@
                                 <input type="number" id="stock-${p._id}-${color.name.replace(/\s+/g,'')}"
                                     value="${color.stock}" min="0"
                                     class="w-10 text-center bg-transparent text-[11px] font-bold text-gray-900 outline-none color-stock-input-${p._id}"
-                                    data-color-name="${color.name}" data-color-hex="${color.hex}">
+                                    data-color-name="${color.name}" data-color-hex="${color.hex}"
+                                    oninput="this.value=Math.max(0,parseInt(this.value)||0);recalcColorTotal('${p._id}')">
                                 <button onclick="adjustStockColor('${p._id}','${color.name}',1)" class="w-6 h-6 text-gray-400 hover:bg-gray-100 text-xs font-bold flex items-center justify-center transition-colors">+</button>
                             </div>
                         </div>`;
@@ -792,7 +793,9 @@
                     stockControlsHtml = `
                     <div class="flex items-center bg-gray-50 rounded-xl border border-gray-200 overflow-hidden mb-3">
                         <button onclick="adjustStock('${p._id}',-1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">−</button>
-                        <input type="number" id="stock-${p._id}" value="${p.stock}" min="0" class="w-full text-center bg-transparent text-sm font-bold text-gray-900 outline-none py-2">
+                        <input type="number" id="stock-${p._id}" value="${p.stock}" min="0"
+                            class="w-full text-center bg-transparent text-sm font-bold text-gray-900 outline-none py-2"
+                            oninput="const v=Math.max(0,parseInt(this.value)||0);this.value=v;updateStockDisplay('${p._id}',v)">
                         <button onclick="adjustStock('${p._id}',1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">+</button>
                     </div>`;
                 }
@@ -811,10 +814,10 @@
                             <div class="mb-3">
                                 <div class="flex justify-between items-center mb-1.5">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Stock</span>
-                                    <span class="text-sm font-bold ${sc.text}">${p.stock}</span>
+                                    <span class="text-sm font-bold ${sc.text}" id="total-stock-${p._id}">${p.stock}</span>
                                 </div>
                                 <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                    <div class="h-full ${sc.bar} rounded-full transition-all duration-500" style="width:${stockPercent}%"></div>
+                                    <div class="h-full ${sc.bar} rounded-full transition-all duration-500" id="stock-bar-${p._id}" style="width:${stockPercent}%"></div>
                                 </div>
                                 ${p.stock > 0 && p.stock < 10 ? '<p class="text-[10px] text-yellow-600 font-semibold mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Low stock warning</p>' : ''}
                             </div>
@@ -848,18 +851,36 @@
             renderInventoryCards(filtered);
         }
 
+        function updateStockDisplay(productId, total) {
+            const totalEl = document.getElementById(`total-stock-${productId}`);
+            const barEl = document.getElementById(`stock-bar-${productId}`);
+            if (!totalEl || !barEl) return;
+            totalEl.textContent = total;
+            const isOut = total === 0, isLow = total > 0 && total < 10;
+            totalEl.className = `text-sm font-bold ${isOut ? 'text-red-600' : isLow ? 'text-yellow-600' : 'text-green-600'}`;
+            barEl.style.width = Math.min(100, total) + '%';
+            barEl.className = `h-full ${isOut ? 'bg-red-500' : isLow ? 'bg-yellow-500' : 'bg-green-500'} rounded-full transition-all duration-500`;
+        }
+
+        function recalcColorTotal(productId) {
+            let total = 0;
+            document.querySelectorAll(`.color-stock-input-${productId}`)
+                .forEach(inp => total += Math.max(0, parseInt(inp.value) || 0));
+            updateStockDisplay(productId, total);
+        }
+
         function adjustStock(productId, delta) {
             const input = document.getElementById(`stock-${productId}`);
             const newVal = Math.max(0, parseInt(input.value || 0) + delta);
             input.value = newVal;
+            updateStockDisplay(productId, newVal);
         }
 
         function adjustStockColor(productId, colorName, delta) {
-            const inputId = `stock-${productId}-${colorName.replace(/\s+/g, '')}`;
-            const input = document.getElementById(inputId);
-            if(input) {
-                const newVal = Math.max(0, parseInt(input.value || 0) + delta);
-                input.value = newVal;
+            const input = document.getElementById(`stock-${productId}-${colorName.replace(/\s+/g, '')}`);
+            if (input) {
+                input.value = Math.max(0, parseInt(input.value || 0) + delta);
+                recalcColorTotal(productId);
             }
         }
 
