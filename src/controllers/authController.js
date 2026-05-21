@@ -89,6 +89,27 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
 
+        // Admin accounts skip OTP — issue tokens directly
+        if (user.role === 'admin') {
+            const accessToken = generateAccessToken(user);
+            const clientIp = req.ip || req.connection?.remoteAddress || 'unknown';
+            const rawToken = crypto.randomBytes(40).toString('hex');
+
+            await prisma.refreshToken.create({
+                data: {
+                    userId: user.id,
+                    token: rawToken,
+                    expiresAt: new Date(Date.now() + REFRESH_TOKEN_DAYS * 24 * 60 * 60 * 1000),
+                    createdByIp: clientIp
+                }
+            });
+
+            setRefreshCookie(res, rawToken);
+
+            const { password: _pw, passwordResetToken: _prt, passwordResetExpires: _pre, emailVerificationToken: _evt, ...userInfo } = user;
+            return res.status(200).json({ ...userInfo, accessToken });
+        }
+
         // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
