@@ -725,6 +725,20 @@
             return { bg: 'bg-green-50', text: 'text-green-600', bar: 'bg-green-500', border: 'border-green-200' };
         }
 
+        // Returns merged color list: DB stock + productColorVariants hex/name.
+        // Priority: productColorVariants as master list (complete), DB as stock source.
+        // Falls back to DB colors if product not in productColorVariants.
+        function getProductColors(p) {
+            const defined = window.productColorVariants?.[p.name] || [];
+            const dbColors = Array.isArray(p.colors) ? p.colors : [];
+            if (defined.length === 0 && dbColors.length === 0) return null;
+            const master = defined.length > 0 ? defined : dbColors;
+            return master.map(c => {
+                const db = dbColors.find(d => d.name === c.name);
+                return { name: c.name, hex: c.hex || db?.hex || '#cccccc', stock: db?.stock ?? 0 };
+            });
+        }
+
         function renderInventoryCards(products) {
             const grid = document.getElementById('inventory-grid');
             if (products.length === 0) {
@@ -738,54 +752,55 @@
                 const price = p.price ? Number(p.price).toLocaleString('vi-VN') + '₫' : '';
                 const imgUrl = getImageUrl(p.image_url);
                 const category = p.category || 'Product';
+                const productColors = getProductColors(p);
 
-                // Check if product has color variants in our mapping
-                const colors = window.productColorVariants && window.productColorVariants[p.name];
-                
                 let stockControlsHtml = '';
-                
-                if (colors && colors.length > 0) {
-                    // Create an input for each color
-                    const pColorsArr = p.colors || [];
-                    
-                    stockControlsHtml = `
-                    <div class="space-y-3 mb-4 max-h-32 overflow-y-auto pr-1 custom-scrollbar">
-                        ${colors.map(color => {
-                            // Find existing stock for this color, or default to 0
-                            const existingColorData = pColorsArr.find(c => c.name === color.name);
-                            const cStock = existingColorData ? existingColorData.stock : 0;
-                            
-                            return `
-                            <div class="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded-lg border border-gray-100">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-4 h-4 rounded-full border border-gray-300 shadow-sm" style="background-color: ${color.hex}"></div>
-                                    <span class="text-xs font-medium text-gray-700 w-16 truncate" title="${color.name}">${color.name}</span>
-                                </div>
-                                <div class="flex items-center bg-white rounded border border-gray-200 overflow-hidden w-24">
-                                    <button onclick="adjustStockColor('${p._id}', '${color.name}', -1)" class="w-7 py-1 text-gray-500 hover:bg-gray-100 text-xs font-bold">−</button>
-                                    <input type="number" id="stock-${p._id}-${color.name.replace(/\s+/g, '')}" value="${cStock}" min="0" class="w-full text-center bg-transparent text-xs font-bold text-gray-900 outline-none py-1 color-stock-input-${p._id}" data-color-name="${color.name}">
-                                    <button onclick="adjustStockColor('${p._id}', '${color.name}', 1)" class="w-7 py-1 text-gray-500 hover:bg-gray-100 text-xs font-bold">+</button>
-                                </div>
+
+                if (productColors) {
+                    const variantBadge = `<span class="text-[9px] font-bold uppercase tracking-wider text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">${productColors.length} variants</span>`;
+                    const colorRows = productColors.map(color => {
+                        const isOut = color.stock === 0;
+                        const isLow = color.stock > 0 && color.stock < 5;
+                        const rowBorder = isOut ? 'border-red-100 bg-red-50/40' : isLow ? 'border-amber-100 bg-amber-50/40' : 'border-gray-100 bg-gray-50';
+                        const stockLabel = isOut
+                            ? '<span class="text-[9px] font-bold text-red-500 ml-1">OUT</span>'
+                            : isLow
+                            ? '<span class="text-[9px] font-bold text-amber-500 ml-1">LOW</span>'
+                            : '';
+                        return `
+                        <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border ${rowBorder}">
+                            <div class="w-3.5 h-3.5 rounded-full border border-black/10 flex-shrink-0 shadow-sm" style="background:${color.hex}"></div>
+                            <span class="text-[11px] font-medium text-gray-700 flex-1 truncate">${color.name}${stockLabel}</span>
+                            <div class="flex items-center bg-white rounded-lg border border-gray-200 overflow-hidden flex-shrink-0">
+                                <button onclick="adjustStockColor('${p._id}','${color.name}',-1)" class="w-6 h-6 text-gray-400 hover:bg-gray-100 text-xs font-bold flex items-center justify-center transition-colors">−</button>
+                                <input type="number" id="stock-${p._id}-${color.name.replace(/\s+/g,'')}"
+                                    value="${color.stock}" min="0"
+                                    class="w-10 text-center bg-transparent text-[11px] font-bold text-gray-900 outline-none color-stock-input-${p._id}"
+                                    data-color-name="${color.name}" data-color-hex="${color.hex}">
+                                <button onclick="adjustStockColor('${p._id}','${color.name}',1)" class="w-6 h-6 text-gray-400 hover:bg-gray-100 text-xs font-bold flex items-center justify-center transition-colors">+</button>
                             </div>
-                            `;
-                        }).join('')}
-                    </div>
-                    `;
-                } else {
-                    // Standard generic product (no colors)
+                        </div>`;
+                    }).join('');
+
                     stockControlsHtml = `
-                    <div class="flex items-center bg-gray-50 rounded-xl border border-gray-200 overflow-hidden mb-4">
-                        <button onclick="adjustStock('${p._id}', -1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">−</button>
-                        <input type="number" id="stock-${p._id}" value="${p.stock}" min="0" class="w-full text-center bg-transparent text-sm font-bold text-gray-900 outline-none py-2">
-                        <button onclick="adjustStock('${p._id}', 1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">+</button>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Color Stock</span>
+                        ${variantBadge}
                     </div>
-                    `;
+                    <div class="space-y-1.5 mb-3 max-h-44 overflow-y-auto pr-0.5">${colorRows}</div>`;
+                } else {
+                    stockControlsHtml = `
+                    <div class="flex items-center bg-gray-50 rounded-xl border border-gray-200 overflow-hidden mb-3">
+                        <button onclick="adjustStock('${p._id}',-1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">−</button>
+                        <input type="number" id="stock-${p._id}" value="${p.stock}" min="0" class="w-full text-center bg-transparent text-sm font-bold text-gray-900 outline-none py-2">
+                        <button onclick="adjustStock('${p._id}',1)" class="px-3 py-2.5 text-gray-500 hover:bg-gray-200 transition-colors text-sm font-bold">+</button>
+                    </div>`;
                 }
 
                 return `
                 <div class="premium-card overflow-hidden group inventory-card flex flex-col h-full" data-name="${p.name.toLowerCase()}">
                     <div class="relative bg-gradient-to-br from-gray-50 to-white h-44 flex flex-shrink-0 items-center justify-center p-6 overflow-hidden">
-                        <img src="${imgUrl}" alt="${p.name}" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-lg" onerror="this.onerror=null; this.src='/assets/images/logo.png'; this.style.opacity='0.3';">
+                        <img src="${imgUrl}" alt="${p.name}" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-lg" onerror="this.onerror=null;this.src='/assets/images/logo.png';this.style.opacity='0.3'">
                         <span class="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur text-gray-600 border border-gray-100 shadow-sm">${category}</span>
                         ${p.stock === 0 ? '<div class="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10"><span class="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">OUT OF STOCK</span></div>' : ''}
                     </div>
@@ -793,23 +808,21 @@
                         <div>
                             <h4 class="font-bold text-gray-900 text-sm mb-1 truncate" title="${p.name}">${p.name}</h4>
                             ${price ? `<p class="text-xs text-blue-600 font-mono mb-3">${price}</p>` : '<div class="mb-3"></div>'}
-                            
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <div class="flex justify-between items-center mb-1.5">
                                     <span class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Stock</span>
                                     <span class="text-sm font-bold ${sc.text}">${p.stock}</span>
                                 </div>
                                 <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                    <div class="h-full ${sc.bar} rounded-full transition-all duration-500" style="width: ${stockPercent}%"></div>
+                                    <div class="h-full ${sc.bar} rounded-full transition-all duration-500" style="width:${stockPercent}%"></div>
                                 </div>
                                 ${p.stock > 0 && p.stock < 10 ? '<p class="text-[10px] text-yellow-600 font-semibold mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Low stock warning</p>' : ''}
                             </div>
                         </div>
-
                         <div class="border-t border-gray-100 pt-3 mt-1">
                             ${stockControlsHtml}
-                            <button onclick="updateStock('${p._id}', ${colors && colors.length > 0})" class="w-full bg-black hover:bg-gray-800 text-white px-4 py-3 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
-                                <i class="fas fa-save"></i> Save Inventory
+                            <button onclick="updateStock('${p._id}',${!!productColors})" class="w-full bg-gray-900 hover:bg-gray-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-2">
+                                <i class="fas fa-save"></i> Save
                             </button>
                         </div>
                     </div>
@@ -892,6 +905,7 @@
                 inputs.forEach(input => {
                     colorArr.push({
                         name: input.getAttribute('data-color-name'),
+                        hex: input.getAttribute('data-color-hex') || '#cccccc',
                         stock: parseInt(input.value) || 0
                     });
                 });
