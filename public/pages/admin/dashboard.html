@@ -912,48 +912,56 @@
                         ${cat === 'all' ? '<i class="fas fa-th-large mr-1.5"></i>All Products' : cat}
                     </button>`).join('');
 
-                renderInventoryCards(products);
+                filterInventory();
             } catch (e) { console.error(e); showToast('Failed to load inventory', 'error'); }
         }
 
         async function updateStock(productId, hasColors) {
+            const btn = document.querySelector(`[onclick="updateStock('${productId}',${hasColors})"]`);
+            if (btn?.disabled) return;
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...'; }
+
             let requestBody = {};
-
-            if (hasColors) {
-                // Collect all color stocks
-                const inputs = document.querySelectorAll(`.color-stock-input-${productId}`);
-                const colorArr = [];
-                inputs.forEach(input => {
-                    colorArr.push({
-                        name: input.getAttribute('data-color-name'),
-                        hex: input.getAttribute('data-color-hex') || '#cccccc',
-                        stock: parseInt(input.value) || 0
-                    });
-                });
-                requestBody = { colors: colorArr };
-            } else {
-                // Single stock updates
-                const input = document.getElementById(`stock-${productId}`);
-                const newStock = parseInt(input.value);
-                if (isNaN(newStock) || newStock < 0) { showToast("Invalid stock number", 'error'); return; }
-                requestBody = { newStock };
-            }
-
             try {
+                if (hasColors) {
+                    const inputs = document.querySelectorAll(`.color-stock-input-${productId}`);
+                    const colorArr = [];
+                    inputs.forEach(input => {
+                        colorArr.push({
+                            name: input.getAttribute('data-color-name'),
+                            hex: input.getAttribute('data-color-hex') || '#cccccc',
+                            stock: parseInt(input.value) || 0
+                        });
+                    });
+                    requestBody = { colors: colorArr };
+                } else {
+                    const input = document.getElementById(`stock-${productId}`);
+                    const newStock = parseInt(input.value);
+                    if (isNaN(newStock) || newStock < 0) {
+                        showToast("Invalid stock number", 'error');
+                        return;
+                    }
+                    requestBody = { newStock };
+                }
+
                 const res = await fetch(`${API_URL}/products/${productId}/stock`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
                     body: JSON.stringify(requestBody)
                 });
-
+                const data = await res.json();
                 if (res.ok) {
-                    showToast(`Stock updated successfully`, 'success');
-                    loadInventory(); // Refresh view
+                    showToast('Stock updated', 'success');
+                    loadInventory();
                 } else {
-                    const data = await res.json();
-                    showToast(data.message, 'error');
+                    showToast(data.message || 'Update failed', 'error');
                 }
-            } catch (e) { console.error(e); showToast("Connection error", 'error'); }
+            } catch (e) {
+                console.error(e);
+                showToast("Connection error", 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save'; }
+            }
         }
 
         // --- EXISTING LOGIC (ORDERS, VOUCHERS, CHARTS) ---

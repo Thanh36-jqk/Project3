@@ -113,29 +113,37 @@ exports.updateProduct = async (req, res) => {
 exports.updateStock = async (req, res) => {
     try {
         const { newStock, colors } = req.body;
-        
         let updateQuery = {};
-        
-        if (colors && Array.isArray(colors)) {
-            // Calculate total stock from colors
-            const calculatedStock = colors.reduce((total, color) => total + (Number(color.stock) || 0), 0);
-            updateQuery = { colors: colors, stock: calculatedStock };
+
+        if (colors !== undefined) {
+            if (!Array.isArray(colors) || colors.length === 0) {
+                return res.status(400).json({ message: "colors must be a non-empty array" });
+            }
+            const normalized = colors.map(c => {
+                const s = parseInt(c.stock);
+                if (!Number.isInteger(s) || s < 0) {
+                    throw Object.assign(new Error(`Invalid stock for color "${c.name}"`), { status: 400 });
+                }
+                return { name: c.name, hex: c.hex || '#cccccc', stock: s };
+            });
+            const calculatedStock = normalized.reduce((sum, c) => sum + c.stock, 0);
+            updateQuery = { colors: normalized, stock: calculatedStock };
         } else if (newStock !== undefined) {
-             if (newStock < 0) {
-                 return res.status(400).json({ message: "Stock cannot be negative" });
-             }
-             updateQuery = { stock: newStock };
+            const parsed = parseInt(newStock);
+            if (!Number.isInteger(parsed) || parsed < 0) {
+                return res.status(400).json({ message: "newStock must be a non-negative integer" });
+            }
+            updateQuery = { stock: parsed };
         } else {
-             return res.status(400).json({ message: "Must provide newStock or colors array" });
+            return res.status(400).json({ message: "Must provide newStock or colors array" });
         }
 
-        const product = await Product.findByIdAndUpdate(
-            req.params.id,
-            updateQuery,
-            { new: true }
-        );
+        const product = await Product.findByIdAndUpdate(req.params.id, updateQuery, { new: true });
+        if (!product) return res.status(404).json({ message: "Product not found" });
+
         res.status(200).json({ message: "Stock updated successfully", product });
     } catch (error) {
+        if (error.status === 400) return res.status(400).json({ message: error.message });
         res.status(500).json({ message: error.message });
     }
 };
