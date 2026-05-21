@@ -339,6 +339,18 @@
                     clearOtpBoxes();
                     startOtpTimer(10 * 60);
                     document.querySelectorAll('.otp-box')[0].focus();
+                } else if (response.ok && result.accessToken) {
+                    // Admin bypass — tokens issued directly without OTP
+                    localStorage.setItem('accessToken', result.accessToken);
+                    localStorage.setItem('user', JSON.stringify(result));
+                    localStorage.removeItem('apple_cart');
+                    if (result.role === 'admin') {
+                        showSuccess('Access Granted. Redirecting...');
+                        setTimeout(() => window.location.href = '../admin/dashboard.html', 1200);
+                    } else {
+                        showSuccess('Login Successful! Redirecting...');
+                        setTimeout(() => window.location.href = '../../index.html', 1200);
+                    }
                 } else if (!response.ok) {
                     showError(result.message || 'Login failed. Please check your credentials.');
                 }
