@@ -1,4 +1,4 @@
-const { createOrder } = require('../../../src/controllers/orderController');
+const { createOrder, getOrderById, getUserOrders } = require('../../../src/controllers/orderController');
 const prisma = require('../../../src/config/postgres');
 const Product = require('../../../src/models/Product');
 const Cart = require('../../../src/models/Cart');
@@ -17,6 +17,8 @@ jest.mock('../../../src/config/postgres', () => ({
     },
     order: {
         create: jest.fn(),
+        findUnique: jest.fn(),
+        findMany: jest.fn(),
     }
 }));
 
@@ -179,5 +181,80 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
             message: 'Email is required for guest checkout'
         });
         expect(prisma.order.create).not.toHaveBeenCalled();
+    });
+});
+
+describe('Order Controller - getOrderById', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = { params: { id: 'order-123' } };
+        res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        jest.clearAllMocks();
+    });
+
+    it('should return order with items if found', async () => {
+        const mockOrder = { id: 'order-123', status: 'Confirmed', items: [{ qty: 1, price: 5000000 }] };
+        prisma.order.findUnique.mockResolvedValue(mockOrder);
+
+        await getOrderById(req, res);
+
+        expect(prisma.order.findUnique).toHaveBeenCalledWith({ where: { id: 'order-123' }, include: { items: true } });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(mockOrder);
+    });
+
+    it('should return 404 if order not found', async () => {
+        prisma.order.findUnique.mockResolvedValue(null);
+
+        await getOrderById(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Order not found. Please check your Order ID.' });
+    });
+});
+
+describe('Order Controller - getUserOrders', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = { user: { id: 'user-1' } };
+        res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        jest.clearAllMocks();
+    });
+
+    it('should return all orders for the authenticated user, newest first', async () => {
+        const mockOrders = [
+            { id: 'order-2', status: 'Confirmed', createdAt: new Date('2025-06-01'), items: [] },
+            { id: 'order-1', status: 'Pending', createdAt: new Date('2025-05-01'), items: [] },
+        ];
+        prisma.order.findMany.mockResolvedValue(mockOrders);
+
+        await getUserOrders(req, res);
+
+        expect(prisma.order.findMany).toHaveBeenCalledWith({
+            where: { userId: 'user-1' },
+            orderBy: { createdAt: 'desc' },
+            include: { items: true }
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(mockOrders);
+    });
+
+    it('should return empty array if user has no orders', async () => {
+        prisma.order.findMany.mockResolvedValue([]);
+
+        await getUserOrders(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith([]);
+    });
+
+    it('should return 500 on database error', async () => {
+        prisma.order.findMany.mockRejectedValue(new Error('DB connection failed'));
+
+        await getUserOrders(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
     });
 });

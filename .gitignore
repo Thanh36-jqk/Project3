@@ -46,6 +46,9 @@ temp/
 # Vercel
 .vercel
 
+# Claude Code local settings (machine-specific paths)
+.claude/settings.local.json
+
 # Dev scripts / junk
 scratch/
 scratch_update_urls.js

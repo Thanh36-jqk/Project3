@@ -6,7 +6,8 @@ const express = require('express');
 // `controllerImpl` lookup inside each mock factory.
 const controllerImpl = {
     register: (req, res) => res.status(201).json({ message: 'Registration successful' }),
-    login: (req, res) => res.status(200).json({ accessToken: 'fake-token', user: { email: 'x', role: 'user' } }),
+    login: (req, res) => res.status(200).json({ requiresOtp: true, otpToken: 'fake-otp-token', maskedEmail: 'te***@example.com' }),
+    verifyLoginOtp: (req, res) => res.status(200).json({ accessToken: 'fake-token', role: 'user' }),
     getProfile: (req, res) => res.status(200).json({ email: 'x' }),
     googleCallback: (req, res) => res.redirect('/'),
     refreshAccessToken: (req, res) => res.status(200).json({ ok: true }),
@@ -24,6 +25,7 @@ const middlewareImpl = {
 jest.mock('../../../src/controllers/authController', () => ({
     register: (...a) => controllerImpl.register(...a),
     login: (...a) => controllerImpl.login(...a),
+    verifyLoginOtp: (...a) => controllerImpl.verifyLoginOtp(...a),
     getProfile: (...a) => controllerImpl.getProfile(...a),
     googleCallback: (...a) => controllerImpl.googleCallback(...a),
     refreshAccessToken: (...a) => controllerImpl.refreshAccessToken(...a),
@@ -53,6 +55,7 @@ jest.mock('../../../src/middleware/rateLimiter', () => ({
     apiLimiter: (req, res, next) => next(),
     chatLimiter: (req, res, next) => next(),
     passwordResetLimiter: (req, res, next) => next(),
+    otpLimiter: (req, res, next) => next(),
 }));
 jest.mock('passport', () => ({
     authenticate: jest.fn(() => (req, res, next) => res.redirect('/')),
@@ -77,7 +80,8 @@ describe('Auth Routes Integration Tests', () => {
     beforeEach(() => {
         // Reset to defaults
         controllerImpl.register = (req, res) => res.status(201).json({ message: 'Registration successful' });
-        controllerImpl.login = (req, res) => res.status(200).json({ accessToken: 'fake-token', user: { email: 'x', role: 'user' } });
+        controllerImpl.login = (req, res) => res.status(200).json({ requiresOtp: true, otpToken: 'fake-otp-token', maskedEmail: 'te***@example.com' });
+        controllerImpl.verifyLoginOtp = (req, res) => res.status(200).json({ accessToken: 'fake-token', role: 'user' });
         controllerImpl.getProfile = (req, res) => res.status(200).json({ email: 'x' });
         middlewareImpl.verifyToken = (req, res, next) => { req.user = { id: 'test', role: 'user' }; next(); };
     });
@@ -104,13 +108,14 @@ describe('Auth Routes Integration Tests', () => {
     });
 
     describe('POST /api/login', () => {
-        test('should call authController.login', async () => {
+        test('should call authController.login and return OTP flow for regular users', async () => {
             const response = await request(app)
                 .post('/api/login')
                 .send({ email: 'test@example.com', password: 'password123' });
 
             expect(response.status).toBe(200);
-            expect(response.body).toHaveProperty('accessToken');
+            expect(response.body).toHaveProperty('requiresOtp', true);
+            expect(response.body).toHaveProperty('otpToken');
         });
 
         test('should handle invalid credentials', async () => {

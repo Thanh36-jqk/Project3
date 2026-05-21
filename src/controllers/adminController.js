@@ -174,6 +174,7 @@ exports.createVoucher = async (req, res) => {
         await newVoucher.save();
         res.status(201).json(newVoucher);
     } catch (error) {
+        if (error.code === 11000) return res.status(409).json({ message: 'Voucher code already exists' });
         res.status(500).json({ message: error.message });
     }
 };
