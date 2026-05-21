@@ -149,6 +149,19 @@
             border-left: 4px solid #33b5e5;
         }
 
+        /* --- INVENTORY CATEGORY PILLS --- */
+        .category-pill {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .category-pill:hover { border-color: #9ca3af; color: #374151; }
+        .category-pill.active-pill { background: #1d1d1f; color: white; border-color: #1d1d1f; }
+        .inv-stat-clickable { cursor: pointer; transition: all 0.2s; }
+        .inv-stat-clickable:hover { transform: translateY(-2px); }
+
         /* --- SWEETALERT2 OVERRIDES --- */
         .swal2-popup {
             font-family: 'Inter', sans-serif !important;
@@ -389,61 +402,70 @@
             </div>
 
             <div id="inventory-section" class="content-section hidden animate-fade-in space-y-6">
+                <!-- Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900">Inventory Management</h2>
-                        <p class="text-xs text-gray-500 mt-1">Manage stock levels in real-time</p>
+                        <h2 class="text-2xl font-bold text-gray-900">Inventory</h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Monitor and manage product stock levels</p>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <div class="relative">
                             <input type="text" id="inventory-search" oninput="filterInventory()"
                                 placeholder="Search products..."
-                                class="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none w-56 transition-all">
+                                class="pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-gray-900 outline-none w-52 transition-all">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                         </div>
+                        <select id="inventory-sort" onchange="filterInventory()"
+                            class="bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-600 px-3 py-2.5 outline-none cursor-pointer hover:border-gray-300 transition-colors">
+                            <option value="default">Sort: Default</option>
+                            <option value="stock-asc">Stock: Low → High</option>
+                            <option value="stock-desc">Stock: High → Low</option>
+                            <option value="name-asc">Name: A → Z</option>
+                            <option value="price-desc">Price: High → Low</option>
+                        </select>
                         <button onclick="loadInventory(); showToast('Stock data refreshed', 'info')"
-                            class="bg-black text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
-                            <i class="fas fa-sync-alt mr-1"></i> Refresh
+                            class="bg-gray-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-gray-700 transition-all active:scale-95 whitespace-nowrap">
+                            <i class="fas fa-sync-alt mr-1.5"></i> Refresh
                         </button>
                     </div>
                 </div>
 
                 <!-- Stats Bar -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="inventory-stats">
-                    <div class="premium-card p-4 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600"><i
-                                class="fas fa-boxes"></i></div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="premium-card p-5 flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 text-lg flex-shrink-0"><i class="fas fa-layer-group"></i></div>
                         <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase">Total</p>
-                            <p class="text-lg font-bold text-gray-900" id="inv-total">0</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total SKUs</p>
+                            <p class="text-xl font-bold text-gray-900 leading-none mt-1" id="inv-total">0</p>
                         </div>
                     </div>
-                    <div class="premium-card p-4 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center text-green-600"><i
-                                class="fas fa-check-circle"></i></div>
+                    <div class="premium-card p-5 flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 text-lg flex-shrink-0"><i class="fas fa-check-circle"></i></div>
                         <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase">In Stock</p>
-                            <p class="text-lg font-bold text-green-600" id="inv-instock">0</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">In Stock</p>
+                            <p class="text-xl font-bold text-emerald-600 leading-none mt-1" id="inv-instock">0</p>
                         </div>
                     </div>
-                    <div class="premium-card p-4 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-yellow-50 flex items-center justify-center text-yellow-600">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
+                    <div class="premium-card p-5 flex items-center gap-4 inv-stat-clickable" onclick="setCategoryFilter('__low__')" title="Click to filter low stock">
+                        <div class="w-11 h-11 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 text-lg flex-shrink-0"><i class="fas fa-exclamation-triangle"></i></div>
                         <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase">Low Stock</p>
-                            <p class="text-lg font-bold text-yellow-600" id="inv-low">0</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Low Stock</p>
+                            <p class="text-xl font-bold text-amber-500 leading-none mt-1" id="inv-low">0</p>
+                            <p class="text-[9px] text-gray-400 mt-0.5">Click to filter</p>
                         </div>
                     </div>
-                    <div class="premium-card p-4 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600"><i
-                                class="fas fa-times-circle"></i></div>
+                    <div class="premium-card p-5 flex items-center gap-4 inv-stat-clickable" onclick="setCategoryFilter('__out__')" title="Click to filter out of stock">
+                        <div class="w-11 h-11 rounded-2xl bg-red-50 flex items-center justify-center text-red-500 text-lg flex-shrink-0"><i class="fas fa-times-circle"></i></div>
                         <div>
-                            <p class="text-[10px] text-gray-400 font-bold uppercase">Out of Stock</p>
-                            <p class="text-lg font-bold text-red-600" id="inv-out">0</p>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Out of Stock</p>
+                            <p class="text-xl font-bold text-red-500 leading-none mt-1" id="inv-out">0</p>
+                            <p class="text-[9px] text-gray-400 mt-0.5">Click to filter</p>
                         </div>
                     </div>
                 </div>
+
+                <!-- Category Filter Pills -->
+                <div class="flex gap-2 flex-wrap items-center" id="category-filters"></div>
 
                 <!-- Product Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="inventory-grid">
@@ -673,6 +695,15 @@
 
         // --- INVENTORY LOGIC ---
         let allInventoryProducts = [];
+        let currentCategoryFilter = 'all';
+
+        function setCategoryFilter(cat) {
+            currentCategoryFilter = cat;
+            document.querySelectorAll('.category-pill').forEach(pill => {
+                pill.classList.toggle('active-pill', pill.dataset.cat === cat);
+            });
+            filterInventory();
+        }
 
         function getImageUrl(imageUrl) {
             if (!imageUrl) return '/assets/images/logo.png';
@@ -788,7 +819,19 @@
 
         function filterInventory() {
             const query = document.getElementById('inventory-search').value.toLowerCase();
-            const filtered = allInventoryProducts.filter(p => p.name.toLowerCase().includes(query));
+            const sort = document.getElementById('inventory-sort')?.value || 'default';
+
+            let filtered = allInventoryProducts.filter(p => p.name.toLowerCase().includes(query));
+
+            if (currentCategoryFilter === '__low__') filtered = filtered.filter(p => p.stock > 0 && p.stock < 10);
+            else if (currentCategoryFilter === '__out__') filtered = filtered.filter(p => p.stock === 0);
+            else if (currentCategoryFilter !== 'all') filtered = filtered.filter(p => (p.category || '') === currentCategoryFilter);
+
+            if (sort === 'stock-asc') filtered.sort((a, b) => a.stock - b.stock);
+            else if (sort === 'stock-desc') filtered.sort((a, b) => b.stock - a.stock);
+            else if (sort === 'name-asc') filtered.sort((a, b) => a.name.localeCompare(b.name));
+            else if (sort === 'price-desc') filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
+
             renderInventoryCards(filtered);
         }
 
@@ -825,6 +868,15 @@
                 document.getElementById('inv-instock').innerText = inStock;
                 document.getElementById('inv-low').innerText = lowStock;
                 document.getElementById('inv-out').innerText = outStock;
+
+                // Build category pills
+                const cats = ['all', ...new Set(products.map(p => p.category).filter(Boolean).sort())];
+                document.getElementById('category-filters').innerHTML = cats.map(cat => `
+                    <button onclick="setCategoryFilter('${cat}')"
+                        class="category-pill ${currentCategoryFilter === cat ? 'active-pill' : ''} px-4 py-1.5 rounded-full text-xs font-semibold"
+                        data-cat="${cat}">
+                        ${cat === 'all' ? '<i class="fas fa-th-large mr-1.5"></i>All Products' : cat}
+                    </button>`).join('');
 
                 renderInventoryCards(products);
             } catch (e) { console.error(e); showToast('Failed to load inventory', 'error'); }
