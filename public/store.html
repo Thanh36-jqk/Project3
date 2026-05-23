@@ -663,17 +663,51 @@
                             class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10 resize-none"></textarea>
                     </div>
 
+                    <!-- Guest Email (chỉ hiện khi chưa đăng nhập) -->
+                    <div id="buynow-guest-email-section" class="space-y-2 hidden">
+                        <label class="text-sm text-gray-300 font-medium flex items-center gap-2">
+                            <i class="fas fa-envelope text-blue-400 text-xs"></i>
+                            Email <span class="text-red-400">*</span>
+                        </label>
+                        <input type="email" id="buynow-guest-email" placeholder="your@email.com"
+                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10">
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="space-y-3">
+                        <label class="text-sm text-gray-300 font-medium flex items-center gap-2">
+                            <i class="fas fa-credit-card text-blue-400 text-xs"></i>
+                            Payment Method <span class="text-red-400">*</span>
+                        </label>
+                        <div class="flex gap-3">
+                            <label class="flex-1 flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10">
+                                <input type="radio" name="buynow-payment" value="COD" checked class="accent-blue-500">
+                                <div>
+                                    <p class="text-white text-sm font-medium">Cash on Delivery</p>
+                                    <p class="text-gray-500 text-xs">Pay when you receive</p>
+                                </div>
+                            </label>
+                            <label class="flex-1 flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10">
+                                <input type="radio" name="buynow-payment" value="VNPay" class="accent-blue-500">
+                                <div>
+                                    <p class="text-white text-sm font-medium">VNPay</p>
+                                    <p class="text-gray-500 text-xs">Online payment</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Total Section with Gradient -->
                     <div
                         class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-xl p-6 rounded-2xl border border-blue-500/30 shadow-lg">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-gray-300 font-medium">Order Total</span>
                             <span id="buynow-total"
-                                class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">0â‚«</span>
+                                class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">0&#8363;</span>
                         </div>
                         <p class="text-xs text-gray-400 flex items-center gap-1">
                             <i class="fas fa-shield-alt text-green-400"></i>
-                            Secure payment â€¢ Free shipping on orders over 10M
+                            Secure payment &bull; Free shipping on orders over 10M
                         </p>
                     </div>
 
@@ -1921,6 +1955,16 @@
                 if (user.address) document.getElementById('buynow-address').value = user.address;
             }
 
+            // Show guest email field only when not logged in
+            const guestEmailSection = document.getElementById('buynow-guest-email-section');
+            if (!getToken()) {
+                guestEmailSection.classList.remove('hidden');
+            } else {
+                guestEmailSection.classList.add('hidden');
+                const emailInput = document.getElementById('buynow-guest-email');
+                if (emailInput) emailInput.value = '';
+            }
+
             // Show modal
             const modal = document.getElementById('buynow-modal');
             modal.classList.remove('hidden');
@@ -1950,25 +1994,39 @@
 
             const colorName = selectedBuyNowColor ? selectedBuyNowColor.name : null;
             const productImage = selectedBuyNowColor && selectedBuyNowColor.image ? selectedBuyNowColor.image : product.image_url;
+            const paymentMethod = document.querySelector('input[name="buynow-payment"]:checked')?.value || 'COD';
+            const token = getToken();
+
+            // Guest requires email
+            if (!token) {
+                const guestEmail = document.getElementById('buynow-guest-email').value.trim();
+                if (!guestEmail) {
+                    showToast('Please enter your email address', 'error');
+                    return;
+                }
+            }
 
             const orderData = {
                 recipientName: document.getElementById('buynow-name').value,
                 recipientPhone: document.getElementById('buynow-phone').value,
                 recipientAddress: document.getElementById('buynow-address').value,
                 recipientNotes: document.getElementById('buynow-notes').value,
-                paymentMethod: 'COD',
+                paymentMethod,
                 items: [{
                     productId: product._id,
-                    name: product.name + (colorName ? ` (${colorName})` : ''),
+                    name: product.name,
                     price: String(product.price),
                     qty: 1,
+                    color: colorName,
                     image: productImage
                 }]
             };
+            if (!token) {
+                orderData.guestEmail = document.getElementById('buynow-guest-email').value.trim();
+            }
 
             try {
                 const headers = { 'Content-Type': 'application/json' };
-                const token = getToken();
                 if (token) headers['token'] = `Bearer ${token}`;
 
                 const res = await fetch(`${API_URL}/api/orders`, {
@@ -1978,10 +2036,15 @@
                 });
 
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.message || "Order failed.");
+                if (!res.ok) throw new Error(data.message || 'Order failed.');
 
                 closeBuyNowModal();
-                showToast(`Order placed successfully! Order ID: ${data.order?._id || 'N/A'}`);
+
+                if (paymentMethod === 'VNPay' && data.paymentUrl) {
+                    window.location.href = data.paymentUrl;
+                } else {
+                    showToast(`Order placed! ID: #${(data.order?.id || '').slice(-8).toUpperCase()}`);
+                }
 
             } catch (error) {
                 console.error(error);
