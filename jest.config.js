@@ -12,6 +12,8 @@ module.exports = {
         '!src/services/vnpayService.js',
         // AI chatbot — requires live Google Gemini API key
         '!src/controllers/chatbotController.js',
+        // HTML email templates — static template strings, not business logic
+        '!src/utils/emailTemplates.js',
         // Middleware config wrappers (express-validator rules, rate-limiter config)
         '!src/middleware/validate.js',
         '!src/middleware/rateLimiter.js',
