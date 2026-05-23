@@ -418,6 +418,7 @@
             <div class="w-full md:w-1/2 bg-[#000] p-8 flex flex-col items-center justify-center relative group">
                 <img id="modal-img-main" src=""
                     class="max-h-[300px] md:max-h-[400px] object-contain transition-transform duration-500 group-hover:scale-105 drop-shadow-2xl"
+                    onerror="this.src='assets/images/apple.webp'"
                     alt="Product">
 
                 <div id="modal-thumbnails" class="flex gap-3 mt-8 overflow-x-auto w-full justify-center px-4">
@@ -834,6 +835,20 @@
         // ==================================================================
         // 2. HELPER FUNCTIONS (TIá»†N ÃCH)
         // ==================================================================
+        // Build lookup: product name → correct local image path (from fallback data)
+        const fallbackImageByName = {};
+        fallbackProducts.forEach(p => { fallbackImageByName[p.name.toLowerCase()] = p.image_url; });
+
+        function normalizeApiProduct(p) {
+            // Map short_description → desc (API field vs render field)
+            if (!p.desc && p.short_description) p.desc = p.short_description;
+            // Fix image_url: old DB seeds stored "images/foo.jpg" without "assets/" prefix
+            if (!p.image_url || !p.image_url.startsWith('assets/')) {
+                p.image_url = fallbackImageByName[p.name.toLowerCase()] || 'assets/images/apple.webp';
+            }
+            return p;
+        }
+
         const formatPrice = (price) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
         const getToken = () => localStorage.getItem('accessToken');
 
@@ -913,7 +928,7 @@
                 const data = await res.json();
 
                 if (Array.isArray(data) && data.length > 0) {
-                    allProducts = data;
+                    allProducts = data.map(normalizeApiProduct);
                     applyFilters(); // re-apply any active filters on fresh data
                 }
             } catch (e) {
@@ -948,7 +963,7 @@
                 li.setAttribute('data-product-id', p._id);
                 li.innerHTML = `
                     <div class="relative h-64 bg-[#000] flex items-center justify-center p-6 overflow-hidden">
-                        <img src="${p.image_url}" alt="${p.name}" loading="lazy" decoding="async" class="h-full w-full object-contain group-hover:scale-110 transition-transform duration-500">
+                        <img src="${p.image_url}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.src='assets/images/apple.webp'" class="h-full w-full object-contain group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onclick="event.stopPropagation(); toggleWishlist('${p._id}')" class="bg-white/90 backdrop-blur text-black p-2 rounded-full shadow-lg hover:bg-white transition-colors" title="Add to Wishlist">
                                 <i class="${isInWishlist ? 'fas' : 'far'} fa-heart wishlist-heart" style="${isInWishlist ? 'color: #ef4444;' : ''}"></i>
