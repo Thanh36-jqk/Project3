@@ -440,9 +440,10 @@ exports.googleCallback = async (req, res) => {
         
         setRefreshCookie(res, rawToken);
 
-        // Redirect to homepage with access token
+        // Redirect with token in URL fragment — fragments are never sent to servers
+        // or included in Referer headers, so the token won't appear in server logs.
         const redirectUrl = process.env.FRONTEND_URL || 'https://project3-icy1.onrender.com';
-        res.redirect(`${redirectUrl}/?token=${accessToken}`);
+        res.redirect(`${redirectUrl}/#token=${accessToken}`);
     } catch (error) {
         console.error('Google callback error:', error);
         res.redirect('/pages/auth/login.html?error=oauth_failed');

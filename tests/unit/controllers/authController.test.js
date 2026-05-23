@@ -638,4 +638,29 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(400);
     });
   });
+
+  describe('googleCallback', () => {
+    it('should redirect with token in URL fragment (#), not query param (?)', async () => {
+      req.user = { id: 'g-user', role: 'user' };
+      jwt.sign.mockReturnValue('google-access-token');
+      prisma.refreshToken.create.mockResolvedValue({});
+
+      await authController.googleCallback(req, res);
+
+      expect(res.redirect).toHaveBeenCalled();
+      const redirectUrl = res.redirect.mock.calls[0][0];
+      expect(redirectUrl).not.toMatch(/\?token=/);
+      expect(redirectUrl).toMatch(/#token=/);
+    });
+
+    it('should redirect to error page if DB fails during Google callback', async () => {
+      req.user = { id: 'g-user', role: 'user' };
+      jwt.sign.mockReturnValue('google-access-token');
+      prisma.refreshToken.create.mockRejectedValue(new Error('DB error'));
+
+      await authController.googleCallback(req, res);
+
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('oauth_failed'));
+    });
+  });
 });

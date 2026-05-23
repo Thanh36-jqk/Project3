@@ -67,34 +67,70 @@ describe('Admin Controller', () => {
     });
 
     describe('getAllProducts (Admin)', () => {
-        it('should return all products sorted by name', async () => {
+        it('should return paginated products with metadata', async () => {
+            req.query = { page: '1', limit: '2' };
             const mockProducts = [{ name: 'AirPods' }, { name: 'iPhone' }];
-            const chainMock = { sort: jest.fn().mockResolvedValue(mockProducts) };
-            Product.find.mockReturnValue(chainMock);
+            Product.find.mockReturnValue({
+                sort: jest.fn().mockReturnThis(),
+                skip: jest.fn().mockReturnThis(),
+                limit: jest.fn().mockResolvedValue(mockProducts)
+            });
+            Product.countDocuments.mockResolvedValue(10);
 
             await adminController.getAllProducts(req, res);
 
-            expect(Product.find).toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(mockProducts);
+            expect(res.json).toHaveBeenCalledWith({
+                data: mockProducts, total: 10, page: 1, pages: 5
+            });
+        });
+
+        it('should use defaults page=1 limit=20 when no query params', async () => {
+            req.query = {};
+            Product.find.mockReturnValue({
+                sort: jest.fn().mockReturnThis(),
+                skip: jest.fn().mockReturnThis(),
+                limit: jest.fn().mockResolvedValue([])
+            });
+            Product.countDocuments.mockResolvedValue(0);
+
+            await adminController.getAllProducts(req, res);
+
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ page: 1, pages: 0 }));
         });
     });
 
     describe('getAllOrders', () => {
-        it('should return all orders with user and items', async () => {
-            const mockOrders = [
-                { id: 'o1', status: 'Confirmed', user: { email: 'u@test.com', rank: 'Silver' }, items: [] }
-            ];
+        it('should return paginated orders with metadata', async () => {
+            req.query = { page: '1', limit: '2' };
+            const mockOrders = [{ id: 'o1' }, { id: 'o2' }];
             prisma.order.findMany.mockResolvedValue(mockOrders);
+            prisma.order.count.mockResolvedValue(10);
 
             await adminController.getAllOrders(req, res);
 
             expect(prisma.order.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                skip: 0, take: 2,
                 orderBy: { createdAt: 'desc' },
                 include: expect.objectContaining({ items: true })
             }));
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(mockOrders);
+            expect(res.json).toHaveBeenCalledWith({
+                data: mockOrders, total: 10, page: 1, pages: 5
+            });
+        });
+
+        it('should use defaults page=1 limit=20 when no query params', async () => {
+            req.query = {};
+            prisma.order.findMany.mockResolvedValue([]);
+            prisma.order.count.mockResolvedValue(0);
+
+            await adminController.getAllOrders(req, res);
+
+            expect(prisma.order.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                skip: 0, take: 20
+            }));
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ page: 1 }));
         });
     });
 
@@ -150,11 +186,30 @@ describe('Admin Controller', () => {
     });
 
     describe('getAllUsers', () => {
+        it('should return paginated users with metadata', async () => {
+            req.query = { page: '2', limit: '5' };
+            const mockUsers = [{ id: 'u1' }];
+            prisma.user.findMany.mockResolvedValue(mockUsers);
+            prisma.user.count.mockResolvedValue(11);
+
+            await adminController.getAllUsers(req, res);
+
+            expect(prisma.user.findMany).toHaveBeenCalledWith(expect.objectContaining({
+                skip: 5, take: 5,
+                orderBy: { createdAt: 'desc' }
+            }));
+            expect(res.json).toHaveBeenCalledWith({
+                data: mockUsers, total: 11, page: 2, pages: 3
+            });
+        });
+
         it('should return all users with selected fields', async () => {
+            req.query = {};
             const mockUsers = [
                 { id: 'u1', name: 'Alice', email: 'alice@test.com', role: 'user', rank: 'Gold' }
             ];
             prisma.user.findMany.mockResolvedValue(mockUsers);
+            prisma.user.count.mockResolvedValue(1);
 
             await adminController.getAllUsers(req, res);
 
@@ -163,7 +218,7 @@ describe('Admin Controller', () => {
                 orderBy: { createdAt: 'desc' }
             }));
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(mockUsers);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ data: mockUsers }));
         });
     });
 

@@ -85,6 +85,10 @@ model Order {
 
   user             User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   items            OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 model OrderItem {
@@ -98,6 +102,8 @@ model OrderItem {
   color     String?
 
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
 }
 
 model RefreshToken {
@@ -110,4 +116,6 @@ model RefreshToken {
   updatedAt   DateTime @updatedAt
 
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

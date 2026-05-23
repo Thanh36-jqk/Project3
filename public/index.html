@@ -564,15 +564,13 @@
     </script>
     <script>
         (function handleGoogleLogin() {
-            // 1. Kiểm tra xem trên thanh địa chỉ có 'token' không
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
+            // Read token from URL fragment (#token=...) — fragments are never sent to
+            // servers, so the token won't appear in server logs or Referer headers.
+            const hash = window.location.hash;
+            const token = hash.startsWith('#token=') ? hash.slice(7) : null;
 
             if (token) {
-                // 2. Nếu có, lưu ngay vào localStorage
                 localStorage.setItem('accessToken', token);
-
-                // 3. Xóa token trên thanh địa chỉ để nhìn cho đẹp (bảo mật)
                 window.history.replaceState({}, document.title, window.location.pathname);
 
                 // 4. (Tùy chọn) Gọi API lấy thông tin user để lưu vào localStorage luôn

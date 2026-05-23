@@ -28,6 +28,7 @@ jest.mock('../../../src/services/emailService', () => ({
 }));
 jest.mock('../../../src/utils/emailTemplates', () => ({
     buildCancellationEmail: jest.fn().mockReturnValue('<html>cancel</html>'),
+    buildOrderConfirmationEmail: jest.fn().mockReturnValue('<html>confirm</html>'),
 }));
 
 jest.mock('../../../src/models/Product');
@@ -233,6 +234,49 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
         jest.spyOn(jwt, 'verify').mockRestore();
     });
 
+    it('should send order confirmation email after successful COD order', async () => {
+        req.body.paymentMethod = 'COD';
+        req.body.items = [{ productId: 'ip4', qty: 1 }];
+
+        const mockOrder = { id: 'o1', items: [], recipientName: 'Test User', finalAmount: 19990000, paymentMethod: 'COD', status: 'Confirmed', userId: null };
+        prisma.order.create.mockResolvedValue(mockOrder);
+        prisma.user.update.mockResolvedValue({ rank: 'Silver', totalSpending: 19990000 });
+
+        const emailService = require('../../../src/services/emailService');
+
+        await createOrder(req, res);
+
+        expect(emailService.sendEmail).toHaveBeenCalledWith(expect.objectContaining({
+            to: 'guest@example.com',
+            subject: expect.stringContaining('Xác nhận đơn hàng'),
+        }));
+        expect(res.status).toHaveBeenCalledWith(201);
+    });
+
+    it('should include color variant in order items when provided', async () => {
+        req.body.items = [{ productId: '507f1f77bcf86cd799439011', qty: 1, color: 'Midnight' }];
+        req.body.paymentMethod = 'COD';
+
+        Product.updateOne.mockResolvedValue({ modifiedCount: 1 });
+        Product.findById.mockResolvedValue({ _id: '507f1f77bcf86cd799439011', name: 'iPhone 15', price: 20000000 });
+        const mockOrder = { id: 'color-order', items: [] };
+        prisma.order.create.mockResolvedValue(mockOrder);
+        prisma.user.update.mockResolvedValue({ rank: 'Silver', totalSpending: 20000000 });
+
+        await createOrder(req, res);
+
+        expect(prisma.order.create).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({
+                items: {
+                    create: expect.arrayContaining([
+                        expect.objectContaining({ color: 'Midnight' })
+                    ])
+                }
+            })
+        }));
+        expect(res.status).toHaveBeenCalledWith(201);
+    });
+
     it('should apply voucher discount when appliedVoucher is provided by authenticated user', async () => {
         req.headers.authorization = 'Bearer valid-jwt';
         req.body = {
@@ -326,7 +370,7 @@ describe('Order Controller - getOrderById', () => {
     });
 
     it('should return order with items if found', async () => {
-        const mockOrder = { id: 'order-123', status: 'Confirmed', items: [{ qty: 1, price: 5000000 }] };
+        const mockOrder = { id: 'order-123', userId: null, status: 'Confirmed', items: [{ qty: 1, price: 5000000 }] };
         prisma.order.findUnique.mockResolvedValue(mockOrder);
 
         await getOrderById(req, res);
@@ -343,6 +387,34 @@ describe('Order Controller - getOrderById', () => {
 
         expect(res.status).toHaveBeenCalledWith(404);
         expect(res.json).toHaveBeenCalledWith({ message: 'Order not found. Please check your Order ID.' });
+    });
+
+    it('should return 200 if authenticated user accesses their own order', async () => {
+        req.user = { id: 'user-A' };
+        prisma.order.findUnique.mockResolvedValue({ id: 'order-123', userId: 'user-A', items: [] });
+
+        await getOrderById(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should return 403 if authenticated user tries to access another user\'s order', async () => {
+        req.user = { id: 'user-A' };
+        prisma.order.findUnique.mockResolvedValue({ id: 'order-123', userId: 'user-B', items: [] });
+
+        await getOrderById(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Access denied' });
+    });
+
+    it('should return 200 for guest access (no user — UUID is unguessable)', async () => {
+        // req has no .user property (unauthenticated)
+        prisma.order.findUnique.mockResolvedValue({ id: 'order-123', userId: 'some-user', items: [] });
+
+        await getOrderById(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
     });
 });
 

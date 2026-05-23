@@ -7,7 +7,7 @@ const Cart = require('../models/Cart');
 const vnpayService = require('../services/vnpayService');
 const dummyProducts = require('../utils/dummyProducts');
 const { sendEmail } = require('../services/emailService');
-const { buildCancellationEmail } = require('../utils/emailTemplates');
+const { buildCancellationEmail, buildOrderConfirmationEmail } = require('../utils/emailTemplates');
 
 /**
  * Finalize a confirmed order: clear cart, award points, update rank.
@@ -115,7 +115,8 @@ exports.createOrder = async (req, res) => {
                     name: product.name,
                     price: product.price,
                     qty: item.qty,
-                    image: product.image_url || ''
+                    image: product.image_url || '',
+                    color: item.color || null
                 });
             } else {
                 const dummyProduct = dummyProducts.find(p => p._id === item.productId);
@@ -126,7 +127,8 @@ exports.createOrder = async (req, res) => {
                     name: dummyProduct.name,
                     price: dummyProduct.price,
                     qty: item.qty,
-                    image: dummyProduct.image_url || ''
+                    image: dummyProduct.image_url || '',
+                    color: item.color || null
                 });
             }
         }
@@ -182,6 +184,18 @@ exports.createOrder = async (req, res) => {
             paymentUrl = vnpayService.createPaymentUrl(req, savedOrder.id, finalTotal, returnUrl);
         }
 
+        // Send order confirmation email (fire-and-forget)
+        const recipientEmail = userId
+            ? (await prisma.user.findUnique({ where: { id: userId }, select: { email: true } }))?.email
+            : (guestEmail || null);
+        if (recipientEmail) {
+            sendEmail({
+                to: recipientEmail,
+                subject: 'Xác nhận đơn hàng — Apple Store',
+                html: buildOrderConfirmationEmail(recipientName, savedOrder)
+            }).catch(err => console.error('Order confirmation email failed:', err.message));
+        }
+
         res.status(201).json({
             message: 'Order placed successfully',
             order: savedOrder,
@@ -206,6 +220,10 @@ exports.getOrderById = async (req, res) => {
         });
         if (!order) {
             return res.status(404).json({ message: 'Order not found. Please check your Order ID.' });
+        }
+        // If authenticated, verify the order belongs to this user
+        if (req.user && order.userId && order.userId !== req.user.id) {
+            return res.status(403).json({ message: 'Access denied' });
         }
         res.status(200).json(order);
     } catch (error) {

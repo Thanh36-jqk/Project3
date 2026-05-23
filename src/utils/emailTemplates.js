@@ -87,6 +87,66 @@ exports.buildVerificationEmail = (name, verifyUrl) => {
     return baseLayout('linear-gradient(160deg,#1d1d1f 0%,#3a3a3c 100%)', content);
 };
 
+exports.buildOrderConfirmationEmail = (recipientName, order) => {
+    const itemRows = (order.items || []).map(item => `
+      <tr>
+        <td style="font-size:13px;color:#1d1d1f;padding:10px 0;border-bottom:1px solid #f5f5f7;">${item.name || 'Sản phẩm'}${item.color ? ` <span style="color:#86868b;">(${item.color})</span>` : ''}</td>
+        <td style="font-size:13px;color:#86868b;padding:10px 0;border-bottom:1px solid #f5f5f7;text-align:center;">x${item.qty}</td>
+        <td style="font-size:13px;color:#1d1d1f;font-weight:600;padding:10px 0;border-bottom:1px solid #f5f5f7;text-align:right;">${((item.price || 0) * (item.qty || 1)).toLocaleString('vi-VN')}&#8363;</td>
+      </tr>`).join('');
+
+    const content = `
+      <div style="text-align:center;margin-bottom:32px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 16px;">
+          <tr><td style="background:#f0fff4;border-radius:50%;width:72px;height:72px;text-align:center;line-height:72px;font-size:30px;">&#10003;</td></tr>
+        </table>
+        <h1 style="color:#1d1d1f;font-size:26px;font-weight:700;margin:0 0 8px;letter-spacing:-0.5px;">Đặt hàng thành công!</h1>
+        <p style="color:#86868b;font-size:15px;margin:0;">Xin chào <strong style="color:#1d1d1f;">${recipientName}</strong></p>
+      </div>
+
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f9f9fb;border-radius:14px;margin-bottom:24px;">
+        <tr><td style="padding:6px 20px 2px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="font-size:13px;color:#86868b;padding:10px 0;border-bottom:1px solid #f0f0f0;">Mã đơn hàng</td>
+              <td style="font-size:13px;color:#1d1d1f;font-weight:600;padding:10px 0;border-bottom:1px solid #f0f0f0;text-align:right;font-family:monospace;">#${order.id.slice(-8).toUpperCase()}</td>
+            </tr>
+            <tr>
+              <td style="font-size:13px;color:#86868b;padding:10px 0;border-bottom:1px solid #f0f0f0;">Phương thức</td>
+              <td style="font-size:13px;color:#1d1d1f;font-weight:600;padding:10px 0;border-bottom:1px solid #f0f0f0;text-align:right;">${order.paymentMethod === 'VNPay' ? 'VNPay (thanh toán online)' : 'COD (thanh toán khi nhận)'}</td>
+            </tr>
+            <tr>
+              <td style="font-size:13px;color:#86868b;padding:10px 0;border-bottom:1px solid #f0f0f0;">Giao đến</td>
+              <td style="font-size:13px;color:#1d1d1f;padding:10px 0;border-bottom:1px solid #f0f0f0;text-align:right;">${order.recipientAddress || ''}</td>
+            </tr>
+            <tr>
+              <td style="font-size:13px;color:#86868b;padding:10px 0;">Tổng thanh toán</td>
+              <td style="font-size:16px;color:#0071e3;font-weight:700;padding:10px 0;text-align:right;">${(order.finalAmount || 0).toLocaleString('vi-VN')}&#8363;</td>
+            </tr>
+          </table>
+        </td></tr>
+      </table>
+
+      ${itemRows ? `
+      <div style="margin-bottom:24px;">
+        <p style="color:#1d1d1f;font-size:13px;font-weight:700;margin:0 0 10px;">Sản phẩm đã đặt</p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <th style="font-size:11px;color:#aeaeb2;font-weight:500;text-align:left;padding-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Sản phẩm</th>
+            <th style="font-size:11px;color:#aeaeb2;font-weight:500;text-align:center;padding-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">SL</th>
+            <th style="font-size:11px;color:#aeaeb2;font-weight:500;text-align:right;padding-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Giá</th>
+          </tr>
+          ${itemRows}
+        </table>
+      </div>` : ''}
+
+      ${primaryButton('Xem đơn hàng', getFrontendUrl(), '#0071e3')}
+
+      <p style="color:#aeaeb2;font-size:12px;text-align:center;margin:8px 0 0;">Cảm ơn bạn đã tin tưởng Apple Store!</p>`;
+
+    return baseLayout('linear-gradient(160deg,#0071e3 0%,#42a5f5 100%)', content);
+};
+
 exports.buildCancellationEmail = (recipientName, order, reason) => {
     const itemRows = (order.items || []).map(item => `
       <tr>

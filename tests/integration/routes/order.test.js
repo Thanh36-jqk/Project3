@@ -30,6 +30,7 @@ jest.mock('../../../src/controllers/orderController', () => ({
 jest.mock('../../../src/middleware/auth', () => ({
     verifyToken: (...a) => middlewareImpl.verifyToken(...a),
     verifyAdmin: (...a) => middlewareImpl.verifyAdmin(...a),
+    optionalVerifyToken: (req, res, next) => next(),
 }));
 jest.mock('../../../src/middleware/validate', () => {
     const pass = (req, res, next) => next();

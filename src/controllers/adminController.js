@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const prisma = require('../config/postgres');
 const Product = require('../models/Product');
+const logger = require('../config/logger');
 const Voucher = require('../models/Voucher');
 const Review = require('../models/Review');
 const { sendEmail } = require('../services/emailService');
@@ -77,8 +78,16 @@ exports.getDashboardStats = async (req, res) => {
 
 exports.getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find().sort({ name: 1 });
-        res.status(200).json(products);
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+        const skip = (page - 1) * limit;
+
+        const [products, total] = await Promise.all([
+            Product.find().sort({ name: 1 }).skip(skip).limit(limit),
+            Product.countDocuments()
+        ]);
+
+        res.status(200).json({ data: products, total, page, pages: Math.ceil(total / limit) });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -86,14 +95,24 @@ exports.getAllProducts = async (req, res) => {
 
 exports.getAllOrders = async (req, res) => {
     try {
-        const orders = await prisma.order.findMany({
-            orderBy: { createdAt: 'desc' },
-            include: {
-                user: { select: { email: true, rank: true } },
-                items: true
-            }
-        });
-        res.status(200).json(orders);
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+        const skip = (page - 1) * limit;
+
+        const [orders, total] = await Promise.all([
+            prisma.order.findMany({
+                skip,
+                take: limit,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    user: { select: { email: true, rank: true } },
+                    items: true
+                }
+            }),
+            prisma.order.count()
+        ]);
+
+        res.status(200).json({ data: orders, total, page, pages: Math.ceil(total / limit) });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -112,6 +131,8 @@ exports.updateOrderStatus = async (req, res) => {
             include: { user: { select: { email: true, name: true } } }
         });
 
+        logger.info('ADMIN_AUDIT', { action: 'updateOrderStatus', adminId: req.user?.id, orderId: req.params.id, status });
+
         const recipientEmail = order.user?.email || order.guestEmail;
         if (recipientEmail) {
             sendOrderStatusEmail(recipientEmail, order.user?.name || order.recipientName, order, status)
@@ -127,14 +148,24 @@ exports.updateOrderStatus = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await prisma.user.findMany({
-            select: {
-                id: true, name: true, email: true, role: true, rank: true,
-                points: true, totalSpending: true, createdAt: true, avatar: true, phone: true
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-        res.status(200).json(users);
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+        const skip = (page - 1) * limit;
+
+        const [users, total] = await Promise.all([
+            prisma.user.findMany({
+                skip,
+                take: limit,
+                select: {
+                    id: true, name: true, email: true, role: true, rank: true,
+                    points: true, totalSpending: true, createdAt: true, avatar: true, phone: true
+                },
+                orderBy: { createdAt: 'desc' }
+            }),
+            prisma.user.count()
+        ]);
+
+        res.status(200).json({ data: users, total, page, pages: Math.ceil(total / limit) });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -152,6 +183,7 @@ exports.updateUserRank = async (req, res) => {
             data: { rank },
             select: { id: true, name: true, email: true, role: true, rank: true, points: true }
         });
+        logger.info('ADMIN_AUDIT', { action: 'updateUserRank', adminId: req.user?.id, targetUserId: req.params.id, rank });
         res.status(200).json(user);
     } catch (error) {
         if (error.code === 'P2025') return res.status(404).json({ message: 'User not found' });
@@ -286,6 +318,7 @@ exports.cancelOrderAdmin = async (req, res) => {
             }).catch(err => console.error('Admin cancellation email failed:', err.message));
         }
 
+        logger.info('ADMIN_AUDIT', { action: 'cancelOrderAdmin', adminId: req.user?.id, orderId: req.params.id, reason: cancelReason });
         res.status(200).json({ message: 'Order cancelled successfully' });
     } catch (error) {
         if (error.code === 'P2025') return res.status(404).json({ message: 'Order not found' });
@@ -304,6 +337,7 @@ exports.deleteReview = async (req, res) => {
 
         await recalculateProductRatings(review.productId.toString());
 
+        logger.info('ADMIN_AUDIT', { action: 'deleteReview', adminId: req.user?.id, reviewId: req.params.id, productId: review.productId });
         res.status(200).json({ message: 'Review deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });

@@ -30,4 +30,21 @@ const verifyAdmin = (req, res, next) => {
     });
 };
 
-module.exports = { verifyToken, verifyAdmin };
+/**
+ * Optional auth — sets req.user if a valid token is present, but never blocks.
+ * Used for endpoints that serve both authenticated and guest users.
+ */
+const optionalVerifyToken = (req, res, next) => {
+    const authHeader = req.headers.authorization || req.headers.token;
+    if (authHeader) {
+        const token = authHeader.split(" ")[1];
+        jwt.verify(token, process.env.JWT_SECRET, (err, userPayload) => {
+            if (!err) req.user = userPayload;
+            next();
+        });
+    } else {
+        next();
+    }
+};
+
+module.exports = { verifyToken, verifyAdmin, optionalVerifyToken };

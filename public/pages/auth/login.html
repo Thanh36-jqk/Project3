@@ -501,10 +501,10 @@
             });
         });
 
-        // Handle Google OAuth callback token
+        // Handle Google OAuth callback token (arrives via URL fragment #token=...)
         window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
+            const hash = window.location.hash;
+            const token = hash.startsWith('#token=') ? hash.slice(7) : null;
             if (token) {
                 localStorage.setItem('accessToken', token);
                 

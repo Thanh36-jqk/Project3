@@ -3,8 +3,8 @@ const express = require('express');
 
 const controllerImpl = {
     getDashboardStats: (req, res) => res.status(200).json({ totalProducts: 10, totalOrders: 50, totalUsers: 100, totalRevenue: 5000000 }),
-    getAllProducts: (req, res) => res.status(200).json([]),
-    getAllOrders: (req, res) => res.status(200).json([]),
+    getAllProducts: (req, res) => res.status(200).json({ data: [], total: 0, page: 1, pages: 0 }),
+    getAllOrders: (req, res) => res.status(200).json({ data: [], total: 0, page: 1, pages: 0 }),
     updateOrderStatus: (req, res) => res.status(200).json({ id: req.params.id, status: req.body.status }),
     getAllUsers: (req, res) => res.status(200).json([]),
     updateUserRank: (req, res) => res.status(200).json({ id: req.params.id, rank: req.body.rank }),
@@ -75,18 +75,21 @@ describe('Admin Routes Integration Tests', () => {
     });
 
     describe('GET /products', () => {
-        test('should return all products for admin', async () => {
+        test('should return paginated products for admin', async () => {
             const res = await request(app).get('/products');
             expect(res.status).toBe(200);
-            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body).toHaveProperty('data');
+            expect(res.body).toHaveProperty('total');
         });
     });
 
     describe('Order management', () => {
-        test('GET /orders — should return all orders', async () => {
+        test('GET /orders — should return paginated orders', async () => {
+            controllerImpl.getAllOrders = (req, res) => res.status(200).json({ data: [], total: 0, page: 1, pages: 0 });
             const res = await request(app).get('/orders');
             expect(res.status).toBe(200);
-            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body).toHaveProperty('data');
+            expect(res.body).toHaveProperty('total');
         });
 
         test('PUT /orders/:id/status — should update order status', async () => {
@@ -107,10 +110,11 @@ describe('Admin Routes Integration Tests', () => {
     });
 
     describe('User management', () => {
-        test('GET /users — should return all users', async () => {
+        test('GET /users — should return paginated users', async () => {
+            controllerImpl.getAllUsers = (req, res) => res.status(200).json({ data: [], total: 0, page: 1, pages: 0 });
             const res = await request(app).get('/users');
             expect(res.status).toBe(200);
-            expect(Array.isArray(res.body)).toBe(true);
+            expect(res.body).toHaveProperty('data');
         });
 
         test('PUT /users/:id/rank — should update user rank', async () => {
