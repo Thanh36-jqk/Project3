@@ -2025,6 +2025,11 @@
                 orderData.guestEmail = document.getElementById('buynow-guest-email').value.trim();
             }
 
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-xl"></i><span class="text-lg">Processing...</span>';
+
             try {
                 const headers = { 'Content-Type': 'application/json' };
                 if (token) headers['token'] = `Bearer ${token}`;
@@ -2043,12 +2048,14 @@
                 if (paymentMethod === 'VNPay' && data.paymentUrl) {
                     window.location.href = data.paymentUrl;
                 } else {
-                    showToast(`Order placed! ID: #${(data.order?.id || '').slice(-8).toUpperCase()}`);
+                    showToast(`Order placed! #${(data.order?.id || '').slice(-8).toUpperCase()}`);
                 }
 
             } catch (error) {
                 console.error(error);
                 showToast(`Error: ${error.message}`, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
             }
         });
 
@@ -2068,47 +2075,7 @@
             document.getElementById('checkout-modal').classList.remove('flex');
         };
 
-        document.getElementById('checkout-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const orderData = {
-                recipientName: document.getElementById('checkout-name').value,
-                recipientPhone: document.getElementById('checkout-phone').value,
-                recipientAddress: document.getElementById('checkout-address').value,
-                recipientNotes: document.getElementById('checkout-notes').value,
-                paymentMethod: 'COD',
-                items: cart.map(i => ({ name: i.name, price: String(i.price), qty: i.quantity, image: i.image })),
-                appliedVoucher: null // Feature for later
-            };
-
-            // Call API
-            try {
-                // Náº¿u chÆ°a Ä'Äƒng nháº­p, váº«n cho Ä'áº·t nhÆ°ng khÃ´ng lÆ°u userId (Backend Ä'Ã£ xá»­ lÃ½)
-                const headers = { 'Content-Type': 'application/json' };
-                const token = getToken();
-                if (token) headers['token'] = `Bearer ${token}`;
-
-                const res = await fetch(`${API_URL}/api/orders`, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify(orderData)
-                });
-
-                if (res.ok) {
-                    showToast('Order placed successfully!');
-                    cart = [];
-                    saveCart();
-                    updateCartUI();
-                    closeCheckout();
-                } else {
-                    const err = await res.json();
-                    showToast(err.message || 'Order failed', 'error');
-                }
-            } catch (err) {
-                console.error(err);
-                showToast('Network error', 'error');
-            }
-        });
+        // Cart checkout → redirects to checkout.html (see openCheckout())
 
         // ==================================================================
         // 7. AI CHATBOT (REAL GEMINI INTEGRATION)

@@ -492,12 +492,12 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         btn.disabled = true;
 
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['token'] = `Bearer ${token}`;
+
         const res = await fetch(`${API_BASE_URL}/api/orders`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'token': `Bearer ${getAuthToken()}`
-          },
+          headers,
           body: JSON.stringify(orderData),
         });
 
