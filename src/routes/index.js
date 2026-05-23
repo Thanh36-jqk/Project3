@@ -12,10 +12,12 @@ const chatbotRoutes = require('./chatbotRoutes');
 const adminRoutes = require('./adminRoutes');
 const paymentRoutes = require('./paymentRoutes');
 const addressRoutes = require('./addressRoutes');
+const reviewRoutes = require('./reviewRoutes');
 
 // Mount routes
 router.use('/', authRoutes);  // Mounts both /api/register, /api/login, AND /auth/google
 router.use('/api/products', productRoutes);
+router.use('/api/products/:id/reviews', reviewRoutes);
 router.use('/api/cart', cartRoutes);
 router.use('/api/orders', orderRoutes);
 router.use('/api/vouchers', voucherRoutes);

@@ -1,7 +1,11 @@
+const mongoose = require('mongoose');
 const prisma = require('../config/postgres');
 const Product = require('../models/Product');
 const Voucher = require('../models/Voucher');
+const Review = require('../models/Review');
 const { sendEmail } = require('../services/emailService');
+const { buildCancellationEmail } = require('../utils/emailTemplates');
+const { recalculateProductRatings } = require('./reviewController');
 
 const ORDER_STATUS_CONFIG = {
     Confirmed:  { subject: 'Order Confirmed — Apple Store',          color: '#0071e3', headline: 'Your order has been confirmed',    body: 'Great news! We\'ve confirmed your order and our team is getting it ready.' },
@@ -202,6 +206,105 @@ exports.deleteVoucher = async (req, res) => {
         const voucher = await Voucher.findByIdAndDelete(req.params.id);
         if (!voucher) return res.status(404).json({ message: 'Voucher not found' });
         res.status(200).json({ message: 'Voucher deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * Admin cancel order — can cancel Pending/Confirmed/Processing/Shipped orders
+ * PUT /api/admin/orders/:id/cancel
+ */
+exports.cancelOrderAdmin = async (req, res) => {
+    try {
+        const { reason } = req.body;
+        const order = await prisma.order.findUnique({
+            where: { id: req.params.id },
+            include: {
+                items: true,
+                user: { select: { email: true, name: true, points: true, totalSpending: true } }
+            }
+        });
+
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+        if (order.status === 'Cancelled') return res.status(400).json({ message: 'Order is already cancelled' });
+
+        const nonCancellable = ['Completed', 'Delivered'];
+        if (nonCancellable.includes(order.status)) {
+            return res.status(400).json({ message: `Cannot cancel a ${order.status} order` });
+        }
+
+        const cancelReason = reason?.trim() || 'Cancelled by admin';
+        const originalStatus = order.status;
+
+        await prisma.order.update({
+            where: { id: req.params.id },
+            data: { status: 'Cancelled', cancelReason }
+        });
+
+        // Restore stock
+        for (const item of order.items) {
+            if (mongoose.Types.ObjectId.isValid(item.productId)) {
+                await Product.updateOne({ _id: item.productId }, { $inc: { stock: item.qty } });
+            }
+        }
+
+        // Restore voucher
+        if (order.appliedVoucher && order.userId) {
+            await prisma.voucher.updateMany({
+                where: { userId: order.userId, code: order.appliedVoucher, isUsed: true },
+                data: { isUsed: false }
+            });
+        }
+
+        // Deduct points if order was finalized
+        const wasFinalized = ['Confirmed', 'Processing', 'Shipped'].includes(originalStatus);
+        if (wasFinalized && order.userId && order.user) {
+            const pointsEarned = Math.floor(order.finalAmount / 100000);
+            if (pointsEarned > 0) {
+                await prisma.user.update({
+                    where: { id: order.userId },
+                    data: {
+                        points: Math.max(0, (order.user.points || 0) - pointsEarned),
+                        totalSpending: Math.max(0, (order.user.totalSpending || 0) - order.finalAmount)
+                    }
+                });
+            }
+        }
+
+        // Send cancellation email
+        const recipientEmail = order.user?.email || order.guestEmail;
+        if (recipientEmail) {
+            sendEmail({
+                to: recipientEmail,
+                subject: 'Đơn hàng đã bị hủy — Apple Store',
+                html: buildCancellationEmail(
+                    order.user?.name || order.recipientName,
+                    { ...order, status: 'Cancelled' },
+                    cancelReason
+                )
+            }).catch(err => console.error('Admin cancellation email failed:', err.message));
+        }
+
+        res.status(200).json({ message: 'Order cancelled successfully' });
+    } catch (error) {
+        if (error.code === 'P2025') return res.status(404).json({ message: 'Order not found' });
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * Admin delete review
+ * DELETE /api/admin/reviews/:id
+ */
+exports.deleteReview = async (req, res) => {
+    try {
+        const review = await Review.findByIdAndDelete(req.params.id);
+        if (!review) return res.status(404).json({ message: 'Review not found' });
+
+        await recalculateProductRatings(review.productId.toString());
+
+        res.status(200).json({ message: 'Review deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

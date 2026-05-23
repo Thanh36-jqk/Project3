@@ -12,6 +12,7 @@ jest.mock('../../../src/config/postgres', () => ({
   user: {
     findUnique: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
   },
   refreshToken: {
     create: jest.fn(),
@@ -24,7 +25,10 @@ jest.mock('../../../src/services/cartMergeService', () => ({
   mergeGuestCart: jest.fn(),
 }));
 jest.mock('../../../src/services/emailService', () => ({
-  sendEmail: jest.fn(),
+  sendEmail: jest.fn().mockResolvedValue(undefined),
+}));
+jest.mock('../../../src/utils/emailTemplates', () => ({
+  buildVerificationEmail: jest.fn().mockReturnValue('<html>verify</html>'),
 }));
 
 describe('Auth Controller', () => {
@@ -43,6 +47,7 @@ describe('Auth Controller', () => {
       json: jest.fn(),
       cookie: jest.fn(),
       clearCookie: jest.fn(),
+      redirect: jest.fn(),
     };
     jest.clearAllMocks();
   });
@@ -53,7 +58,9 @@ describe('Auth Controller', () => {
       
       prisma.user.findUnique.mockResolvedValue(null);
       bcrypt.hash.mockResolvedValue('hashedPassword');
-      prisma.user.create.mockResolvedValue({ id: 1, email: 'test@example.com', role: 'user' });
+      prisma.user.create.mockResolvedValue({ id: 1, email: 'test@example.com', name: 'Test User', role: 'user' });
+      prisma.user.update.mockResolvedValue({});
+      jwt.sign.mockReturnValue('mock-verification-jwt');
 
       await authController.register(req, res);
 
@@ -68,13 +75,20 @@ describe('Auth Controller', () => {
           rank: 'Silver'
         })
       });
+      expect(prisma.user.update).toHaveBeenCalledWith(expect.objectContaining({
+        data: expect.objectContaining({ emailVerificationToken: expect.any(String) })
+      }));
+      expect(emailService.sendEmail).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Registration successful' });
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.',
+        requiresEmailVerification: true
+      });
     });
 
     it('should return error if email already exists', async () => {
       req.body = { email: 'existing@example.com', password: 'password123' };
-      
+
       prisma.user.findUnique.mockResolvedValue({ id: 1, email: 'existing@example.com' });
 
       await authController.register(req, res);
@@ -82,6 +96,33 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ message: 'Email already exists' });
       expect(prisma.user.create).not.toHaveBeenCalled();
+    });
+
+    it('should merge guest cart after registering if guestCart is provided', async () => {
+      req.body = {
+        email: 'new@example.com', password: 'pass123', name: 'New User',
+        guestCart: [{ productId: 'p1', quantity: 2 }]
+      };
+      prisma.user.findUnique.mockResolvedValue(null);
+      bcrypt.hash.mockResolvedValue('hashed');
+      prisma.user.create.mockResolvedValue({ id: 99, email: 'new@example.com', name: '', role: 'user' });
+      prisma.user.update.mockResolvedValue({});
+      jwt.sign.mockReturnValue('verify-jwt');
+      cartMergeService.mergeGuestCart.mockResolvedValue({});
+
+      await authController.register(req, res);
+
+      expect(cartMergeService.mergeGuestCart).toHaveBeenCalledWith(99, req.body.guestCart);
+      expect(res.status).toHaveBeenCalledWith(201);
+    });
+
+    it('should return 500 on unexpected error during registration', async () => {
+      req.body = { email: 'err@example.com', password: 'pass' };
+      prisma.user.findUnique.mockRejectedValue(new Error('DB down'));
+
+      await authController.register(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
     });
   });
 
@@ -211,6 +252,15 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ message: 'Failed to send verification code. Please try again later.' });
     });
+
+    it('should return 500 on unexpected server error during login', async () => {
+      req.body = { email: 'user@example.com', password: 'pass' };
+      prisma.user.findUnique.mockRejectedValue(new Error('DB crash'));
+
+      await authController.login(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
   });
 
   describe('verifyLoginOtp', () => {
@@ -272,6 +322,65 @@ describe('Auth Controller', () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ message: 'otpToken and otp are required' });
     });
+
+    it('should return 401 if token purpose is not login_otp', async () => {
+      req.body = { otpToken: 'wrong-purpose-token', otp: '123456' };
+      jwt.verify.mockReturnValue({ userId: 1, otpHash: 'hash', purpose: 'password_reset' });
+
+      await authController.verifyLoginOtp(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Invalid token purpose' });
+    });
+
+    it('should return 404 if user not found after valid OTP', async () => {
+      const rawOtp = '654321';
+      const otpHash = require('crypto').createHash('sha256').update(rawOtp).digest('hex');
+      req.body = { otpToken: 'valid-token', otp: rawOtp };
+      jwt.verify.mockReturnValue({ userId: 999, otpHash, purpose: 'login_otp' });
+      prisma.user.findUnique.mockResolvedValue(null);
+
+      await authController.verifyLoginOtp(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: 'User not found' });
+    });
+
+    it('should merge guest cart after OTP login if guestCart is provided', async () => {
+      const rawOtp = '112233';
+      const otpHash = require('crypto').createHash('sha256').update(rawOtp).digest('hex');
+      req.body = {
+        otpToken: 'valid-token', otp: rawOtp,
+        guestCart: [{ productId: 'p1', quantity: 1 }]
+      };
+      jwt.verify.mockReturnValue({ userId: 1, otpHash, purpose: 'login_otp' });
+
+      const mockUser = {
+        id: 1, email: 'user@example.com', role: 'user', name: 'Test',
+        password: 'h', passwordResetToken: null, passwordResetExpires: null, emailVerificationToken: null
+      };
+      prisma.user.findUnique.mockResolvedValue(mockUser);
+      jwt.sign.mockReturnValue('token');
+      prisma.refreshToken.create.mockResolvedValue({ id: 1 });
+      cartMergeService.mergeGuestCart.mockResolvedValue({});
+
+      await authController.verifyLoginOtp(req, res);
+
+      expect(cartMergeService.mergeGuestCart).toHaveBeenCalledWith(1, req.body.guestCart);
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should return 500 on unexpected error in verifyLoginOtp', async () => {
+      const rawOtp = '999888';
+      const correctHash = require('crypto').createHash('sha256').update(rawOtp).digest('hex');
+      req.body = { otpToken: 'tok', otp: rawOtp };
+      jwt.verify.mockReturnValue({ userId: 1, otpHash: correctHash, purpose: 'login_otp' });
+      prisma.user.findUnique.mockRejectedValue(new Error('DB error'));
+
+      await authController.verifyLoginOtp(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
   });
 
   describe('refreshAccessToken', () => {
@@ -327,6 +436,33 @@ describe('Auth Controller', () => {
 
       expect(res.status).toHaveBeenCalledWith(403);
     });
+
+    it('should return 403 and delete token if user was deleted after token was issued', async () => {
+      req.cookies = { refreshToken: 'orphan-token' };
+
+      const storedToken = {
+        id: 5, userId: 99, token: 'orphan-token',
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60)
+      };
+      prisma.refreshToken.findUnique.mockResolvedValue(storedToken);
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.refreshToken.delete.mockResolvedValue({});
+
+      await authController.refreshAccessToken(req, res);
+
+      expect(prisma.refreshToken.delete).toHaveBeenCalledWith({ where: { id: 5 } });
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ message: 'User not found' });
+    });
+
+    it('should return 500 on unexpected error in refreshAccessToken', async () => {
+      req.cookies = { refreshToken: 'valid-token' };
+      prisma.refreshToken.findUnique.mockRejectedValue(new Error('DB error'));
+
+      await authController.refreshAccessToken(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
   });
 
   describe('logout', () => {
@@ -377,6 +513,129 @@ describe('Auth Controller', () => {
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ message: 'User not found' });
+    });
+
+    it('should return 500 on DB error in getProfile', async () => {
+      req.user = { id: 1 };
+      prisma.user.findUnique.mockRejectedValue(new Error('DB error'));
+
+      await authController.getProfile(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('should verify email successfully and redirect with verified=true', async () => {
+      req.query = { token: 'valid-jwt' };
+      jwt.verify.mockReturnValue({ userId: 'user-1', token: 'raw-token', purpose: 'email_verification' });
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        isEmailVerified: false,
+        emailVerificationToken: 'raw-token'
+      });
+      prisma.user.update.mockResolvedValue({});
+
+      await authController.verifyEmail(req, res);
+
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-1' },
+        data: { isEmailVerified: true, emailVerificationToken: null }
+      });
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('verified=true'));
+    });
+
+    it('should redirect with token_expired if JWT is invalid', async () => {
+      req.query = { token: 'expired-jwt' };
+      jwt.verify.mockImplementation(() => { throw new Error('jwt expired'); });
+
+      await authController.verifyEmail(req, res);
+
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('token_expired'));
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('should redirect with verified=already if email already verified', async () => {
+      req.query = { token: 'valid-jwt' };
+      jwt.verify.mockReturnValue({ userId: 'user-1', token: 'raw-token', purpose: 'email_verification' });
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        isEmailVerified: true,
+        emailVerificationToken: null
+      });
+
+      await authController.verifyEmail(req, res);
+
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('already'));
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('should redirect with invalid_token if token nonce does not match', async () => {
+      req.query = { token: 'tampered-jwt' };
+      jwt.verify.mockReturnValue({ userId: 'user-1', token: 'wrong-nonce', purpose: 'email_verification' });
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        isEmailVerified: false,
+        emailVerificationToken: 'correct-nonce'
+      });
+
+      await authController.verifyEmail(req, res);
+
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('invalid_token'));
+      expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('should redirect with invalid_token if no token query param', async () => {
+      req.query = {};
+
+      await authController.verifyEmail(req, res);
+
+      expect(res.redirect).toHaveBeenCalledWith(expect.stringContaining('invalid_token'));
+    });
+  });
+
+  describe('resendVerification', () => {
+    it('should send verification email and return success message', async () => {
+      req.body = { email: 'unverified@example.com' };
+      const mockUser = { id: 'u1', email: 'unverified@example.com', name: 'User', isEmailVerified: false };
+      prisma.user.findUnique.mockResolvedValue(mockUser);
+      prisma.user.update.mockResolvedValue({});
+      jwt.sign.mockReturnValue('new-verify-jwt');
+
+      await authController.resendVerification(req, res);
+
+      expect(prisma.user.update).toHaveBeenCalled();
+      expect(emailService.sendEmail).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.any(String) }));
+    });
+
+    it('should return success even when email does not exist (prevent enumeration)', async () => {
+      req.body = { email: 'nobody@example.com' };
+      prisma.user.findUnique.mockResolvedValue(null);
+
+      await authController.resendVerification(req, res);
+
+      expect(emailService.sendEmail).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should return success without sending email if already verified', async () => {
+      req.body = { email: 'verified@example.com' };
+      prisma.user.findUnique.mockResolvedValue({ id: 'u2', isEmailVerified: true });
+
+      await authController.resendVerification(req, res);
+
+      expect(emailService.sendEmail).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should return 400 if email body is missing', async () => {
+      req.body = {};
+
+      await authController.resendVerification(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
     });
   });
 });

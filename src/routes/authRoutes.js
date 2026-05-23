@@ -11,6 +11,10 @@ const { authLimiter, passwordResetLimiter, otpLimiter } = require('../middleware
 router.post('/api/register', authLimiter, validateRegister, authController.register);
 router.post('/api/login', authLimiter, validateLogin, authController.login);
 
+// Email verification
+router.get('/api/auth/verify-email', authController.verifyEmail);
+router.post('/api/auth/resend-verification', authLimiter, authController.resendVerification);
+
 // Login step 2 — OTP verification
 router.post('/api/auth/verify-otp', otpLimiter, authController.verifyLoginOtp);
 

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const prisma = require('../config/postgres');
 const { mergeGuestCart } = require('../services/cartMergeService');
 const { sendEmail } = require('../services/emailService');
+const { buildVerificationEmail } = require('../utils/emailTemplates');
 
 const OTP_EXPIRY_MINUTES = 10;
 
@@ -67,7 +68,30 @@ exports.register = async (req, res) => {
             await mergeGuestCart(newUser.id, req.body.guestCart);
         }
 
-        res.status(201).json({ message: 'Registration successful' });
+        // Generate and store email verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationJwt = jwt.sign(
+            { userId: newUser.id, token: verificationToken, purpose: 'email_verification' },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        await prisma.user.update({
+            where: { id: newUser.id },
+            data: { emailVerificationToken: verificationToken }
+        });
+
+        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${verificationJwt}`;
+        sendEmail({
+            to: newUser.email,
+            subject: 'Xác nhận email của bạn — Apple Store',
+            html: buildVerificationEmail(newUser.name || newUser.email, verifyUrl)
+        }).catch(err => console.error('Verification email failed:', err.message));
+
+        res.status(201).json({
+            message: 'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.',
+            requiresEmailVerification: true
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -298,6 +322,97 @@ exports.getProfile = async (req, res) => {
         });
         
         res.status(200).json({ user, orders });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * Verify email address from the link clicked in the verification email
+ * GET /api/auth/verify-email?token=<jwt>
+ */
+exports.verifyEmail = async (req, res) => {
+    const redirectBase = process.env.FRONTEND_URL || '';
+    try {
+        const { token } = req.query;
+        if (!token) {
+            return res.redirect(`${redirectBase}/pages/auth/login.html?error=invalid_token`);
+        }
+
+        let payload;
+        try {
+            payload = jwt.verify(token, process.env.JWT_SECRET);
+        } catch {
+            return res.redirect(`${redirectBase}/pages/auth/login.html?error=token_expired`);
+        }
+
+        if (payload.purpose !== 'email_verification') {
+            return res.redirect(`${redirectBase}/pages/auth/login.html?error=invalid_token`);
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+        if (!user) {
+            return res.redirect(`${redirectBase}/pages/auth/login.html?error=user_not_found`);
+        }
+
+        if (user.isEmailVerified) {
+            return res.redirect(`${redirectBase}/pages/auth/login.html?verified=already`);
+        }
+
+        if (user.emailVerificationToken !== payload.token) {
+            return res.redirect(`${redirectBase}/pages/auth/login.html?error=invalid_token`);
+        }
+
+        await prisma.user.update({
+            where: { id: payload.userId },
+            data: { isEmailVerified: true, emailVerificationToken: null }
+        });
+
+        res.redirect(`${redirectBase}/pages/auth/login.html?verified=true`);
+    } catch (error) {
+        res.redirect(`${redirectBase}/pages/auth/login.html?error=server_error`);
+    }
+};
+
+/**
+ * Resend verification email
+ * POST /api/auth/resend-verification
+ */
+exports.resendVerification = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: 'Email là bắt buộc' });
+
+        const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+
+        // Always succeed to prevent user enumeration
+        const successMsg = 'Nếu email chưa được xác nhận, chúng tôi đã gửi lại email xác nhận.';
+        if (!user || user.isEmailVerified) {
+            return res.status(200).json({ message: successMsg });
+        }
+
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const verificationJwt = jwt.sign(
+            { userId: user.id, token: verificationToken, purpose: 'email_verification' },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { emailVerificationToken: verificationToken }
+        });
+
+        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${verificationJwt}`;
+
+        sendEmail({
+            to: user.email,
+            subject: 'Xác nhận email của bạn — Apple Store',
+            html: buildVerificationEmail(user.name || user.email, verifyUrl)
+        }).catch(err => console.error('Resend verification email failed:', err.message));
+
+        res.status(200).json({ message: successMsg });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

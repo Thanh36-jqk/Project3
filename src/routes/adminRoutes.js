@@ -12,10 +12,15 @@ router.get('/products', verifyAdmin, adminController.getAllProducts);
 // Order management
 router.get('/orders', verifyAdmin, adminController.getAllOrders);
 router.put('/orders/:id/status', verifyAdmin, adminController.updateOrderStatus);
+router.put('/orders/:id/cancel', verifyAdmin, adminController.cancelOrderAdmin);
 
 // User management
 router.get('/users', verifyAdmin, adminController.getAllUsers);
 router.put('/users/:id/rank', verifyAdmin, adminController.updateUserRank);
+
+// Review moderation
+const reviewController = require('../controllers/reviewController');
+router.delete('/reviews/:id', verifyAdmin, reviewController.deleteReview);
 
 // Voucher management
 router.get('/vouchers', verifyAdmin, adminController.getAllVouchers);

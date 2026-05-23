@@ -5,13 +5,15 @@ const express = require('express');
 // will capture at module-load time. Tests override behavior via the
 // `controllerImpl` lookup inside each mock factory.
 const controllerImpl = {
-    register: (req, res) => res.status(201).json({ message: 'Registration successful' }),
+    register: (req, res) => res.status(201).json({ message: 'Đăng ký thành công!', requiresEmailVerification: true }),
     login: (req, res) => res.status(200).json({ requiresOtp: true, otpToken: 'fake-otp-token', maskedEmail: 'te***@example.com' }),
     verifyLoginOtp: (req, res) => res.status(200).json({ accessToken: 'fake-token', role: 'user' }),
     getProfile: (req, res) => res.status(200).json({ email: 'x' }),
     googleCallback: (req, res) => res.redirect('/'),
     refreshAccessToken: (req, res) => res.status(200).json({ ok: true }),
     logout: (req, res) => res.status(200).json({ ok: true }),
+    verifyEmail: (req, res) => res.redirect('/pages/auth/login.html?verified=true'),
+    resendVerification: (req, res) => res.status(200).json({ ok: true }),
 };
 const passwordImpl = {
     forgotPassword: (req, res) => res.status(200).json({ ok: true }),
@@ -30,6 +32,8 @@ jest.mock('../../../src/controllers/authController', () => ({
     googleCallback: (...a) => controllerImpl.googleCallback(...a),
     refreshAccessToken: (...a) => controllerImpl.refreshAccessToken(...a),
     logout: (...a) => controllerImpl.logout(...a),
+    verifyEmail: (...a) => controllerImpl.verifyEmail(...a),
+    resendVerification: (...a) => controllerImpl.resendVerification(...a),
 }));
 jest.mock('../../../src/controllers/passwordController', () => ({
     forgotPassword: (...a) => passwordImpl.forgotPassword(...a),

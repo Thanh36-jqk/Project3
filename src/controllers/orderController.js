@@ -6,6 +6,8 @@ const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 const vnpayService = require('../services/vnpayService');
 const dummyProducts = require('../utils/dummyProducts');
+const { sendEmail } = require('../services/emailService');
+const { buildCancellationEmail } = require('../utils/emailTemplates');
 
 /**
  * Finalize a confirmed order: clear cart, award points, update rank.
@@ -219,6 +221,98 @@ exports.getUserOrders = async (req, res) => {
             include: { items: true }
         });
         res.status(200).json(orders);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * Cancel an order (user-initiated)
+ * PUT /api/orders/:id/cancel
+ * Allowed statuses: Pending (VNPay unpaid) or Confirmed (COD)
+ */
+exports.cancelOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reason } = req.body;
+        const userId = req.user.id;
+
+        const order = await prisma.order.findUnique({
+            where: { id },
+            include: { items: true }
+        });
+
+        if (!order) return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+        if (order.userId !== userId) return res.status(403).json({ message: 'Bạn không có quyền hủy đơn hàng này' });
+
+        const cancellableStatuses = ['Pending', 'Confirmed'];
+        if (!cancellableStatuses.includes(order.status)) {
+            return res.status(400).json({
+                message: `Không thể hủy đơn hàng ở trạng thái "${order.status}". Chỉ có thể hủy đơn Pending hoặc Confirmed.`
+            });
+        }
+
+        const cancelReason = reason?.trim() || 'Khách hàng yêu cầu hủy';
+        const originalStatus = order.status;
+
+        await prisma.order.update({
+            where: { id },
+            data: { status: 'Cancelled', cancelReason }
+        });
+
+        // Restore stock in MongoDB
+        for (const item of order.items) {
+            if (mongoose.Types.ObjectId.isValid(item.productId)) {
+                await Product.updateOne({ _id: item.productId }, { $inc: { stock: item.qty } });
+            }
+        }
+
+        // Restore voucher if one was applied
+        if (order.appliedVoucher && order.userId) {
+            await prisma.voucher.updateMany({
+                where: { userId: order.userId, code: order.appliedVoucher, isUsed: true },
+                data: { isUsed: false }
+            });
+        }
+
+        // Deduct points awarded at finalization (only if COD was confirmed)
+        if (originalStatus === 'Confirmed' && order.userId) {
+            const pointsEarned = Math.floor(order.finalAmount / 100000);
+            if (pointsEarned > 0) {
+                const user = await prisma.user.findUnique({
+                    where: { id: order.userId },
+                    select: { points: true, totalSpending: true }
+                });
+                await prisma.user.update({
+                    where: { id: order.userId },
+                    data: {
+                        points: Math.max(0, (user?.points || 0) - pointsEarned),
+                        totalSpending: Math.max(0, (user?.totalSpending || 0) - order.finalAmount)
+                    }
+                });
+            }
+        }
+
+        // Send cancellation email (fire-and-forget)
+        if (order.userId) {
+            const userRecord = await prisma.user.findUnique({
+                where: { id: order.userId },
+                select: { email: true, name: true }
+            });
+            if (userRecord?.email) {
+                sendEmail({
+                    to: userRecord.email,
+                    subject: 'Đơn hàng đã bị hủy — Apple Store',
+                    html: buildCancellationEmail(
+                        userRecord.name || order.recipientName,
+                        { ...order, status: 'Cancelled' },
+                        cancelReason
+                    )
+                }).catch(err => console.error('Cancellation email failed:', err.message));
+            }
+        }
+
+        res.status(200).json({ message: 'Đơn hàng đã được hủy thành công' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

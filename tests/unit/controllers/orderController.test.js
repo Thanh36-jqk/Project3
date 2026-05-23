@@ -1,4 +1,4 @@
-const { createOrder, getOrderById, getUserOrders } = require('../../../src/controllers/orderController');
+const { createOrder, getOrderById, getUserOrders, finalizeSuccessfulOrder, cancelOrder } = require('../../../src/controllers/orderController');
 const prisma = require('../../../src/config/postgres');
 const Product = require('../../../src/models/Product');
 const Cart = require('../../../src/models/Cart');
@@ -14,12 +14,20 @@ jest.mock('../../../src/config/postgres', () => ({
     voucher: {
         findFirst: jest.fn(),
         update: jest.fn(),
+        updateMany: jest.fn(),
     },
     order: {
         create: jest.fn(),
         findUnique: jest.fn(),
         findMany: jest.fn(),
+        update: jest.fn(),
     }
+}));
+jest.mock('../../../src/services/emailService', () => ({
+    sendEmail: jest.fn().mockResolvedValue(undefined),
+}));
+jest.mock('../../../src/utils/emailTemplates', () => ({
+    buildCancellationEmail: jest.fn().mockReturnValue('<html>cancel</html>'),
 }));
 
 jest.mock('../../../src/models/Product');
@@ -177,10 +185,134 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
         await createOrder(req, res);
 
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'Email is required for guest checkout'
-        });
+        expect(res.json).toHaveBeenCalledWith({ message: 'Email is required for guest checkout' });
         expect(prisma.order.create).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 if items array is empty', async () => {
+        req.body.items = [];
+
+        await createOrder(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Order must contain at least one item' });
+    });
+
+    it('should return 400 if an item has missing productId', async () => {
+        req.body.items = [{ qty: 2 }]; // no productId
+
+        await createOrder(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            message: expect.stringContaining('valid productId')
+        }));
+    });
+
+    it('should parse userId from Authorization header for authenticated users', async () => {
+        const jwt = require('jsonwebtoken');
+        req.headers.authorization = 'Bearer valid-jwt-token';
+        req.body.guestEmail = undefined;
+        req.body.paymentMethod = 'COD';
+        req.body.items = [{ productId: 'ip4', qty: 1 }];
+
+        // Mock jwt.verify to return a userId
+        jest.spyOn(jwt, 'verify').mockReturnValue({ id: 'auth-user-id' });
+
+        const mockOrder = { id: 'auth-order', items: [] };
+        prisma.order.create.mockResolvedValue(mockOrder);
+
+        await createOrder(req, res);
+
+        // Order should be created with the userId from the token
+        expect(prisma.order.create).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({ userId: 'auth-user-id' })
+        }));
+        expect(res.status).toHaveBeenCalledWith(201);
+
+        jest.spyOn(jwt, 'verify').mockRestore();
+    });
+
+    it('should apply voucher discount when appliedVoucher is provided by authenticated user', async () => {
+        req.headers.authorization = 'Bearer valid-jwt';
+        req.body = {
+            recipientName: 'Nguyen A', recipientPhone: '0900000000',
+            recipientAddress: '123 Main St', paymentMethod: 'COD',
+            items: [{ productId: 'ip4', qty: 1 }],
+            appliedVoucher: 'SAVE50K'
+        };
+
+        const jwt = require('jsonwebtoken');
+        jest.spyOn(jwt, 'verify').mockReturnValue({ id: 'user-with-voucher' });
+
+        const mockVoucher = { id: 'v1', code: 'SAVE50K', discountAmount: 50000, isUsed: false };
+        prisma.voucher.findFirst.mockResolvedValue(mockVoucher);
+        prisma.voucher.update.mockResolvedValue({});
+
+        const mockOrder = { id: 'voucher-order', items: [] };
+        prisma.order.create.mockResolvedValue(mockOrder);
+
+        await createOrder(req, res);
+
+        expect(prisma.voucher.update).toHaveBeenCalledWith({
+            where: { id: 'v1' }, data: { isUsed: true }
+        });
+        expect(prisma.order.create).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({
+                discountAmount: 50000,
+                appliedVoucher: 'SAVE50K',
+                finalAmount: 19990000 - 50000
+            })
+        }));
+
+        jest.spyOn(jwt, 'verify').mockRestore();
+    });
+
+    it('should auto-register guest account when createAccount=true with email+password', async () => {
+        req.body = {
+            recipientName: 'New User', recipientPhone: '0912345678',
+            recipientAddress: '456 Side St', paymentMethod: 'COD',
+            items: [{ productId: 'ip4', qty: 1 }],
+            guestEmail: 'newguest@example.com',
+            createAccount: true,
+            guestPassword: 'securePass123'
+        };
+
+        const bcrypt = require('bcrypt');
+        jest.spyOn(bcrypt, 'hash').mockResolvedValue('hashedGuestPass');
+        prisma.user.findUnique.mockResolvedValue(null);
+        prisma.user.create.mockResolvedValue({ id: 'new-guest-user', email: 'newguest@example.com' });
+
+        const mockOrder = { id: 'auto-reg-order', items: [] };
+        prisma.order.create.mockResolvedValue(mockOrder);
+
+        await createOrder(req, res);
+
+        expect(prisma.user.create).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({
+                email: 'newguest@example.com',
+                role: 'user',
+                rank: 'Silver'
+            })
+        }));
+        expect(prisma.order.create).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({ userId: 'new-guest-user' })
+        }));
+        expect(res.status).toHaveBeenCalledWith(201);
+
+        jest.spyOn(bcrypt, 'hash').mockRestore();
+    });
+});
+
+describe('Order Controller - getOrderById (error case)', () => {
+    it('should return 500 on unexpected DB error', async () => {
+        const req = { params: { id: 'any' } };
+        const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        prisma.order.findUnique.mockRejectedValue(new Error('Connection timeout'));
+
+        await getOrderById(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
     });
 });
 
@@ -256,5 +388,250 @@ describe('Order Controller - getUserOrders', () => {
         await getUserOrders(req, res);
 
         expect(res.status).toHaveBeenCalledWith(500);
+    });
+});
+
+describe('finalizeSuccessfulOrder — điểm thưởng & nâng hạng', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+        Cart.findOneAndUpdate.mockResolvedValue({});
+    });
+
+    it('nên bỏ qua nếu không có userId (guest order)', async () => {
+        await finalizeSuccessfulOrder({ userId: null, finalAmount: 5000000 });
+
+        expect(Cart.findOneAndUpdate).not.toHaveBeenCalled();
+        expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+
+    it('nên xóa giỏ hàng sau khi đặt hàng thành công', async () => {
+        prisma.user.update.mockResolvedValue({ rank: 'Silver', totalSpending: 5000000 });
+
+        await finalizeSuccessfulOrder({ userId: 'user-1', finalAmount: 5000000 });
+
+        expect(Cart.findOneAndUpdate).toHaveBeenCalledWith(
+            { userId: 'user-1' },
+            { $set: { items: [] } }
+        );
+    });
+
+    it('nên cộng đúng số điểm: floor(finalAmount / 100000)', async () => {
+        // 3.500.000đ → 35 điểm
+        prisma.user.update.mockResolvedValue({ rank: 'Silver', totalSpending: 3500000 });
+
+        await finalizeSuccessfulOrder({ userId: 'user-1', finalAmount: 3500000 });
+
+        expect(prisma.user.update).toHaveBeenCalledWith({
+            where: { id: 'user-1' },
+            data: {
+                points: { increment: 35 },
+                totalSpending: { increment: 3500000 }
+            }
+        });
+    });
+
+    it('không nâng hạng nếu tổng chi tiêu chưa đạt ngưỡng', async () => {
+        // totalSpending = 15.000.000 < 20.000.000 → vẫn Silver
+        prisma.user.update.mockResolvedValue({ rank: 'Silver', totalSpending: 15000000 });
+
+        await finalizeSuccessfulOrder({ userId: 'user-1', finalAmount: 5000000 });
+
+        // user.update chỉ được gọi 1 lần (không có lần nâng hạng)
+        expect(prisma.user.update).toHaveBeenCalledTimes(1);
+    });
+
+    it('nên nâng hạng Silver → Gold khi tổng chi tiêu vượt 20.000.000đ', async () => {
+        // Sau đơn này totalSpending = 25.000.000 → Gold
+        prisma.user.update.mockResolvedValue({ rank: 'Silver', totalSpending: 25000000 });
+
+        await finalizeSuccessfulOrder({ userId: 'user-1', finalAmount: 5000000 });
+
+        expect(prisma.user.update).toHaveBeenCalledTimes(2);
+        expect(prisma.user.update).toHaveBeenLastCalledWith({
+            where: { id: 'user-1' },
+            data: { rank: 'Gold' }
+        });
+    });
+
+    it('nên nâng hạng Gold → VIP khi tổng chi tiêu vượt 50.000.000đ', async () => {
+        // Sau đơn này totalSpending = 55.000.000 → VIP
+        prisma.user.update.mockResolvedValue({ rank: 'Gold', totalSpending: 55000000 });
+
+        await finalizeSuccessfulOrder({ userId: 'user-1', finalAmount: 10000000 });
+
+        expect(prisma.user.update).toHaveBeenCalledTimes(2);
+        expect(prisma.user.update).toHaveBeenLastCalledWith({
+            where: { id: 'user-1' },
+            data: { rank: 'VIP' }
+        });
+    });
+
+    it('nên nâng hạng Silver → VIP trực tiếp nếu đơn đầu tiên vượt 50.000.000đ', async () => {
+        // Mua MacBook Pro 65 triệu → thẳng VIP
+        prisma.user.update.mockResolvedValue({ rank: 'Silver', totalSpending: 65000000 });
+
+        await finalizeSuccessfulOrder({ userId: 'user-1', finalAmount: 65000000 });
+
+        expect(prisma.user.update).toHaveBeenLastCalledWith({
+            where: { id: 'user-1' },
+            data: { rank: 'VIP' }
+        });
+    });
+
+    it('không gọi update hạng nếu hạng đã là VIP', async () => {
+        // Đã VIP, mua thêm → không cần update rank
+        prisma.user.update.mockResolvedValue({ rank: 'VIP', totalSpending: 100000000 });
+
+        await finalizeSuccessfulOrder({ userId: 'user-1', finalAmount: 5000000 });
+
+        // Chỉ 1 lần update (điểm + spending), không có lần thứ 2 cho rank
+        expect(prisma.user.update).toHaveBeenCalledTimes(1);
+    });
+
+    it('số điểm làm tròn xuống — phần lẻ dưới 100.000đ không được tính', async () => {
+        // 199.999đ → 1 điểm (không phải 2)
+        prisma.user.update.mockResolvedValue({ rank: 'Silver', totalSpending: 199999 });
+
+        await finalizeSuccessfulOrder({ userId: 'user-1', finalAmount: 199999 });
+
+        expect(prisma.user.update).toHaveBeenCalledWith(
+            expect.objectContaining({
+                data: expect.objectContaining({ points: { increment: 1 } })
+            })
+        );
+    });
+});
+
+describe('Order Controller - cancelOrder', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = {
+            params: { id: 'order-uuid-123' },
+            body: { reason: 'Tôi đổi ý' },
+            user: { id: 'user-abc' }
+        };
+        res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        jest.clearAllMocks();
+    });
+
+    it('should cancel a Confirmed (COD) order, restore stock and deduct points', async () => {
+        const mockOrder = {
+            id: 'order-uuid-123',
+            userId: 'user-abc',
+            status: 'Confirmed',
+            paymentMethod: 'COD',
+            finalAmount: 5000000,
+            appliedVoucher: null,
+            items: [{ productId: '507f1f77bcf86cd799439011', qty: 2, price: 2500000, name: 'iPhone' }]
+        };
+        prisma.order.findUnique.mockResolvedValue(mockOrder);
+        prisma.order.update.mockResolvedValue({});
+        Product.updateOne.mockResolvedValue({});
+        prisma.user.findUnique.mockResolvedValue({ id: 'user-abc', points: 50, totalSpending: 5000000 });
+        prisma.user.update.mockResolvedValue({});
+
+        await cancelOrder(req, res);
+
+        expect(prisma.order.update).toHaveBeenCalledWith({
+            where: { id: 'order-uuid-123' },
+            data: { status: 'Cancelled', cancelReason: 'Tôi đổi ý' }
+        });
+        expect(Product.updateOne).toHaveBeenCalledWith(
+            { _id: '507f1f77bcf86cd799439011' },
+            { $inc: { stock: 2 } }
+        );
+        expect(prisma.user.update).toHaveBeenCalledWith({
+            where: { id: 'user-abc' },
+            data: { points: 0, totalSpending: 0 }
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Đơn hàng đã được hủy thành công' });
+    });
+
+    it('should cancel a Pending (VNPay) order without deducting points', async () => {
+        const mockOrder = {
+            id: 'order-uuid-123',
+            userId: 'user-abc',
+            status: 'Pending',
+            paymentMethod: 'VNPay',
+            finalAmount: 10000000,
+            appliedVoucher: null,
+            items: [{ productId: '507f1f77bcf86cd799439011', qty: 1, price: 10000000 }]
+        };
+        prisma.order.findUnique.mockResolvedValue(mockOrder);
+        prisma.order.update.mockResolvedValue({});
+        Product.updateOne.mockResolvedValue({});
+
+        await cancelOrder(req, res);
+
+        expect(prisma.order.update).toHaveBeenCalledWith(expect.objectContaining({
+            data: expect.objectContaining({ status: 'Cancelled' })
+        }));
+        // Points not deducted for Pending (not yet finalized) — user.update should not be called
+        expect(prisma.user.update).not.toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should restore voucher if one was applied', async () => {
+        const mockOrder = {
+            id: 'order-uuid-123',
+            userId: 'user-abc',
+            status: 'Pending',
+            paymentMethod: 'VNPay',
+            finalAmount: 10000000,
+            appliedVoucher: 'SAVE100K',
+            items: []
+        };
+        prisma.order.findUnique.mockResolvedValue(mockOrder);
+        prisma.order.update.mockResolvedValue({});
+        prisma.voucher.updateMany.mockResolvedValue({});
+
+        await cancelOrder(req, res);
+
+        expect(prisma.voucher.updateMany).toHaveBeenCalledWith({
+            where: { userId: 'user-abc', code: 'SAVE100K', isUsed: true },
+            data: { isUsed: false }
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should return 404 if order not found', async () => {
+        prisma.order.findUnique.mockResolvedValue(null);
+
+        await cancelOrder(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Không tìm thấy đơn hàng' });
+    });
+
+    it('should return 403 if order belongs to a different user', async () => {
+        prisma.order.findUnique.mockResolvedValue({
+            id: 'order-uuid-123',
+            userId: 'other-user',
+            status: 'Confirmed',
+            items: []
+        });
+
+        await cancelOrder(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(prisma.order.update).not.toHaveBeenCalled();
+    });
+
+    it('should return 400 if order status is Shipped (not cancellable)', async () => {
+        prisma.order.findUnique.mockResolvedValue({
+            id: 'order-uuid-123',
+            userId: 'user-abc',
+            status: 'Shipped',
+            items: []
+        });
+
+        await cancelOrder(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+            message: expect.stringContaining('Shipped')
+        }));
     });
 });

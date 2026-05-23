@@ -13,4 +13,7 @@ router.get('/:id', orderController.getOrderById);
 // Get user's orders (requires authentication)
 router.get('/user/all', verifyToken, orderController.getUserOrders);
 
+// Cancel order (authenticated users only)
+router.put('/:id/cancel', verifyToken, orderController.cancelOrder);
+
 module.exports = router;

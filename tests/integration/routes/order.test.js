@@ -13,6 +13,7 @@ const controllerImpl = {
         { _id: 'order1', total: 20000000 },
         { _id: 'order2', total: 45000000 }
     ]),
+    cancelOrder: (req, res) => res.status(200).json({ message: 'Đơn hàng đã được hủy thành công' }),
 };
 const middlewareImpl = {
     verifyToken: (req, res, next) => { req.user = { id: 'user123', role: 'user' }; next(); },
@@ -23,6 +24,7 @@ jest.mock('../../../src/controllers/orderController', () => ({
     createOrder: (...a) => controllerImpl.createOrder(...a),
     getOrderById: (...a) => controllerImpl.getOrderById(...a),
     getUserOrders: (...a) => controllerImpl.getUserOrders(...a),
+    cancelOrder: (...a) => controllerImpl.cancelOrder(...a),
     finalizeSuccessfulOrder: jest.fn(),
 }));
 jest.mock('../../../src/middleware/auth', () => ({
