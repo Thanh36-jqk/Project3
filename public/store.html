@@ -456,7 +456,40 @@
                         <p id="selected-color-name" class="text-xs text-gray-400 mt-2"></p>
                     </div>
 
-                    <div class="pt-6 border-t border-white/10 space-y-3">
+                    <!-- Reviews Section -->
+                    <div id="modal-reviews-section" class="border-t border-white/10 pt-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-sm font-semibold text-white">Customer Reviews</h4>
+                            <div class="flex items-center gap-2">
+                                <span id="modal-rating-stars" class="text-yellow-400 text-xs"></span>
+                                <span id="modal-rating-text" class="text-xs text-gray-500"></span>
+                            </div>
+                        </div>
+                        <!-- Form submit review (chỉ hiện khi đã đăng nhập) -->
+                        <div id="modal-review-form" class="hidden mb-3 p-3 bg-black/30 rounded-xl border border-white/5">
+                            <p class="text-xs text-gray-400 mb-2">Your review</p>
+                            <div id="review-star-input" class="flex gap-1 mb-2"></div>
+                            <textarea id="review-comment" placeholder="Write your review (optional)..."
+                                class="w-full bg-black/40 border border-white/10 rounded-lg p-2.5 text-xs text-white placeholder-gray-600 resize-none focus:outline-none focus:border-blue-500" rows="2"></textarea>
+                            <div class="flex items-center gap-3 mt-2">
+                                <button onclick="submitReview()"
+                                    class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors">
+                                    Submit
+                                </button>
+                                <p id="review-submit-msg" class="text-xs hidden"></p>
+                            </div>
+                        </div>
+                        <!-- Danh sách reviews -->
+                        <div id="modal-reviews-list" class="space-y-2 max-h-44 overflow-y-auto pr-1">
+                            <p class="text-xs text-gray-600 text-center py-3">Loading reviews...</p>
+                        </div>
+                        <button id="modal-reviews-more" onclick="loadMoreReviews()"
+                            class="hidden mt-2 text-xs text-blue-500 hover:text-blue-400 w-full text-center py-1">
+                            Load more reviews
+                        </button>
+                    </div>
+
+                    <div class="pt-4 border-t border-white/10 space-y-3">
                         <div class="flex gap-4">
                             <button onclick="addToCartFromModal()"
                                 class="flex-1 py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
@@ -718,6 +751,9 @@
         let cart = JSON.parse(localStorage.getItem('apple_cart')) || [];
         let wishlist = []; // Loaded from API or localStorage
         let currentModalProduct = null;
+        let currentReviewsPage = 1;
+        let currentReviewsTotalPages = 1;
+        let selectedReviewRating = 0;
 
         // Dá»¯ liá»‡u máº«u (Fallback) náº¿u Server chÆ°a cÃ³ SP Ä'á»ƒ Store khÃ´ng bá»‹ trá»'ng
         // Using no-background images from color folders for cleaner look
@@ -1407,6 +1443,21 @@
             }
 
             document.getElementById('product-modal').classList.remove('hidden');
+
+            // Load reviews
+            selectedReviewRating = 0;
+            currentReviewsPage = 1;
+            const token = getToken();
+            const reviewForm = document.getElementById('modal-review-form');
+            if (token) {
+                reviewForm.classList.remove('hidden');
+                renderStarInput();
+            } else {
+                reviewForm.classList.add('hidden');
+            }
+            const submitMsg = document.getElementById('review-submit-msg');
+            if (submitMsg) { submitMsg.classList.add('hidden'); submitMsg.textContent = ''; }
+            loadProductReviews(product._id, 1);
         };
 
         // Product-specific color variants with actual images from folders
@@ -1598,6 +1649,130 @@
         };
 
         window.closeModal = () => document.getElementById('product-modal').classList.add('hidden');
+
+        // ==================================================================
+        // REVIEWS
+        // ==================================================================
+        function renderStarDisplay(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                html += `<i class="${i <= Math.round(rating) ? 'fas' : 'far'} fa-star"></i>`;
+            }
+            return html;
+        }
+
+        function renderReviewCard(r) {
+            const stars = renderStarDisplay(r.rating);
+            const date = new Date(r.createdAt).toLocaleDateString('vi-VN');
+            const verified = r.isVerifiedPurchase
+                ? '<span class="text-[10px] bg-green-900/30 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20 ml-1">Verified</span>'
+                : '';
+            return `<div class="p-2.5 bg-black/20 rounded-xl border border-white/5">
+                <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center">
+                        <span class="text-xs font-medium text-white">${r.userName || 'Customer'}</span>${verified}
+                    </div>
+                    <span class="text-[10px] text-gray-600">${date}</span>
+                </div>
+                <div class="flex gap-0.5 text-yellow-400 text-xs mb-1">${stars}</div>
+                ${r.comment ? `<p class="text-xs text-gray-400 leading-relaxed">${r.comment}</p>` : ''}
+            </div>`;
+        }
+
+        function renderStarInput() {
+            const container = document.getElementById('review-star-input');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'text-yellow-400 text-xl hover:scale-110 transition-transform';
+                btn.innerHTML = `<i class="${i <= selectedReviewRating ? 'fas' : 'far'} fa-star"></i>`;
+                const idx = i;
+                btn.onclick = () => { selectedReviewRating = idx; renderStarInput(); };
+                btn.onmouseover = () => {
+                    container.querySelectorAll('button').forEach((s, j) => {
+                        s.querySelector('i').className = j < idx ? 'fas fa-star' : 'far fa-star';
+                    });
+                };
+                btn.onmouseout = () => renderStarInput();
+                container.appendChild(btn);
+            }
+        }
+
+        async function loadProductReviews(productId, page) {
+            page = page || 1;
+            try {
+                const r = await fetch(`${API_URL}/api/products/${productId}/reviews?page=${page}&limit=5`);
+                const data = await r.json();
+
+                const avg = currentModalProduct?.ratings?.average || 0;
+                const count = data.total || 0;
+                document.getElementById('modal-rating-stars').innerHTML = count > 0 ? renderStarDisplay(avg) : '';
+                document.getElementById('modal-rating-text').textContent = count > 0 ? `${avg} (${count})` : 'No reviews yet';
+
+                currentReviewsTotalPages = data.pages || 1;
+                const list = document.getElementById('modal-reviews-list');
+                if (page === 1) list.innerHTML = '';
+
+                if (data.reviews && data.reviews.length > 0) {
+                    data.reviews.forEach(rv => { list.innerHTML += renderReviewCard(rv); });
+                } else if (page === 1) {
+                    list.innerHTML = '<p class="text-xs text-gray-600 text-center py-3">No reviews yet. Be the first!</p>';
+                }
+
+                const moreBtn = document.getElementById('modal-reviews-more');
+                if (data.page < data.pages) {
+                    currentReviewsPage = data.page;
+                    moreBtn.classList.remove('hidden');
+                } else {
+                    moreBtn.classList.add('hidden');
+                }
+            } catch (e) {
+                document.getElementById('modal-reviews-list').innerHTML =
+                    '<p class="text-xs text-gray-600 text-center py-3">Could not load reviews.</p>';
+            }
+        }
+
+        window.loadMoreReviews = () => loadProductReviews(currentModalProduct._id, currentReviewsPage + 1);
+
+        window.submitReview = async () => {
+            const token = getToken();
+            if (!token || !currentModalProduct) return;
+            const comment = document.getElementById('review-comment').value.trim();
+            const msgEl = document.getElementById('review-submit-msg');
+            if (!selectedReviewRating) {
+                msgEl.textContent = 'Please select a rating.';
+                msgEl.className = 'text-xs text-red-400';
+                msgEl.classList.remove('hidden');
+                return;
+            }
+            try {
+                const r = await fetch(`${API_URL}/api/products/${currentModalProduct._id}/reviews`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    body: JSON.stringify({ rating: selectedReviewRating, comment })
+                });
+                const data = await r.json();
+                if (r.ok) {
+                    msgEl.textContent = 'Review submitted! Thank you.';
+                    msgEl.className = 'text-xs text-green-400';
+                    msgEl.classList.remove('hidden');
+                    document.getElementById('review-comment').value = '';
+                    selectedReviewRating = 0;
+                    renderStarInput();
+                    loadProductReviews(currentModalProduct._id, 1);
+                } else {
+                    msgEl.textContent = data.message || 'Failed to submit.';
+                    msgEl.className = 'text-xs text-red-400';
+                    msgEl.classList.remove('hidden');
+                }
+            } catch (e) {
+                msgEl.textContent = 'Network error. Please try again.';
+                msgEl.className = 'text-xs text-red-400';
+                msgEl.classList.remove('hidden');
+            }
+        };
 
         window.addToCartFromModal = () => {
             if (currentModalProduct) {
