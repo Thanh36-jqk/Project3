@@ -1,9 +1,10 @@
 const Product = require('../models/Product');
 
-/**
- * Search products
- */
 const PRODUCT_LIST_FIELDS = 'name slug price compareAtPrice short_description image_url category stock colors ratings isActive';
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 exports.searchProducts = async (req, res) => {
     try {
@@ -11,7 +12,7 @@ exports.searchProducts = async (req, res) => {
         if (!q) return res.status(200).json({ products: [] });
 
         const products = await Product.find({
-            name: { $regex: q, $options: 'i' },
+            name: { $regex: escapeRegex(q), $options: 'i' },
             isActive: true
         })
             .select(PRODUCT_LIST_FIELDS)

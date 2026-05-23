@@ -17,9 +17,6 @@ const logger = require('./src/config/logger');
 const connectDatabase = require('./src/config/database');
 const configurePassport = require('./src/config/passport');
 const { initializeGemini } = require('./src/config/gemini');
-const rabbitmqService = require('./src/services/rabbitmqService');
-const { sendEmail } = require('./src/services/emailService');
-const rabbitmqConfig = require('./src/config/rabbitmq');
 
 // Import routes
 const routes = require('./src/routes');
@@ -87,8 +84,15 @@ app.use('/api', apiLimiter);
 // ==================================================================
 // Session Configuration (for Passport OAuth)
 // ==================================================================
+// Warn loudly if SESSION_SECRET is missing — generate a random one as fallback
+// so sessions work, but they'll be invalidated on every restart.
+if (!process.env.SESSION_SECRET) {
+    logger.warn('SESSION_SECRET not set — generating a random secret. Sessions will not survive server restarts.');
+}
+const sessionSecret = process.env.SESSION_SECRET || require('crypto').randomBytes(32).toString('hex');
+
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'apple_store_secret_key',
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,           // Changed: don't save empty sessions
     cookie: {
@@ -115,17 +119,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 connectDatabase();
 configurePassport();
 initializeGemini();
-
-// Initialize RabbitMQ Consumer for emails
-rabbitmqService.consumeFromQueue(rabbitmqConfig.queues.EMAIL_QUEUE, async (data) => {
-    try {
-        await sendEmail(data);
-        logger.info(`Email sent successfully via RabbitMQ queue to ${data.to}`);
-    } catch (error) {
-        logger.error(`Error sending email via RabbitMQ queue: ${error.message}`);
-        throw error; // Let consumer handle failure if needed
-    }
-});
 
 // ==================================================================
 // API Routes

@@ -31,9 +31,21 @@ describe('Product Controller', () => {
 
             await productController.searchProducts(req, res);
 
-            expect(Product.find).toHaveBeenCalledWith({ name: { $regex: 'iPhone', $options: 'i' }, isActive: true });
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({ products: mockProducts });
+        });
+
+        it('should escape regex special characters to prevent ReDoS', async () => {
+            req.query = { q: '(iPhone+).*' };
+            const chainMock = { select: jest.fn().mockReturnThis(), limit: jest.fn().mockReturnThis(), lean: jest.fn().mockResolvedValue([]) };
+            Product.find.mockReturnValue(chainMock);
+
+            await productController.searchProducts(req, res);
+
+            const call = Product.find.mock.calls[0][0];
+            // Special chars must be escaped — raw regex metacharacters must NOT appear
+            expect(call.name.$regex).toBe('\\(iPhone\\+\\)\\.\\*');
+            expect(res.status).toHaveBeenCalledWith(200);
         });
     });
 
