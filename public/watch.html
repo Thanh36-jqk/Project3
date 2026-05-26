@@ -5,8 +5,10 @@
     <meta charset="UTF-8">
     <link rel="icon" type="image/png" href="assets/images/logo.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apple Watch & AirPods - Premium Showcase</title>
+    <title>Apple Watch &amp; AirPods - Premium Showcase</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -45,37 +47,23 @@
             color: #f5f5f7;
         }
 
+        /* Initial hidden state — GSAP drives the animation */
         .fade-up {
             opacity: 0;
             transform: translateY(40px);
-            transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
         }
 
         .scale-in {
             opacity: 0;
             transform: scale(0.95);
-            transition: all 1.5s ease-out;
-        }
-
-        .scale-in.visible {
-            opacity: 1;
-            transform: scale(1);
         }
 
         .tab-content {
             display: none;
-            opacity: 0;
-            transition: opacity 0.6s ease;
         }
 
         .tab-content.active {
             display: block;
-            opacity: 1;
         }
 
         @keyframes float {
@@ -111,7 +99,7 @@
                 <a href="pages/products/mac.html" class="hover:text-white transition-colors">Mac</a>
                 <a href="pages/products/ipad.html" class="hover:text-white transition-colors">iPad</a>
                 <a href="pages/products/iphone.html" class="hover:text-white transition-colors">iPhone</a>
-                <a href="watch.html" class="text-white">Watch & AirPods</a>
+                <a href="watch.html" class="text-white">Watch &amp; AirPods</a>
                 <a href="support.html" class="hover:text-white transition-colors">Support</a>
                 <a href="ACCOUNT.html" class="hover:text-white transition-colors">Member</a>
             </div>
@@ -369,7 +357,7 @@
 
             <!-- AirPods Product Grid -->
             <section class="py-32 px-6 bg-[#121214]">
-                <h2 class="text-center text-4xl font-bold mb-20 text-white">Compare & Buy AirPods</h2>
+                <h2 class="text-center text-4xl font-bold mb-20 text-white">Compare &amp; Buy AirPods</h2>
                 <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- AirPods 3 -->
                     <div
@@ -587,15 +575,30 @@
 
         // ==================== SCROLL ANIMATIONS ====================
         document.addEventListener('DOMContentLoaded', () => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, { threshold: 0.1 });
+            gsap.registerPlugin(ScrollTrigger);
 
-            document.querySelectorAll('.fade-up, .scale-in').forEach(el => observer.observe(el));
+            function getTailwindDelay(el) {
+                if (el.classList.contains('delay-300')) return 0.3;
+                if (el.classList.contains('delay-200')) return 0.2;
+                if (el.classList.contains('delay-100')) return 0.1;
+                return 0;
+            }
+
+            gsap.utils.toArray('.fade-up').forEach(el => {
+                gsap.to(el, {
+                    y: 0, opacity: 1, duration: 1.1, ease: 'power3.out',
+                    delay: getTailwindDelay(el),
+                    scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+                });
+            });
+
+            gsap.utils.toArray('.scale-in').forEach(el => {
+                gsap.to(el, {
+                    scale: 1, opacity: 1, duration: 1.4, ease: 'power3.out',
+                    delay: getTailwindDelay(el),
+                    scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' }
+                });
+            });
         });
 
         // ==================== TAB SWITCHING ====================
@@ -606,29 +609,32 @@
             const tabWatch = document.getElementById('tab-watch');
             const tabAirpods = document.getElementById('tab-airpods');
 
+            const [outTab, inTab] = tabName === 'watch'
+                ? [tabAirpods, tabWatch]
+                : [tabWatch, tabAirpods];
+
             if (tabName === 'watch') {
                 btnWatch.classList.add('text-white'); btnWatch.classList.remove('text-gray-400');
                 btnAirpods.classList.remove('text-white'); btnAirpods.classList.add('text-gray-400');
                 indicator.style.left = '1%';
-                tabAirpods.style.opacity = '0';
-                setTimeout(() => { tabAirpods.classList.remove('active'); tabWatch.classList.add('active'); setTimeout(() => tabWatch.style.opacity = '1', 50); }, 300);
             } else {
                 btnAirpods.classList.add('text-white'); btnAirpods.classList.remove('text-gray-400');
                 btnWatch.classList.remove('text-white'); btnWatch.classList.add('text-gray-400');
                 indicator.style.left = '50%';
-                tabWatch.style.opacity = '0';
-                setTimeout(() => { tabWatch.classList.remove('active'); tabAirpods.classList.add('active'); setTimeout(() => tabAirpods.style.opacity = '1', 50); }, 300);
             }
 
-            setTimeout(() => {
-                const activeTab = document.querySelector('.tab-content.active');
-                if (activeTab) {
-                    activeTab.querySelectorAll('.fade-up, .scale-in').forEach(el => {
-                        el.classList.remove('visible');
-                        setTimeout(() => el.classList.add('visible'), 100);
+            gsap.to(outTab, {
+                opacity: 0, y: -8, duration: 0.22, ease: 'power2.in',
+                onComplete: () => {
+                    outTab.classList.remove('active');
+                    gsap.set(inTab, { opacity: 0, y: 8 });
+                    inTab.classList.add('active');
+                    gsap.to(inTab, {
+                        opacity: 1, y: 0, duration: 0.35, ease: 'power2.out',
+                        onComplete: () => { ScrollTrigger.refresh(); }
                     });
                 }
-            }, 600);
+            });
         }
     </script>
     <script src="js/cart-logic.js"></script>

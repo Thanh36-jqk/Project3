@@ -15,6 +15,8 @@
     <link rel="preconnect" href="https://project3-icy1.onrender.com">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -126,7 +128,7 @@
                 <a href="pages/products/mac.html" class="hover:text-white transition-colors">Mac</a>
                 <a href="pages/products/ipad.html" class="hover:text-white transition-colors">iPad</a>
                 <a href="pages/products/iphone.html" class="hover:text-white transition-colors">iPhone</a>
-                <a href="watch.html" class="hover:text-white transition-colors">Watch & AirPods</a>
+                <a href="watch.html" class="hover:text-white transition-colors">Watch &amp; AirPods</a>
                 <a href="support.html" class="hover:text-white transition-colors">Support</a>
                 <a href="ACCOUNT.html" class="hover:text-white transition-colors">Member</a>
             </nav>
@@ -249,7 +251,7 @@
                                 class="flex items-center gap-3 cursor-pointer hover:text-white transition-colors group">
                                 <input type="checkbox" name="category" value="HeadPhone"
                                     class="accent-blue-600 w-4 h-4 rounded border-gray-600 focus:ring-0 cursor-pointer">
-                                <span class="group-hover:translate-x-1 transition-transform">AirPods & Audio</span>
+                                <span class="group-hover:translate-x-1 transition-transform">AirPods &amp; Audio</span>
                             </label>
                         </li>
                     </ul>
@@ -421,7 +423,7 @@
             </button>
 
             <div class="w-full md:w-1/2 bg-[#000] p-8 flex flex-col items-center justify-center relative group">
-                <img id="modal-img-main" src=""
+                <img id="modal-img-main" src="assets/images/apple.webp"
                     class="max-h-[300px] md:max-h-[400px] object-contain transition-transform duration-500 group-hover:scale-105 drop-shadow-2xl"
                     onerror="this.src='assets/images/apple.webp'"
                     alt="Product">
@@ -605,7 +607,7 @@
                     <div class="flex gap-6 items-center">
                         <div
                             class="w-32 h-32 bg-black/30 rounded-2xl p-4 flex items-center justify-center flex-shrink-0">
-                            <img id="buynow-product-image" src="" alt="" class="w-full h-full object-contain">
+                            <img id="buynow-product-image" src="assets/images/apple.webp" alt="" class="w-full h-full object-contain">
                         </div>
                         <div class="flex-1">
                             <p class="text-xs text-blue-400 uppercase font-bold tracking-wider mb-1"
@@ -741,7 +743,7 @@
                     </button>
 
                     <p class="text-center text-xs text-gray-500 mt-4">
-                        By placing this order, you agree to our Terms & Conditions
+                        By placing this order, you agree to our Terms &amp; Conditions
                     </p>
                 </form>
             </div>
@@ -1026,6 +1028,13 @@
                 li.onclick = () => openProductModal(p);
                 container.appendChild(li);
             });
+
+            // Animate cards in with stagger
+            const cards = container.querySelectorAll('li');
+            gsap.from(cards, {
+                y: 24, opacity: 0, duration: 0.45, stagger: 0.055,
+                ease: 'power2.out', clearProps: 'all'
+            });
         }
 
         // ==================================================================
@@ -1132,7 +1141,7 @@
                 results.slice(0, 5).forEach(p => {
                     list.innerHTML += `
                         <li onclick="openProductModalFromId('${p._id}')" class="flex items-center gap-3 p-2 hover:bg-white/10 rounded cursor-pointer">
-                            <img src="${p.image_url}" class="w-8 h-8 object-contain bg-white rounded">
+                            <img src="${p.image_url}" class="w-8 h-8 object-contain bg-white rounded" alt="${p.name}">
                             <span class="text-xs text-white truncate">${p.name}</span>
                         </li>`;
                 });
@@ -1221,7 +1230,7 @@
                     container.innerHTML += `
                         <div class="flex gap-4 bg-[#2c2c2e] p-3 rounded-xl">
                             <div class="w-20 h-20 bg-white rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                                <img src="${item.image}" class="w-full h-full object-contain">
+                                <img src="${item.image}" class="w-full h-full object-contain" alt="${item.name}">
                             </div>
                             <div class="flex-1 flex flex-col justify-between">
                                 <div>
@@ -2438,7 +2447,21 @@
         }
 
         // INITIALIZE APP
-        document.addEventListener('DOMContentLoaded', initStore);
+        document.addEventListener('DOMContentLoaded', () => {
+            initStore();
+
+            // Hero section entrance
+            gsap.registerPlugin(ScrollTrigger);
+            gsap.from('#page-loader + * .animate-fade-in, section:first-of-type .animate-fade-in', {
+                y: 20, opacity: 0, duration: 0.8, ease: 'power2.out', delay: 0.2
+            });
+
+            // Sidebar fade-in from left when scrolled into view
+            gsap.from('aside .glass-panel', {
+                x: -20, opacity: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out',
+                scrollTrigger: { trigger: 'aside', start: 'top 80%' }
+            });
+        });
 
     </script>
 </body>
