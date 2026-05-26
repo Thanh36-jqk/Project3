@@ -140,29 +140,6 @@
             opacity: 0;
         }
 
-        /* ===================== DYNAMIC ISLAND ===================== */
-        #dynamic-island {
-            position: fixed; top: 10px; left: 50%;
-            transform: translateX(-50%);
-            z-index: 300;
-            background: #000;
-            border-radius: 40px;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            overflow: hidden;
-            height: 34px; width: 120px;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
-            pointer-events: none;
-        }
-        #di-dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            background: #1c1c1e; border: 1.5px solid #2c2c2e;
-            flex-shrink: 0; transition: border-color 0.3s;
-        }
-        #di-label {
-            font-size: 11.5px; font-weight: 500;
-            color: #f5f5f7; white-space: nowrap;
-            overflow: hidden; max-width: 0; opacity: 0;
-        }
 
         /* ===================== HERO MASK REVEAL ===================== */
         .hero-mask-wrap { display: block; overflow: hidden; }
@@ -281,12 +258,6 @@
     <!-- Custom Cursor -->
     <div id="cursor-dot"></div>
     <div id="cursor-ring"></div>
-
-    <!-- Dynamic Island -->
-    <div id="dynamic-island" aria-hidden="true">
-        <div id="di-dot"></div>
-        <span id="di-label"></span>
-    </div>
 
     <div id="loader">
         <i class="fab fa-apple text-6xl text-white mb-6 animate-pulse"></i>
@@ -920,7 +891,7 @@
 
     <script>
     /* ============================================================
-       INTERACTIVE FEATURES: Cursor · Dynamic Island · Counters · Gallery
+       INTERACTIVE FEATURES: Cursor · Counters · Gallery
     ============================================================ */
     document.addEventListener('DOMContentLoaded', () => {
 
@@ -965,40 +936,7 @@
             });
         });
 
-        // ─── 2. DYNAMIC ISLAND ───────────────────────────────────────
-        const diEl    = document.getElementById('dynamic-island');
-        const diLabel = document.getElementById('di-label');
-        const diDot   = document.getElementById('di-dot');
-
-        const diMessages = [
-            { text: '🔒  Face ID',       color: '#34c759' },
-            { text: '📷  Camera',        color: '#2997ff' },
-            { text: '◉  Action Button', color: '#ff9f0a' },
-        ];
-        let diIdx = 0;
-
-        function diShow() {
-            const msg = diMessages[diIdx % diMessages.length];
-            diLabel.textContent = msg.text;
-            diDot.style.borderColor = msg.color;
-
-            gsap.timeline()
-                .to(diEl,    { width: 200, duration: 0.45, ease: 'back.out(1.4)' })
-                .to(diLabel, { opacity: 1, maxWidth: 160, duration: 0.3 }, '-=0.1')
-                .to({},      { duration: 2.2 })
-                .to(diLabel, { opacity: 0, maxWidth: 0, duration: 0.2 })
-                .to(diEl,    { width: 120, duration: 0.35, ease: 'back.in(1.4)',
-                    onComplete() {
-                        diDot.style.borderColor = '#2c2c2e';
-                        diIdx++;
-                        setTimeout(diShow, 3500);
-                    }
-                });
-        }
-        // Bắt đầu sau khi model intro hoàn tất (~3s)
-        setTimeout(diShow, 3200);
-
-        // ─── 3. NUMBER COUNTERS ───────────────────────────────────────
+        // ─── 2. NUMBER COUNTERS ───────────────────────────────────────
         gsap.registerPlugin(ScrollTrigger);
 
         function countUp(id, target) {

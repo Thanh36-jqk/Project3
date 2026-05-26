@@ -388,17 +388,39 @@
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     }
 
+    // Curated local images — always prefer these over DB paths (DB paths may not exist on server)
+    const localIphoneImages = {
+        'iphone 16 pro max': '../../assets/images/iphone 16 pro max/iphone 16 promax white remove.png',
+        'iphone 15 pro max': '../../assets/images/iphone 15 pro max/15_pro_max_silver-removebg-preview.png',
+        'iphone 15 plus':    '../../assets/images/iphone 15 plus/iphone_15_plus_blue-removebg-preview.png',
+        'iphone 15':         '../../assets/images/iphone 15 plus/15_plus_yellow-removebg-preview.png',
+        'iphone 14 pro max': '../../assets/images/iphone 14 pro max/iphone 14 pro max black.png',
+        'iphone 14':         '../../assets/images/iphone 14/iPhone_14 white.png',
+        'iphone 13':         '../../assets/images/iphone 13/iphone 13 blue.png',
+        'iphone se (3rd gen)':'../../assets/images/iPhone SE (3rd Gen)/iphone se 3rd black.png',
+        'iphone 12':         '../../assets/images/iphone 12/iphone 12 black.png',
+        'iphone 11':         '../../assets/images/iphone 11/11 white.png',
+        'iphone 8 plus':     '../../assets/images/Iphone 8 Plus/iphone 8 plus black.png',
+        'iphone 7 plus':     '../../assets/images/Iphone 7 Plus/Iphone 7 plus black.png',
+    };
+
     async function fetchProducts() {
         try {
             const res = await fetch('https://project3-icy1.onrender.com/api/products');
             const data = await res.json();
-            
+
             // Filter iPhones (category in DB is 'Phone')
             iphoneProducts = data.filter(p => p.category && p.category.toLowerCase() === 'phone');
-            
+
+            // Replace DB image URLs with curated local assets
+            iphoneProducts.forEach(p => {
+                const local = localIphoneImages[p.name.toLowerCase()];
+                if (local) p.image_url = local;
+            });
+
             // Sort by newest/price to show latest first
             iphoneProducts.sort((a, b) => b.price - a.price);
-            
+
             renderProducts();
         } catch (error) {
             console.error('Error fetching products:', error);
@@ -426,14 +448,14 @@
         card.style.animationDelay = `${index * 0.1}s`;
         card.classList.add('animate-fade-in-up');
 
-        const imgUrl = product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `https://project3-icy1.onrender.com/${product.image_url}`) : '../../assets/images/placeholder.png';
+        const imgUrl = product.image_url || '../../assets/images/iphone 16 pro max/iphone 16 promax white remove.png';
         const glowGradient = getGlowColor(product.name);
 
         card.innerHTML = `
                     <div class="relative bg-[#0a0a0c] p-6 md:p-8 ${isFeatured ? 'h-72 md:h-80' : 'h-56 md:h-64'} flex items-center justify-center overflow-hidden">
                         <div class="absolute inset-0 bg-gradient-radial ${glowGradient} opacity-50 group-hover:opacity-100 transition-opacity duration-700"></div>
                         ${index === 0 ? `<span class="absolute top-4 left-4 md:top-6 md:left-6 px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-blue-900/50 z-20">New</span>` : ''}
-                        <img src="${imgUrl}" alt="${product.name}" onerror="this.src='../../assets/images/placeholder.png'" class="h-full object-contain relative z-10 group-hover:scale-125 group-hover:-translate-y-4 transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] drop-shadow-2xl">
+                        <img src="${imgUrl}" alt="${product.name}" onerror="this.src='../../assets/images/iphone 16 pro max/iphone 16 promax white remove.png'" class="h-full object-contain relative z-10 group-hover:scale-125 group-hover:-translate-y-4 transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] drop-shadow-2xl">
                     </div>
                     <div class="p-6 md:p-8 bg-[#121214] flex-1 flex flex-col justify-between border-t border-white/5 relative overflow-hidden">
                         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
