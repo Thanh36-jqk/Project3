@@ -862,13 +862,33 @@
         const fallbackImageByName = {};
         fallbackProducts.forEach(p => { fallbackImageByName[p.name.toLowerCase()] = p.image_url; });
         // Aliases: DB seed used different naming conventions than fallback products
-        fallbackImageByName['airpods (3rd gen)']      = fallbackImageByName['airpods 3'];
+        fallbackImageByName['airpods (3rd gen)']       = fallbackImageByName['airpods 3'];
         fallbackImageByName['apple watch se (2nd gen)'] = fallbackImageByName['apple watch se'];
-        fallbackImageByName['homepod (2nd gen)']      = fallbackImageByName['homepod'];
+        fallbackImageByName['homepod (2nd gen)']       = fallbackImageByName['homepod'];
+        fallbackImageByName['macbook air 15" m3']      = fallbackImageByName['macbook air 15 m3'];
+        fallbackImageByName['imac 24" m3']             = fallbackImageByName['imac 24 m3'];
+        fallbackImageByName['ipad air (m2)']           = fallbackImageByName['ipad air m2'];
+        fallbackImageByName['ipad pro (m4)']           = fallbackImageByName['ipad pro m4'];
+        fallbackImageByName['apple tv 4k (3rd gen)']   = fallbackImageByName['apple tv 4k'];
+        fallbackImageByName['iphone 11 pro']           = 'assets/images/iphone 11/11 white.png';
+        fallbackImageByName['iphone 12 pro']           = 'assets/images/iphone 12/iphone 12 purple.png';
+
+        // API category → UI filter category
+        const API_CAT_MAP = {
+            'phone':    'iPhone',
+            'laptop':   'Mac',
+            'desktop':  'Mac',
+            'tv & home':'HeadPhone',
+        };
 
         function normalizeApiProduct(p) {
             // Map short_description → desc (API field vs render field)
             if (!p.desc && p.short_description) p.desc = p.short_description;
+
+            // Normalize category so UI filters work after API load
+            if (p.category && API_CAT_MAP[p.category.toLowerCase()]) {
+                p.category = API_CAT_MAP[p.category.toLowerCase()];
+            }
             // Fix image_url only if missing or clearly broken (not a valid path)
             // Note: DB stores "images/foo.jpg" — served via /images Express route, no prefix fix needed.
             // Exception: products whose file is missing (e.g. renamed) fall back to the curated image.
