@@ -87,6 +87,11 @@
             transform: scale(1.02);
         }
 
+        /* Review filter buttons */
+        .review-filter-btn { background: rgba(255,255,255,0.05); color: #9ca3af; }
+        .review-filter-btn:hover { background: rgba(255,255,255,0.1); color: #d1d5db; }
+        .review-filter-btn.active-filter { background: rgba(255,255,255,0.15); color: #ffffff; }
+
         /* Loader */
         #page-loader {
             position: fixed;
@@ -459,14 +464,29 @@
 
                     <!-- Reviews Section -->
                     <div id="modal-reviews-section" class="border-t border-white/10 pt-4">
-                        <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center justify-between mb-2">
                             <h4 class="text-sm font-semibold text-white">Customer Reviews</h4>
                             <div class="flex items-center gap-2">
                                 <span id="modal-rating-stars" class="text-yellow-400 text-xs"></span>
                                 <span id="modal-rating-text" class="text-xs text-gray-500"></span>
                             </div>
                         </div>
-                        <!-- Form submit review (chỉ hiện khi đã đăng nhập) -->
+                        <!-- Star breakdown -->
+                        <div id="modal-star-breakdown" class="space-y-1 mb-3"></div>
+                        <!-- Filter bar -->
+                        <div id="review-filter-bar" class="flex gap-1 mb-3 flex-wrap">
+                            <button onclick="filterReviews(0)" data-star="0" class="review-filter-btn active-filter px-2 py-0.5 rounded-full text-[10px] transition-colors">All</button>
+                            <button onclick="filterReviews(5)" data-star="5" class="review-filter-btn px-2 py-0.5 rounded-full text-[10px] transition-colors">5★</button>
+                            <button onclick="filterReviews(4)" data-star="4" class="review-filter-btn px-2 py-0.5 rounded-full text-[10px] transition-colors">4★</button>
+                            <button onclick="filterReviews(3)" data-star="3" class="review-filter-btn px-2 py-0.5 rounded-full text-[10px] transition-colors">3★</button>
+                            <button onclick="filterReviews(2)" data-star="2" class="review-filter-btn px-2 py-0.5 rounded-full text-[10px] transition-colors">2★</button>
+                            <button onclick="filterReviews(1)" data-star="1" class="review-filter-btn px-2 py-0.5 rounded-full text-[10px] transition-colors">1★</button>
+                        </div>
+                        <!-- "Đã review" message -->
+                        <div id="modal-already-reviewed" class="hidden mb-3 p-2.5 bg-green-900/20 border border-green-500/20 rounded-xl">
+                            <p class="text-xs text-green-400"><i class="fas fa-check-circle mr-1"></i>Bạn đã đánh giá sản phẩm này rồi.</p>
+                        </div>
+                        <!-- Form submit review (chỉ hiện khi đã đăng nhập và chưa review) -->
                         <div id="modal-review-form" class="hidden mb-3 p-3 bg-black/30 rounded-xl border border-white/5">
                             <p class="text-xs text-gray-400 mb-2">Your review</p>
                             <div id="review-star-input" class="flex gap-1 mb-2"></div>
@@ -789,6 +809,7 @@
         let currentReviewsPage = 1;
         let currentReviewsTotalPages = 1;
         let selectedReviewRating = 0;
+        let currentReviewFilter = 0;
 
         // Dá»¯ liá»‡u máº«u (Fallback) náº¿u Server chÆ°a cÃ³ SP Ä'á»ƒ Store khÃ´ng bá»‹ trá»'ng
         // Using no-background images from color folders for cleaner look
@@ -1506,11 +1527,19 @@
             // Load reviews
             selectedReviewRating = 0;
             currentReviewsPage = 1;
+            currentReviewFilter = 0;
+            document.querySelectorAll('.review-filter-btn').forEach(b => {
+                b.classList.toggle('active-filter', parseInt(b.dataset.star) === 0);
+            });
+
             const token = getToken();
             const reviewForm = document.getElementById('modal-review-form');
+            const alreadyMsg = document.getElementById('modal-already-reviewed');
+            if (alreadyMsg) alreadyMsg.classList.add('hidden');
             if (token) {
                 reviewForm.classList.remove('hidden');
                 renderStarInput();
+                checkUserReview(product._id);
             } else {
                 reviewForm.classList.add('hidden');
             }
@@ -1712,6 +1741,12 @@
         // ==================================================================
         // REVIEWS
         // ==================================================================
+        function escapeHtml(text) {
+            const d = document.createElement('div');
+            d.textContent = text || '';
+            return d.innerHTML;
+        }
+
         function renderStarDisplay(rating) {
             let html = '';
             for (let i = 1; i <= 5; i++) {
@@ -1729,12 +1764,12 @@
             return `<div class="p-2.5 bg-black/20 rounded-xl border border-white/5">
                 <div class="flex items-center justify-between mb-1">
                     <div class="flex items-center">
-                        <span class="text-xs font-medium text-white">${r.userName || 'Customer'}</span>${verified}
+                        <span class="text-xs font-medium text-white">${escapeHtml(r.userName) || 'Customer'}</span>${verified}
                     </div>
                     <span class="text-[10px] text-gray-600">${date}</span>
                 </div>
                 <div class="flex gap-0.5 text-yellow-400 text-xs mb-1">${stars}</div>
-                ${r.comment ? `<p class="text-xs text-gray-400 leading-relaxed">${r.comment}</p>` : ''}
+                ${r.comment ? `<p class="text-xs text-gray-400 leading-relaxed">${escapeHtml(r.comment)}</p>` : ''}
             </div>`;
         }
 
@@ -1759,16 +1794,48 @@
             }
         }
 
+        function renderStarBreakdown(breakdown, totalAll) {
+            const container = document.getElementById('modal-star-breakdown');
+            if (!container) return;
+            if (!totalAll) { container.innerHTML = ''; return; }
+            let html = '';
+            for (let i = 5; i >= 1; i--) {
+                const count = breakdown?.[i] || 0;
+                const pct = totalAll > 0 ? Math.round((count / totalAll) * 100) : 0;
+                html += `<div class="flex items-center gap-2 text-[10px]">
+                    <span class="text-gray-500 w-3">${i}</span>
+                    <i class="fas fa-star text-yellow-400" style="font-size:9px"></i>
+                    <div class="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                        <div class="h-full bg-yellow-400 rounded-full transition-all" style="width:${pct}%"></div>
+                    </div>
+                    <span class="text-gray-600 w-5 text-right">${count}</span>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        window.filterReviews = (star) => {
+            currentReviewFilter = star;
+            document.querySelectorAll('.review-filter-btn').forEach(b => {
+                b.classList.toggle('active-filter', parseInt(b.dataset.star) === star);
+            });
+            loadProductReviews(currentModalProduct._id, 1);
+        };
+
         async function loadProductReviews(productId, page) {
             page = page || 1;
             try {
-                const r = await fetch(`${API_URL}/api/products/${productId}/reviews?page=${page}&limit=5`);
+                const filterParam = currentReviewFilter > 0 ? `&filterRating=${currentReviewFilter}` : '';
+                const r = await fetch(`${API_URL}/api/products/${productId}/reviews?page=${page}&limit=5${filterParam}`);
                 const data = await r.json();
 
                 const avg = currentModalProduct?.ratings?.average || 0;
-                const count = data.total || 0;
+                const totalAll = data.breakdown ? Object.values(data.breakdown).reduce((a, b) => a + b, 0) : 0;
+                const count = totalAll;
                 document.getElementById('modal-rating-stars').innerHTML = count > 0 ? renderStarDisplay(avg) : '';
                 document.getElementById('modal-rating-text').textContent = count > 0 ? `${avg} (${count})` : 'No reviews yet';
+
+                renderStarBreakdown(data.breakdown, totalAll);
 
                 currentReviewsTotalPages = data.pages || 1;
                 const list = document.getElementById('modal-reviews-list');
@@ -1777,7 +1844,10 @@
                 if (data.reviews && data.reviews.length > 0) {
                     data.reviews.forEach(rv => { list.innerHTML += renderReviewCard(rv); });
                 } else if (page === 1) {
-                    list.innerHTML = '<p class="text-xs text-gray-600 text-center py-3">No reviews yet. Be the first!</p>';
+                    const msg = currentReviewFilter > 0
+                        ? `<p class="text-xs text-gray-600 text-center py-3">Không có đánh giá ${currentReviewFilter}★.</p>`
+                        : '<p class="text-xs text-gray-600 text-center py-3">No reviews yet. Be the first!</p>';
+                    list.innerHTML = msg;
                 }
 
                 const moreBtn = document.getElementById('modal-reviews-more');
@@ -1814,12 +1884,14 @@
                 });
                 const data = await r.json();
                 if (r.ok) {
-                    msgEl.textContent = 'Review submitted! Thank you.';
-                    msgEl.className = 'text-xs text-green-400';
-                    msgEl.classList.remove('hidden');
+                    if (data.updatedRatings) {
+                        currentModalProduct.ratings = data.updatedRatings;
+                    }
+                    document.getElementById('modal-review-form').classList.add('hidden');
+                    const alreadyMsg = document.getElementById('modal-already-reviewed');
+                    if (alreadyMsg) alreadyMsg.classList.remove('hidden');
                     document.getElementById('review-comment').value = '';
                     selectedReviewRating = 0;
-                    renderStarInput();
                     loadProductReviews(currentModalProduct._id, 1);
                 } else {
                     msgEl.textContent = data.message || 'Failed to submit.';
@@ -1832,6 +1904,24 @@
                 msgEl.classList.remove('hidden');
             }
         };
+
+        async function checkUserReview(productId) {
+            const token = getToken();
+            if (!token) return;
+            try {
+                const r = await fetch(`${API_URL}/api/products/${productId}/reviews/my`, {
+                    headers: { 'token': `Bearer ${token}` }
+                });
+                const reviewForm = document.getElementById('modal-review-form');
+                const alreadyMsg = document.getElementById('modal-already-reviewed');
+                if (r.ok) {
+                    reviewForm.classList.add('hidden');
+                    if (alreadyMsg) alreadyMsg.classList.remove('hidden');
+                } else {
+                    if (alreadyMsg) alreadyMsg.classList.add('hidden');
+                }
+            } catch (e) {}
+        }
 
         window.addToCartFromModal = () => {
             if (currentModalProduct) {

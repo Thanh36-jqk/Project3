@@ -20,6 +20,7 @@ router.put('/users/:id/rank', verifyAdmin, adminController.updateUserRank);
 
 // Review moderation
 const reviewController = require('../controllers/reviewController');
+router.get('/reviews', verifyAdmin, reviewController.getAllReviews);
 router.delete('/reviews/:id', verifyAdmin, reviewController.deleteReview);
 
 // Voucher management

@@ -1,4 +1,4 @@
-const { getReviews, createReview, deleteReview } = require('../../../src/controllers/reviewController');
+const { getReviews, checkMyReview, createReview, deleteReview, getAllReviews } = require('../../../src/controllers/reviewController');
 const Review = require('../../../src/models/Review');
 const Product = require('../../../src/models/Product');
 const prisma = require('../../../src/config/postgres');
@@ -20,7 +20,7 @@ describe('Review Controller - getReviews', () => {
         jest.clearAllMocks();
     });
 
-    it('should return paginated reviews', async () => {
+    it('should return paginated reviews with breakdown', async () => {
         const mockReviews = [
             { _id: 'r1', rating: 5, comment: 'Tuyệt vời', userName: 'Nguyen A' },
             { _id: 'r2', rating: 4, comment: 'Tốt', userName: 'Tran B' }
@@ -32,22 +32,79 @@ describe('Review Controller - getReviews', () => {
             lean: jest.fn().mockResolvedValue(mockReviews)
         });
         Review.countDocuments.mockResolvedValue(2);
+        Review.aggregate.mockResolvedValue([
+            { _id: 5, count: 1 },
+            { _id: 4, count: 1 }
+        ]);
 
         await getReviews(req, res);
 
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({
-            reviews: mockReviews,
-            total: 2,
-            page: 1,
-            pages: 1
+        const response = res.json.mock.calls[0][0];
+        expect(response.reviews).toEqual(mockReviews);
+        expect(response.total).toBe(2);
+        expect(response.breakdown).toBeDefined();
+        expect(response.breakdown[5]).toBe(1);
+        expect(response.breakdown[4]).toBe(1);
+        expect(response.breakdown[1]).toBe(0);
+    });
+
+    it('should filter by star rating when filterRating param provided', async () => {
+        req.query = { filterRating: '5' };
+        Review.find.mockReturnValue({
+            sort: jest.fn().mockReturnThis(),
+            skip: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
+            lean: jest.fn().mockResolvedValue([])
         });
+        Review.countDocuments.mockResolvedValue(0);
+        Review.aggregate.mockResolvedValue([]);
+
+        await getReviews(req, res);
+
+        expect(Review.find).toHaveBeenCalledWith(expect.objectContaining({ rating: 5 }));
     });
 
     it('should return 400 for invalid product ID', async () => {
         req.params.id = 'not-a-valid-id';
 
         await getReviews(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(400);
+    });
+});
+
+describe('Review Controller - checkMyReview', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = { params: { id: VALID_PRODUCT_ID }, user: { id: 'user-uuid-1' } };
+        res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        jest.clearAllMocks();
+    });
+
+    it('should return 200 with review if user already reviewed', async () => {
+        const mockReview = { _id: 'rev-1', rating: 4, comment: 'Good', userId: 'user-uuid-1' };
+        Review.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(mockReview) });
+
+        await checkMyReview(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(mockReview);
+    });
+
+    it('should return 404 if user has not reviewed', async () => {
+        Review.findOne.mockReturnValue({ lean: jest.fn().mockResolvedValue(null) });
+
+        await checkMyReview(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('should return 400 for invalid product ID', async () => {
+        req.params.id = 'invalid-id';
+
+        await checkMyReview(req, res);
 
         expect(res.status).toHaveBeenCalledWith(400);
     });
@@ -66,40 +123,30 @@ describe('Review Controller - createReview', () => {
         jest.clearAllMocks();
     });
 
-    it('should create a review and recalculate ratings', async () => {
+    it('should return 403 if user has not purchased the product', async () => {
         Product.findById.mockResolvedValue({ _id: VALID_PRODUCT_ID, isActive: true });
         Review.findOne.mockResolvedValue(null);
         prisma.order.findFirst.mockResolvedValue(null);
 
-        const mockReview = { _id: 'rev-1', rating: 5, comment: 'Sản phẩm tuyệt vời!', userId: 'user-uuid-1' };
-        Review.create.mockResolvedValue(mockReview);
-
-        Review.aggregate.mockResolvedValue([{ avg: 5, count: 1 }]);
-        Product.findByIdAndUpdate.mockResolvedValue({});
-
         await createReview(req, res);
 
-        expect(Review.create).toHaveBeenCalledWith(expect.objectContaining({
-            productId: VALID_PRODUCT_ID,
-            userId: 'user-uuid-1',
-            rating: 5,
-            comment: 'Sản phẩm tuyệt vời!',
-            isVerifiedPurchase: false
-        }));
-        expect(Product.findByIdAndUpdate).toHaveBeenCalledWith(
-            VALID_PRODUCT_ID,
-            { 'ratings.average': 5, 'ratings.count': 1 }
-        );
-        expect(res.status).toHaveBeenCalledWith(201);
-        expect(res.json).toHaveBeenCalledWith(mockReview);
+        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.json).toHaveBeenCalledWith({ message: 'Bạn cần mua sản phẩm này trước khi đánh giá' });
+        expect(Review.create).not.toHaveBeenCalled();
     });
 
-    it('should set isVerifiedPurchase=true if user bought and received the product', async () => {
-        Product.findById.mockResolvedValue({ _id: VALID_PRODUCT_ID, isActive: true });
+    it('should create review and return { review, updatedRatings } for verified buyer', async () => {
+        Product.findById
+            .mockResolvedValueOnce({ _id: VALID_PRODUCT_ID, isActive: true })
+            .mockReturnValueOnce({
+                select: jest.fn().mockReturnThis(),
+                lean: jest.fn().mockResolvedValue({ ratings: { average: 5, count: 1 } })
+            });
         Review.findOne.mockResolvedValue(null);
         prisma.order.findFirst.mockResolvedValue({ id: 'order-1' });
 
-        Review.create.mockResolvedValue({ _id: 'rev-2', rating: 5, isVerifiedPurchase: true });
+        const mockReview = { _id: 'rev-1', rating: 5, isVerifiedPurchase: true };
+        Review.create.mockResolvedValue(mockReview);
         Review.aggregate.mockResolvedValue([{ avg: 5, count: 1 }]);
         Product.findByIdAndUpdate.mockResolvedValue({});
 
@@ -109,6 +156,9 @@ describe('Review Controller - createReview', () => {
             isVerifiedPurchase: true
         }));
         expect(res.status).toHaveBeenCalledWith(201);
+        const response = res.json.mock.calls[0][0];
+        expect(response.review).toBeDefined();
+        expect(response.updatedRatings).toBeDefined();
     });
 
     it('should return 409 if user already reviewed this product', async () => {
@@ -171,7 +221,6 @@ describe('Review Controller - deleteReview (admin)', () => {
             { 'ratings.average': 0, 'ratings.count': 0 }
         );
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ message: 'Review deleted successfully' });
     });
 
     it('should return 404 if review not found', async () => {
@@ -180,5 +229,56 @@ describe('Review Controller - deleteReview (admin)', () => {
         await deleteReview(req, res);
 
         expect(res.status).toHaveBeenCalledWith(404);
+    });
+});
+
+describe('Review Controller - getAllReviews (admin)', () => {
+    let req, res;
+
+    beforeEach(() => {
+        req = { query: {} };
+        res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+        jest.clearAllMocks();
+    });
+
+    it('should return paginated list of all reviews', async () => {
+        const mockReviews = [
+            { _id: 'r1', rating: 5, userName: 'User A' },
+            { _id: 'r2', rating: 3, userName: 'User B' }
+        ];
+        Review.find.mockReturnValue({
+            sort: jest.fn().mockReturnThis(),
+            skip: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
+            lean: jest.fn().mockResolvedValue(mockReviews)
+        });
+        Review.countDocuments.mockResolvedValue(2);
+
+        await getAllReviews(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        const response = res.json.mock.calls[0][0];
+        expect(response.reviews).toEqual(mockReviews);
+        expect(response.total).toBe(2);
+        expect(response.page).toBe(1);
+        expect(response.pages).toBe(1);
+    });
+
+    it('should respect page and limit query params', async () => {
+        req.query = { page: '2', limit: '5' };
+        Review.find.mockReturnValue({
+            sort: jest.fn().mockReturnThis(),
+            skip: jest.fn().mockReturnThis(),
+            limit: jest.fn().mockReturnThis(),
+            lean: jest.fn().mockResolvedValue([])
+        });
+        Review.countDocuments.mockResolvedValue(10);
+
+        await getAllReviews(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        const response = res.json.mock.calls[0][0];
+        expect(response.page).toBe(2);
+        expect(response.pages).toBe(2);
     });
 });

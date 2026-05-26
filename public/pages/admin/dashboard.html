@@ -259,6 +259,11 @@
                         class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
                         <i class="fas fa-users w-5 text-center"></i> Users
                     </a>
+
+                    <a href="#" onclick="showSection('reviews')" id="nav-reviews"
+                        class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
+                        <i class="fas fa-star w-5 text-center"></i> Reviews
+                    </a>
                 </div>
             </div>
         </nav>
@@ -550,6 +555,36 @@
                 </div>
             </div>
 
+            <!-- Reviews Section -->
+            <div id="reviews-section" class="content-section hidden animate-fade-in space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">Review Management</h2>
+                    <button onclick="loadAdminReviews(1); showToast('Reviews refreshed', 'info')"
+                        class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    </button>
+                </div>
+                <div class="premium-card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="reviews-table">
+                            <thead>
+                                <tr class="bg-gray-50/80 border-b border-gray-100/80 text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+                                    <th class="px-4 py-4 whitespace-nowrap">User</th>
+                                    <th class="px-4 py-4 whitespace-nowrap">Product ID</th>
+                                    <th class="px-4 py-4 whitespace-nowrap">Stars</th>
+                                    <th class="px-4 py-4">Comment</th>
+                                    <th class="px-4 py-4 whitespace-nowrap">Verified</th>
+                                    <th class="px-4 py-4 whitespace-nowrap">Date</th>
+                                    <th class="px-4 py-4 whitespace-nowrap">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reviews-table-body" class="divide-y divide-gray-50 text-sm bg-white"></tbody>
+                        </table>
+                    </div>
+                    <div id="reviews-pagination" class="flex justify-center gap-2 p-4 border-t border-gray-100"></div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -634,7 +669,84 @@
 
             if (id === 'inventory') loadInventory();
             else if (id === 'users') loadUsers();
+            else if (id === 'reviews') loadAdminReviews(1);
             else if (id !== 'dashboard') loadAllData();
+        }
+
+        // --- REVIEWS SECTION ---
+        let adminReviewsCurrentPage = 1;
+
+        async function loadAdminReviews(page) {
+            adminReviewsCurrentPage = page || 1;
+            try {
+                const res = await fetch(`${API_URL}/admin/reviews?page=${adminReviewsCurrentPage}&limit=20`, {
+                    headers: { 'token': `Bearer ${token}` }
+                });
+                if (!res.ok) { showToast('Failed to load reviews', 'error'); return; }
+                const data = await res.json();
+                renderReviewsTable(data.reviews || []);
+                renderReviewsPagination(data.page, data.pages);
+            } catch (e) { showToast('Failed to load reviews', 'error'); }
+        }
+
+        function renderReviewsTable(reviews) {
+            const tbody = document.getElementById('reviews-table-body');
+            if (!reviews.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-400 text-sm">No reviews found.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = reviews.map(rv => {
+                const stars = '★'.repeat(rv.rating) + '☆'.repeat(5 - rv.rating);
+                const date = new Date(rv.createdAt).toLocaleDateString('vi-VN');
+                const verified = rv.isVerifiedPurchase
+                    ? '<span class="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium">Verified</span>'
+                    : '<span class="text-[10px] text-gray-400">—</span>';
+                const shortProductId = rv.productId ? String(rv.productId).slice(-6) : '—';
+                const safeComment = rv.comment
+                    ? rv.comment.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').substring(0, 80) + (rv.comment.length > 80 ? '…' : '')
+                    : '<span class="text-gray-400 italic">No comment</span>';
+                return `<tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-4 py-3 font-medium text-gray-800 text-xs">${rv.userName || 'Unknown'}</td>
+                    <td class="px-4 py-3 text-gray-500 text-xs font-mono">…${shortProductId}</td>
+                    <td class="px-4 py-3 text-yellow-500 tracking-wider text-sm">${stars}</td>
+                    <td class="px-4 py-3 text-gray-600 text-xs max-w-xs">${safeComment}</td>
+                    <td class="px-4 py-3">${verified}</td>
+                    <td class="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">${date}</td>
+                    <td class="px-4 py-3">
+                        <button onclick="deleteAdminReview('${rv._id}')"
+                            class="text-xs text-red-500 hover:text-red-700 font-medium transition-colors px-2 py-1 rounded hover:bg-red-50">
+                            <i class="fas fa-trash mr-1"></i>Delete
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderReviewsPagination(page, pages) {
+            const container = document.getElementById('reviews-pagination');
+            if (!pages || pages <= 1) { container.innerHTML = ''; return; }
+            let html = '';
+            for (let i = 1; i <= pages; i++) {
+                html += `<button onclick="loadAdminReviews(${i})"
+                    class="w-8 h-8 rounded-lg text-xs font-medium transition-colors ${i === page ? 'bg-black text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}">${i}</button>`;
+            }
+            container.innerHTML = html;
+        }
+
+        async function deleteAdminReview(id) {
+            if (!confirm('Xóa review này? Hành động không thể hoàn tác.')) return;
+            try {
+                const res = await fetch(`${API_URL}/admin/reviews/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'token': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    showToast('Review deleted successfully', 'success');
+                    loadAdminReviews(adminReviewsCurrentPage);
+                } else {
+                    showToast('Failed to delete review', 'error');
+                }
+            } catch (e) { showToast('Failed to delete review', 'error'); }
         }
 
         // --- USERS SECTION ---

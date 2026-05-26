@@ -32,6 +32,7 @@ jest.mock('../../../src/controllers/adminController', () => ({
     cancelOrderAdmin: (...a) => controllerImpl.cancelOrderAdmin(...a),
 }));
 jest.mock('../../../src/controllers/reviewController', () => ({
+    getAllReviews: (req, res) => res.status(200).json({ reviews: [], total: 0, page: 1, pages: 0 }),
     deleteReview: (req, res) => res.status(200).json({ message: 'Review deleted successfully' }),
     recalculateProductRatings: jest.fn(),
 }));
