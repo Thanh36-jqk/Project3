@@ -32,8 +32,10 @@ exports.forgotPassword = async (req, res) => {
             }
         });
 
-        // Build reset URL
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        // Build reset URL — prefer env var, fall back to request origin
+        const frontendUrl = process.env.FRONTEND_URL
+            || req.headers.origin
+            || `${req.protocol}://${req.get('host')}`;
         const resetUrl = `${frontendUrl}/pages/auth/reset-password.html?token=${resetToken}`;
 
         // Send Email
