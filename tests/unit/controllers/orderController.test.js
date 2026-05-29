@@ -103,7 +103,8 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
         expect(res.json).toHaveBeenCalledWith({
             message: 'Order placed successfully',
             order: mockOrder,
-            paymentUrl: 'https://sandbox.vnpayment.vn/test-payment-url'
+            paymentUrl: 'https://sandbox.vnpayment.vn/test-payment-url',
+            paymentInfo: null
         });
     });
 
@@ -176,7 +177,8 @@ describe('Order Controller - createOrder (Payment Flow)', () => {
         expect(res.json).toHaveBeenCalledWith({
             message: 'Order placed successfully',
             order: mockOrder,
-            paymentUrl: null
+            paymentUrl: null,
+            paymentInfo: null
         });
     });
 

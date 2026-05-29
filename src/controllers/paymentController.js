@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const prisma = require('../config/postgres');
 const Product = require('../models/Product');
 const vnpayService = require('../services/vnpayService');
+const sepayService = require('../services/sepayService');
 const { finalizeSuccessfulOrder } = require('./orderController');
 
 /**
@@ -125,5 +126,67 @@ exports.vnpayIpn = async (req, res) => {
     } catch (error) {
         console.error('IPN Error:', error);
         return res.status(200).json({ RspCode: '99', Message: 'Unknown error' });
+    }
+};
+
+/**
+ * Handle SePay Webhook — authoritative payment confirmation
+ * POST /api/payments/sepay_webhook
+ * SePay gửi khi phát hiện giao dịch ngân hàng khớp với tài khoản merchant.
+ */
+exports.sepayWebhook = async (req, res) => {
+    if (!sepayService.verifyWebhook(req)) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+    }
+
+    const { transferAmount, content, code, referenceCode } = req.body;
+
+    // Tìm order theo transferContent: thử code trước, fallback scan content
+    let order = null;
+
+    if (code) {
+        order = await prisma.order.findFirst({
+            where: { transferContent: code, paymentStatus: 'Pending' },
+            include: { items: true }
+        });
+    }
+
+    if (!order && content) {
+        const pending = await prisma.order.findMany({
+            where: { paymentMethod: 'SePay', paymentStatus: 'Pending', transferContent: { not: null } },
+            include: { items: true }
+        });
+        order = pending.find(o => content.toUpperCase().includes(o.transferContent)) || null;
+    }
+
+    if (!order) {
+        // Không tìm thấy order - ghi nhận nhưng không fail (tránh SePay retry vô hạn)
+        console.log('SePay webhook: no matching pending order for content:', content);
+        return res.json({ success: true, message: 'No matching order' });
+    }
+
+    if (transferAmount < order.finalAmount) {
+        console.warn(`SePay webhook: insufficient amount for order ${order.id}: got ${transferAmount}, expected ${order.finalAmount}`);
+        return res.json({ success: false, message: 'Insufficient amount' });
+    }
+
+    try {
+        const updated = await prisma.order.updateMany({
+            where: { id: order.id, paymentStatus: { not: 'Paid' } },
+            data: {
+                paymentStatus: 'Paid',
+                status: 'Confirmed',
+                transactionId: referenceCode || null
+            }
+        });
+
+        if (updated.count > 0) {
+            await finalizeSuccessfulOrder(order);
+        }
+
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('SePay webhook error:', error);
+        return res.status(500).json({ success: false, message: 'Internal error' });
     }
 };

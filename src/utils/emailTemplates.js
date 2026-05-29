@@ -113,7 +113,7 @@ exports.buildOrderConfirmationEmail = (recipientName, order) => {
             </tr>
             <tr>
               <td style="font-size:13px;color:#86868b;padding:10px 0;border-bottom:1px solid #f0f0f0;">Phương thức</td>
-              <td style="font-size:13px;color:#1d1d1f;font-weight:600;padding:10px 0;border-bottom:1px solid #f0f0f0;text-align:right;">${order.paymentMethod === 'VNPay' ? 'VNPay (thanh toán online)' : 'COD (thanh toán khi nhận)'}</td>
+              <td style="font-size:13px;color:#1d1d1f;font-weight:600;padding:10px 0;border-bottom:1px solid #f0f0f0;text-align:right;">${order.paymentMethod === 'SePay' ? 'SePay (chuyển khoản QR)' : order.paymentMethod === 'VNPay' ? 'VNPay (thanh toán online)' : 'COD (thanh toán khi nhận)'}</td>
             </tr>
             <tr>
               <td style="font-size:13px;color:#86868b;padding:10px 0;border-bottom:1px solid #f0f0f0;">Giao đến</td>
@@ -181,7 +181,7 @@ exports.buildCancellationEmail = (recipientName, order, reason) => {
             </tr>
             <tr>
               <td style="font-size:13px;color:#86868b;padding:10px 0;">Hoàn tiền</td>
-              <td style="font-size:13px;color:#27ae60;font-weight:600;padding:10px 0;text-align:right;">${order.paymentMethod === 'VNPay' ? 'Trong 3–5 ngày làm việc' : 'Không áp dụng (COD)'}</td>
+              <td style="font-size:13px;color:#27ae60;font-weight:600;padding:10px 0;text-align:right;">${order.paymentMethod === 'SePay' ? 'Trong 3–5 ngày làm việc' : order.paymentMethod === 'VNPay' ? 'Trong 3–5 ngày làm việc' : 'Không áp dụng (COD)'}</td>
             </tr>
           </table>
         </td></tr>

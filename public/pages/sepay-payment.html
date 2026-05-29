@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="../assets/images/logo.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán SePay - Apple Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .animate-spin { animation: spin 1s linear infinite; }
+        .animate-fade { animation: fadeUp 0.5s ease-out both; }
+        .animate-pulse { animation: pulse 2s ease-in-out infinite; }
+        .copy-btn:active { transform: scale(0.95); }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 flex items-center justify-center p-4">
+
+<div class="w-full max-w-md animate-fade">
+    <!-- Header -->
+    <div class="text-center mb-6">
+        <div class="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+            Đang chờ thanh toán
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900">Quét QR để thanh toán</h1>
+        <p class="text-gray-500 text-sm mt-1">Mở app ngân hàng → Quét QR → Xác nhận</p>
+    </div>
+
+    <!-- QR Card -->
+    <div class="bg-white rounded-3xl shadow-xl p-6 mb-4">
+        <!-- QR Image -->
+        <div class="flex justify-center mb-5">
+            <div class="relative p-3 bg-white rounded-2xl border-2 border-green-200 shadow-inner">
+                <img id="qr-img" src="" alt="QR Code" class="w-56 h-56 rounded-xl"
+                    onerror="document.getElementById('qr-fallback').classList.remove('hidden');this.classList.add('hidden')">
+                <div id="qr-fallback" class="hidden w-56 h-56 flex flex-col items-center justify-center bg-gray-50 rounded-xl text-gray-400">
+                    <i class="fas fa-qrcode text-5xl mb-2"></i>
+                    <span class="text-xs">Không load được QR</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="text-center mb-5">
+            <p class="text-sm text-gray-500 mb-1">Số tiền cần chuyển</p>
+            <p id="display-amount" class="text-3xl font-bold text-green-600"></p>
+        </div>
+
+        <!-- Transfer Details -->
+        <div class="space-y-3">
+            <div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
+                <div>
+                    <p class="text-xs text-gray-400 mb-0.5">Số tài khoản</p>
+                    <p id="display-account" class="font-semibold text-gray-800 text-sm"></p>
+                </div>
+                <button onclick="copyText('display-account', this)"
+                    class="copy-btn text-green-600 hover:text-green-700 text-xs font-medium bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-all">
+                    <i class="fas fa-copy mr-1"></i>Sao chép
+                </button>
+            </div>
+
+            <div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
+                <div>
+                    <p class="text-xs text-gray-400 mb-0.5">Nội dung chuyển khoản</p>
+                    <p id="display-code" class="font-semibold text-gray-800 text-sm font-mono"></p>
+                </div>
+                <button onclick="copyText('display-code', this)"
+                    class="copy-btn text-green-600 hover:text-green-700 text-xs font-medium bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-all">
+                    <i class="fas fa-copy mr-1"></i>Sao chép
+                </button>
+            </div>
+        </div>
+
+        <!-- Warning -->
+        <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex gap-2">
+            <i class="fas fa-exclamation-triangle text-amber-500 text-sm mt-0.5 flex-shrink-0"></i>
+            <p class="text-xs text-amber-700">Nhập <strong>đúng nội dung chuyển khoản</strong> để hệ thống tự động xác nhận đơn hàng.</p>
+        </div>
+    </div>
+
+    <!-- Status Card -->
+    <div class="bg-white rounded-3xl shadow-xl p-5 mb-4">
+        <div id="status-checking" class="flex items-center gap-3">
+            <div class="w-8 h-8 border-2 border-green-500 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
+            <div>
+                <p class="font-medium text-gray-800 text-sm">Đang chờ xác nhận thanh toán...</p>
+                <p class="text-xs text-gray-400 mt-0.5">Tự động kiểm tra mỗi 5 giây</p>
+            </div>
+        </div>
+        <div id="status-success" class="hidden flex items-center gap-3">
+            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-check text-green-600 text-sm"></i>
+            </div>
+            <div>
+                <p class="font-medium text-green-700 text-sm">Thanh toán thành công!</p>
+                <p class="text-xs text-gray-400 mt-0.5">Đang chuyển hướng...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timer & Cancel -->
+    <div class="text-center space-y-3">
+        <p class="text-sm text-gray-500">
+            Hết hạn sau: <span id="timer" class="font-semibold text-gray-700">15:00</span>
+        </p>
+        <button onclick="cancelPayment()"
+            class="text-sm text-gray-400 hover:text-red-500 transition-colors underline underline-offset-2">
+            Huỷ và quay lại
+        </button>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('orderId');
+    const amount = parseInt(params.get('amount') || '0');
+    const code = params.get('code') || '';
+    const qrUrl = params.get('qrUrl') || '';
+    const accountNumber = params.get('accountNumber') || '';
+
+    // Render dữ liệu
+    document.getElementById('qr-img').src = qrUrl;
+    document.getElementById('display-amount').textContent = new Intl.NumberFormat('vi-VN', {
+        style: 'currency', currency: 'VND'
+    }).format(amount);
+    document.getElementById('display-account').textContent = accountNumber || 'N/A';
+    document.getElementById('display-code').textContent = code;
+
+    // Countdown 15 phút
+    let remaining = 15 * 60;
+    const timerEl = document.getElementById('timer');
+    const countdown = setInterval(() => {
+        remaining--;
+        const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+        const s = String(remaining % 60).padStart(2, '0');
+        timerEl.textContent = `${m}:${s}`;
+        if (remaining <= 0) {
+            clearInterval(countdown);
+            clearInterval(polling);
+            timerEl.textContent = '00:00';
+            window.location.href = `/pages/vnpay-return.html?status=failed&orderId=${orderId}`;
+        }
+    }, 1000);
+
+    // Poll trạng thái đơn hàng mỗi 5 giây
+    const polling = setInterval(async () => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`);
+            if (!res.ok) return;
+            const data = await res.json();
+            const order = data.order || data;
+            if (order.paymentStatus === 'Paid' || order.status === 'Confirmed') {
+                clearInterval(polling);
+                clearInterval(countdown);
+                document.getElementById('status-checking').classList.add('hidden');
+                document.getElementById('status-success').classList.remove('hidden');
+                setTimeout(() => {
+                    window.location.href = `/pages/vnpay-return.html?status=success&orderId=${orderId}`;
+                }, 1500);
+            }
+        } catch (_) {}
+    }, 5000);
+
+    function copyText(elementId, btn) {
+        const text = document.getElementById(elementId).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Đã sao chép';
+            btn.classList.replace('text-green-600', 'text-emerald-700');
+            setTimeout(() => { btn.innerHTML = original; btn.classList.replace('text-emerald-700', 'text-green-600'); }, 2000);
+        });
+    }
+
+    function cancelPayment() {
+        if (confirm('Huỷ thanh toán và quay lại trang chủ?')) {
+            clearInterval(polling);
+            clearInterval(countdown);
+            window.location.href = '/';
+        }
+    }
+</script>
+</body>
+</html>

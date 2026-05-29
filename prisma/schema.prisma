@@ -78,6 +78,7 @@ model Order {
   status           String    @default("Pending")
   paymentStatus    String    @default("Pending")
   transactionId    String?
+  transferContent  String?   // SePay: mã tham chiếu chuyển khoản
   cancelReason     String?
   guestEmail       String?
   createdAt        DateTime  @default(now())
@@ -89,6 +90,7 @@ model Order {
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([transferContent])
 }
 
 model OrderItem {

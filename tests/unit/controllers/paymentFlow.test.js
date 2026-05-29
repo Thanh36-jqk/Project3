@@ -113,7 +113,8 @@ describe('💳 PAYMENT ACCEPTANCE TEST — Tính năng thanh toán', () => {
             expect(res.json).toHaveBeenCalledWith({
                 message: 'Order placed successfully',
                 order: mockOrder,
-                paymentUrl: null
+                paymentUrl: null,
+                paymentInfo: null
             });
         });
 
@@ -229,7 +230,8 @@ describe('💳 PAYMENT ACCEPTANCE TEST — Tính năng thanh toán', () => {
             expect(res.json).toHaveBeenCalledWith({
                 message: 'Order placed successfully',
                 order: mockOrder,
-                paymentUrl: VNP_PAYMENT_URL
+                paymentUrl: VNP_PAYMENT_URL,
+                paymentInfo: null
             });
         });
 

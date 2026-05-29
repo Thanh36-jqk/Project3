@@ -4,11 +4,13 @@ const express = require('express');
 const controllerImpl = {
     vnpayReturn: (req, res) => res.redirect('/?payment=success'),
     vnpayIpn: (req, res) => res.status(200).json({ RspCode: '00', Message: 'Confirm Success' }),
+    sepayWebhook: (req, res) => res.status(200).json({ success: true }),
 };
 
 jest.mock('../../../src/controllers/paymentController', () => ({
     vnpayReturn: (...a) => controllerImpl.vnpayReturn(...a),
     vnpayIpn: (...a) => controllerImpl.vnpayIpn(...a),
+    sepayWebhook: (...a) => controllerImpl.sepayWebhook(...a),
 }));
 
 const paymentRoutes = require('../../../src/routes/paymentRoutes');

@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
 const vnpayService = require('../services/vnpayService');
+const sepayService = require('../services/sepayService');
 const dummyProducts = require('../utils/dummyProducts');
 const { sendEmail } = require('../services/emailService');
 const { buildCancellationEmail, buildOrderConfirmationEmail } = require('../utils/emailTemplates');
@@ -150,6 +151,8 @@ exports.createOrder = async (req, res) => {
 
         const finalTotal = Math.max(0, calculatedTotal - discountAmount);
         const isVNPay = paymentMethod === 'VNPay';
+        const isSePay = paymentMethod === 'SePay';
+        const requiresOnlinePayment = isVNPay || isSePay;
 
         // 3. CREATE ORDER IN POSTGRESQL
         const savedOrder = await prisma.order.create({
@@ -159,22 +162,22 @@ exports.createOrder = async (req, res) => {
                 recipientPhone,
                 recipientAddress,
                 recipientNotes,
-                paymentMethod: isVNPay ? 'VNPay' : 'COD',
+                paymentMethod: isVNPay ? 'VNPay' : (isSePay ? 'SePay' : 'COD'),
                 subtotal: calculatedTotal,
                 discountAmount,
                 finalAmount: finalTotal,
                 appliedVoucher: validatedVoucherCode || null,
                 guestEmail: !userId ? (guestEmail || null) : null,
-                // COD is confirmed immediately; VNPay waits for IPN
-                status: isVNPay ? 'Pending' : 'Confirmed',
+                // COD confirmed immediately; online payments wait for webhook/IPN
+                status: requiresOnlinePayment ? 'Pending' : 'Confirmed',
                 paymentStatus: 'Pending',
                 items: { create: secureItems }
             },
             include: { items: true }
         });
 
-        // 4. POST-ORDER: finalize immediately for COD, defer to IPN for VNPay
-        if (!isVNPay) {
+        // 4. POST-ORDER: finalize immediately for COD, defer for online payments
+        if (!requiresOnlinePayment) {
             await finalizeSuccessfulOrder(savedOrder);
         }
 
@@ -182,6 +185,16 @@ exports.createOrder = async (req, res) => {
         if (isVNPay) {
             const returnUrl = process.env.VNPAY_RETURN_URL || 'http://localhost:3000/api/payments/vnpay_return';
             paymentUrl = vnpayService.createPaymentUrl(req, savedOrder.id, finalTotal, returnUrl);
+        }
+
+        let paymentInfo = null;
+        if (isSePay) {
+            const info = sepayService.generatePaymentInfo(savedOrder.id, finalTotal);
+            await prisma.order.update({
+                where: { id: savedOrder.id },
+                data: { transferContent: info.code }
+            });
+            paymentInfo = info;
         }
 
         // Send order confirmation email (fire-and-forget)
@@ -199,7 +212,8 @@ exports.createOrder = async (req, res) => {
         res.status(201).json({
             message: 'Order placed successfully',
             order: savedOrder,
-            paymentUrl
+            paymentUrl,
+            paymentInfo
         });
 
     } catch (error) {

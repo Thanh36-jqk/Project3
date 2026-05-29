@@ -143,16 +143,19 @@
               <span
                 class="ml-auto text-xs font-semibold bg-blue-100 text-apple-blue px-2 py-1 rounded">Recommended</span>
             </label>
-            <!-- VNPay Payment Option -->
-            <label id="vnpay-label"
-              class="relative flex items-center p-4 border border-gray-200 rounded-2xl cursor-pointer transition-all hover:bg-orange-50/50 hover:border-orange-400">
-              <input type="radio" name="payment-method" value="VNPay"
-                class="h-5 w-5 text-orange-500 border-gray-300 focus:ring-orange-500" id="vnpay-checkout">
+            <!-- SePay Payment Option -->
+            <label id="sepay-label"
+              class="relative flex items-center p-4 border border-gray-200 rounded-2xl cursor-pointer transition-all hover:bg-green-50/50 hover:border-green-400">
+              <input type="radio" name="payment-method" value="SePay"
+                class="h-5 w-5 text-green-600 border-gray-300 focus:ring-green-600" id="sepay-checkout">
               <span class="ml-3 flex items-center gap-3 font-medium text-gray-900">
-                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png" alt="VNPay" class="h-6 w-auto">
-                VNPay (ATM / QR / Visa)
+                <img src="https://sepay.vn/wp-content/uploads/2024/01/sepay-logo.png" alt="SePay"
+                  class="h-6 w-auto"
+                  onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <span class="hidden items-center justify-center w-6 h-6 bg-green-600 rounded text-white text-xs font-bold">S</span>
+                SePay (Chuyển khoản QR)
               </span>
-              <span class="ml-auto text-xs font-semibold bg-orange-100 text-orange-600 px-2 py-1 rounded">Online</span>
+              <span class="ml-auto text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded">QR Code</span>
             </label>
           </div>
         </div>
@@ -473,7 +476,7 @@
         recipientPhone: phone,
         recipientAddress: address,
         recipientNotes: notes,
-        paymentMethod: paymentMethod === 'VNPay' ? 'VNPay' : 'COD',
+        paymentMethod: paymentMethod === 'VNPay' ? 'VNPay' : (paymentMethod === 'SePay' ? 'SePay' : 'COD'),
         guestEmail,
         createAccount,
         guestPassword,
@@ -507,9 +510,23 @@
 
         if (!res.ok) throw new Error(data.message || "Order failed.");
 
-        // If VNPay, redirect to the payment gateway
+        // VNPay: redirect sang cổng thanh toán
         if (data.paymentUrl) {
           window.location.href = data.paymentUrl;
+          return;
+        }
+
+        // SePay: chuyển sang trang QR chuyển khoản
+        if (data.paymentInfo) {
+          const params = new URLSearchParams({
+            orderId: data.order.id,
+            amount: data.paymentInfo.amount,
+            code: data.paymentInfo.code,
+            qrUrl: data.paymentInfo.qrUrl,
+            accountNumber: data.paymentInfo.accountNumber || '',
+            bankCode: data.paymentInfo.bankCode || ''
+          });
+          window.location.href = `/pages/sepay-payment.html?${params}`;
           return;
         }
 
