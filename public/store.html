@@ -109,23 +109,17 @@
             transition: opacity 0.5s ease;
         }
 
-        /* =====================================================
-           PROTOTYPE: Chatbox UI Variants
-           A — Glassmorphism Glow  B — iMessage Minimal  C — Command Center
-           Switch: ?chatVariant=A/B/C  or  ← → arrow keys
-           ===================================================== */
-
-        /* ── Variant A: Glassmorphism Glow ─────────────────── */
-        #chatbox-proto-wrapper[data-variant="A"] #chat-bubble {
+        /* ── Chatbox: Glassmorphism Glow ──────────────────── */
+        #chatbox-proto-wrapper #chat-bubble {
             background: linear-gradient(135deg, #5b6cf3 0%, #a855f7 100%) !important;
             box-shadow: 0 0 24px rgba(168,85,247,0.45), 0 8px 32px rgba(0,0,0,0.6) !important;
-            animation: protoGlowPulse 2.8s ease-in-out infinite !important;
+            animation: chatGlowPulse 2.8s ease-in-out infinite !important;
         }
-        @keyframes protoGlowPulse {
+        @keyframes chatGlowPulse {
             0%,100% { box-shadow: 0 0 20px rgba(168,85,247,0.35), 0 8px 32px rgba(0,0,0,0.6); }
             50%     { box-shadow: 0 0 36px rgba(168,85,247,0.65), 0 0 0 10px rgba(168,85,247,0.07), 0 8px 32px rgba(0,0,0,0.6); }
         }
-        #chatbox-proto-wrapper[data-variant="A"] #chat-window {
+        #chatbox-proto-wrapper #chat-window {
             width: 400px !important; height: 560px !important;
             background: rgba(9,9,13,0.90) !important;
             backdrop-filter: blur(32px) !important; -webkit-backdrop-filter: blur(32px) !important;
@@ -133,152 +127,38 @@
             border-radius: 24px !important;
             box-shadow: 0 0 0 1px rgba(168,85,247,0.07), inset 0 1px 0 rgba(255,255,255,0.07), 0 32px 80px rgba(0,0,0,0.88) !important;
         }
-        #chatbox-proto-wrapper[data-variant="A"] #chat-window > div:first-child {
+        #chatbox-proto-wrapper #chat-window > div:first-child {
             background: linear-gradient(135deg, rgba(91,108,243,0.22), rgba(168,85,247,0.12)) !important;
             border-bottom: 1px solid rgba(168,85,247,0.14) !important;
             border-radius: 24px 24px 0 0 !important;
             padding: 16px 20px !important;
         }
-        #chatbox-proto-wrapper[data-variant="A"] #chat-window > div:first-child h3 {
+        #chatbox-proto-wrapper #chat-window > div:first-child h3 {
             background: linear-gradient(90deg,#c4b5fd,#818cf8);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
             font-size: 14px !important;
         }
-        #chatbox-proto-wrapper[data-variant="A"] #chat-messages {
+        #chatbox-proto-wrapper #chat-messages {
             background: transparent !important; padding: 16px 20px !important;
         }
-        #chatbox-proto-wrapper[data-variant="A"] #chat-window > div:last-child {
+        #chatbox-proto-wrapper #chat-window > div:last-child {
             background: rgba(255,255,255,0.025) !important;
             border-top: 1px solid rgba(255,255,255,0.06) !important;
             border-radius: 0 0 24px 24px !important; padding: 12px 16px !important;
         }
-        #chatbox-proto-wrapper[data-variant="A"] #chat-input {
+        #chatbox-proto-wrapper #chat-input {
             background: rgba(255,255,255,0.06) !important;
             border: 1px solid rgba(255,255,255,0.09) !important;
             transition: border-color .22s, box-shadow .22s !important;
         }
-        #chatbox-proto-wrapper[data-variant="A"] #chat-input:focus {
+        #chatbox-proto-wrapper #chat-input:focus {
             border-color: rgba(168,85,247,0.55) !important;
             box-shadow: 0 0 0 3px rgba(168,85,247,0.12) !important;
             outline: none !important;
         }
-        #chatbox-proto-wrapper[data-variant="A"] #chat-form button[type="submit"] {
+        #chatbox-proto-wrapper #chat-form button[type="submit"] {
             background: linear-gradient(135deg,#5b6cf3,#a855f7) !important;
             box-shadow: 0 2px 12px rgba(168,85,247,0.4) !important;
-        }
-
-        /* ── Variant B: iMessage Minimal ──────────────────── */
-        #chatbox-proto-wrapper[data-variant="B"] #chat-bubble {
-            width: 46px !important; height: 46px !important;
-            background: #1c1c1e !important;
-            border: 1px solid rgba(255,255,255,0.12) !important;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.65) !important;
-            border-radius: 13px !important; animation: none !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-window {
-            width: 340px !important; height: 480px !important;
-            background: #111 !important;
-            border: 1px solid rgba(255,255,255,0.09) !important;
-            border-radius: 16px !important;
-            box-shadow: 0 16px 60px rgba(0,0,0,0.85) !important;
-            backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-window > div:first-child {
-            background: #111 !important;
-            border-bottom: 1px solid rgba(255,255,255,0.07) !important;
-            border-radius: 16px 16px 0 0 !important; padding: 10px 14px !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-window > div:first-child h3 {
-            font-size: 13px !important; font-weight: 500 !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-messages {
-            background: #111 !important; padding: 10px 14px !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-messages .bg-blue-600 {
-            background: #0a84ff !important;
-            border-radius: 18px 4px 18px 18px !important;
-            font-size: 13.5px !important; padding: 9px 13px !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-messages .bg-\[#2c2c2e\] {
-            background: #2a2a2c !important; border: none !important;
-            border-radius: 4px 18px 18px 18px !important;
-            font-size: 13.5px !important; padding: 9px 13px !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-messages .w-6.h-6.rounded-full {
-            display: none !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-window > div:last-child {
-            background: #111 !important;
-            border-top: 1px solid rgba(255,255,255,0.07) !important;
-            border-radius: 0 0 16px 16px !important; padding: 8px 12px !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-input {
-            background: #1c1c1e !important;
-            border: 1px solid rgba(255,255,255,0.09) !important;
-            border-radius: 20px !important; font-size: 13.5px !important;
-            padding-left: 16px !important;
-        }
-        #chatbox-proto-wrapper[data-variant="B"] #chat-form button[type="submit"] {
-            background: #0a84ff !important;
-            width: 36px !important; height: 36px !important;
-        }
-
-        /* ── Variant C: Command Center (Centered Modal) ──── */
-        #chatbox-proto-wrapper[data-variant="C"] #chat-bubble {
-            width: auto !important; height: 38px !important;
-            padding: 0 14px 0 11px !important; border-radius: 10px !important;
-            background: rgba(255,255,255,0.08) !important;
-            border: 1px solid rgba(255,255,255,0.15) !important;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.4) !important;
-            backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;
-            gap: 7px !important; animation: none !important;
-        }
-        #chatbox-proto-wrapper[data-variant="C"] #chat-window {
-            bottom: auto !important; right: auto !important;
-            left: 50% !important; top: 50% !important;
-            transform: translate(-50%,-50%) !important;
-            width: 520px !important; height: 500px !important;
-            background: rgba(7,7,11,0.97) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            border-radius: 20px !important;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.97) !important;
-            backdrop-filter: blur(40px) !important; -webkit-backdrop-filter: blur(40px) !important;
-            transition: opacity .25s ease, transform .25s ease !important;
-        }
-        #chatbox-proto-wrapper[data-variant="C"] #chat-window.opacity-0,
-        #chatbox-proto-wrapper[data-variant="C"] #chat-window.translate-y-10 {
-            transform: translate(-50%,-50%) scale(0.96) !important;
-        }
-        #chatbox-proto-wrapper[data-variant="C"] #chat-window > div:first-child {
-            background: transparent !important;
-            border-bottom: 1px solid rgba(255,255,255,0.07) !important;
-            border-radius: 20px 20px 0 0 !important; padding: 14px 20px !important;
-        }
-        /* Reorder: input slides above messages */
-        #chatbox-proto-wrapper[data-variant="C"] #chat-messages {
-            order: 2 !important;
-            background: transparent !important; padding: 14px 20px !important;
-        }
-        #chatbox-proto-wrapper[data-variant="C"] #chat-window > div:last-child {
-            order: 1 !important;
-            border-top: none !important;
-            border-bottom: 1px solid rgba(255,255,255,0.07) !important;
-            background: rgba(255,255,255,0.02) !important; padding: 12px 20px !important;
-        }
-        #chatbox-proto-wrapper[data-variant="C"] #chat-input {
-            background: rgba(255,255,255,0.05) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            border-radius: 10px !important; font-size: 13px !important;
-            padding: 11px 46px 11px 14px !important;
-        }
-        #chatbox-proto-wrapper[data-variant="C"] #chat-input:focus {
-            border-color: rgba(255,255,255,0.22) !important;
-            box-shadow: none !important; outline: none !important;
-        }
-        #chatbox-proto-wrapper[data-variant="C"] #chat-window:not(.hidden)::before {
-            content: '' !important; position: fixed !important; inset: 0 !important;
-            background: rgba(0,0,0,0.55) !important; z-index: -1 !important;
-            pointer-events: none !important;
         }
     </style>
 </head>
@@ -2364,97 +2244,7 @@
             });
         });
 
-        // ── PROTOTYPE: Chatbox Variant Switcher ──────────────────────────────
-        // Remove when a variant is chosen and promoted to production.
-        (function () {
-            const VARIANTS = [
-                { key: 'A', name: 'Glassmorphism Glow' },
-                { key: 'B', name: 'iMessage Minimal' },
-                { key: 'C', name: 'Command Center' },
-            ];
-
-            function getCurrentVariant() {
-                return new URLSearchParams(window.location.search).get('chatVariant') || 'A';
-            }
-
-            function applyChatVariant(v) {
-                const wrapper = document.getElementById('chatbox-proto-wrapper');
-                if (wrapper) wrapper.dataset.variant = v;
-
-                // Variant C bubble: pill with "Ask AI ⌘K" label
-                const bubble = document.getElementById('chat-bubble');
-                if (bubble) {
-                    let lbl = document.getElementById('_proto_bubble_lbl');
-                    if (v === 'C') {
-                        if (!lbl) {
-                            lbl = document.createElement('span');
-                            lbl.id = '_proto_bubble_lbl';
-                            lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,0.88);font-family:system-ui;white-space:nowrap;pointer-events:none;';
-                            lbl.textContent = 'Ask AI  ⌘K';
-                            bubble.appendChild(lbl);
-                        }
-                        const badge = bubble.querySelector('span:not(#_proto_bubble_lbl)');
-                        if (badge) badge.style.display = 'none';
-                        const icon = bubble.querySelector('i');
-                        if (icon) icon.style.fontSize = '13px';
-                    } else {
-                        if (lbl) lbl.remove();
-                        const badge = bubble.querySelector('span');
-                        if (badge) badge.style.display = '';
-                        const icon = bubble.querySelector('i');
-                        if (icon) icon.style.fontSize = '';
-                    }
-                }
-
-                const label = document.getElementById('_proto_variant_label');
-                if (label) {
-                    const vd = VARIANTS.find(x => x.key === v) || VARIANTS[0];
-                    label.textContent = `${vd.key} — ${vd.name}`;
-                }
-            }
-
-            window.prevChatVariant = function () {
-                const cur = getCurrentVariant();
-                const idx = VARIANTS.findIndex(v => v.key === cur);
-                const next = VARIANTS[(idx - 1 + VARIANTS.length) % VARIANTS.length];
-                const p = new URLSearchParams(window.location.search);
-                p.set('chatVariant', next.key);
-                window.history.replaceState({}, '', '?' + p.toString());
-                applyChatVariant(next.key);
-            };
-
-            window.nextChatVariant = function () {
-                const cur = getCurrentVariant();
-                const idx = VARIANTS.findIndex(v => v.key === cur);
-                const next = VARIANTS[(idx + 1) % VARIANTS.length];
-                const p = new URLSearchParams(window.location.search);
-                p.set('chatVariant', next.key);
-                window.history.replaceState({}, '', '?' + p.toString());
-                applyChatVariant(next.key);
-            };
-
-            document.addEventListener('DOMContentLoaded', function () { applyChatVariant(getCurrentVariant()); });
-
-            document.addEventListener('keydown', function (e) {
-                const tag = document.activeElement && document.activeElement.tagName;
-                if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-                if (e.key === 'ArrowLeft') window.prevChatVariant();
-                if (e.key === 'ArrowRight') window.nextChatVariant();
-            });
-        })();
-        // ── END PROTOTYPE ─────────────────────────────────────────────────────
-
     </script>
-
-    <!-- PROTOTYPE switcher bar — remove when variant is chosen -->
-    <div style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:10px;background:rgba(16,16,20,0.95);border:1px solid rgba(255,255,255,0.13);border-radius:999px;padding:7px 16px;color:white;font-size:12px;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 4px 24px rgba(0,0,0,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);user-select:none;white-space:nowrap;">
-        <span style="color:rgba(255,255,255,0.35);font-size:10px;text-transform:uppercase;letter-spacing:.08em;">PROTOTYPE</span>
-        <span style="width:1px;height:14px;background:rgba(255,255,255,0.12);flex-shrink:0;"></span>
-        <button onclick="prevChatVariant()" title="Previous variant (←)" style="background:none;border:none;color:rgba(255,255,255,0.55);cursor:pointer;padding:2px 8px;font-size:15px;line-height:1;border-radius:6px;transition:color .15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">←</button>
-        <span id="_proto_variant_label" style="min-width:178px;text-align:center;font-size:12px;font-weight:500;color:rgba(255,255,255,0.88);">A — Glassmorphism Glow</span>
-        <button onclick="nextChatVariant()" title="Next variant (→)" style="background:none;border:none;color:rgba(255,255,255,0.55);cursor:pointer;padding:2px 8px;font-size:15px;line-height:1;border-radius:6px;transition:color .15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">→</button>
-    </div>
-    <!-- END PROTOTYPE -->
     <script src="/assets/js/chatbot.js"></script>
 </body>
 

@@ -128,7 +128,6 @@
 
         const wrapper = document.createElement('div');
         wrapper.id = 'chatbox-proto-wrapper';
-        wrapper.dataset.variant = new URLSearchParams(location.search).get('chatVariant') || 'A';
         wrapper.innerHTML = `
 <div id="chat-bubble" onclick="window._chatbot.toggle()"
     class="fixed bottom-8 right-8 z-[90] w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-900/40 cursor-pointer hover:scale-110 transition-transform duration-300 group">
