@@ -710,11 +710,11 @@
                                     <p class="text-gray-500 text-xs">Pay when you receive</p>
                                 </div>
                             </label>
-                            <label class="flex-1 flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10">
-                                <input type="radio" name="buynow-payment" value="VNPay" class="accent-blue-500">
+                            <label class="flex-1 flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-500/10">
+                                <input type="radio" name="buynow-payment" value="SePay" class="accent-green-500">
                                 <div>
-                                    <p class="text-white text-sm font-medium">VNPay</p>
-                                    <p class="text-gray-500 text-xs">Online payment</p>
+                                    <p class="text-white text-sm font-medium">SePay</p>
+                                    <p class="text-gray-500 text-xs">Chuyển khoản QR</p>
                                 </div>
                             </label>
                         </div>
@@ -2189,8 +2189,18 @@
 
                 closeBuyNowModal();
 
-                if (paymentMethod === 'VNPay' && data.paymentUrl) {
+                if (data.paymentUrl) {
                     window.location.href = data.paymentUrl;
+                } else if (data.paymentInfo) {
+                    const params = new URLSearchParams({
+                        orderId: data.order.id,
+                        amount: data.paymentInfo.amount,
+                        code: data.paymentInfo.code,
+                        qrUrl: data.paymentInfo.qrUrl,
+                        accountNumber: data.paymentInfo.accountNumber || '',
+                        bankCode: data.paymentInfo.bankCode || ''
+                    });
+                    window.location.href = `/pages/sepay-payment.html?${params}`;
                 } else {
                     showToast(`Order placed! #${(data.order?.id || '').slice(-8).toUpperCase()}`);
                 }
@@ -2259,7 +2269,7 @@
                 const headers = { 'Content-Type': 'application/json' };
                 if (token) headers['token'] = `Bearer ${token}`;
 
-                const res = await fetch(`${API_URL}/api/chat`, {
+                const res = await fetch(`${API_URL}/api/chat/message`, {
                     method: 'POST',
                     headers: headers,
                     body: JSON.stringify({ message: msg })
