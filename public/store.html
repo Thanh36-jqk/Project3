@@ -108,6 +108,178 @@
             align-items: center;
             transition: opacity 0.5s ease;
         }
+
+        /* =====================================================
+           PROTOTYPE: Chatbox UI Variants
+           A — Glassmorphism Glow  B — iMessage Minimal  C — Command Center
+           Switch: ?chatVariant=A/B/C  or  ← → arrow keys
+           ===================================================== */
+
+        /* ── Variant A: Glassmorphism Glow ─────────────────── */
+        #chatbox-proto-wrapper[data-variant="A"] #chat-bubble {
+            background: linear-gradient(135deg, #5b6cf3 0%, #a855f7 100%) !important;
+            box-shadow: 0 0 24px rgba(168,85,247,0.45), 0 8px 32px rgba(0,0,0,0.6) !important;
+            animation: protoGlowPulse 2.8s ease-in-out infinite !important;
+        }
+        @keyframes protoGlowPulse {
+            0%,100% { box-shadow: 0 0 20px rgba(168,85,247,0.35), 0 8px 32px rgba(0,0,0,0.6); }
+            50%     { box-shadow: 0 0 36px rgba(168,85,247,0.65), 0 0 0 10px rgba(168,85,247,0.07), 0 8px 32px rgba(0,0,0,0.6); }
+        }
+        #chatbox-proto-wrapper[data-variant="A"] #chat-window {
+            width: 400px !important; height: 560px !important;
+            background: rgba(9,9,13,0.90) !important;
+            backdrop-filter: blur(32px) !important; -webkit-backdrop-filter: blur(32px) !important;
+            border: 1px solid rgba(168,85,247,0.22) !important;
+            border-radius: 24px !important;
+            box-shadow: 0 0 0 1px rgba(168,85,247,0.07), inset 0 1px 0 rgba(255,255,255,0.07), 0 32px 80px rgba(0,0,0,0.88) !important;
+        }
+        #chatbox-proto-wrapper[data-variant="A"] #chat-window > div:first-child {
+            background: linear-gradient(135deg, rgba(91,108,243,0.22), rgba(168,85,247,0.12)) !important;
+            border-bottom: 1px solid rgba(168,85,247,0.14) !important;
+            border-radius: 24px 24px 0 0 !important;
+            padding: 16px 20px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="A"] #chat-window > div:first-child h3 {
+            background: linear-gradient(90deg,#c4b5fd,#818cf8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            font-size: 14px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="A"] #chat-messages {
+            background: transparent !important; padding: 16px 20px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="A"] #chat-window > div:last-child {
+            background: rgba(255,255,255,0.025) !important;
+            border-top: 1px solid rgba(255,255,255,0.06) !important;
+            border-radius: 0 0 24px 24px !important; padding: 12px 16px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="A"] #chat-input {
+            background: rgba(255,255,255,0.06) !important;
+            border: 1px solid rgba(255,255,255,0.09) !important;
+            transition: border-color .22s, box-shadow .22s !important;
+        }
+        #chatbox-proto-wrapper[data-variant="A"] #chat-input:focus {
+            border-color: rgba(168,85,247,0.55) !important;
+            box-shadow: 0 0 0 3px rgba(168,85,247,0.12) !important;
+            outline: none !important;
+        }
+        #chatbox-proto-wrapper[data-variant="A"] #chat-form button[type="submit"] {
+            background: linear-gradient(135deg,#5b6cf3,#a855f7) !important;
+            box-shadow: 0 2px 12px rgba(168,85,247,0.4) !important;
+        }
+
+        /* ── Variant B: iMessage Minimal ──────────────────── */
+        #chatbox-proto-wrapper[data-variant="B"] #chat-bubble {
+            width: 46px !important; height: 46px !important;
+            background: #1c1c1e !important;
+            border: 1px solid rgba(255,255,255,0.12) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.65) !important;
+            border-radius: 13px !important; animation: none !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-window {
+            width: 340px !important; height: 480px !important;
+            background: #111 !important;
+            border: 1px solid rgba(255,255,255,0.09) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 16px 60px rgba(0,0,0,0.85) !important;
+            backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-window > div:first-child {
+            background: #111 !important;
+            border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+            border-radius: 16px 16px 0 0 !important; padding: 10px 14px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-window > div:first-child h3 {
+            font-size: 13px !important; font-weight: 500 !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-messages {
+            background: #111 !important; padding: 10px 14px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-messages .bg-blue-600 {
+            background: #0a84ff !important;
+            border-radius: 18px 4px 18px 18px !important;
+            font-size: 13.5px !important; padding: 9px 13px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-messages .bg-\[#2c2c2e\] {
+            background: #2a2a2c !important; border: none !important;
+            border-radius: 4px 18px 18px 18px !important;
+            font-size: 13.5px !important; padding: 9px 13px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-messages .w-6.h-6.rounded-full {
+            display: none !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-window > div:last-child {
+            background: #111 !important;
+            border-top: 1px solid rgba(255,255,255,0.07) !important;
+            border-radius: 0 0 16px 16px !important; padding: 8px 12px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-input {
+            background: #1c1c1e !important;
+            border: 1px solid rgba(255,255,255,0.09) !important;
+            border-radius: 20px !important; font-size: 13.5px !important;
+            padding-left: 16px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="B"] #chat-form button[type="submit"] {
+            background: #0a84ff !important;
+            width: 36px !important; height: 36px !important;
+        }
+
+        /* ── Variant C: Command Center (Centered Modal) ──── */
+        #chatbox-proto-wrapper[data-variant="C"] #chat-bubble {
+            width: auto !important; height: 38px !important;
+            padding: 0 14px 0 11px !important; border-radius: 10px !important;
+            background: rgba(255,255,255,0.08) !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.4) !important;
+            backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important;
+            gap: 7px !important; animation: none !important;
+        }
+        #chatbox-proto-wrapper[data-variant="C"] #chat-window {
+            bottom: auto !important; right: auto !important;
+            left: 50% !important; top: 50% !important;
+            transform: translate(-50%,-50%) !important;
+            width: 520px !important; height: 500px !important;
+            background: rgba(7,7,11,0.97) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 20px !important;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 32px 80px rgba(0,0,0,0.97) !important;
+            backdrop-filter: blur(40px) !important; -webkit-backdrop-filter: blur(40px) !important;
+            transition: opacity .25s ease, transform .25s ease !important;
+        }
+        #chatbox-proto-wrapper[data-variant="C"] #chat-window.opacity-0,
+        #chatbox-proto-wrapper[data-variant="C"] #chat-window.translate-y-10 {
+            transform: translate(-50%,-50%) scale(0.96) !important;
+        }
+        #chatbox-proto-wrapper[data-variant="C"] #chat-window > div:first-child {
+            background: transparent !important;
+            border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+            border-radius: 20px 20px 0 0 !important; padding: 14px 20px !important;
+        }
+        /* Reorder: input slides above messages */
+        #chatbox-proto-wrapper[data-variant="C"] #chat-messages {
+            order: 2 !important;
+            background: transparent !important; padding: 14px 20px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="C"] #chat-window > div:last-child {
+            order: 1 !important;
+            border-top: none !important;
+            border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+            background: rgba(255,255,255,0.02) !important; padding: 12px 20px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="C"] #chat-input {
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.1) !important;
+            border-radius: 10px !important; font-size: 13px !important;
+            padding: 11px 46px 11px 14px !important;
+        }
+        #chatbox-proto-wrapper[data-variant="C"] #chat-input:focus {
+            border-color: rgba(255,255,255,0.22) !important;
+            box-shadow: none !important; outline: none !important;
+        }
+        #chatbox-proto-wrapper[data-variant="C"] #chat-window:not(.hidden)::before {
+            content: '' !important; position: fixed !important; inset: 0 !important;
+            background: rgba(0,0,0,0.55) !important; z-index: -1 !important;
+            pointer-events: none !important;
+        }
     </style>
 </head>
 
@@ -750,53 +922,7 @@
         </div>
     </div>
 
-    <div id="chat-bubble" onclick="toggleChatWindow()"
-        class="fixed bottom-8 right-8 z-[90] w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-lg shadow-blue-900/40 cursor-pointer hover:scale-110 transition-transform duration-300 group">
-        <i class="fas fa-comment-dots text-white text-xl group-hover:animate-bounce"></i>
-        <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-[#000]"></span>
-    </div>
-
-    <div id="chat-window"
-        class="fixed bottom-24 right-8 w-[350px] h-[500px] bg-[#1c1c1e] border border-white/10 rounded-2xl shadow-2xl z-[90] flex flex-col hidden opacity-0 transform translate-y-10 transition-all duration-300 origin-bottom-right">
-        <div
-            class="p-4 border-b border-white/10 bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-t-2xl flex justify-between items-center backdrop-blur-md">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center">
-                    <i
-                        class="fab fa-google text-lg bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-red-500"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-white text-sm">Apple Assistant</h3>
-                    <p class="text-[10px] text-green-400 flex items-center gap-1"><span
-                            class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> Online</p>
-                </div>
-            </div>
-            <button onclick="toggleChatWindow()" class="text-gray-400 hover:text-white"><i
-                    class="fas fa-times"></i></button>
-        </div>
-
-        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar bg-black/20">
-            <div class="flex gap-2 items-end">
-                <div class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0"><i
-                        class="fas fa-robot text-xs text-white"></i></div>
-                <div
-                    class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5">
-                    Hello! I'm Apple Store's AI Assistant. How can I help you today?
-                </div>
-            </div>
-        </div>
-
-        <div class="p-3 border-t border-white/10 bg-[#1c1c1e] rounded-b-2xl">
-            <form id="chat-form" class="flex gap-2 relative">
-                <input type="text" id="chat-input" placeholder="Ask about products, orders, or support..."
-                    class="flex-1 bg-[#2c2c2e] border border-transparent focus:border-blue-500 rounded-full pl-4 pr-10 py-3 text-sm text-white outline-none transition-all">
-                <button type="submit"
-                    class="absolute right-1 top-1 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-500 transition-colors">
-                    <i class="fas fa-paper-plane text-xs"></i>
-                </button>
-            </form>
-        </div>
-    </div>
+    <!-- chatbot injected by /assets/js/chatbot.js -->
     <div id="toast-container" class="fixed bottom-6 left-6 z-[200] flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
@@ -946,17 +1072,6 @@
                 const tooltip = document.getElementById('user-tooltip');
                 tooltip.textContent = `Hi, ${user.email.split('@')[0]}`;
                 tooltip.classList.remove('hidden');
-            }
-
-            // Chatbot Visibility Control: Only show when logged in
-            const chatBubble = document.getElementById('chat-bubble');
-            const chatWindow = document.getElementById('chat-window');
-            if (user) {
-                if (chatBubble) chatBubble.style.display = 'flex';
-                if (chatWindow) chatWindow.style.display = 'flex';
-            } else {
-                if (chatBubble) chatBubble.style.display = 'none';
-                if (chatWindow) chatWindow.style.display = 'none';
             }
 
             // INSTANT RENDER: show fallback immediately -- page is never blank
@@ -2230,251 +2345,7 @@
         };
 
         // Cart checkout → redirects to checkout.html (see openCheckout())
-
-        // ==================================================================
-        // 7. AI CHATBOT (REAL GEMINI INTEGRATION)
-        // ==================================================================
-        window.toggleChatWindow = () => {
-            const chatWin = document.getElementById('chat-window');
-            const isHidden = chatWin.classList.contains('hidden');
-            if (isHidden) {
-                chatWin.classList.remove('hidden');
-                setTimeout(() => {
-                    chatWin.classList.remove('opacity-0', 'translate-y-10');
-                }, 10);
-            } else {
-                chatWin.classList.add('opacity-0', 'translate-y-10');
-                setTimeout(() => chatWin.classList.add('hidden'), 300);
-            }
-        };
-
-        document.getElementById('chat-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('chat-input');
-            const msg = input.value.trim();
-            if (!msg) return;
-
-            // 1. User Message UI
-            appendMessage(msg, 'user');
-            input.value = '';
-
-            // 2. Loading Indicator
-            const loadingId = 'ai-loading-' + Date.now();
-            appendLoading(loadingId);
-
-            // 3. Call API
-            try {
-                const token = getToken();
-                // Chatbot yÃªu cáº§u login Ä'á»ƒ láº¥y context, náº¿u khÃ´ng cÃ³ token thÃ¬ backend sáº½ xá»­ lÃ½ nhÆ° khÃ¡ch
-                const headers = { 'Content-Type': 'application/json' };
-                if (token) headers['token'] = `Bearer ${token}`;
-
-                const res = await fetch(`${API_URL}/api/chat/message`, {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({ message: msg })
-                });
-
-                // Check HTTP status before parsing JSON
-                if (!res.ok) {
-                    document.getElementById(loadingId).remove();
-
-                    if (res.status === 401) {
-                        appendMessage("⚠️ Please login for better chatbot experience. However, chatbot works for guests too.", 'ai');
-                    } else if (res.status === 503) {
-                        appendMessage("🔧 AI system under maintenance. Contact: 0962923329", 'ai');
-                    } else {
-                        appendMessage("❌ Connection error. Please try again later.", 'ai');
-                    }
-                    return;
-                }
-
-                const data = await res.json();
-
-                // Remove loading & Show AI Reply
-                document.getElementById(loadingId).remove();
-
-                // Check reply exists and is not empty
-                if (data.reply && typeof data.reply === 'string' && data.reply.trim() !== '') {
-                    appendMessage(data.reply, 'ai');
-                } else {
-                    // Helpful fallback with suggestions
-                    appendMessage("❓ I didn't understand. You can ask about:\n• Product prices (e.g. iPhone 16 price)\n• Order status\n• Current promotions", 'ai');
-                }
-
-            } catch (error) {
-                document.getElementById(loadingId).remove();
-                console.error('Chat error:', error);
-                appendMessage("📌 Cannot connect to AI. Please check internet and try again.", 'ai');
-            }
-        });
-
-        function appendMessage(data, sender) {
-            const container = document.getElementById('chat-messages');
-            const div = document.createElement('div');
-
-            if (sender === 'user') {
-                div.className = "flex gap-2 items-end justify-end";
-                const text = typeof data === 'string' ? data : data.reply || data;
-                div.innerHTML = `<div class="bg-blue-600 text-white text-sm p-3 rounded-2xl rounded-br-none max-w-[80%]">${text}</div>`;
-            } else {
-                // AI response - check type
-                if (typeof data === 'object' && data.type === 'product_card') {
-                    // Render product cards
-                    div.className = "flex flex-col gap-2 w-full";
-                    div.innerHTML = renderProductCards(data);
-                } else {
-                    // Render text
-                    div.className = "flex gap-2 items-end";
-                    const text = typeof data === 'string' ? data : data.reply || data;
-                    const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-                    div.innerHTML = `
-                        <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center flex-shrink-0"><i class="fas fa-sparkles text-[10px] text-white"></i></div>
-                        <div class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5 leading-relaxed shadow-sm">${formattedText}</div>
-                    `;
-                }
-            }
-
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        // Render Product Cards with Color Picker
-        function renderProductCards(data) {
-            const { products, message } = data;
-
-            let html = `
-                <div class="flex gap-2 items-end mb-2">
-                    <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-sparkles text-[10px] text-white"></i>
-                    </div>
-                    <div class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none border border-white/5">
-                        ${message || 'Here are the products you searched for:'}
-                    </div>
-                </div>
-            `;
-
-            products.forEach((product, index) => {
-                const productColors = productColorVariants[product.name] || [];
-                const hasColors = productColors.length > 0;
-                const defaultColor = hasColors ? productColors[0] : null;
-                const cardId = `chat-card-${Date.now()}-${index}`;
-
-                html += `
-                    <div class="bg-gradient-to-br from-[#2c2c2e] to-[#1c1c1e] rounded-2xl p-4 border border-white/10 shadow-lg max-w-[85%] ml-8 mb-2 hover:border-blue-500/30 transition-all" id="${cardId}">
-                        <!-- Product Image -->
-                        <div class="w-full h-32 bg-white/5 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
-                            <img src="${defaultColor ? defaultColor.image : product.image}" alt="${product.name}" class="h-full object-contain" id="${cardId}-img">
-                        </div>
-                        
-                        <!-- Product Info -->
-                        <div class="mb-3">
-                            <p class="text-xs text-gray-500 uppercase tracking-wider mb-1">${product.category}</p>
-                            <h3 class="text-white font-bold text-base mb-2">${product.name}</h3>
-                            <div class="flex items-baseline gap-2">
-                                <span class="text-2xl font-bold text-blue-400">${product.priceFormatted}</span>
-                                ${product.stock < 5 ? `<span class="text-xs text-orange-400">Only ${product.stock} left</span>` : ''}
-                            </div>
-                        </div>
-                        
-                        ${hasColors ? `
-                        <!-- Color Picker -->
-                        <div class="mb-3 pb-3 border-b border-white/10">
-                            <p class="text-xs text-gray-400 mb-2">Colors:</p>
-                            <div class="flex gap-2 flex-wrap">
-                                ${productColors.map((color, colorIdx) => `
-                                    <button 
-                                        onclick="selectChatCardColor('${cardId}', '${color.image}', this)"
-                                        class="w-8 h-8 rounded-full border-2 transition-all hover:scale-110 ${colorIdx === 0 ? 'border-white ring-2 ring-blue-500' : 'border-gray-600 hover:border-gray-400'}"
-                                        style="background-color: ${color.hex}"
-                                        title="${color.name}">
-                                    </button>
-                                `).join('')}
-                            </div>
-                        </div>
-                        ` : ''}
-                        
-                        <!-- Action Buttons -->
-                        <div class="flex gap-2">
-                            <button 
-                                onclick="handleBuyNowFromChat('${product.id}')"
-                                ${product.stock === 0 ? 'disabled' : ''}
-                                class="${product.stock === 0 ? 'bg-gray-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500'} text-white font-bold py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 flex-1 active:scale-95">
-                                <i class="fas fa-shopping-cart text-sm"></i>
-                                ${product.stock === 0 ? 'Out of Stock' : 'Buy Now'}
-                            </button>
-                            <button 
-                                onclick="handleViewDetailFromChat('${product.id}')"
-                                class="bg-white/10 hover:bg-white/20 text-white font-medium py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 flex-1 active:scale-95">
-                                Details
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            return html;
-        }
-
-        // Color selection in chat cards
-        window.selectChatCardColor = (cardId, newImage, buttonEl) => {
-            // Update image
-            const img = document.getElementById(`${cardId}-img`);
-            if (img) img.src = newImage;
-
-            // Update button states
-            const card = document.getElementById(cardId);
-            card.querySelectorAll('button[onclick^="selectChatCardColor"]').forEach(btn => {
-                btn.className = 'w-8 h-8 rounded-full border-2 transition-all hover:scale-110 border-gray-600 hover:border-gray-400';
-            });
-            buttonEl.className = 'w-8 h-8 rounded-full border-2 transition-all hover:scale-110 border-white ring-2 ring-blue-500';
-        };
-
-        // Buy now from chat
-        window.handleBuyNowFromChat = (productId) => {
-            const product = allProducts.find(p => p._id === productId);
-            if (!product) return;
-
-            // Add to cart
-            addToCart(productId);
-
-            // Show success message in chat (keep chat open per user request)
-            appendMessage({
-                type: "text",
-                reply: `âœ… Added <b>${product.name}</b> to bag!`
-            }, 'ai');
-
-            // Auto open cart sidebar
-            const sidebar = document.getElementById('cart-sidebar');
-            if (sidebar.classList.contains('translate-x-full')) {
-                toggleCart();
-            }
-        };
-
-        // View detail from chat
-        window.handleViewDetailFromChat = (productId) => {
-            const product = allProducts.find(p => p._id === productId);
-            if (product) {
-                openProductModal(product);
-            }
-        };
-
-        function appendLoading(id) {
-            const container = document.getElementById('chat-messages');
-            const div = document.createElement('div');
-            div.id = id;
-            div.className = "flex gap-2 items-end";
-            div.innerHTML = `
-                <div class="w-6 h-6 rounded-full bg-gray-700 flex items-center justify-center flex-shrink-0"><i class="fas fa-robot text-[10px] text-white"></i></div>
-                <div class="bg-[#2c2c2e] p-3 rounded-2xl rounded-bl-none border border-white/5 flex gap-1 items-center h-10">
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
-                    <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
-                </div>
-            `;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-        }
+        // AI chatbot: handled by /assets/js/chatbot.js (loaded below, shared across all pages)
 
         // INITIALIZE APP
         document.addEventListener('DOMContentLoaded', () => {
@@ -2493,7 +2364,98 @@
             });
         });
 
+        // ── PROTOTYPE: Chatbox Variant Switcher ──────────────────────────────
+        // Remove when a variant is chosen and promoted to production.
+        (function () {
+            const VARIANTS = [
+                { key: 'A', name: 'Glassmorphism Glow' },
+                { key: 'B', name: 'iMessage Minimal' },
+                { key: 'C', name: 'Command Center' },
+            ];
+
+            function getCurrentVariant() {
+                return new URLSearchParams(window.location.search).get('chatVariant') || 'A';
+            }
+
+            function applyChatVariant(v) {
+                const wrapper = document.getElementById('chatbox-proto-wrapper');
+                if (wrapper) wrapper.dataset.variant = v;
+
+                // Variant C bubble: pill with "Ask AI ⌘K" label
+                const bubble = document.getElementById('chat-bubble');
+                if (bubble) {
+                    let lbl = document.getElementById('_proto_bubble_lbl');
+                    if (v === 'C') {
+                        if (!lbl) {
+                            lbl = document.createElement('span');
+                            lbl.id = '_proto_bubble_lbl';
+                            lbl.style.cssText = 'font-size:12px;color:rgba(255,255,255,0.88);font-family:system-ui;white-space:nowrap;pointer-events:none;';
+                            lbl.textContent = 'Ask AI  ⌘K';
+                            bubble.appendChild(lbl);
+                        }
+                        const badge = bubble.querySelector('span:not(#_proto_bubble_lbl)');
+                        if (badge) badge.style.display = 'none';
+                        const icon = bubble.querySelector('i');
+                        if (icon) icon.style.fontSize = '13px';
+                    } else {
+                        if (lbl) lbl.remove();
+                        const badge = bubble.querySelector('span');
+                        if (badge) badge.style.display = '';
+                        const icon = bubble.querySelector('i');
+                        if (icon) icon.style.fontSize = '';
+                    }
+                }
+
+                const label = document.getElementById('_proto_variant_label');
+                if (label) {
+                    const vd = VARIANTS.find(x => x.key === v) || VARIANTS[0];
+                    label.textContent = `${vd.key} — ${vd.name}`;
+                }
+            }
+
+            window.prevChatVariant = function () {
+                const cur = getCurrentVariant();
+                const idx = VARIANTS.findIndex(v => v.key === cur);
+                const next = VARIANTS[(idx - 1 + VARIANTS.length) % VARIANTS.length];
+                const p = new URLSearchParams(window.location.search);
+                p.set('chatVariant', next.key);
+                window.history.replaceState({}, '', '?' + p.toString());
+                applyChatVariant(next.key);
+            };
+
+            window.nextChatVariant = function () {
+                const cur = getCurrentVariant();
+                const idx = VARIANTS.findIndex(v => v.key === cur);
+                const next = VARIANTS[(idx + 1) % VARIANTS.length];
+                const p = new URLSearchParams(window.location.search);
+                p.set('chatVariant', next.key);
+                window.history.replaceState({}, '', '?' + p.toString());
+                applyChatVariant(next.key);
+            };
+
+            document.addEventListener('DOMContentLoaded', function () { applyChatVariant(getCurrentVariant()); });
+
+            document.addEventListener('keydown', function (e) {
+                const tag = document.activeElement && document.activeElement.tagName;
+                if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+                if (e.key === 'ArrowLeft') window.prevChatVariant();
+                if (e.key === 'ArrowRight') window.nextChatVariant();
+            });
+        })();
+        // ── END PROTOTYPE ─────────────────────────────────────────────────────
+
     </script>
+
+    <!-- PROTOTYPE switcher bar — remove when variant is chosen -->
+    <div style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;align-items:center;gap:10px;background:rgba(16,16,20,0.95);border:1px solid rgba(255,255,255,0.13);border-radius:999px;padding:7px 16px;color:white;font-size:12px;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 4px 24px rgba(0,0,0,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);user-select:none;white-space:nowrap;">
+        <span style="color:rgba(255,255,255,0.35);font-size:10px;text-transform:uppercase;letter-spacing:.08em;">PROTOTYPE</span>
+        <span style="width:1px;height:14px;background:rgba(255,255,255,0.12);flex-shrink:0;"></span>
+        <button onclick="prevChatVariant()" title="Previous variant (←)" style="background:none;border:none;color:rgba(255,255,255,0.55);cursor:pointer;padding:2px 8px;font-size:15px;line-height:1;border-radius:6px;transition:color .15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">←</button>
+        <span id="_proto_variant_label" style="min-width:178px;text-align:center;font-size:12px;font-weight:500;color:rgba(255,255,255,0.88);">A — Glassmorphism Glow</span>
+        <button onclick="nextChatVariant()" title="Next variant (→)" style="background:none;border:none;color:rgba(255,255,255,0.55);cursor:pointer;padding:2px 8px;font-size:15px;line-height:1;border-radius:6px;transition:color .15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">→</button>
+    </div>
+    <!-- END PROTOTYPE -->
+    <script src="/assets/js/chatbot.js"></script>
 </body>
 
 </html>
