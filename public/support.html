@@ -43,60 +43,60 @@
         *, *::before, *::after { box-sizing: border-box; }
 
         body {
-            background: #080809;
-            color: #f4f4f5;
+            background: #0d0d10;
+            color: #e4e4e7;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
         /* ── Surfaces ── */
         .surface {
-            background: rgba(18,18,22,0.75);
+            background: rgba(28,28,34,0.88);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.09);
         }
         .glass-card {
-            background: rgba(22,22,28,0.88);
+            background: rgba(30,30,38,0.92);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.09);
-            box-shadow: 0 24px 64px -16px rgba(0,0,0,0.55);
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 24px 64px -16px rgba(0,0,0,0.5);
         }
 
         /* ── Hero ── */
         .hero-bg {
             background:
-                radial-gradient(ellipse 60% 50% at 20% 50%, rgba(37,99,235,0.07) 0%, transparent 65%),
-                radial-gradient(ellipse 40% 40% at 80% 30%, rgba(139,92,246,0.05) 0%, transparent 60%);
+                radial-gradient(ellipse 60% 50% at 20% 50%, rgba(37,99,235,0.09) 0%, transparent 65%),
+                radial-gradient(ellipse 40% 40% at 80% 30%, rgba(139,92,246,0.06) 0%, transparent 60%);
         }
 
         /* ── Topic cards ── */
         .tc { transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s, border-color 0.25s; cursor: pointer; }
         .tc:hover { transform: translateY(-3px); box-shadow: 0 20px 48px -16px rgba(0,0,0,0.5); }
 
-        .tc-orders  { background: linear-gradient(145deg, rgba(34,197,94,0.10) 0%, rgba(10,10,14,0.85) 55%); border: 1px solid rgba(34,197,94,0.13); }
-        .tc-orders:hover  { border-color: rgba(34,197,94,0.24); background: linear-gradient(145deg, rgba(34,197,94,0.15) 0%, rgba(14,14,18,0.95) 55%); }
+        .tc-orders  { background: linear-gradient(145deg, rgba(34,197,94,0.18) 0%, rgba(18,18,24,0.92) 60%); border: 1px solid rgba(34,197,94,0.28); }
+        .tc-orders:hover  { border-color: rgba(34,197,94,0.42); background: linear-gradient(145deg, rgba(34,197,94,0.24) 0%, rgba(20,20,26,0.97) 60%); }
 
-        .tc-ai      { background: linear-gradient(145deg, rgba(37,99,235,0.14) 0%, rgba(10,10,14,0.85) 55%); border: 1px solid rgba(37,99,235,0.18); }
-        .tc-ai:hover      { border-color: rgba(37,99,235,0.32); background: linear-gradient(145deg, rgba(37,99,235,0.20) 0%, rgba(14,14,18,0.95) 55%); }
+        .tc-ai      { background: linear-gradient(145deg, rgba(37,99,235,0.22) 0%, rgba(18,18,24,0.92) 60%); border: 1px solid rgba(37,99,235,0.32); }
+        .tc-ai:hover      { border-color: rgba(37,99,235,0.48); background: linear-gradient(145deg, rgba(37,99,235,0.30) 0%, rgba(20,20,26,0.97) 60%); }
 
-        .tc-account { background: linear-gradient(145deg, rgba(236,72,153,0.09) 0%, rgba(10,10,14,0.85) 55%); border: 1px solid rgba(236,72,153,0.12); }
-        .tc-account:hover { border-color: rgba(236,72,153,0.22); }
+        .tc-account { background: linear-gradient(145deg, rgba(236,72,153,0.16) 0%, rgba(18,18,24,0.92) 60%); border: 1px solid rgba(236,72,153,0.25); }
+        .tc-account:hover { border-color: rgba(236,72,153,0.38); background: linear-gradient(145deg, rgba(236,72,153,0.22) 0%, rgba(20,20,26,0.97) 60%); }
 
-        .tc-returns { background: linear-gradient(145deg, rgba(249,115,22,0.09) 0%, rgba(10,10,14,0.85) 55%); border: 1px solid rgba(249,115,22,0.12); }
-        .tc-returns:hover { border-color: rgba(249,115,22,0.22); }
+        .tc-returns { background: linear-gradient(145deg, rgba(249,115,22,0.16) 0%, rgba(18,18,24,0.92) 60%); border: 1px solid rgba(249,115,22,0.25); }
+        .tc-returns:hover { border-color: rgba(249,115,22,0.38); background: linear-gradient(145deg, rgba(249,115,22,0.22) 0%, rgba(20,20,26,0.97) 60%); }
 
-        .tc-payment { background: linear-gradient(145deg, rgba(99,102,241,0.09) 0%, rgba(10,10,14,0.85) 55%); border: 1px solid rgba(99,102,241,0.12); }
-        .tc-payment:hover { border-color: rgba(99,102,241,0.22); }
+        .tc-payment { background: linear-gradient(145deg, rgba(99,102,241,0.16) 0%, rgba(18,18,24,0.92) 60%); border: 1px solid rgba(99,102,241,0.25); }
+        .tc-payment:hover { border-color: rgba(99,102,241,0.38); background: linear-gradient(145deg, rgba(99,102,241,0.22) 0%, rgba(20,20,26,0.97) 60%); }
 
-        .tc-products{ background: linear-gradient(145deg, rgba(139,92,246,0.09) 0%, rgba(10,10,14,0.85) 55%); border: 1px solid rgba(139,92,246,0.12); }
-        .tc-products:hover{ border-color: rgba(139,92,246,0.22); }
+        .tc-products{ background: linear-gradient(145deg, rgba(139,92,246,0.16) 0%, rgba(18,18,24,0.92) 60%); border: 1px solid rgba(139,92,246,0.25); }
+        .tc-products:hover{ border-color: rgba(139,92,246,0.38); background: linear-gradient(145deg, rgba(139,92,246,0.22) 0%, rgba(20,20,26,0.97) 60%); }
 
         /* ── Label ── */
         .label-xs {
-            font-size: 10px; font-weight: 500; letter-spacing: 0.12em;
-            text-transform: uppercase; color: #71717a;
+            font-size: 10px; font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; color: #a1a1aa;
         }
 
         /* ── Scrollbar ── */
@@ -120,28 +120,28 @@
         /* ── FAQ ── */
         .faq-tab {
             padding: 6px 16px; border-radius: 99px; font-size: 12px; font-weight: 500;
-            color: rgba(255,255,255,0.35); cursor: pointer; white-space: nowrap;
-            border: 1px solid transparent; transition: all 0.18s;
+            color: rgba(255,255,255,0.55); cursor: pointer; white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.08); transition: all 0.18s;
         }
-        .faq-tab.on { color: #93c5fd; background: rgba(37,99,235,0.12); border-color: rgba(37,99,235,0.24); }
-        .faq-tab:not(.on):hover { color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.04); }
+        .faq-tab.on { color: #93c5fd; background: rgba(37,99,235,0.15); border-color: rgba(37,99,235,0.32); }
+        .faq-tab:not(.on):hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
         .faq-body { display: none; }
         .faq-body.on { display: block; animation: fadeIn 0.28s ease; }
         summary { list-style: none; cursor: pointer; user-select: none; }
         summary::-webkit-details-marker, summary::marker { display: none; }
-        .faq-plus { display: inline-block; transition: transform 0.22s; font-size: 18px; font-weight: 300; line-height: 1; color: #52525b; }
+        .faq-plus { display: inline-block; transition: transform 0.22s; font-size: 18px; font-weight: 400; line-height: 1; color: #71717a; }
         details[open] .faq-plus { transform: rotate(45deg); color: #3b82f6; }
 
         /* ── Contact ── */
-        .contact-card { background: rgba(12,12,16,0.68); border: 1px solid rgba(255,255,255,0.06); transition: background 0.22s, border-color 0.22s, transform 0.22s; }
-        .contact-card:hover { background: rgba(18,18,24,0.95); border-color: rgba(255,255,255,0.11); transform: translateY(-2px); }
+        .contact-card { background: rgba(24,24,30,0.85); border: 1px solid rgba(255,255,255,0.08); transition: background 0.22s, border-color 0.22s, transform 0.22s; }
+        .contact-card:hover { background: rgba(30,30,38,0.97); border-color: rgba(255,255,255,0.14); transform: translateY(-2px); }
         .contact-ai {
-            background: linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(12,12,16,0.8) 60%);
-            border: 1px solid rgba(37,99,235,0.16);
+            background: linear-gradient(135deg, rgba(37,99,235,0.18) 0%, rgba(20,20,28,0.88) 60%);
+            border: 1px solid rgba(37,99,235,0.28);
             transition: background 0.22s, border-color 0.22s, transform 0.22s;
             cursor: pointer;
         }
-        .contact-ai:hover { background: linear-gradient(135deg, rgba(37,99,235,0.18) 0%, rgba(18,18,24,0.95) 60%); border-color: rgba(37,99,235,0.28); transform: translateY(-2px); }
+        .contact-ai:hover { background: linear-gradient(135deg, rgba(37,99,235,0.26) 0%, rgba(22,22,32,0.97) 60%); border-color: rgba(37,99,235,0.42); transform: translateY(-2px); }
 
         /* ── Notice ── */
         .notice { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.14); }
@@ -181,12 +181,12 @@
 
         /* ── Hero floating preview cards ── */
         .preview-card {
-            background: rgba(18,18,24,0.92);
+            background: rgba(26,26,34,0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.11);
             border-radius: 18px;
-            box-shadow: 0 24px 60px -12px rgba(0,0,0,0.6);
+            box-shadow: 0 24px 60px -12px rgba(0,0,0,0.5);
         }
 
         /* ── Section divider glow ── */
@@ -204,7 +204,7 @@
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
                 </svg>
             </a>
-            <div class="hidden md:flex items-center gap-9 text-[12px] font-medium text-zinc-500">
+            <div class="hidden md:flex items-center gap-9 text-[12px] font-medium text-zinc-400">
                 <a href="store.html" class="hover:text-white transition-colors">Store</a>
                 <a href="pages/products/mac.html" class="hover:text-white transition-colors">Mac</a>
                 <a href="pages/products/ipad.html" class="hover:text-white transition-colors">iPad</a>
@@ -230,17 +230,17 @@
                 <!-- Left: headline + search -->
                 <div>
                     <!-- Status pill -->
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] font-medium text-zinc-500 mb-8 animate-fade-up op0" style="animation-fill-mode:forwards">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] font-medium text-zinc-400 mb-8 animate-fade-up op0" style="animation-fill-mode:forwards">
                         <span class="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0"></span>
                         Support Center &nbsp;&middot;&nbsp; All systems operational
                     </div>
 
                     <!-- Big headline -->
-                    <h1 class="text-[64px] md:text-[88px] lg:text-[96px] font-extrabold tracking-[-0.045em] leading-none mb-6 animate-fade-up op0" style="animation-delay:.07s;animation-fill-mode:forwards">
+                    <h1 class="text-[40px] md:text-[56px] lg:text-[68px] font-bold tracking-[-0.04em] leading-[1.05] mb-5 animate-fade-up op0" style="animation-delay:.07s;animation-fill-mode:forwards">
                         We're here<br>to <span class="text-blue-400">help.</span>
                     </h1>
 
-                    <p class="text-lg text-zinc-400 font-light mb-10 max-w-md leading-relaxed animate-fade-up op0" style="animation-delay:.14s;animation-fill-mode:forwards">
+                    <p class="text-base text-zinc-300 mb-10 max-w-md leading-relaxed animate-fade-up op0" style="animation-delay:.14s;animation-fill-mode:forwards">
                         Track orders, get instant answers, or talk to our AI support team around the clock.
                     </p>
 
@@ -258,8 +258,8 @@
 
                     <!-- Quick nav pills -->
                     <div class="flex flex-wrap gap-2 mt-5 animate-fade-up op0" style="animation-delay:.28s;animation-fill-mode:forwards">
-                        <button onclick="goto('faq-section')" class="px-4 py-1.5 rounded-full border border-white/[0.08] hover:border-blue-500/40 hover:bg-blue-500/5 text-[12px] text-zinc-500 hover:text-zinc-200 transition-all">FAQs</button>
-                        <button onclick="goto('contact-section')" class="px-4 py-1.5 rounded-full border border-white/[0.08] hover:border-white/[0.16] text-[12px] text-zinc-500 hover:text-zinc-200 transition-all">Contact</button>
+                        <button onclick="goto('faq-section')" class="px-4 py-1.5 rounded-full border border-white/[0.08] hover:border-blue-500/40 hover:bg-blue-500/5 text-[12px] text-zinc-400 hover:text-zinc-200 transition-all">FAQs</button>
+                        <button onclick="goto('contact-section')" class="px-4 py-1.5 rounded-full border border-white/[0.08] hover:border-white/[0.16] text-[12px] text-zinc-400 hover:text-zinc-200 transition-all">Contact</button>
                         <button onclick="openChat()" class="px-4 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/8 hover:bg-blue-500/14 text-[12px] text-blue-400 hover:text-blue-300 transition-all">AI Chat &rarr;</button>
                     </div>
                 </div>
@@ -278,7 +278,7 @@
                                         <path d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/>
                                     </svg>
                                 </div>
-                                <span class="text-[11px] font-mono text-zinc-500">ORD-A7F3</span>
+                                <span class="text-[11px] font-mono text-zinc-400">ORD-A7F3</span>
                             </div>
                             <span class="text-[10px] text-green-400 font-semibold bg-green-500/10 px-2 py-0.5 rounded-full">Delivered</span>
                         </div>
@@ -289,9 +289,9 @@
                             <div class="flex-1 h-1 rounded-full bg-green-500"></div>
                         </div>
                         <div class="flex justify-between mt-1.5">
-                            <span class="text-[9px] text-zinc-600">Placed</span>
-                            <span class="text-[9px] text-zinc-600">Processing</span>
-                            <span class="text-[9px] text-zinc-600">Shipped</span>
+                            <span class="text-[9px] text-zinc-500">Placed</span>
+                            <span class="text-[9px] text-zinc-500">Processing</span>
+                            <span class="text-[9px] text-zinc-500">Shipped</span>
                             <span class="text-[9px] text-green-400 font-medium">Done</span>
                         </div>
                     </div>
@@ -322,7 +322,7 @@
                     <!-- Card C: "24/7" stat (bottom) -->
                     <div class="preview-card absolute bottom-4 right-4 w-44 p-5 animate-float-c">
                         <p class="text-[40px] font-extrabold text-white tracking-tight leading-none">24/7</p>
-                        <p class="text-[11px] text-zinc-500 mt-2">Support always on</p>
+                        <p class="text-[11px] text-zinc-400 mt-2">Support always on</p>
                         <div class="mt-3 flex gap-1">
                             <div class="w-1.5 h-1.5 rounded-full bg-green-400"></div>
                             <div class="w-1.5 h-1.5 rounded-full bg-green-400 opacity-60"></div>
@@ -371,20 +371,20 @@
                                 </div>
                                 <div class="space-y-2">
                                     <div class="flex justify-between text-[11px]">
-                                        <span class="text-zinc-500">Rank progress</span>
+                                        <span class="text-zinc-400">Rank progress</span>
                                         <span class="text-blue-400 font-medium" id="u-progress-label">-</span>
                                     </div>
                                     <div class="w-full h-[2px] bg-white/[0.07] rounded-full overflow-hidden">
                                         <div class="rank-fill" id="u-progress-bar" style="width:0%"></div>
                                     </div>
-                                    <div class="flex justify-between text-[10px] text-zinc-600">
+                                    <div class="flex justify-between text-[10px] text-zinc-500">
                                         <span>Member</span><span>Silver</span><span>Gold</span><span>Platinum</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="flex sm:flex-col gap-2 flex-shrink-0">
                                 <a href="ACCOUNT.html" class="px-5 py-2.5 rounded-xl bg-white text-black text-[12px] font-semibold hover:bg-white/90 active:scale-[0.98] transition-all text-center whitespace-nowrap">My Account</a>
-                                <button onclick="logout()" class="px-5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.07] text-zinc-500 hover:text-white text-[12px] font-medium transition-all whitespace-nowrap">Sign Out</button>
+                                <button onclick="logout()" class="px-5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.07] text-zinc-400 hover:text-white text-[12px] font-medium transition-all whitespace-nowrap">Sign Out</button>
                             </div>
                         </div>
                     </div>
@@ -402,7 +402,7 @@
                         <div class="flex items-baseline justify-between mb-7">
                             <div>
                                 <h3 class="text-xl font-semibold text-white">Recent Orders</h3>
-                                <p class="text-[12px] text-zinc-500 mt-1">Click any order to track it</p>
+                                <p class="text-[12px] text-zinc-400 mt-1">Click any order to track it</p>
                             </div>
                             <a href="store.html" class="text-[12px] text-blue-400 hover:text-blue-300 transition-colors font-medium">Shop more &rarr;</a>
                         </div>
@@ -436,7 +436,7 @@
                         </div>
                         <div>
                             <p class="text-base font-semibold text-white mb-1">Order Tracking</p>
-                            <p class="text-[13px] text-zinc-400 leading-snug">Track shipments and manage purchases in real time.</p>
+                            <p class="text-[13px] text-zinc-300 leading-snug">Track shipments and manage purchases in real time.</p>
                         </div>
                     </button>
 
@@ -452,7 +452,7 @@
                         </div>
                         <div>
                             <p class="text-base font-semibold text-white mb-1">AI Support</p>
-                            <p class="text-[12px] text-zinc-400 leading-snug mb-2">Instant answers, 24/7.</p>
+                            <p class="text-[12px] text-zinc-300 leading-snug mb-2">Instant answers, 24/7.</p>
                             <p class="text-[12px] text-blue-400 font-semibold">Start chat &rarr;</p>
                         </div>
                     </button>
@@ -465,7 +465,7 @@
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                             </svg>
                         </div>
-                        <p class="text-[12px] text-zinc-400 leading-snug">Account &amp; security</p>
+                        <p class="text-[12px] text-zinc-300 leading-snug">Account &amp; security</p>
                     </button>
 
                     <!-- Returns: 2-col -->
@@ -478,7 +478,7 @@
                         </div>
                         <div>
                             <p class="text-[13px] font-semibold text-white mb-0.5">Returns</p>
-                            <p class="text-[12px] text-zinc-500">Policy and refunds</p>
+                            <p class="text-[12px] text-zinc-400">Policy and refunds</p>
                         </div>
                     </button>
 
@@ -492,7 +492,7 @@
                         </div>
                         <div>
                             <p class="text-[13px] font-semibold text-white mb-0.5">Payment</p>
-                            <p class="text-[12px] text-zinc-500">Billing methods</p>
+                            <p class="text-[12px] text-zinc-400">Billing methods</p>
                         </div>
                     </button>
 
@@ -506,7 +506,7 @@
                         </div>
                         <div>
                             <p class="text-[13px] font-semibold text-white mb-0.5">Products</p>
-                            <p class="text-[12px] text-zinc-500">Warranty and repair</p>
+                            <p class="text-[12px] text-zinc-400">Warranty and repair</p>
                         </div>
                     </button>
                 </div>
@@ -521,7 +521,7 @@
                         <div>
                             <p class="label-xs text-green-400 mb-3">Order Tracking</p>
                             <h3 class="text-2xl font-bold text-white tracking-tight mb-2">Track your order</h3>
-                            <p class="text-[13px] text-zinc-500 mb-7 leading-relaxed">Real-time status without signing in. Just your Order ID.</p>
+                            <p class="text-[13px] text-zinc-400 mb-7 leading-relaxed">Real-time status without signing in. Just your Order ID.</p>
                             <form id="track-form" class="space-y-2.5">
                                 <input id="track-id" type="text" placeholder="Order ID (e.g. 6842f3c8d9a...)"
                                     class="w-full bg-white/[0.04] border border-white/[0.08] focus:border-blue-500/50 rounded-xl px-5 py-3 text-white placeholder-zinc-600 font-mono text-[13px] transition-all">
@@ -533,11 +533,11 @@
                         <div>
                             <div id="track-placeholder" class="flex flex-col items-center justify-center text-center py-12">
                                 <div class="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center mb-5">
-                                    <svg viewBox="0 0 24 24" class="w-7 h-7 text-zinc-700" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg viewBox="0 0 24 24" class="w-7 h-7 text-zinc-500" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/>
                                     </svg>
                                 </div>
-                                <p class="text-[13px] text-zinc-700 leading-relaxed">Enter your Order ID to<br>see live tracking details</p>
+                                <p class="text-[13px] text-zinc-500 leading-relaxed">Enter your Order ID to<br>see live tracking details</p>
                             </div>
                             <div id="track-result" class="hidden"></div>
                         </div>
@@ -553,7 +553,7 @@
                     <div class="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-9">
                         <div>
                             <h3 class="text-2xl font-bold text-white tracking-tight">Frequently asked questions</h3>
-                            <p class="text-[13px] text-zinc-500 mt-1.5">Quick answers to common questions</p>
+                            <p class="text-[13px] text-zinc-400 mt-1.5">Quick answers to common questions</p>
                         </div>
                         <div class="flex flex-wrap gap-1.5" id="faq-tabs">
                             <button class="faq-tab on" data-tab="orders"   onclick="switchFaqTab(this,'orders')">Orders</button>
@@ -578,9 +578,9 @@
                 <div class="w-1 h-8 rounded-full bg-blue-500 flex-shrink-0"></div>
                 <div class="flex-1 min-w-0">
                     <p class="text-[13px] font-semibold text-white">Service Notice</p>
-                    <p class="text-[12px] text-zinc-500 mt-0.5">Delivery may be delayed 1-2 days during the public holiday period. We apologize for any inconvenience.</p>
+                    <p class="text-[12px] text-zinc-400 mt-0.5">Delivery may be delayed 1-2 days during the public holiday period. We apologize for any inconvenience.</p>
                 </div>
-                <button onclick="this.closest('.notice').remove()" class="text-zinc-600 hover:text-white transition-colors text-xl leading-none flex-shrink-0">&times;</button>
+                <button onclick="this.closest('.notice').remove()" class="text-zinc-500 hover:text-white transition-colors text-xl leading-none flex-shrink-0">&times;</button>
             </div>
 
             <!-- ═══════════════════════════════════════════
@@ -605,7 +605,7 @@
                             </svg>
                         </div>
                         <h4 class="text-xl font-bold text-white mb-2">AI Chat Support</h4>
-                        <p class="text-[13px] text-zinc-500 leading-relaxed">Instant answers from our AI assistant. No wait time, always available.</p>
+                        <p class="text-[13px] text-zinc-400 leading-relaxed">Instant answers from our AI assistant. No wait time, always available.</p>
                         <p class="text-[13px] text-blue-400 font-semibold mt-5">Start a conversation &rarr;</p>
                     </button>
 
@@ -618,7 +618,7 @@
                         </div>
                         <p class="label-xs mb-3">Phone Support</p>
                         <h4 class="text-base font-bold text-white mb-2">Call Us</h4>
-                        <p class="text-[12px] text-zinc-500 leading-relaxed mb-4">Speak with a specialist directly.</p>
+                        <p class="text-[12px] text-zinc-400 leading-relaxed mb-4">Speak with a specialist directly.</p>
                         <p class="text-[17px] font-bold text-white tracking-tight">0962 923 329</p>
                     </a>
 
@@ -631,7 +631,7 @@
                         </div>
                         <p class="label-xs mb-3">Email</p>
                         <h4 class="text-base font-bold text-white mb-2">Email Us</h4>
-                        <p class="text-[12px] text-zinc-500 leading-relaxed mb-4">Response within 24 business hours.</p>
+                        <p class="text-[12px] text-zinc-400 leading-relaxed mb-4">Response within 24 business hours.</p>
                         <p class="text-[12px] text-blue-400 font-semibold">support@applestore.vn</p>
                     </a>
                 </div>
@@ -647,10 +647,10 @@
                             </div>
                             <div>
                                 <h4 class="text-sm font-bold text-white">Visit Our Store</h4>
-                                <p class="text-[12px] text-zinc-500 mt-0.5">Hands-on support and product demonstrations in person.</p>
+                                <p class="text-[12px] text-zinc-400 mt-0.5">Hands-on support and product demonstrations in person.</p>
                             </div>
                         </div>
-                        <p class="text-[12px] text-zinc-500 whitespace-nowrap flex-shrink-0 font-medium">Mon - Sat &nbsp; 9:00 - 20:00</p>
+                        <p class="text-[12px] text-zinc-400 whitespace-nowrap flex-shrink-0 font-medium">Mon - Sat &nbsp; 9:00 - 20:00</p>
                     </div>
                 </div>
             </section>
@@ -674,10 +674,10 @@
                 <p class="text-[13px] font-semibold text-white">AI Support</p>
                 <div class="flex items-center gap-1.5 mt-0.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-400 flex-shrink-0"></span>
-                    <span class="text-[10px] text-zinc-500">Online &middot; Powered by Gemini</span>
+                    <span class="text-[10px] text-zinc-400">Online &middot; Powered by Gemini</span>
                 </div>
             </div>
-            <button onclick="closeChat()" class="w-7 h-7 rounded-lg bg-white/[0.05] hover:bg-white/[0.09] flex items-center justify-center text-zinc-500 hover:text-white transition-colors">
+            <button onclick="closeChat()" class="w-7 h-7 rounded-lg bg-white/[0.05] hover:bg-white/[0.09] flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
                 <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                 </svg>
@@ -686,9 +686,9 @@
         <div id="chat-messages" class="scroll-thin">
             <div class="bubble-bot">Hi, I'm your Apple support assistant. What can I help you with today?</div>
             <div class="flex flex-wrap gap-1.5">
-                <button onclick="quickMsg('How do I track my order?')" class="px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.07] text-[11px] text-zinc-500 hover:text-white border border-white/[0.07] transition-all">Track order</button>
-                <button onclick="quickMsg('What is your return policy?')" class="px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.07] text-[11px] text-zinc-500 hover:text-white border border-white/[0.07] transition-all">Returns</button>
-                <button onclick="quickMsg('How do I reset my password?')" class="px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.07] text-[11px] text-zinc-500 hover:text-white border border-white/[0.07] transition-all">Reset password</button>
+                <button onclick="quickMsg('How do I track my order?')" class="px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.07] text-[11px] text-zinc-400 hover:text-white border border-white/[0.07] transition-all">Track order</button>
+                <button onclick="quickMsg('What is your return policy?')" class="px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.07] text-[11px] text-zinc-400 hover:text-white border border-white/[0.07] transition-all">Returns</button>
+                <button onclick="quickMsg('How do I reset my password?')" class="px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.07] text-[11px] text-zinc-400 hover:text-white border border-white/[0.07] transition-all">Reset password</button>
             </div>
         </div>
         <div class="px-4 py-3 border-t border-white/[0.07] flex-shrink-0">
@@ -789,7 +789,7 @@
             document.getElementById('v-badge').textContent = vouchers.filter(v => !v.isUsed).length;
             list.innerHTML = '';
             if (!vouchers.length) {
-                list.innerHTML = '<div class="py-8 text-center text-[12px] text-zinc-600">No vouchers yet</div>';
+                list.innerHTML = '<div class="py-8 text-center text-[12px] text-zinc-500">No vouchers yet</div>';
                 return;
             }
             vouchers.forEach(v => {
@@ -799,11 +799,11 @@
                     <div class="flex items-center justify-between gap-2">
                         <div class="min-w-0">
                             <p class="font-mono text-[12px] font-semibold text-white tracking-widest truncate">${v.code}</p>
-                            <p class="text-[10px] text-zinc-600 mt-0.5">Save ${(v.discountAmount||0).toLocaleString()}&#8363;${v.isUsed?' &middot; Used':''}</p>
+                            <p class="text-[10px] text-zinc-500 mt-0.5">Save ${(v.discountAmount||0).toLocaleString()}&#8363;${v.isUsed?' &middot; Used':''}</p>
                         </div>
                         ${!v.isUsed
                             ? `<button onclick="copyVoucher('${v.code}',this)" class="text-[11px] font-medium text-blue-400 hover:text-blue-300 transition-colors flex-shrink-0 px-2 py-1">Copy</button>`
-                            : `<span class="text-[11px] text-zinc-600 flex-shrink-0">Used</span>`
+                            : `<span class="text-[11px] text-zinc-500 flex-shrink-0">Used</span>`
                         }
                     </div>`;
                 list.appendChild(d);
@@ -814,7 +814,7 @@
             const list = document.getElementById('order-list');
             list.innerHTML = '';
             if (!orders.length) {
-                list.innerHTML = '<div class="md:col-span-3 text-center py-12 text-[13px] text-zinc-600">No orders yet. <a href="store.html" class="text-blue-400 hover:underline">Start shopping</a></div>';
+                list.innerHTML = '<div class="md:col-span-3 text-center py-12 text-[13px] text-zinc-500">No orders yet. <a href="store.html" class="text-blue-400 hover:underline">Start shopping</a></div>';
                 return;
             }
             orders.slice(0, 6).forEach(order => {
@@ -825,16 +825,16 @@
                 d.onclick = () => { document.getElementById('track-id').value = order._id; goto('track-section'); doTrack(order._id); };
                 d.innerHTML = `
                     <div class="flex items-center justify-between mb-4">
-                        <span class="font-mono text-[11px] text-zinc-600">#${order._id.slice(-8).toUpperCase()}</span>
+                        <span class="font-mono text-[11px] text-zinc-500">#${order._id.slice(-8).toUpperCase()}</span>
                         <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full ${s.bg} text-[10px] font-semibold">
                             <span class="w-1.5 h-1.5 rounded-full ${s.dot}"></span>${s.label}
                         </span>
                     </div>
                     <p class="text-[18px] font-semibold text-white tracking-tight">${parseInt(order.finalAmount||order.totalAmountNumeric||0).toLocaleString()}&#8363;</p>
-                    <p class="text-[11px] text-zinc-600 mt-1">${order.items?.length??0} item(s) &middot; ${date}</p>
+                    <p class="text-[11px] text-zinc-500 mt-1">${order.items?.length??0} item(s) &middot; ${date}</p>
                     <div class="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-                        <span class="text-[11px] text-zinc-600 truncate">${order.recipientName||'-'}</span>
-                        <span class="text-[11px] text-zinc-600 group-hover:text-white transition-colors">&rarr;</span>
+                        <span class="text-[11px] text-zinc-500 truncate">${order.recipientName||'-'}</span>
+                        <span class="text-[11px] text-zinc-500 group-hover:text-white transition-colors">&rarr;</span>
                     </div>`;
                 list.appendChild(d);
             });
@@ -848,7 +848,7 @@
             result.innerHTML = `
                 <div class="flex items-center gap-3 p-4 bg-white/[0.03] rounded-xl border border-white/[0.06]">
                     <div class="w-4 h-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin flex-shrink-0"></div>
-                    <span class="text-[13px] text-zinc-500">Looking up your order&hellip;</span>
+                    <span class="text-[13px] text-zinc-400">Looking up your order&hellip;</span>
                 </div>`;
             try {
                 const res = await fetch(`${API}/api/orders/${id}`);
@@ -862,11 +862,11 @@
                                 <div>
                                     <p class="label-xs mb-1.5">Order found</p>
                                     <p class="text-[17px] font-semibold text-white tracking-tight">${data.recipientName||'-'}</p>
-                                    ${data.recipientPhone?`<p class="text-[12px] text-zinc-500 mt-0.5">${data.recipientPhone}</p>`:''}
+                                    ${data.recipientPhone?`<p class="text-[12px] text-zinc-400 mt-0.5">${data.recipientPhone}</p>`:''}
                                 </div>
                                 <div class="text-right flex-shrink-0">
                                     <p class="text-[20px] font-semibold text-white tracking-tight">${parseInt(data.finalAmount||0).toLocaleString()}&#8363;</p>
-                                    <p class="text-[11px] text-zinc-600">${data.items?.length||0} item(s)</p>
+                                    <p class="text-[11px] text-zinc-500">${data.items?.length||0} item(s)</p>
                                 </div>
                             </div>
                             <div class="grid grid-cols-4 gap-0">
@@ -874,16 +874,16 @@
                                 <div class="relative text-center ${i<step?'step-done':i===step?'step-active':''}">
                                     ${i<steps.length-1?'<div class="step-connector"></div>':''}
                                     <div class="step-circle">${i<step?'&#x2713;':i===step?'&bull;':''}</div>
-                                    <p class="text-[10px] font-medium ${i<=step?'text-zinc-300':'text-zinc-600'}">${s}</p>
+                                    <p class="text-[10px] font-medium ${i<=step?'text-zinc-300':'text-zinc-500'}">${s}</p>
                                 </div>`).join('')}
                             </div>
-                            ${data.recipientAddress?`<p class="text-[12px] text-zinc-500 border-t border-white/[0.06] pt-4">${data.recipientAddress}</p>`:''}
+                            ${data.recipientAddress?`<p class="text-[12px] text-zinc-400 border-t border-white/[0.06] pt-4">${data.recipientAddress}</p>`:''}
                         </div>`;
                 } else {
                     result.innerHTML = `
                         <div class="p-5 bg-red-500/5 border border-red-500/12 rounded-2xl">
                             <p class="text-[13px] font-semibold text-red-300">Order not found</p>
-                            <p class="text-[12px] text-zinc-500 mt-1">Double-check the Order ID and try again.</p>
+                            <p class="text-[12px] text-zinc-400 mt-1">Double-check the Order ID and try again.</p>
                         </div>`;
                     document.getElementById('track-placeholder').classList.remove('hidden');
                 }
@@ -955,7 +955,7 @@
                             <span>${q}</span>
                             <span class="faq-plus flex-shrink-0">+</span>
                         </summary>
-                        <div class="pb-4 text-[13px] text-zinc-500 leading-relaxed pr-8">${a}</div>`;
+                        <div class="pb-4 text-[13px] text-zinc-400 leading-relaxed pr-8">${a}</div>`;
                     container.appendChild(el);
                 });
             });
