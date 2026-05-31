@@ -5,13 +5,13 @@ require('dotenv').config();
 const prisma = new PrismaClient();
 
 async function main() {
-    const email = 'admin123@admin.com';
+    const email = 'admin@gmail.com';
     const password = 'za123456';
-    const name = 'admin123';
+    const name = 'admin';
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
-        console.log('⚠️  Tài khoản admin123@admin.com đã tồn tại.');
+        console.log('⚠️  Tài khoản admin@gmail.com đã tồn tại.');
         return;
     }
 
