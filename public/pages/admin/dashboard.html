@@ -754,7 +754,7 @@
             try {
                 const res = await fetch(`${API_URL}/admin/users`, { headers: { 'token': `Bearer ${token}` } });
                 if (!res.ok) { showToast('Failed to load users', 'error'); return; }
-                renderUsersTable(await res.json());
+                renderUsersTable((await res.json()).data || []);
             } catch (e) { showToast('Failed to load users', 'error'); }
         }
 
@@ -1081,7 +1081,7 @@
             try {
                 // Orders & Revenue
                 const orderRes = await fetch(`${API_URL}/admin/orders`, { headers: { 'token': `Bearer ${token}` } });
-                const orders = await orderRes.json();
+                const { data: orders } = await orderRes.json();
                 const revenue = orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.finalAmount || 0), 0);
 
                 document.getElementById('stat-revenue').innerText = revenue.toLocaleString('vi-VN') + '₫';
