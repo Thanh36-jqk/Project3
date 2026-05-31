@@ -181,6 +181,10 @@
                     <p class="text-xs text-gray-400">
                         Code expires in <span id="otp-timer" class="font-semibold text-gray-700">10:00</span>
                     </p>
+                    <button id="resend-btn" onclick="resendOtp()" class="text-sm text-blue-600 hover:underline">
+                        <i class="fas fa-redo mr-1"></i>Resend code
+                    </button>
+                    <span class="text-gray-300 mx-2">·</span>
                     <button onclick="backToLogin()" class="text-sm text-blue-600 hover:underline">
                         <i class="fas fa-arrow-left mr-1"></i>Back to login
                     </button>
@@ -408,6 +412,40 @@
                 showOtpError('Network error. Please try again.');
             } finally {
                 btnText.innerText = 'Verify Code';
+            }
+        }
+
+        async function resendOtp() {
+            const btn = document.getElementById('resend-btn');
+            btn.disabled = true;
+            btn.innerText = 'Sending...';
+            hideOtpMessage();
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/resend-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ otpToken: pendingOtpToken }),
+                    credentials: 'include'
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    pendingOtpToken = result.otpToken;
+                    clearOtpBoxes();
+                    clearInterval(otpTimerInterval);
+                    startOtpTimer(10 * 60);
+                    showOtpSuccess('A new code has been sent to your email.');
+                    document.querySelectorAll('.otp-box')[0].focus();
+                } else {
+                    showOtpError(result.message || 'Failed to resend code. Please go back and log in again.');
+                }
+            } catch (e) {
+                showOtpError('Network error. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-redo mr-1"></i>Resend code';
             }
         }
 

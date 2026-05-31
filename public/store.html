@@ -1294,19 +1294,22 @@
         async function initWishlist() {
             const token = getToken();
             if (token) {
-                // Logged-in user: Fetch from API
                 try {
                     const res = await fetch(`${API_URL}/api/wishlist`, {
                         headers: { 'token': `Bearer ${token}` }
                     });
-                    const data = await res.json();
-                    wishlist = data.wishlist.map(item => item.productId);
+                    if (res.status === 401 || res.status === 403) {
+                        // Token expired — clear it, fall back to guest mode
+                        localStorage.removeItem('accessToken');
+                        wishlist = JSON.parse(localStorage.getItem('apple_wishlist')) || [];
+                    } else {
+                        const data = await res.json();
+                        wishlist = (data.wishlist || []).map(item => item.productId);
+                    }
                 } catch (error) {
-                    console.error('Failed to load wishlist:', error);
                     wishlist = JSON.parse(localStorage.getItem('apple_wishlist')) || [];
                 }
             } else {
-                // Guest: Load from localStorage
                 wishlist = JSON.parse(localStorage.getItem('apple_wishlist')) || [];
             }
             updateWishlistUI();
@@ -2202,7 +2205,13 @@
 
             } catch (error) {
                 console.error(error);
-                showToast(`Error: ${error.message}`, 'error');
+                if (error.message.includes('Email is required') && getToken()) {
+                    // Token in localStorage is stale — server treated request as guest
+                    localStorage.removeItem('accessToken');
+                    showToast('Session expired. Please sign in again.', 'error');
+                } else {
+                    showToast(`Error: ${error.message}`, 'error');
+                }
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalBtnHtml;
             }

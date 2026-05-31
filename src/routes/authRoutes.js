@@ -18,6 +18,9 @@ router.post('/api/auth/resend-verification', authLimiter, authController.resendV
 // Login step 2 — OTP verification
 router.post('/api/auth/verify-otp', otpLimiter, authController.verifyLoginOtp);
 
+// Resend OTP (same rate limit as verify-otp)
+router.post('/api/auth/resend-otp', otpLimiter, authController.resendOtp);
+
 // Token management
 router.post('/api/auth/refresh', authController.refreshAccessToken);
 router.post('/api/auth/logout', authController.logout);

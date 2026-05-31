@@ -72,6 +72,15 @@
                 placeholder="e.g. John Doe" required>
             </div>
 
+            <!-- Email display for logged-in users -->
+            <div id="user-email-display" class="hidden">
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+              <div class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-gray-600 text-sm flex items-center justify-between">
+                <span id="user-email-text">-</span>
+                <span class="text-xs text-gray-400 ml-3 whitespace-nowrap">Order confirmation will be sent here</span>
+              </div>
+            </div>
+
             <!-- Guest Checkout Fields (Hidden for logged in users) -->
             <div id="guest-checkout-fields" class="space-y-5 hidden">
               <div>
@@ -327,9 +336,21 @@
       try {
         const profileRes = await fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'token': `Bearer ${token}` } });
         const profileData = await profileRes.json();
-        if (profileData.user && profileData.user.myVouchers) {
-          userVouchers = profileData.user.myVouchers.filter(v => !v.isUsed);
-          populateVoucherSelect();
+        if (profileData.user) {
+          // Pre-fill name from profile if field is empty
+          const nameField = document.getElementById('recipient-name-checkout');
+          if (!nameField.value && profileData.user.name) {
+            nameField.value = profileData.user.name;
+          }
+          // Show account email so user knows where confirmation goes
+          if (profileData.user.email) {
+            document.getElementById('user-email-text').textContent = profileData.user.email;
+            document.getElementById('user-email-display').classList.remove('hidden');
+          }
+          if (profileData.user.myVouchers) {
+            userVouchers = profileData.user.myVouchers.filter(v => !v.isUsed);
+            populateVoucherSelect();
+          }
         }
       } catch (e) { console.error("Error fetching vouchers:", e); }
     }

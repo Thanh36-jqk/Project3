@@ -98,6 +98,43 @@ exports.register = async (req, res) => {
 };
 
 /**
+ * Helper: generate OTP, sign token, send email — used by login and resendOtp
+ * Returns { otpToken, maskedEmail } or throws on email failure
+ */
+async function issueAndSendOtp(user) {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+
+    const otpToken = jwt.sign(
+        { userId: user.id, otpHash, purpose: 'login_otp' },
+        process.env.JWT_SECRET,
+        { expiresIn: `${OTP_EXPIRY_MINUTES}m` }
+    );
+
+    const maskedEmail = user.email.replace(/(.{2}).+(@.+)/, '$1***$2');
+    const html = `
+        <div style="font-family:-apple-system,BlinkMacSystemFont,'Inter',Arial,sans-serif;max-width:560px;margin:0 auto;padding:20px;background:#f5f5f7;border-radius:16px;">
+            <div style="background:#ffffff;border-radius:12px;padding:40px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+                <div style="text-align:center;margin-bottom:28px;">
+                    <span style="font-size:36px;font-weight:700;color:#1d1d1f;">&#63743;</span>
+                    <p style="color:#86868b;font-size:13px;margin:4px 0 0;">Apple Store</p>
+                </div>
+                <h2 style="color:#1d1d1f;font-size:20px;font-weight:700;text-align:center;margin:0 0 8px;">Your Login Code</h2>
+                <p style="color:#86868b;font-size:14px;text-align:center;margin:0 0 32px;">Use this code to complete your sign-in. It expires in ${OTP_EXPIRY_MINUTES} minutes.</p>
+                <div style="background:#f5f5f7;border-radius:12px;padding:24px;text-align:center;margin-bottom:28px;">
+                    <span style="font-size:40px;font-weight:800;letter-spacing:12px;color:#1d1d1f;font-family:monospace;">${otp}</span>
+                </div>
+                <p style="color:#86868b;font-size:13px;text-align:center;margin:0;">If you did not attempt to sign in, please ignore this email.</p>
+                <hr style="border:none;border-top:1px solid #f0f0f0;margin:24px 0 16px;" />
+                <p style="color:#b0b0b5;font-size:12px;text-align:center;margin:0;">&copy; ${new Date().getFullYear()} Apple Store Clone. All rights reserved.</p>
+            </div>
+        </div>`;
+
+    await sendEmail({ to: user.email, subject: 'Apple Store — Your Login Verification Code', html });
+    return { otpToken, maskedEmail };
+}
+
+/**
  * Login step 1 — verify credentials, send OTP email
  * POST /api/login
  * Returns: { requiresOtp: true, otpToken, maskedEmail }
@@ -134,46 +171,49 @@ exports.login = async (req, res) => {
             return res.status(200).json({ ...userInfo, accessToken });
         }
 
-        // Generate 6-digit OTP
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
-
-        // Sign short-lived OTP token (10 min) — embeds userId + otpHash, never the raw OTP
-        const otpToken = jwt.sign(
-            { userId: user.id, otpHash, purpose: 'login_otp' },
-            process.env.JWT_SECRET,
-            { expiresIn: `${OTP_EXPIRY_MINUTES}m` }
-        );
-
-        // Send OTP email
-        const maskedEmail = user.email.replace(/(.{2}).+(@.+)/, '$1***$2');
-        const html = `
-            <div style="font-family:-apple-system,BlinkMacSystemFont,'Inter',Arial,sans-serif;max-width:560px;margin:0 auto;padding:20px;background:#f5f5f7;border-radius:16px;">
-                <div style="background:#ffffff;border-radius:12px;padding:40px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
-                    <div style="text-align:center;margin-bottom:28px;">
-                        <span style="font-size:36px;font-weight:700;color:#1d1d1f;">&#63743;</span>
-                        <p style="color:#86868b;font-size:13px;margin:4px 0 0;">Apple Store</p>
-                    </div>
-                    <h2 style="color:#1d1d1f;font-size:20px;font-weight:700;text-align:center;margin:0 0 8px;">Your Login Code</h2>
-                    <p style="color:#86868b;font-size:14px;text-align:center;margin:0 0 32px;">Use this code to complete your sign-in. It expires in ${OTP_EXPIRY_MINUTES} minutes.</p>
-                    <div style="background:#f5f5f7;border-radius:12px;padding:24px;text-align:center;margin-bottom:28px;">
-                        <span style="font-size:40px;font-weight:800;letter-spacing:12px;color:#1d1d1f;font-family:monospace;">${otp}</span>
-                    </div>
-                    <p style="color:#86868b;font-size:13px;text-align:center;margin:0;">If you did not attempt to sign in, please ignore this email.</p>
-                    <hr style="border:none;border-top:1px solid #f0f0f0;margin:24px 0 16px;" />
-                    <p style="color:#b0b0b5;font-size:12px;text-align:center;margin:0;">&copy; ${new Date().getFullYear()} Apple Store Clone. All rights reserved.</p>
-                </div>
-            </div>`;
-
-        const emailData = { to: user.email, subject: 'Apple Store — Your Login Verification Code', html };
         try {
-            await sendEmail(emailData);
+            const { otpToken, maskedEmail } = await issueAndSendOtp(user);
+            res.status(200).json({ requiresOtp: true, otpToken, maskedEmail });
         } catch (emailErr) {
-            console.error('OTP email failed:', emailErr.message);
-            return res.status(500).json({ message: 'Failed to send verification code. Please try again later.' });
+            console.error('OTP email failed:', emailErr.message, emailErr.stack);
+            res.status(500).json({ message: 'Failed to send verification code. Please try again later.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+/**
+ * Resend OTP — issues a fresh code without re-entering password
+ * POST /api/auth/resend-otp
+ * Body: { otpToken }
+ */
+exports.resendOtp = async (req, res) => {
+    try {
+        const { otpToken } = req.body;
+        if (!otpToken) return res.status(400).json({ message: 'otpToken is required' });
+
+        let payload;
+        try {
+            payload = jwt.verify(otpToken, process.env.JWT_SECRET);
+        } catch {
+            return res.status(401).json({ message: 'Session expired. Please log in again.' });
         }
 
-        res.status(200).json({ requiresOtp: true, otpToken, maskedEmail });
+        if (payload.purpose !== 'login_otp') {
+            return res.status(401).json({ message: 'Invalid token' });
+        }
+
+        const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        try {
+            const { otpToken: newToken, maskedEmail } = await issueAndSendOtp(user);
+            res.status(200).json({ otpToken: newToken, maskedEmail });
+        } catch (emailErr) {
+            console.error('OTP resend failed:', emailErr.message, emailErr.stack);
+            res.status(500).json({ message: 'Failed to send verification code. Please try again later.' });
+        }
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
