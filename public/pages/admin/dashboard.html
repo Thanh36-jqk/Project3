@@ -206,15 +206,79 @@
         ::-webkit-scrollbar-track {
             background: transparent;
         }
+
+        .range-btn { transition: all 0.15s; }
+        .range-btn.active-range { background: #1d1d1f; color: #fff; }
+
+        /* ===== SKELETON LOADING ===== */
+        .skeleton-pulse {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.4s infinite;
+            border-radius: 6px;
+        }
+        @keyframes skeleton-shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ===== KEYBOARD SHORTCUT OVERLAY ===== */
+        #kbd-overlay {
+            position: fixed; inset: 0; z-index: 9998;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .kbd-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 26px; height: 22px; padding: 0 5px;
+            background: #f0f0f0; border: 1px solid #d0d0d0;
+            border-bottom: 2px solid #b0b0b0; border-radius: 4px;
+            font-family: monospace; font-size: 11px; font-weight: 700; color: #333;
+        }
+
+        /* ===== MOBILE SIDEBAR OVERLAY ===== */
+        #sidebar-overlay {
+            display: none; position: fixed; inset: 0; z-index: 25;
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(2px);
+        }
+
+        /* ===== DARK MODE ===== */
+        body.dark { background-color: #0a0a0a !important; color: #f5f5f7 !important; }
+        body.dark aside { background-color: #1c1c1e !important; border-color: rgba(255,255,255,0.06) !important; }
+        body.dark header { background: rgba(28,28,30,0.85) !important; border-color: rgba(255,255,255,0.06) !important; }
+        body.dark .premium-card { background: #1c1c1e !important; border-color: rgba(255,255,255,0.05) !important; }
+        body.dark .bg-white { background-color: #1c1c1e !important; }
+        body.dark .bg-gray-50, body.dark .bg-gray-50\/80, body.dark .bg-gray-50\/50 { background-color: #2c2c2e !important; }
+        body.dark .bg-gray-100 { background-color: #3a3a3c !important; }
+        body.dark .text-gray-900, body.dark .text-gray-800 { color: #f5f5f7 !important; }
+        body.dark .text-gray-700, body.dark .text-gray-600 { color: #aeaeb2 !important; }
+        body.dark .text-gray-500, body.dark .text-gray-400 { color: #636366 !important; }
+        body.dark .border-gray-100, body.dark .border-gray-200 { border-color: rgba(255,255,255,0.08) !important; }
+        body.dark .divide-gray-50 > * { border-color: rgba(255,255,255,0.04) !important; }
+        body.dark tbody tr:hover td { background-color: rgba(255,255,255,0.02) !important; }
+        body.dark input, body.dark select, body.dark textarea {
+            background-color: #2c2c2e !important; border-color: rgba(255,255,255,0.1) !important; color: #f5f5f7 !important;
+        }
+        body.dark .nav-item { color: #636366 !important; }
+        body.dark .nav-item:hover { background-color: rgba(255,255,255,0.05) !important; color: #f5f5f7 !important; }
+        body.dark .nav-item.active { background-color: #f5f5f7 !important; color: #0a0a0a !important; box-shadow: 0 4px 12px rgba(255,255,255,0.1) !important; }
+        body.dark .toast { background: rgba(28,28,30,0.97) !important; border-color: rgba(255,255,255,0.1) !important; }
+        body.dark .toast .text-gray-700 { color: #aeaeb2 !important; }
+        body.dark .category-pill { background: #2c2c2e !important; color: #aeaeb2 !important; border-color: rgba(255,255,255,0.1) !important; }
+        body.dark .skeleton-pulse { background: linear-gradient(90deg,#2c2c2e 25%,#3a3a3c 50%,#2c2c2e 75%); background-size: 200% 100%; }
+        body.dark .range-btn.active-range { background: #f5f5f7 !important; color: #0a0a0a !important; }
+        body.dark .kbd-badge { background: #2c2c2e !important; border-color: rgba(255,255,255,0.1) !important; border-bottom-color: rgba(255,255,255,0.05) !important; color: #f5f5f7 !important; }
+        body.dark #kbd-overlay > div { background: #1c1c1e !important; }
     </style>
 </head>
 
 <body class="flex h-screen overflow-hidden selection:bg-blue-500 selection:text-white">
 
     <div id="toast-container"></div>
+    <div id="sidebar-overlay" onclick="closeSidebarMobile()"></div>
 
 
-    <aside class="w-72 bg-white border-r border-gray-100 flex flex-col z-30 h-full hidden md:flex">
+    <aside id="sidebar" class="w-72 bg-white border-r border-gray-100 flex flex-col z-30 h-full hidden md:flex fixed md:relative inset-y-0 left-0 shadow-2xl md:shadow-none transition-transform">
         <div class="h-24 flex items-center px-8">
             <div class="flex items-center gap-3">
                 <div
@@ -245,6 +309,11 @@
                         <i class="fas fa-box w-5 text-center"></i> Orders
                     </a>
 
+                    <a href="#" onclick="showSection('products')" id="nav-products"
+                        class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
+                        <i class="fas fa-cube w-5 text-center"></i> Products
+                    </a>
+
                     <a href="#" onclick="showSection('inventory')" id="nav-inventory"
                         class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
                         <i class="fas fa-warehouse w-5 text-center"></i> Inventory
@@ -266,6 +335,16 @@
                     </a>
                 </div>
             </div>
+
+            <div>
+                <p class="px-4 text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">System</p>
+                <div class="space-y-1">
+                    <a href="#" onclick="showSection('audit')" id="nav-audit"
+                        class="nav-item flex items-center gap-3 px-4 py-3.5 text-sm font-medium">
+                        <i class="fas fa-history w-5 text-center"></i> Audit Log
+                    </a>
+                </div>
+            </div>
         </nav>
 
         <div class="p-6 border-t border-gray-100">
@@ -284,9 +363,19 @@
                 <h2 class="text-xl font-bold text-gray-800" id="page-title">Dashboard Overview</h2>
                 <p class="text-xs text-gray-500 mt-0.5" id="current-date">Loading date...</p>
             </div>
-            <div class="flex items-center gap-4">
-                <button onclick="loadInventory(); showToast('Data refreshed', 'info')"
-                    class="md:hidden p-2 text-gray-500"><i class="fas fa-sync"></i></button>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleKbdOverlay()" title="Keyboard shortcuts (?)"
+                    class="hidden sm:flex w-10 h-10 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 transition-colors text-sm">
+                    <i class="fas fa-keyboard"></i>
+                </button>
+                <button id="dark-toggle" onclick="toggleDarkMode()" title="Toggle dark mode"
+                    class="w-10 h-10 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-moon text-sm" id="dark-icon"></i>
+                </button>
+                <button id="sidebar-toggle" onclick="toggleSidebar()"
+                    class="md:hidden w-10 h-10 flex items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 transition-colors">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
                 <div
                     class="w-10 h-10 rounded-full bg-gradient-to-tr from-gray-800 to-gray-600 text-white flex items-center justify-center text-sm font-bold shadow-md">
                     A</div>
@@ -349,15 +438,55 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 premium-card p-8">
-                        <div class="flex justify-between items-center mb-6">
+                        <div class="flex flex-wrap justify-between items-center mb-6 gap-3">
                             <h3 class="text-lg font-bold text-gray-900">Revenue Analytics</h3>
+                            <div class="flex gap-1 bg-gray-100 p-1 rounded-xl">
+                                <button onclick="setDateRange(7)" id="range-7" class="range-btn active-range px-3 py-1.5 text-xs font-semibold rounded-lg">7D</button>
+                                <button onclick="setDateRange(30)" id="range-30" class="range-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-gray-500">30D</button>
+                                <button onclick="setDateRange(90)" id="range-90" class="range-btn px-3 py-1.5 text-xs font-semibold rounded-lg text-gray-500">90D</button>
+                            </div>
                         </div>
                         <div class="h-72 w-full relative"><canvas id="revenueChart"></canvas></div>
                     </div>
                     <div class="lg:col-span-1 premium-card p-6 flex flex-col">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4">Top Selling Products</h3>
-                        <div class="flex-1 overflow-y-auto pr-2" id="top-products-list"></div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">Top Products</h3>
+                        <p class="text-[11px] text-gray-400 mb-4">By units sold (confirmed orders)</p>
+                        <div class="flex-1 overflow-y-auto pr-2" id="top-products-list">
+                            <div class="flex items-center justify-center h-full">
+                                <div class="w-5 h-5 border-2 border-gray-200 border-t-black rounded-full animate-spin"></div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Analytics Row 2: Payment Methods + User Segments + Order Funnel -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="premium-card p-6">
+                        <h3 class="text-sm font-bold text-gray-900 mb-1">Payment Methods</h3>
+                        <p class="text-[11px] text-gray-400 mb-4">Revenue by payment type</p>
+                        <div class="h-52 relative"><canvas id="paymentChart"></canvas></div>
+                    </div>
+                    <div class="premium-card p-6">
+                        <h3 class="text-sm font-bold text-gray-900 mb-1">User Segments</h3>
+                        <p class="text-[11px] text-gray-400 mb-4">Silver / Gold / VIP distribution</p>
+                        <div class="h-52 relative"><canvas id="rankChart"></canvas></div>
+                    </div>
+                    <div class="premium-card p-6">
+                        <h3 class="text-sm font-bold text-gray-900 mb-1">Order Funnel</h3>
+                        <p class="text-[11px] text-gray-400 mb-4">Status conversion breakdown</p>
+                        <div id="funnel-container" class="mt-2 space-y-2">
+                            <div class="flex items-center justify-center h-32">
+                                <div class="w-5 h-5 border-2 border-gray-200 border-t-black rounded-full animate-spin"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Row 3: Revenue by Category -->
+                <div class="premium-card p-8">
+                    <h3 class="text-lg font-bold text-gray-900 mb-1">Revenue by Category</h3>
+                    <p class="text-xs text-gray-400 mb-6">Confirmed &amp; completed orders</p>
+                    <div class="h-64 relative"><canvas id="categoryChart"></canvas></div>
                 </div>
 
                 <div class="premium-card p-8">
@@ -382,16 +511,80 @@
             <div id="orders-section" class="content-section hidden animate-fade-in space-y-6">
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-bold text-gray-900">Order Management</h2>
-                    <button onclick="loadOrders(); showToast('Orders refreshed', 'info')"
-                        class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
-                        <i class="fas fa-sync-alt mr-1"></i> Refresh
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportOrders()"
+                            class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 transition-all active:scale-95">
+                            <i class="fas fa-download mr-1"></i> Export CSV
+                        </button>
+                        <button onclick="loadOrders(); showToast('Orders refreshed', 'info')"
+                            class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                            <i class="fas fa-sync-alt mr-1"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                <!-- Search & Filter Bar -->
+                <div class="flex flex-col gap-3">
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                            <input id="order-search" type="text" placeholder="Tìm theo tên, SĐT, email..."
+                                oninput="filterOrders()"
+                                class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <select id="order-status-filter" onchange="filterOrders()"
+                            class="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <select id="order-payment-filter" onchange="filterOrders()"
+                            class="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                            <option value="">Tất cả thanh toán</option>
+                            <option value="COD">COD</option>
+                            <option value="VNPay">VNPay</option>
+                            <option value="SePay">SePay</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex items-center gap-2 flex-1">
+                            <label class="text-xs font-medium text-gray-500 whitespace-nowrap">Từ ngày</label>
+                            <input type="date" id="order-date-from" onchange="filterOrders()"
+                                class="flex-1 px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-center gap-2 flex-1">
+                            <label class="text-xs font-medium text-gray-500 whitespace-nowrap">Đến ngày</label>
+                            <input type="date" id="order-date-to" onchange="filterOrders()"
+                                class="flex-1 px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <button onclick="clearOrderFilters()" class="px-4 py-2.5 text-xs font-medium text-gray-500 hover:text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all whitespace-nowrap">
+                            <i class="fas fa-times mr-1"></i> Xóa filter
+                        </button>
+                    </div>
+                </div>
+                <!-- Bulk Action Bar -->
+                <div id="bulk-action-bar" class="hidden items-center gap-3 px-5 py-3 bg-blue-50 border border-blue-100 rounded-xl">
+                    <span class="text-sm font-semibold text-blue-700" id="bulk-count-text">0 đã chọn</span>
+                    <select id="bulk-status-select" class="px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Chọn trạng thái...</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Processing">Processing</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <button onclick="applyBulkStatus()" class="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-all active:scale-95">Áp dụng</button>
+                    <button onclick="clearOrderSelection()" class="px-3 py-2 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors">Bỏ chọn</button>
                 </div>
                 <div class="premium-card overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse" id="orders-table">
                             <thead>
                                 <tr class="bg-gray-50/80 border-b border-gray-100/80 text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+                                    <th class="pl-4 pr-2 py-4"><input type="checkbox" id="select-all-orders" onchange="toggleSelectAllOrders(this)" class="w-4 h-4 accent-blue-600 cursor-pointer"></th>
                                     <th class="px-6 py-4 whitespace-nowrap">Order ID</th>
                                     <th class="px-6 py-4 whitespace-nowrap">Customer</th>
                                     <th class="px-6 py-4 whitespace-nowrap">Total Amount</th>
@@ -511,6 +704,7 @@
                         </div>
                     </div>
                     <div class="lg:col-span-2 premium-card overflow-hidden">
+                        <div class="overflow-x-auto">
                         <table class="w-full text-left" id="vouchers-table">
                             <thead
                                 class="bg-gray-50/50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase">
@@ -519,11 +713,55 @@
                                     <th class="px-6 py-4">Discount</th>
                                     <th class="px-6 py-4">Cost</th>
                                     <th class="px-6 py-4">Qty</th>
-                                    <th class="px-6 py-4 text-right">Status</th>
+                                    <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4 text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50 text-sm"></tbody>
                         </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voucher Edit Modal -->
+            <div id="voucher-edit-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeVoucherModal()"></div>
+                <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 animate-fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-gray-900">Edit Voucher</h3>
+                        <button onclick="closeVoucherModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" id="edit-v-id">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Code</label>
+                            <input type="text" id="edit-v-code" class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm font-mono font-bold uppercase focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="CODE">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Discount (₫)</label>
+                                <input type="number" id="edit-v-amount" class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="50000">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Points Cost</label>
+                                <input type="number" id="edit-v-points" class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="100">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 block">Quantity</label>
+                            <input type="number" id="edit-v-qty" class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="50">
+                        </div>
+                        <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl">
+                            <input type="checkbox" id="edit-v-active" class="w-4 h-4 accent-blue-600 cursor-pointer">
+                            <label for="edit-v-active" class="text-sm font-medium text-gray-700 cursor-pointer">Active</label>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="closeVoucherModal()" class="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+                        <button onclick="saveVoucher()" class="flex-1 py-3 rounded-xl bg-black text-white text-sm font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">Save Changes</button>
                     </div>
                 </div>
             </div>
@@ -531,10 +769,16 @@
             <div id="users-section" class="content-section hidden animate-fade-in space-y-6">
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-bold text-gray-900">User Management</h2>
-                    <button onclick="loadUsers(); showToast('Users refreshed', 'info')"
-                        class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
-                        <i class="fas fa-sync-alt mr-1"></i> Refresh
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportUsers()"
+                            class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 transition-all active:scale-95">
+                            <i class="fas fa-download mr-1"></i> Export CSV
+                        </button>
+                        <button onclick="loadUsers(); showToast('Users refreshed', 'info')"
+                            class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                            <i class="fas fa-sync-alt mr-1"></i> Refresh
+                        </button>
+                    </div>
                 </div>
                 <div class="premium-card overflow-hidden">
                     <div class="overflow-x-auto">
@@ -547,6 +791,7 @@
                                     <th class="px-6 py-4 whitespace-nowrap">Points</th>
                                     <th class="px-6 py-4 whitespace-nowrap">Total Spent</th>
                                     <th class="px-6 py-4 whitespace-nowrap">Joined</th>
+                                    <th class="px-6 py-4 whitespace-nowrap text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50 text-sm bg-white"></tbody>
@@ -585,21 +830,259 @@
                 </div>
             </div>
 
+            <!-- ============================================================ -->
+            <!-- PRODUCTS SECTION                                              -->
+            <!-- ============================================================ -->
+            <div id="products-section" class="content-section hidden animate-fade-in space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-900">Product Management</h2>
+                    <div class="flex items-center gap-3">
+                        <button onclick="loadProducts()"
+                            class="bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 transition-all active:scale-95">
+                            <i class="fas fa-sync-alt mr-1"></i> Refresh
+                        </button>
+                        <button onclick="openCreateProduct()"
+                            class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                            <i class="fas fa-plus mr-1"></i> New Product
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search & Filter -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                        <input id="product-search" type="text" placeholder="Tìm theo tên sản phẩm..."
+                            oninput="filterProducts()"
+                            class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <select id="product-category-filter" onchange="filterProducts()"
+                        class="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="">Tất cả danh mục</option>
+                        <option value="iPhone">iPhone</option>
+                        <option value="iPad">iPad</option>
+                        <option value="Mac">Mac</option>
+                        <option value="Apple Watch">Apple Watch</option>
+                        <option value="AirPods">AirPods</option>
+                        <option value="Apple TV">Apple TV</option>
+                        <option value="Accessories">Accessories</option>
+                    </select>
+                    <select id="product-status-filter" onchange="filterProducts()"
+                        class="px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <!-- Products Table -->
+                <div class="premium-card overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse" id="products-table">
+                            <thead>
+                                <tr class="bg-gray-50/80 border-b border-gray-100/80 text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+                                    <th class="px-6 py-4 whitespace-nowrap">Product</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Category</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Price</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Stock</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">Status</th>
+                                    <th class="px-6 py-4 whitespace-nowrap text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-table-body" class="divide-y divide-gray-50 text-sm bg-white"></tbody>
+                        </table>
+                    </div>
+                    <div id="products-pagination" class="flex items-center justify-between px-6 py-4 border-t border-gray-100 hidden">
+                        <span id="products-count" class="text-xs text-gray-400"></span>
+                        <div class="flex gap-2" id="products-page-btns"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- AUDIT LOG SECTION                                              -->
+            <!-- ============================================================ -->
+            <div id="audit-section" class="content-section hidden animate-fade-in space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Audit Log</h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Recent admin actions - resets on server restart</p>
+                    </div>
+                    <button onclick="loadAuditLogs()" class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    </button>
+                </div>
+                <div class="premium-card p-6 min-h-[300px]">
+                    <div id="audit-timeline"></div>
+                </div>
+            </div>
+
         </main>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- ORDER DETAIL MODAL                                                -->
+    <!-- ================================================================ -->
+    <div id="order-detail-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeOrderDetail()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 my-6 flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between px-8 py-5 border-b border-gray-100 flex-shrink-0">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900">Order Detail</h3>
+                    <p class="text-xs text-gray-400 mt-0.5" id="order-detail-id"></p>
+                </div>
+                <button onclick="closeOrderDetail()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="order-detail-content" class="overflow-y-auto flex-1 px-8 py-6 space-y-6"></div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- GIVE VOUCHER MODAL                                                 -->
+    <!-- ================================================================ -->
+    <div id="give-voucher-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeGiveVoucherModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-bold text-gray-900">Give Voucher</h3>
+                <button onclick="closeGiveVoucherModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="text-sm text-gray-500 mb-6">Tặng voucher cho: <span id="give-voucher-username" class="font-bold text-gray-900"></span></p>
+            <input type="hidden" id="give-voucher-userid">
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Voucher Code</label>
+                    <input type="text" id="give-v-code" placeholder="VOUCHER20" class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm font-mono font-bold uppercase focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Discount Amount (₫)</label>
+                    <input type="number" id="give-v-amount" placeholder="50000" min="1000" class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeGiveVoucherModal()" class="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors bg-white">Cancel</button>
+                <button onclick="submitGiveVoucher()" class="flex-1 py-3 rounded-xl bg-black text-white text-sm font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">Give Voucher</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- PRODUCT CREATE / EDIT MODAL                                       -->
+    <!-- ================================================================ -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeProductModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 my-6 overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-8 py-6 border-b border-gray-100 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div id="product-modal-icon" class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center">
+                        <i class="fas fa-plus text-xs"></i>
+                    </div>
+                    <h3 id="product-modal-title" class="text-lg font-bold text-gray-900">New Product</h3>
+                </div>
+                <button onclick="closeProductModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="overflow-y-auto flex-1 px-8 py-6">
+                <input type="hidden" id="product-modal-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Left col -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Product Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="pm-name" placeholder="iPhone 16 Pro Max"
+                                class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Category <span class="text-red-500">*</span></label>
+                            <select id="pm-category"
+                                class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer">
+                                <option value="">Chọn danh mục</option>
+                                <option value="iPhone">iPhone</option>
+                                <option value="iPad">iPad</option>
+                                <option value="Mac">Mac</option>
+                                <option value="Apple Watch">Apple Watch</option>
+                                <option value="AirPods">AirPods</option>
+                                <option value="Apple TV">Apple TV</option>
+                                <option value="Accessories">Accessories</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Price (VND) <span class="text-red-500">*</span></label>
+                            <input type="number" id="pm-price" placeholder="29990000" min="0"
+                                class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Stock <span class="text-red-500">*</span></label>
+                            <input type="number" id="pm-stock" placeholder="100" min="0"
+                                class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                        </div>
+                        <div class="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl">
+                            <input type="checkbox" id="pm-active" checked class="w-4 h-4 accent-blue-600 cursor-pointer">
+                            <label for="pm-active" class="text-sm font-medium text-gray-700 cursor-pointer">Active (hiển thị trên store)</label>
+                        </div>
+                    </div>
+
+                    <!-- Right col -->
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Image URL</label>
+                            <input type="text" id="pm-image" placeholder="https://..." oninput="previewProductImage()"
+                                class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                            <!-- Image preview -->
+                            <div id="pm-image-preview" class="mt-3 w-full h-36 bg-gray-50 rounded-xl border border-gray-200 flex items-center justify-center overflow-hidden">
+                                <i class="fas fa-image text-3xl text-gray-300"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 block">Short Description</label>
+                            <textarea id="pm-desc" rows="4" placeholder="Mô tả ngắn về sản phẩm..."
+                                class="w-full px-4 py-3 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="flex gap-3 px-8 py-5 border-t border-gray-100 bg-gray-50/50 flex-shrink-0">
+                <button onclick="closeProductModal()" class="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors bg-white">
+                    Cancel
+                </button>
+                <button id="product-modal-submit" onclick="submitProductForm()"
+                    class="flex-1 py-3 rounded-xl bg-black text-white text-sm font-bold shadow-lg hover:shadow-xl transition-all active:scale-95">
+                    Create Product
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
         const API_URL = '/api';
         const token = localStorage.getItem('accessToken');
         let revenueChart = null;
+        let paymentChart = null;
+        let rankChart = null;
+        let categoryChart = null;
+        let currentDateRange = 7;
 
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         function init() {
             if (!token) { window.location.href = '../../pages/auth/login.html'; return; }
 
+            initDarkMode();
             loadAllData();
-            loadInventory(); // [ADDED] Load inventory in background
+            loadInventory();
+            loadAnalytics();
+            startOrderPolling();
 
             // Tab logic
             document.querySelectorAll('.nav-item').forEach(item => {
@@ -665,12 +1148,17 @@
         function showSection(id) {
             document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(id + '-section').classList.remove('hidden');
-            document.getElementById('page-title').innerText = id === 'dashboard' ? 'Overview' : id.charAt(0).toUpperCase() + id.slice(1);
+            const titles = { dashboard: 'Overview', products: 'Products', inventory: 'Inventory', orders: 'Orders', vouchers: 'Vouchers', users: 'Users', reviews: 'Reviews', audit: 'Audit Log' };
+            document.getElementById('page-title').innerText = titles[id] || id.charAt(0).toUpperCase() + id.slice(1);
 
             if (id === 'inventory') loadInventory();
             else if (id === 'users') loadUsers();
             else if (id === 'reviews') loadAdminReviews(1);
-            else if (id !== 'dashboard') loadAllData();
+            else if (id === 'products') loadProducts();
+            else if (id === 'dashboard') loadAnalytics();
+            else if (id === 'audit') loadAuditLogs();
+            else loadAllData();
+            closeSidebarMobile();
         }
 
         // --- REVIEWS SECTION ---
@@ -678,6 +1166,7 @@
 
         async function loadAdminReviews(page) {
             adminReviewsCurrentPage = page || 1;
+            document.getElementById('reviews-table-body').innerHTML = skeletonRows(5, 5);
             try {
                 const res = await fetch(`${API_URL}/admin/reviews?page=${adminReviewsCurrentPage}&limit=20`, {
                     headers: { 'token': `Bearer ${token}` }
@@ -751,6 +1240,7 @@
 
         // --- USERS SECTION ---
         async function loadUsers() {
+            document.querySelector('#users-table tbody').innerHTML = skeletonRows(5, 6);
             try {
                 const res = await fetch(`${API_URL}/admin/users`, { headers: { 'token': `Bearer ${token}` } });
                 if (!res.ok) { showToast('Failed to load users', 'error'); return; }
@@ -788,8 +1278,118 @@
                     <td class="px-6 py-4 font-semibold text-gray-800 whitespace-nowrap">${u.points.toLocaleString()} pts</td>
                     <td class="px-6 py-4 font-semibold text-blue-600 whitespace-nowrap">${(u.totalSpending || 0).toLocaleString('vi-VN')}&#8363;</td>
                     <td class="px-6 py-4 text-gray-400 text-xs whitespace-nowrap">${new Date(u.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <button onclick="openGiveVoucherModal('${u.id}', '${(u.name || u.email).replace(/'/g, "\\'")}')"
+                            class="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 flex items-center justify-center shadow-sm text-[11px]" title="Give Voucher">
+                            <i class="fas fa-gift"></i>
+                        </button>
+                    </td>
                 </tr>`;
-            }).join('') : `<tr><td colspan="6" class="px-6 py-16 text-center text-gray-400 text-sm">No users found.</td></tr>`;
+            }).join('') : `<tr><td colspan="7" class="px-6 py-16 text-center text-gray-400 text-sm">No users found.</td></tr>`;
+        }
+
+        // --- ORDER DETAIL MODAL ---
+        function openOrderDetail(orderId) {
+            const o = allOrders.find(x => x.id === orderId);
+            if (!o) return;
+
+            document.getElementById('order-detail-id').textContent = `#${o.id.slice(-8).toUpperCase()} · ${new Date(o.createdAt).toLocaleDateString('vi-VN')}`;
+
+            const STATUS_COLORS = { Pending: '#F59E0B', Confirmed: '#0071E3', Processing: '#6366F1', Shipped: '#10B981', Completed: '#059669', Cancelled: '#EF4444' };
+            const statusColor = STATUS_COLORS[o.status] || '#86868B';
+
+            const itemsHtml = (o.items || []).map(item => `
+                <div class="flex items-center gap-3 py-3 border-b border-gray-50 last:border-0">
+                    <img src="${getImageUrl(item.image)}" class="w-12 h-12 object-contain rounded-lg bg-gray-50 border border-gray-100 flex-shrink-0" onerror="this.src='/assets/images/logo.png'">
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-900 truncate">${item.name || 'Unknown'}</p>
+                        ${item.color ? `<p class="text-xs text-gray-400">Màu: ${item.color}</p>` : ''}
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <p class="text-sm font-bold text-gray-900">x${item.qty}</p>
+                        <p class="text-xs text-gray-500">${(item.price || 0).toLocaleString('vi-VN')}₫</p>
+                    </div>
+                </div>`).join('') || '<p class="text-xs text-gray-400 italic">Không có sản phẩm.</p>';
+
+            document.getElementById('order-detail-content').innerHTML = `
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Khách hàng</p>
+                        <p class="text-sm font-semibold text-gray-900">${o.recipientName}</p>
+                        <p class="text-xs text-gray-500 mt-1">${o.recipientPhone}</p>
+                        <p class="text-xs text-gray-500">${o.user?.email || o.guestEmail || ''}</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Thanh toán</p>
+                        <p class="text-sm font-semibold text-gray-900">${o.paymentMethod}</p>
+                        <p class="text-xs mt-1" style="color:${statusColor};font-weight:700;">${o.status}</p>
+                        ${o.appliedVoucher ? `<p class="text-xs text-green-600 mt-0.5">Voucher: ${o.appliedVoucher}</p>` : ''}
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-4">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Địa chỉ giao hàng</p>
+                    <p class="text-sm text-gray-700">${o.recipientAddress}</p>
+                    ${o.recipientNotes ? `<p class="text-xs text-gray-400 mt-1 italic">"${o.recipientNotes}"</p>` : ''}
+                </div>
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Sản phẩm (${(o.items || []).length} mục)</p>
+                    ${itemsHtml}
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t border-gray-100">
+                    <div class="text-xs text-gray-400 space-y-1">
+                        <p>Tạm tính: <span class="font-medium text-gray-700">${(o.subtotal || 0).toLocaleString('vi-VN')}₫</span></p>
+                        ${o.discountAmount ? `<p>Giảm giá: <span class="text-green-600 font-medium">-${(o.discountAmount).toLocaleString('vi-VN')}₫</span></p>` : ''}
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xs text-gray-400">Tổng cộng</p>
+                        <p class="text-xl font-bold text-gray-900">${(o.finalAmount || 0).toLocaleString('vi-VN')}₫</p>
+                    </div>
+                </div>`;
+
+            const modal = document.getElementById('order-detail-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeOrderDetail() {
+            const modal = document.getElementById('order-detail-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // --- GIVE VOUCHER MODAL ---
+        function openGiveVoucherModal(userId, userName) {
+            document.getElementById('give-voucher-userid').value = userId;
+            document.getElementById('give-voucher-username').textContent = userName;
+            document.getElementById('give-v-code').value = '';
+            document.getElementById('give-v-amount').value = '';
+            const modal = document.getElementById('give-voucher-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeGiveVoucherModal() {
+            const modal = document.getElementById('give-voucher-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function submitGiveVoucher() {
+            const userId = document.getElementById('give-voucher-userid').value;
+            const code = document.getElementById('give-v-code').value.trim().toUpperCase();
+            const discountAmount = Number(document.getElementById('give-v-amount').value);
+            if (!code) { showToast('Nhập mã voucher', 'error'); return; }
+            if (!discountAmount || discountAmount <= 0) { showToast('Nhập giá trị giảm giá hợp lệ', 'error'); return; }
+            try {
+                const res = await fetch(`${API_URL}/admin/users/${userId}/vouchers`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    body: JSON.stringify({ code, discountAmount })
+                });
+                if (!res.ok) { const err = await res.json(); showToast(err.message || 'Lỗi', 'error'); return; }
+                showToast(`Đã tặng voucher ${code}`, 'success');
+                closeGiveVoucherModal();
+            } catch (e) { showToast('Lỗi kết nối', 'error'); }
         }
 
         async function changeUserRank(userId, selectEl) {
@@ -1077,24 +1677,82 @@
         }
 
         // --- EXISTING LOGIC (ORDERS, VOUCHERS, CHARTS) ---
+        let allOrders = []; // cache for client-side filtering
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            const isOpen = !sidebar.classList.contains('hidden');
+            if (isOpen) {
+                sidebar.classList.add('hidden'); sidebar.classList.remove('flex');
+                overlay.style.display = 'none';
+            } else {
+                sidebar.classList.remove('hidden'); sidebar.classList.add('flex');
+                overlay.style.display = 'block';
+            }
+        }
+
+        function closeSidebarMobile() {
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.add('hidden'); sidebar.classList.remove('flex');
+                document.getElementById('sidebar-overlay').style.display = 'none';
+            }
+        }
+
+        let selectedOrders = new Set();
+
+        function filterOrders() {
+            const q = document.getElementById('order-search').value.trim().toLowerCase();
+            const status = document.getElementById('order-status-filter').value;
+            const payment = document.getElementById('order-payment-filter').value;
+            const dateFrom = document.getElementById('order-date-from').value;
+            const dateTo = document.getElementById('order-date-to').value;
+            const filtered = allOrders.filter(o => {
+                const matchText = !q || (o.recipientName || '').toLowerCase().includes(q)
+                    || (o.recipientPhone || '').includes(q)
+                    || (o.guestEmail || '').toLowerCase().includes(q)
+                    || (o.user?.email || '').toLowerCase().includes(q);
+                const matchStatus = !status || o.status === status;
+                const matchPayment = !payment || o.paymentMethod === payment;
+                const orderDate = new Date(o.createdAt).toISOString().split('T')[0];
+                const matchFrom = !dateFrom || orderDate >= dateFrom;
+                const matchTo = !dateTo || orderDate <= dateTo;
+                return matchText && matchStatus && matchPayment && matchFrom && matchTo;
+            });
+            selectedOrders.clear();
+            updateBulkBar();
+            renderOrdersTable(filtered);
+        }
+
+        function clearOrderFilters() {
+            document.getElementById('order-search').value = '';
+            document.getElementById('order-status-filter').value = '';
+            document.getElementById('order-payment-filter').value = '';
+            document.getElementById('order-date-from').value = '';
+            document.getElementById('order-date-to').value = '';
+            filterOrders();
+        }
+
         async function loadAllData() {
+            document.querySelector('#orders-table tbody').innerHTML = skeletonRows(5, 7);
             try {
                 // Orders & Revenue
-                const orderRes = await fetch(`${API_URL}/admin/orders`, { headers: { 'token': `Bearer ${token}` } });
+                const orderRes = await fetch(`${API_URL}/admin/orders?limit=500`, { headers: { 'token': `Bearer ${token}` } });
                 const { data: orders } = await orderRes.json();
-                const revenue = orders.filter(o => o.status === 'Completed').reduce((sum, o) => sum + (o.finalAmount || 0), 0);
+                allOrders = orders || [];
+                const revenue = allOrders.filter(o => ['Confirmed', 'Completed'].includes(o.status)).reduce((sum, o) => sum + (o.finalAmount || 0), 0);
 
                 document.getElementById('stat-revenue').innerText = revenue.toLocaleString('vi-VN') + '₫';
-                document.getElementById('stat-orders').innerText = orders.length;
+                document.getElementById('stat-orders').innerText = allOrders.length;
 
-                renderChart(orders);
-                renderOrdersTable(orders);
-                renderRecentActivity(orders); // Recent activity widget
-                renderTopProducts(orders);    // Top products widget
+                renderOrdersTable(allOrders);
+                renderRecentActivity(allOrders);
 
-                // Vouchers
-                const vouchRes = await fetch(`${API_URL}/admin/vouchers`, { headers: { 'token': `Bearer ${token}` } });
-                const vouchers = await vouchRes.json();
+                // Vouchers — API now returns { data, total, page, pages }
+                const vouchRes = await fetch(`${API_URL}/admin/vouchers?limit=100`, { headers: { 'token': `Bearer ${token}` } });
+                const vouchJson = await vouchRes.json();
+                const vouchers = vouchJson.data || vouchJson;
                 document.getElementById('stat-vouchers').innerText = vouchers.filter(v => v.isActive).length;
                 renderVouchersTable(vouchers);
             } catch (e) { console.error(e); }
@@ -1132,7 +1790,8 @@
             const tbody = document.querySelector('#orders-table tbody');
             tbody.innerHTML = orders.length ? orders.map(o => {
                 const amount = (o.finalAmount || 0).toLocaleString('vi-VN') + '₫';
-                
+                const checked = selectedOrders.has(o.id) ? 'checked' : '';
+
                 let badgeClass = '';
                 let dotClass = '';
                 if (o.status === 'Completed') {
@@ -1145,13 +1804,14 @@
                     badgeClass = 'bg-white text-amber-600 border border-amber-100 shadow-sm shadow-amber-500/10';
                     dotClass = 'bg-amber-500 shadow-sm shadow-amber-500/50';
                 }
-                
+
                 const badge = `<span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}">
                     <span class="w-1.5 h-1.5 rounded-full ${dotClass}"></span>${o.status}
                 </span>`;
 
                 return `
                 <tr class="hover:bg-gray-50/50 transition-all duration-300 group border-b border-gray-50 last:border-transparent">
+                    <td class="pl-4 pr-2 py-5"><input type="checkbox" class="order-checkbox w-4 h-4 accent-blue-600 cursor-pointer" value="${o.id}" onchange="toggleOrderSelection(this)" ${checked}></td>
                     <td class="px-6 py-5 whitespace-nowrap">
                         <span class="font-mono text-[11px] font-semibold text-gray-400">#${o.id.slice(-6).toUpperCase()}</span>
                     </td>
@@ -1167,38 +1827,99 @@
                     <td class="px-6 py-5 whitespace-nowrap text-[13px] text-gray-500">
                         ${new Date(o.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
-                    <td class="px-6 py-5 whitespace-nowrap">
-                        ${badge}
-                    </td>
+                    <td class="px-6 py-5 whitespace-nowrap">${badge}</td>
                     <td class="px-6 py-5 whitespace-nowrap text-right">
-                        ${o.status === 'Pending' ? `
                         <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <button onclick="updateStatus('${o.id}', 'Completed')" class="w-9 h-9 rounded-full bg-white border border-gray-100 text-gray-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 active:scale-95 transition-all flex items-center justify-center shadow-sm" title="Mark Completed">
-                                <i class="fas fa-check"></i>
+                            <button onclick="openOrderDetail('${o.id}')" class="w-9 h-9 rounded-full bg-white border border-gray-100 text-gray-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 active:scale-95 transition-all flex items-center justify-center shadow-sm" title="View Detail">
+                                <i class="fas fa-eye text-[11px]"></i>
+                            </button>
+                            ${o.status === 'Pending' ? `
+                            <button onclick="updateStatus('${o.id}', 'Confirmed')" class="w-9 h-9 rounded-full bg-white border border-gray-100 text-gray-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 active:scale-95 transition-all flex items-center justify-center shadow-sm" title="Confirm Order">
+                                <i class="fas fa-check text-[11px]"></i>
                             </button>
                             <button onclick="updateStatus('${o.id}', 'Cancelled')" class="w-9 h-9 rounded-full bg-white border border-gray-100 text-gray-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 active:scale-95 transition-all flex items-center justify-center shadow-sm" title="Cancel Order">
-                                <i class="fas fa-times"></i>
-                            </button>
+                                <i class="fas fa-times text-[11px]"></i>
+                            </button>` : ''}
                         </div>
-                        ` : `
-                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-gray-300 group-hover:text-gray-400 transition-colors uppercase tracking-wider">
-                            <i class="fas fa-lock text-[8px] opacity-70"></i> Locked
-                        </span>
-                        `}
                     </td>
                 </tr>`;
             }).join('') : `
             <tr>
-                <td colspan="6" class="px-6 py-20 text-center">
+                <td colspan="7" class="px-6 py-20 text-center">
                     <div class="flex flex-col items-center justify-center">
                         <div class="w-20 h-20 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mb-5 text-gray-300 shadow-inner">
                             <i class="fas fa-inbox text-3xl"></i>
                         </div>
                         <p class="text-gray-600 font-medium text-sm">No orders found</p>
-                        <p class="text-gray-400 text-xs mt-1.5 max-w-xs">When customers place orders, they will appear here in your dashboard.</p>
+                        <p class="text-gray-400 text-xs mt-1.5 max-w-xs">Adjust your filters or wait for new orders.</p>
                     </div>
                 </td>
             </tr>`;
+        }
+
+        function toggleSelectAllOrders(checkbox) {
+            document.querySelectorAll('.order-checkbox').forEach(cb => {
+                cb.checked = checkbox.checked;
+                checkbox.checked ? selectedOrders.add(cb.value) : selectedOrders.delete(cb.value);
+            });
+            updateBulkBar();
+        }
+
+        function toggleOrderSelection(checkbox) {
+            checkbox.checked ? selectedOrders.add(checkbox.value) : selectedOrders.delete(checkbox.value);
+            updateBulkBar();
+        }
+
+        function updateBulkBar() {
+            const bar = document.getElementById('bulk-action-bar');
+            if (selectedOrders.size > 0) {
+                bar.classList.remove('hidden');
+                bar.classList.add('flex');
+                document.getElementById('bulk-count-text').textContent = `${selectedOrders.size} đã chọn`;
+            } else {
+                bar.classList.add('hidden');
+                bar.classList.remove('flex');
+            }
+        }
+
+        function clearOrderSelection() {
+            selectedOrders.clear();
+            document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
+            const selectAll = document.getElementById('select-all-orders');
+            if (selectAll) selectAll.checked = false;
+            updateBulkBar();
+        }
+
+        async function applyBulkStatus() {
+            const status = document.getElementById('bulk-status-select').value;
+            if (!status) { showToast('Chọn trạng thái trước', 'error'); return; }
+            const ids = [...selectedOrders];
+            const confirmed = await showConfirm({
+                title: 'Bulk Update',
+                message: `Cập nhật ${ids.length} đơn hàng sang <strong>${status}</strong>?`,
+                okText: 'Cập nhật', cancelText: 'Hủy'
+            });
+            if (!confirmed) return;
+            try {
+                const res = await fetch(`${API_URL}/admin/orders/bulk-status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    body: JSON.stringify({ ids, status })
+                });
+                if (!res.ok) { const err = await res.json(); showToast(err.message || 'Lỗi', 'error'); return; }
+                const { updated } = await res.json();
+                showToast(`Đã cập nhật ${updated} đơn hàng`, 'success');
+                clearOrderSelection();
+                loadAllData();
+            } catch (e) { showToast('Lỗi kết nối', 'error'); }
+        }
+
+        function exportOrders() {
+            window.location.href = `${API_URL}/admin/orders/export?format=csv`;
+        }
+
+        function exportUsers() {
+            window.location.href = `${API_URL}/admin/users/export?format=csv`;
         }
 
         async function updateStatus(id, status) {
@@ -1218,13 +1939,80 @@
         }
 
         function renderTopProducts(orders) {
-            const productMap = {}; orders.filter(o => o.status === 'Completed').forEach(order => { order.items.forEach(item => { if (productMap[item.name]) productMap[item.name].qty += item.qty; else productMap[item.name] = { name: item.name, image: item.image, qty: item.qty }; }); });
+            const productMap = {}; orders.filter(o => ['Confirmed', 'Completed'].includes(o.status)).forEach(order => { order.items.forEach(item => { if (productMap[item.name]) productMap[item.name].qty += item.qty; else productMap[item.name] = { name: item.name, image: item.image, qty: item.qty }; }); });
             const sorted = Object.values(productMap).sort((a, b) => b.qty - a.qty).slice(0, 5);
             document.getElementById('top-products-list').innerHTML = sorted.map((p, i) => `<div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0"><div class="w-6 h-6 rounded bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center">${i + 1}</div><img src="${getImageUrl(p.image)}" class="w-10 h-10 object-contain rounded bg-white border border-gray-100" onerror="this.src='/assets/images/logo.png'"><div class="flex-1"><p class="text-xs font-bold text-gray-900 truncate w-32">${p.name}</p><p class="text-[10px] text-gray-500">${p.qty} sold</p></div></div>`).join('') || '<p class="text-xs text-gray-400 italic">No sales data.</p>';
         }
 
         function renderVouchersTable(vouchers) {
-            document.querySelector('#vouchers-table tbody').innerHTML = vouchers.map(v => `<tr class="hover:bg-gray-50 transition-colors"><td class="px-6 py-4"><span class="font-mono font-bold text-gray-800 bg-gray-100 px-2 py-1 rounded text-xs">${v.code}</span></td><td class="px-6 py-4 text-green-600 font-bold text-xs">-${v.discountAmount.toLocaleString()}₫</td><td class="px-6 py-4 text-xs font-bold text-gray-500">${v.pointsRequired} Pts</td><td class="px-6 py-4 text-xs text-gray-500">${v.quantity}</td><td class="px-6 py-4 text-right text-xs font-bold ${v.isActive ? 'text-blue-600' : 'text-gray-300'}">${v.isActive ? 'ACTIVE' : 'INACTIVE'}</td></tr>`).join('');
+            document.querySelector('#vouchers-table tbody').innerHTML = vouchers.length ? vouchers.map(v => `
+                <tr class="hover:bg-gray-50 transition-colors group">
+                    <td class="px-6 py-4"><span class="font-mono font-bold text-gray-800 bg-gray-100 px-2 py-1 rounded text-xs">${v.code}</span></td>
+                    <td class="px-6 py-4 text-green-600 font-bold text-xs">-${v.discountAmount.toLocaleString()}₫</td>
+                    <td class="px-6 py-4 text-xs font-bold text-gray-500">${v.pointsRequired} Pts</td>
+                    <td class="px-6 py-4 text-xs text-gray-500">${v.quantity}</td>
+                    <td class="px-6 py-4"><span class="text-xs font-bold ${v.isActive ? 'text-blue-600' : 'text-gray-300'}">${v.isActive ? 'ACTIVE' : 'INACTIVE'}</span></td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="openEditVoucher('${v._id}','${v.code}',${v.discountAmount},${v.pointsRequired},${v.quantity},${v.isActive})"
+                                class="w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-200 flex items-center justify-center shadow-sm transition-all" title="Edit">
+                                <i class="fas fa-pen text-[11px]"></i>
+                            </button>
+                            <button onclick="deleteVoucher('${v._id}','${v.code}')"
+                                class="w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-rose-600 hover:border-rose-200 flex items-center justify-center shadow-sm transition-all" title="Delete">
+                                <i class="fas fa-trash text-[11px]"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`).join('') : `<tr><td colspan="6" class="px-6 py-12 text-center text-xs text-gray-400">No vouchers yet.</td></tr>`;
+        }
+
+        function openEditVoucher(id, code, amount, points, qty, isActive) {
+            document.getElementById('edit-v-id').value = id;
+            document.getElementById('edit-v-code').value = code;
+            document.getElementById('edit-v-amount').value = amount;
+            document.getElementById('edit-v-points').value = points;
+            document.getElementById('edit-v-qty').value = qty;
+            document.getElementById('edit-v-active').checked = isActive;
+            const modal = document.getElementById('voucher-edit-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeVoucherModal() {
+            const modal = document.getElementById('voucher-edit-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function saveVoucher() {
+            const id = document.getElementById('edit-v-id').value;
+            const data = {
+                code: document.getElementById('edit-v-code').value.toUpperCase().trim(),
+                discountAmount: Number(document.getElementById('edit-v-amount').value),
+                pointsRequired: Number(document.getElementById('edit-v-points').value),
+                quantity: Number(document.getElementById('edit-v-qty').value),
+                isActive: document.getElementById('edit-v-active').checked
+            };
+            if (!data.code) { showToast('Code is required', 'error'); return; }
+            try {
+                const res = await fetch(`${API_URL}/admin/vouchers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` }, body: JSON.stringify(data) });
+                if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to update voucher', 'error'); return; }
+                showToast('Voucher updated', 'success');
+                closeVoucherModal();
+                loadAllData();
+            } catch (e) { showToast('Error updating voucher', 'error'); }
+        }
+
+        async function deleteVoucher(id, code) {
+            const confirmed = await showConfirm({ title: 'Delete Voucher', message: `Delete voucher <strong>${code}</strong>? This action cannot be undone.`, okText: 'Delete', cancelText: 'Cancel' });
+            if (!confirmed) return;
+            try {
+                const res = await fetch(`${API_URL}/admin/vouchers/${id}`, { method: 'DELETE', headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to delete voucher', 'error'); return; }
+                showToast(`Voucher ${code} deleted`, 'success');
+                loadAllData();
+            } catch (e) { showToast('Error deleting voucher', 'error'); }
         }
 
         async function createVoucher() {
@@ -1239,18 +2027,664 @@
             } catch (e) { showToast("Failed to create voucher", 'error'); }
         }
 
-        function renderChart(orders) {
+        // ================================================================
+        // ANALYTICS — Phase 3
+        // ================================================================
+
+        async function setDateRange(days) {
+            currentDateRange = days;
+            document.querySelectorAll('.range-btn').forEach(b => {
+                b.classList.remove('active-range');
+                b.classList.add('text-gray-500');
+            });
+            const btn = document.getElementById(`range-${days}`);
+            if (btn) { btn.classList.add('active-range'); btn.classList.remove('text-gray-500'); }
+            await loadRevenueAnalytics(days);
+        }
+
+        async function loadAnalytics() {
+            try {
+                await Promise.all([
+                    loadRevenueAnalytics(currentDateRange),
+                    loadTopProductsAnalytics(),
+                    loadPaymentAnalytics(),
+                    loadRankAnalytics(),
+                    loadFunnelAnalytics(),
+                    loadCategoryAnalytics()
+                ]);
+            } catch (e) { console.error('Analytics load error:', e); }
+        }
+
+        async function loadRevenueAnalytics(days) {
+            const groupBy = days <= 30 ? 'day' : 'week';
+            const to = new Date().toISOString().split('T')[0];
+            const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            try {
+                const res = await fetch(`${API_URL}/admin/analytics/revenue?from=${from}&to=${to}&groupBy=${groupBy}`, { headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) return;
+                const { data } = await res.json();
+                renderRevenueChart(data);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderRevenueChart(data) {
             const ctx = document.getElementById('revenueChart').getContext('2d');
-            const last7Days = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (6 - i)); return { label: d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }), iso: d.toISOString().split('T')[0] }; });
-            const dataPoints = last7Days.map(day => orders.filter(o => o.status === 'Completed' && new Date(o.createdAt).toISOString().split('T')[0] === day.iso).reduce((sum, o) => sum + (o.finalAmount || 0), 0));
+            const labels = data.map(d => {
+                const date = new Date(d.date + 'T00:00:00');
+                return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+            });
+            const values = data.map(d => d.revenue);
             const gradient = ctx.createLinearGradient(0, 0, 0, 300);
             gradient.addColorStop(0, 'rgba(0, 113, 227, 0.18)');
             gradient.addColorStop(1, 'rgba(0, 113, 227, 0)');
             if (revenueChart) revenueChart.destroy();
-            revenueChart = new Chart(ctx, { type: 'line', data: { labels: last7Days.map(d => d.label), datasets: [{ label: 'Revenue', data: dataPoints, borderColor: '#0071E3', borderWidth: 2, backgroundColor: gradient, pointBackgroundColor: '#FFFFFF', pointBorderColor: '#0071E3', pointBorderWidth: 2, pointRadius: 4, fill: true, tension: 0.35 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { border: { display: false }, grid: { color: '#F5F5F7', borderDash: [4, 4] }, ticks: { display: false } } } } });
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{ label: 'Revenue', data: values, borderColor: '#0071E3', borderWidth: 2, backgroundColor: gradient, pointBackgroundColor: '#FFFFFF', pointBorderColor: '#0071E3', pointBorderWidth: 2, pointRadius: 4, fill: true, tension: 0.35 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString('vi-VN') + '₫' } }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } },
+                        y: { border: { display: false }, grid: { color: '#F5F5F7', borderDash: [4, 4] }, ticks: { display: false } }
+                    }
+                }
+            });
+        }
+
+        async function loadTopProductsAnalytics() {
+            try {
+                const res = await fetch(`${API_URL}/admin/analytics/top-products?limit=5`, { headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) return;
+                const { data } = await res.json();
+                renderTopProductsList(data);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderTopProductsList(data) {
+            document.getElementById('top-products-list').innerHTML = data && data.length
+                ? data.map((p, i) => `
+                    <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-50 last:border-0 last:mb-0 last:pb-0">
+                        <div class="w-6 h-6 rounded bg-gray-100 text-gray-500 text-xs font-bold flex items-center justify-center flex-shrink-0">${i + 1}</div>
+                        <img src="${getImageUrl(p.image)}" class="w-10 h-10 object-contain rounded bg-white border border-gray-100 flex-shrink-0" onerror="this.src='/assets/images/logo.png'">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold text-gray-900 truncate">${p.name || 'Unknown'}</p>
+                            <p class="text-[10px] text-gray-500">${p.qty} sold &middot; ${(p.revenue || 0).toLocaleString('vi-VN')}₫</p>
+                        </div>
+                    </div>`).join('')
+                : '<p class="text-xs text-gray-400 italic">No sales data.</p>';
+        }
+
+        async function loadPaymentAnalytics() {
+            try {
+                const res = await fetch(`${API_URL}/admin/analytics/payment-methods`, { headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) return;
+                const { data } = await res.json();
+                renderPaymentChart(data);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderPaymentChart(data) {
+            if (!data || !data.length) return;
+            const ctx = document.getElementById('paymentChart').getContext('2d');
+            const COLORS = { 'COD': '#0071E3', 'VNPay': '#5AC8FA', 'SePay': '#34C759', 'Banking': '#FF9500' };
+            const labels = data.map(d => d.method);
+            const values = data.map(d => d.revenue);
+            const colors = labels.map(l => COLORS[l] || '#86868B');
+            if (paymentChart) paymentChart.destroy();
+            paymentChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 3, borderColor: '#fff', hoverOffset: 4 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { padding: 12, font: { size: 10, family: 'Inter' }, boxWidth: 10, boxHeight: 10 } },
+                        tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw.toLocaleString('vi-VN')}₫` } }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        async function loadRankAnalytics() {
+            try {
+                const res = await fetch(`${API_URL}/admin/analytics/user-segments`, { headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) return;
+                const { data } = await res.json();
+                renderRankChart(data);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderRankChart(data) {
+            if (!data || !data.length) return;
+            const ctx = document.getElementById('rankChart').getContext('2d');
+            const COLORS = { 'Silver': '#C0C0C0', 'Gold': '#F5A623', 'VIP': '#1D1D1F' };
+            const labels = data.map(d => d.rank);
+            const values = data.map(d => d.count);
+            const colors = labels.map(l => COLORS[l] || '#86868B');
+            if (rankChart) rankChart.destroy();
+            rankChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 3, borderColor: '#fff' }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { padding: 12, font: { size: 10, family: 'Inter' }, boxWidth: 10, boxHeight: 10 } },
+                        tooltip: { callbacks: { label: ctx => `${ctx.label}: ${ctx.raw} users` } }
+                    },
+                    cutout: '60%'
+                }
+            });
+        }
+
+        async function loadFunnelAnalytics() {
+            try {
+                const res = await fetch(`${API_URL}/admin/analytics/order-funnel`, { headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) return;
+                const { data } = await res.json();
+                renderFunnel(data);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderFunnel(data) {
+            const container = document.getElementById('funnel-container');
+            if (!data || !data.length) { container.innerHTML = '<p class="text-xs text-gray-400 italic">No order data.</p>'; return; }
+            const total = data.reduce((s, d) => s + d.count, 0);
+            const ORDER = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Completed', 'Cancelled'];
+            const COLORS = { Pending: '#F59E0B', Confirmed: '#0071E3', Processing: '#6366F1', Shipped: '#10B981', Completed: '#059669', Cancelled: '#EF4444' };
+            const sorted = [...data].sort((a, b) => {
+                const ai = ORDER.indexOf(a.status), bi = ORDER.indexOf(b.status);
+                return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+            });
+            container.innerHTML = sorted.map(item => {
+                const pct = total > 0 ? Math.round((item.count / total) * 100) : 0;
+                const color = COLORS[item.status] || '#86868B';
+                return `<div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-[11px] font-semibold text-gray-600">${item.status}</span>
+                        <span class="text-[11px] font-bold text-gray-900">${item.count} <span class="text-gray-400 font-normal">${pct}%</span></span>
+                    </div>
+                    <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full" style="width:${pct}%;background:${color};transition:width 0.7s ease;"></div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function loadCategoryAnalytics() {
+            try {
+                const res = await fetch(`${API_URL}/admin/analytics/category-revenue`, { headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) return;
+                const { data } = await res.json();
+                renderCategoryChart(data);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderCategoryChart(data) {
+            if (!data || !data.length) return;
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const CAT_COLORS = { 'iPhone': '#0071E3', 'iPad': '#5856D6', 'Mac': '#34C759', 'Apple Watch': '#FF9500', 'AirPods': '#FF2D55', 'Apple TV': '#5AC8FA', 'Accessories': '#8E8E93' };
+            const sorted = [...data].sort((a, b) => b.revenue - a.revenue);
+            const labels = sorted.map(d => d.category);
+            const values = sorted.map(d => d.revenue);
+            const colors = labels.map(l => CAT_COLORS[l] || '#86868B');
+            if (categoryChart) categoryChart.destroy();
+            categoryChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets: [{ label: 'Revenue', data: values, backgroundColor: colors, borderRadius: 8, borderSkipped: false }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString('vi-VN') + '₫' } }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            border: { display: false },
+                            grid: { color: '#F5F5F7', borderDash: [4, 4] },
+                            ticks: {
+                                callback: val => {
+                                    if (val >= 1e9) return (val / 1e9).toFixed(0) + 'B₫';
+                                    if (val >= 1e6) return (val / 1e6).toFixed(0) + 'M₫';
+                                    if (val >= 1e3) return (val / 1e3).toFixed(0) + 'K₫';
+                                    return val + '₫';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ================================================================
+        // PRODUCTS SECTION
+        // ================================================================
+        let allProducts = [];
+        let productModalMode = 'create'; // 'create' | 'edit'
+
+        const CATEGORY_COLORS = {
+            'iPhone':       'bg-blue-100 text-blue-700',
+            'iPad':         'bg-purple-100 text-purple-700',
+            'Mac':          'bg-gray-100 text-gray-700',
+            'Apple Watch':  'bg-pink-100 text-pink-700',
+            'AirPods':      'bg-indigo-100 text-indigo-700',
+            'Apple TV':     'bg-orange-100 text-orange-700',
+            'Accessories':  'bg-teal-100 text-teal-700',
+        };
+
+        async function loadProducts(page = 1) {
+            const tbody = document.getElementById('products-table-body');
+            tbody.innerHTML = skeletonRows(5, 6);
+            try {
+                const res = await fetch(`${API_URL}/admin/products?page=${page}&limit=20`, { headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) { showToast('Failed to load products', 'error'); return; }
+                const json = await res.json();
+                allProducts = json.data || [];
+                renderProductsTable(allProducts);
+                renderProductsPagination(json.page, json.pages, json.total);
+            } catch (e) { showToast('Failed to load products', 'error'); }
+        }
+
+        function filterProducts() {
+            const q = document.getElementById('product-search').value.trim().toLowerCase();
+            const cat = document.getElementById('product-category-filter').value;
+            const status = document.getElementById('product-status-filter').value;
+            const filtered = allProducts.filter(p => {
+                const matchName = !q || (p.name || '').toLowerCase().includes(q);
+                const matchCat = !cat || p.category === cat;
+                const matchStatus = !status
+                    || (status === 'active' && p.isActive !== false)
+                    || (status === 'inactive' && p.isActive === false);
+                return matchName && matchCat && matchStatus;
+            });
+            renderProductsTable(filtered);
+        }
+
+        function renderProductsTable(products) {
+            const tbody = document.getElementById('products-table-body');
+            if (!products.length) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-20 text-center">
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="w-16 h-16 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-300">
+                            <i class="fas fa-cube text-2xl"></i>
+                        </div>
+                        <p class="text-gray-500 font-medium text-sm">No products found</p>
+                        <p class="text-gray-400 text-xs mt-1">Try adjusting your search or filters</p>
+                    </div>
+                </td></tr>`;
+                return;
+            }
+            tbody.innerHTML = products.map(p => {
+                const catColor = CATEGORY_COLORS[p.category] || 'bg-gray-100 text-gray-600';
+                const isActive = p.isActive !== false;
+                const stockNum = p.stock || 0;
+                const stockClass = stockNum === 0 ? 'text-red-600 font-bold' : stockNum < 10 ? 'text-amber-600 font-semibold' : 'text-gray-800 font-semibold';
+                const stockLabel = stockNum === 0 ? `<span class="ml-1 text-[9px] bg-red-100 text-red-600 px-1 py-0.5 rounded font-bold">OUT</span>`
+                    : stockNum < 10 ? `<span class="ml-1 text-[9px] bg-amber-100 text-amber-600 px-1 py-0.5 rounded font-bold">LOW</span>` : '';
+                const img = p.image_url
+                    ? `<img src="${p.image_url}" class="w-11 h-11 object-contain rounded-lg bg-gray-50 border border-gray-100 flex-shrink-0" onerror="this.src='/assets/images/logo.png'" alt="">`
+                    : `<div class="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0"><i class="fas fa-image text-gray-300"></i></div>`;
+
+                // Escape for inline onclick
+                const safeName = (p.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeImg = (p.image_url || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const safeDesc = (p.short_description || p.desc || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+                return `
+                <tr class="hover:bg-gray-50/50 transition-all duration-200 group border-b border-gray-50 last:border-transparent">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center gap-3">
+                            ${img}
+                            <div>
+                                <p class="font-medium text-gray-900 text-sm leading-tight">${p.name || '-'}</p>
+                                <p class="text-[11px] text-gray-400 mt-0.5 font-mono">#${String(p._id).slice(-8)}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold ${catColor}">${p.category || '-'}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="font-semibold text-gray-800 text-sm">${(p.price || 0).toLocaleString('vi-VN')}₫</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="${stockClass} text-sm">${stockNum.toLocaleString()}${stockLabel}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${isActive ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-gray-100 text-gray-400 border border-gray-200'}">
+                            <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500' : 'bg-gray-300'}"></span>
+                            ${isActive ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <button onclick="openEditProduct(${JSON.stringify(p).replace(/"/g, '&quot;')})"
+                                class="w-9 h-9 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 flex items-center justify-center shadow-sm transition-all" title="Edit">
+                                <i class="fas fa-pen text-[11px]"></i>
+                            </button>
+                            <button onclick="softDeleteProduct('${p._id}', '${safeName}', ${isActive})"
+                                class="w-9 h-9 rounded-full bg-white border border-gray-200 text-gray-400 hover:text-${isActive ? 'rose' : 'emerald'}-600 hover:border-${isActive ? 'rose' : 'emerald'}-200 hover:bg-${isActive ? 'rose' : 'emerald'}-50 flex items-center justify-center shadow-sm transition-all" title="${isActive ? 'Deactivate' : 'Activate'}">
+                                <i class="fas fa-${isActive ? 'eye-slash' : 'eye'} text-[11px]"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function renderProductsPagination(page, pages, total) {
+            const wrap = document.getElementById('products-pagination');
+            const countEl = document.getElementById('products-count');
+            const btnsEl = document.getElementById('products-page-btns');
+            if (!pages || pages <= 1) { wrap.classList.add('hidden'); return; }
+            wrap.classList.remove('hidden');
+            countEl.textContent = `${total} sản phẩm · Trang ${page}/${pages}`;
+            btnsEl.innerHTML = Array.from({ length: pages }, (_, i) => i + 1).map(p =>
+                `<button onclick="loadProducts(${p})" class="w-8 h-8 rounded-lg text-xs font-bold transition-all ${p === page ? 'bg-black text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}">${p}</button>`
+            ).join('');
+        }
+
+        function openCreateProduct() {
+            productModalMode = 'create';
+            document.getElementById('product-modal-id').value = '';
+            document.getElementById('pm-name').value = '';
+            document.getElementById('pm-category').value = '';
+            document.getElementById('pm-price').value = '';
+            document.getElementById('pm-stock').value = '';
+            document.getElementById('pm-image').value = '';
+            document.getElementById('pm-desc').value = '';
+            document.getElementById('pm-active').checked = true;
+            document.getElementById('pm-image-preview').innerHTML = '<i class="fas fa-image text-3xl text-gray-300"></i>';
+            document.getElementById('product-modal-title').textContent = 'New Product';
+            document.getElementById('product-modal-submit').textContent = 'Create Product';
+            document.getElementById('product-modal-icon').innerHTML = '<i class="fas fa-plus text-xs"></i>';
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function openEditProduct(productData) {
+            // productData may come as a stringified object from onclick attribute
+            const p = typeof productData === 'string' ? JSON.parse(productData) : productData;
+            productModalMode = 'edit';
+            document.getElementById('product-modal-id').value = p._id;
+            document.getElementById('pm-name').value = p.name || '';
+            document.getElementById('pm-category').value = p.category || '';
+            document.getElementById('pm-price').value = p.price || '';
+            document.getElementById('pm-stock').value = p.stock || '';
+            document.getElementById('pm-image').value = p.image_url || '';
+            document.getElementById('pm-desc').value = p.short_description || p.desc || '';
+            document.getElementById('pm-active').checked = p.isActive !== false;
+            previewProductImage();
+            document.getElementById('product-modal-title').textContent = 'Edit Product';
+            document.getElementById('product-modal-submit').textContent = 'Save Changes';
+            document.getElementById('product-modal-icon').innerHTML = '<i class="fas fa-pen text-xs"></i>';
+            const modal = document.getElementById('product-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeProductModal() {
+            const modal = document.getElementById('product-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function previewProductImage() {
+            const url = document.getElementById('pm-image').value.trim();
+            const preview = document.getElementById('pm-image-preview');
+            if (url) {
+                preview.innerHTML = `<img src="${url}" class="w-full h-full object-contain p-2" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-image text-3xl text-gray-300\\'></i>'" alt="preview">`;
+            } else {
+                preview.innerHTML = '<i class="fas fa-image text-3xl text-gray-300"></i>';
+            }
+        }
+
+        async function submitProductForm() {
+            const name = document.getElementById('pm-name').value.trim();
+            const category = document.getElementById('pm-category').value;
+            const price = Number(document.getElementById('pm-price').value);
+            const stock = Number(document.getElementById('pm-stock').value);
+            const image_url = document.getElementById('pm-image').value.trim();
+            const short_description = document.getElementById('pm-desc').value.trim();
+            const isActive = document.getElementById('pm-active').checked;
+
+            if (!name) { showToast('Product name is required', 'error'); return; }
+            if (!category) { showToast('Category is required', 'error'); return; }
+            if (!price || price < 0) { showToast('Price must be a positive number', 'error'); return; }
+            if (stock < 0) { showToast('Stock cannot be negative', 'error'); return; }
+
+            const payload = { name, category, price, stock, image_url, short_description, isActive };
+            const id = document.getElementById('product-modal-id').value;
+            const isEdit = productModalMode === 'edit' && id;
+
+            const btn = document.getElementById('product-modal-submit');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Saving...';
+
+            try {
+                const url = isEdit ? `${API_URL}/products/${id}` : `${API_URL}/products`;
+                const method = isEdit ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+                if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to save product', 'error'); return; }
+                showToast(isEdit ? `"${name}" updated` : `"${name}" created`, 'success');
+                closeProductModal();
+                loadProducts();
+            } catch (e) {
+                showToast('Error saving product', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = isEdit ? 'Save Changes' : 'Create Product';
+            }
+        }
+
+        async function softDeleteProduct(id, name, isCurrentlyActive) {
+            const action = isCurrentlyActive ? 'deactivate' : 'activate';
+            const actionVN = isCurrentlyActive ? 'ẩn' : 'hiện';
+            const confirmed = await showConfirm({
+                title: `${isCurrentlyActive ? 'Deactivate' : 'Activate'} Product`,
+                message: `${isCurrentlyActive ? 'Ẩn' : 'Hiện'} sản phẩm <strong>"${name}"</strong>?<br><span class="text-sm text-gray-500">${isCurrentlyActive ? 'Sản phẩm sẽ không còn hiển thị trên store.' : 'Sản phẩm sẽ hiển thị lại trên store.'}</span>`,
+                okText: isCurrentlyActive ? 'Deactivate' : 'Activate',
+                icon: isCurrentlyActive ? 'warning' : 'question'
+            });
+            if (!confirmed) return;
+            try {
+                const res = await fetch(`${API_URL}/products/${id}`, {
+                    method: isCurrentlyActive ? 'DELETE' : 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    body: isCurrentlyActive ? undefined : JSON.stringify({ isActive: true })
+                });
+                if (!res.ok) { const err = await res.json(); showToast(err.message || `Failed to ${action} product`, 'error'); return; }
+                showToast(`"${name}" ${actionVN} thành công`, 'success');
+                loadProducts();
+            } catch (e) { showToast(`Error: ${e.message}`, 'error'); }
         }
 
         init();
+
+        // ================================================================
+        // PHASE 5 — REAL-TIME, UX POLISH
+        // ================================================================
+
+        // --- SKELETON LOADING HELPER ---
+        function skeletonRows(count, cols) {
+            return Array.from({length: count}, () =>
+                `<tr>${Array.from({length: cols}, () =>
+                    `<td class="px-6 py-4"><div class="h-3.5 skeleton-pulse"></div></td>`
+                ).join('')}</tr>`
+            ).join('');
+        }
+
+        // --- DARK MODE ---
+        function initDarkMode() {
+            if (localStorage.getItem('adminDarkMode') === 'true') {
+                document.body.classList.add('dark');
+                document.getElementById('dark-icon').className = 'fas fa-sun text-sm';
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark');
+            localStorage.setItem('adminDarkMode', String(isDark));
+            document.getElementById('dark-icon').className = isDark ? 'fas fa-sun text-sm' : 'fas fa-moon text-sm';
+        }
+
+        // --- ORDER POLLING (30s) ---
+        let lastOrderTotal = null;
+
+        async function startOrderPolling() {
+            async function poll() {
+                try {
+                    const res = await fetch(`${API_URL}/admin/orders?page=1&limit=1`, { headers: { 'token': `Bearer ${token}` } });
+                    if (!res.ok) return;
+                    const json = await res.json();
+                    const total = json.total || 0;
+                    if (lastOrderTotal !== null && total > lastOrderTotal) {
+                        const diff = total - lastOrderTotal;
+                        showToast(`${diff} new order${diff > 1 ? 's' : ''} received!`, 'info');
+                    }
+                    lastOrderTotal = total;
+                } catch(e) {}
+            }
+            await poll();
+            setInterval(poll, 30000);
+        }
+
+        // --- KEYBOARD SHORTCUTS ---
+        (function() {
+            let buf = '', timer = null;
+            const SHORTS = {
+                'gd': () => navTo('dashboard', 'nav-dashboard'),
+                'go': () => navTo('orders', 'nav-orders'),
+                'gp': () => navTo('products', 'nav-products'),
+                'gi': () => navTo('inventory', 'nav-inventory'),
+                'gv': () => navTo('vouchers', 'nav-vouchers'),
+                'gu': () => navTo('users', 'nav-users'),
+                'gr': () => navTo('reviews', 'nav-reviews'),
+                'ga': () => navTo('audit', 'nav-audit'),
+            };
+            function navTo(section, navId) {
+                showSection(section);
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.getElementById(navId)?.classList.add('active');
+            }
+            document.addEventListener('keydown', e => {
+                if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+                if (e.key === '?') { toggleKbdOverlay(); return; }
+                if (e.key === 'Escape') { closeKbdOverlay(); return; }
+                buf += e.key.toLowerCase();
+                clearTimeout(timer);
+                if (SHORTS[buf]) { SHORTS[buf](); buf = ''; return; }
+                timer = setTimeout(() => { buf = ''; }, 1500);
+            });
+        })();
+
+        function toggleKbdOverlay() {
+            if (document.getElementById('kbd-overlay')) { closeKbdOverlay(); return; }
+            const rows = [
+                ['g d', 'Dashboard'], ['g o', 'Orders'], ['g p', 'Products'],
+                ['g i', 'Inventory'], ['g v', 'Vouchers'], ['g u', 'Users'],
+                ['g r', 'Reviews'], ['g a', 'Audit Log'], ['?', 'Show shortcuts'],
+            ];
+            const div = document.createElement('div');
+            div.id = 'kbd-overlay';
+            div.onclick = e => { if (e.target === div) closeKbdOverlay(); };
+            div.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-2xl p-7 w-80 max-w-[90vw]">
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="font-bold text-gray-900 text-base">Keyboard Shortcuts</h3>
+                    <button onclick="closeKbdOverlay()" class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors"><i class="fas fa-times text-xs"></i></button>
+                </div>
+                <div class="space-y-2.5">
+                    ${rows.map(([k, v]) => `
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">${v}</span>
+                        <div class="flex gap-1">${k.split(' ').map(ch => `<span class="kbd-badge">${ch}</span>`).join('')}</div>
+                    </div>`).join('')}
+                </div>
+            </div>`;
+            document.body.appendChild(div);
+        }
+
+        function closeKbdOverlay() {
+            document.getElementById('kbd-overlay')?.remove();
+        }
+
+        // --- AUDIT LOG ---
+        const AUDIT_META = {
+            updateOrderStatus:    { icon: 'fa-box',       bg: 'bg-blue-100',   color: 'text-blue-600'   },
+            cancelOrderAdmin:     { icon: 'fa-times-circle', bg: 'bg-red-100',  color: 'text-red-600'    },
+            bulkUpdateOrderStatus:{ icon: 'fa-layer-group', bg: 'bg-indigo-100',color: 'text-indigo-600' },
+            updateUserRank:       { icon: 'fa-crown',     bg: 'bg-amber-100',  color: 'text-amber-600'  },
+            giveVoucherToUser:    { icon: 'fa-ticket-alt',bg: 'bg-green-100',  color: 'text-green-600'  },
+            deleteReview:         { icon: 'fa-star',      bg: 'bg-rose-100',   color: 'text-rose-600'   },
+        };
+
+        async function loadAuditLogs() {
+            const container = document.getElementById('audit-timeline');
+            container.innerHTML = Array.from({length: 5}, () =>
+                `<div class="flex gap-4 py-4 border-b border-gray-50">
+                    <div class="w-8 h-8 rounded-full skeleton-pulse flex-shrink-0"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-3.5 skeleton-pulse w-1/3"></div>
+                        <div class="h-3 skeleton-pulse w-2/3"></div>
+                    </div>
+                </div>`
+            ).join('');
+            try {
+                const res = await fetch(`${API_URL}/admin/audit-logs`, { headers: { 'token': `Bearer ${token}` } });
+                if (!res.ok) { container.innerHTML = '<p class="text-sm text-gray-400 py-10 text-center">Failed to load audit logs.</p>'; return; }
+                renderAuditTimeline(await res.json());
+            } catch(e) {
+                container.innerHTML = '<p class="text-sm text-gray-400 py-10 text-center">Failed to load audit logs.</p>';
+            }
+        }
+
+        function renderAuditTimeline(logs) {
+            const container = document.getElementById('audit-timeline');
+            if (!logs.length) {
+                container.innerHTML = `<div class="py-14 text-center">
+                    <div class="w-14 h-14 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300"><i class="fas fa-history text-xl"></i></div>
+                    <p class="text-sm text-gray-500 font-medium">No audit events yet</p>
+                    <p class="text-xs text-gray-400 mt-1">Actions are recorded as admins make changes</p>
+                </div>`;
+                return;
+            }
+            container.innerHTML = logs.map((log, i) => {
+                const m = AUDIT_META[log.action] || { icon: 'fa-cog', bg: 'bg-gray-100', color: 'text-gray-500' };
+                const label = log.action.replace(/([A-Z])/g, ' $1').trim();
+                const time = new Date(log.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const details = Object.entries(log)
+                    .filter(([k]) => !['action','timestamp','adminId'].includes(k))
+                    .map(([k, v]) => `<span class="text-gray-400">${k}:</span> <span class="font-medium">${v}</span>`)
+                    .join(' &middot; ');
+                const isLast = i === logs.length - 1;
+                return `
+                <div class="flex gap-4 py-4 ${isLast ? '' : 'border-b border-gray-50'}">
+                    <div class="w-8 h-8 rounded-full ${m.bg} flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="fas ${m.icon} text-xs ${m.color}"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2 mb-0.5">
+                            <span class="text-sm font-semibold text-gray-800 capitalize">${label}</span>
+                            <span class="text-[11px] text-gray-400 font-medium flex-shrink-0">${time}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 leading-relaxed">${details || 'No details'}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
     </script>
 </body>
 

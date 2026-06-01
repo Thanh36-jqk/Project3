@@ -10,6 +10,7 @@ module.exports = {
         '!src/services/emailService.js',
         '!src/services/rabbitmqService.js',
         '!src/services/vnpayService.js',
+        '!src/services/sepayService.js',
         // AI chatbot — requires live Google Gemini API key
         '!src/controllers/chatbotController.js',
         // HTML email templates — static template strings, not business logic

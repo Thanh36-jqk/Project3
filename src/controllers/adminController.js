@@ -7,6 +7,7 @@ const Review = require('../models/Review');
 const { sendEmail } = require('../services/emailService');
 const { buildCancellationEmail } = require('../utils/emailTemplates');
 const { recalculateProductRatings } = require('./reviewController');
+const { pushAudit, getAuditLogs } = require('../utils/auditLog');
 
 const ORDER_STATUS_CONFIG = {
     Confirmed:  { subject: 'Order Confirmed — Apple Store',          color: '#0071e3', headline: 'Your order has been confirmed',    body: 'Great news! We\'ve confirmed your order and our team is getting it ready.' },
@@ -63,7 +64,7 @@ exports.getDashboardStats = async (req, res) => {
         const totalProducts = await Product.countDocuments();
         const totalOrders = await prisma.order.count();
         const totalUsers = await prisma.user.count();
-        const revenueAgg = await prisma.order.aggregate({ where: { status: 'Completed' }, _sum: { finalAmount: true } });
+        const revenueAgg = await prisma.order.aggregate({ where: { status: { in: ['Confirmed', 'Completed'] } }, _sum: { finalAmount: true } });
 
         res.status(200).json({
             totalProducts,
@@ -132,6 +133,7 @@ exports.updateOrderStatus = async (req, res) => {
         });
 
         logger.info('ADMIN_AUDIT', { action: 'updateOrderStatus', adminId: req.user?.id, orderId: req.params.id, status });
+        pushAudit('updateOrderStatus', { adminId: req.user?.id, orderId: req.params.id, status });
 
         const recipientEmail = order.user?.email || order.guestEmail;
         if (recipientEmail) {
@@ -184,6 +186,7 @@ exports.updateUserRank = async (req, res) => {
             select: { id: true, name: true, email: true, role: true, rank: true, points: true }
         });
         logger.info('ADMIN_AUDIT', { action: 'updateUserRank', adminId: req.user?.id, targetUserId: req.params.id, rank });
+        pushAudit('updateUserRank', { adminId: req.user?.id, targetUserId: req.params.id, rank });
         res.status(200).json(user);
     } catch (error) {
         if (error.code === 'P2025') return res.status(404).json({ message: 'User not found' });
@@ -193,8 +196,14 @@ exports.updateUserRank = async (req, res) => {
 
 exports.getAllVouchers = async (req, res) => {
     try {
-        const vouchers = await Voucher.find().sort({ createdAt: -1 });
-        res.status(200).json(vouchers);
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+        const skip = (page - 1) * limit;
+        const [vouchers, total] = await Promise.all([
+            Voucher.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
+            Voucher.countDocuments()
+        ]);
+        res.status(200).json({ data: vouchers, total, page, pages: Math.ceil(total / limit) });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -319,9 +328,103 @@ exports.cancelOrderAdmin = async (req, res) => {
         }
 
         logger.info('ADMIN_AUDIT', { action: 'cancelOrderAdmin', adminId: req.user?.id, orderId: req.params.id, reason: cancelReason });
+        pushAudit('cancelOrderAdmin', { adminId: req.user?.id, orderId: req.params.id, reason: cancelReason });
         res.status(200).json({ message: 'Order cancelled successfully' });
     } catch (error) {
         if (error.code === 'P2025') return res.status(404).json({ message: 'Order not found' });
+        res.status(500).json({ message: error.message });
+    }
+};
+
+function escapeCSV(val) {
+    if (val == null) return '';
+    const s = String(val);
+    return (s.includes(',') || s.includes('"') || s.includes('\n')) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+// GET /api/admin/orders/export?format=csv
+exports.exportOrders = async (req, res) => {
+    try {
+        const orders = await prisma.order.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: { user: { select: { email: true } }, items: true }
+        });
+
+        const header = 'Order ID,Customer,Email,Phone,Payment,Items,Total,Status,Date';
+        const rows = orders.map(o => {
+            const itemsStr = o.items.map(i => `${i.name || 'Unknown'} x${i.qty}`).join(' | ');
+            return [
+                o.id, o.recipientName, o.user?.email || o.guestEmail || '',
+                o.recipientPhone, o.paymentMethod, itemsStr,
+                o.finalAmount, o.status, new Date(o.createdAt).toISOString().split('T')[0]
+            ].map(escapeCSV).join(',');
+        });
+
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', 'attachment; filename="orders.csv"');
+        res.send('﻿' + [header, ...rows].join('\n'));
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// GET /api/admin/users/export?format=csv
+exports.exportUsers = async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            orderBy: { createdAt: 'desc' },
+            select: { email: true, name: true, phone: true, rank: true, points: true, totalSpending: true, createdAt: true }
+        });
+
+        const header = 'Email,Name,Phone,Rank,Points,Total Spending (VND),Registered';
+        const rows = users.map(u => [
+            u.email, u.name || '', u.phone || '', u.rank,
+            u.points, u.totalSpending, new Date(u.createdAt).toISOString().split('T')[0]
+        ].map(escapeCSV).join(','));
+
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', 'attachment; filename="users.csv"');
+        res.send('﻿' + [header, ...rows].join('\n'));
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// PATCH /api/admin/orders/bulk-status — { ids: [], status: '' }
+exports.bulkUpdateOrderStatus = async (req, res) => {
+    try {
+        const { ids, status } = req.body;
+        const allowedStatuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Completed', 'Cancelled'];
+        if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ message: 'ids array required' });
+        if (!allowedStatuses.includes(status)) return res.status(400).json({ message: 'Invalid status' });
+
+        const { count } = await prisma.order.updateMany({ where: { id: { in: ids } }, data: { status } });
+
+        logger.info('ADMIN_AUDIT', { action: 'bulkUpdateOrderStatus', adminId: req.user?.id, count, status });
+        pushAudit('bulkUpdateOrderStatus', { adminId: req.user?.id, count, status });
+        res.json({ updated: count });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// POST /api/admin/users/:id/vouchers — give voucher manually
+exports.giveVoucherToUser = async (req, res) => {
+    try {
+        const { code, discountAmount } = req.body;
+        if (!code || discountAmount == null) return res.status(400).json({ message: 'code and discountAmount required' });
+
+        const user = await prisma.user.findUnique({ where: { id: req.params.id }, select: { id: true } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const voucher = await prisma.voucher.create({
+            data: { userId: req.params.id, code: code.toUpperCase().trim(), discountAmount: Number(discountAmount), isUsed: false }
+        });
+
+        logger.info('ADMIN_AUDIT', { action: 'giveVoucherToUser', adminId: req.user?.id, targetUserId: req.params.id, code: voucher.code });
+        pushAudit('giveVoucherToUser', { adminId: req.user?.id, targetUserId: req.params.id, code: voucher.code });
+        res.status(201).json(voucher);
+    } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
@@ -338,8 +441,13 @@ exports.deleteReview = async (req, res) => {
         await recalculateProductRatings(review.productId.toString());
 
         logger.info('ADMIN_AUDIT', { action: 'deleteReview', adminId: req.user?.id, reviewId: req.params.id, productId: review.productId });
+        pushAudit('deleteReview', { adminId: req.user?.id, reviewId: req.params.id, productId: String(review.productId) });
         res.status(200).json({ message: 'Review deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+};
+
+exports.getAuditLogs = (req, res) => {
+    res.json(getAuditLogs());
 };

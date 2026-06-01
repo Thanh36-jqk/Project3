@@ -30,6 +30,11 @@ jest.mock('../../../src/controllers/adminController', () => ({
     updateVoucher: (...a) => controllerImpl.updateVoucher(...a),
     deleteVoucher: (...a) => controllerImpl.deleteVoucher(...a),
     cancelOrderAdmin: (...a) => controllerImpl.cancelOrderAdmin(...a),
+    exportOrders: (req, res) => res.status(200).send('Order ID,Customer\n'),
+    exportUsers: (req, res) => res.status(200).send('Email,Name\n'),
+    bulkUpdateOrderStatus: (req, res) => res.status(200).json({ updated: 0 }),
+    giveVoucherToUser: (req, res) => res.status(201).json({ id: 'v1' }),
+    getAuditLogs: (req, res) => res.status(200).json([]),
 }));
 jest.mock('../../../src/controllers/reviewController', () => ({
     getAllReviews: (req, res) => res.status(200).json({ reviews: [], total: 0, page: 1, pages: 0 }),

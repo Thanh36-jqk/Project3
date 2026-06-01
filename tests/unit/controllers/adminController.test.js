@@ -25,7 +25,7 @@ describe('Admin Controller', () => {
     let req, res;
 
     beforeEach(() => {
-        req = { params: {}, body: {}, user: { id: 'admin-1', role: 'admin' } };
+        req = { params: {}, body: {}, query: {}, user: { id: 'admin-1', role: 'admin' } };
         res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
@@ -267,13 +267,19 @@ describe('Admin Controller', () => {
     describe('Voucher Management', () => {
         it('should return all vouchers', async () => {
             const mockVouchers = [{ code: 'SAVE10', discountAmount: 10000, isActive: true }];
-            const chainMock = { sort: jest.fn().mockResolvedValue(mockVouchers) };
-            Voucher.find.mockReturnValue(chainMock);
+            Voucher.find.mockReturnValue({
+                sort: jest.fn().mockReturnThis(),
+                skip: jest.fn().mockReturnThis(),
+                limit: jest.fn().mockResolvedValue(mockVouchers)
+            });
+            Voucher.countDocuments = jest.fn().mockResolvedValue(1);
 
             await adminController.getAllVouchers(req, res);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(mockVouchers);
+            const response = res.json.mock.calls[0][0];
+            expect(response.data).toEqual(mockVouchers);
+            expect(response.total).toBe(1);
         });
 
         it('should create a voucher successfully', async () => {
@@ -339,6 +345,13 @@ describe('Admin Controller', () => {
             await adminController.deleteVoucher(req, res);
 
             expect(res.status).toHaveBeenCalledWith(404);
+        });
+    });
+
+    describe('getAuditLogs', () => {
+        it('should return audit logs array', () => {
+            adminController.getAuditLogs(req, res);
+            expect(res.json).toHaveBeenCalledWith(expect.any(Array));
         });
     });
 });
