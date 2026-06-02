@@ -26,6 +26,20 @@ const errorHandler = require('./src/middleware/errorHandler');
 const { apiLimiter } = require('./src/middleware/rateLimiter');
 
 // ==================================================================
+// Startup Environment Validation
+// ==================================================================
+const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL', 'MONGODB_URI'];
+const missingEnv = REQUIRED_ENV.filter(k => !process.env[k]);
+if (missingEnv.length) {
+    console.error('FATAL: Missing required environment variables:', missingEnv.join(', '));
+    process.exit(1);
+}
+if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
+    console.error('FATAL: JWT_SECRET is too weak (minimum 32 characters required)');
+    process.exit(1);
+}
+
+// ==================================================================
 // Initialize Express App
 // ==================================================================
 const app = express();
@@ -54,8 +68,7 @@ const allowedOrigins = [
 ];
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (same-origin, Postman, server-to-server)
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
@@ -97,7 +110,7 @@ app.use(session({
     saveUninitialized: false,           // Changed: don't save empty sessions
     cookie: {
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        sameSite: 'lax',
         maxAge: 24 * 60 * 60 * 1000
     }
 }));
@@ -138,6 +151,23 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development'
     });
+});
+
+// Temporary DB diagnostics — shows host only, never exposes credentials
+app.get('/api/db-check', async (req, res) => {
+    const prisma = require('./src/config/postgres');
+    const rawUrl = process.env.DATABASE_URL || '';
+    let host = '(DATABASE_URL not set)';
+    try {
+        const match = rawUrl.match(/@([^/?]+)/);
+        if (match) host = match[1];
+    } catch (_) {}
+    try {
+        await prisma.$queryRaw`SELECT 1`;
+        res.json({ db: 'connected', host });
+    } catch (err) {
+        res.status(500).json({ db: 'failed', host, error: err.message });
+    }
 });
 
 // ==================================================================
