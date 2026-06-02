@@ -13,7 +13,7 @@ const connectDatabase = async () => {
     }
 
     try {
-        await mongoose.connect(mongoUrl);
+        await mongoose.connect(mongoUrl, { bufferTimeoutMS: 30000, serverSelectionTimeoutMS: 30000 });
         console.log('✅ Database Connected Successfully');
     } catch (err) {
         console.error('❌ Database Connection Error:', err.message);
