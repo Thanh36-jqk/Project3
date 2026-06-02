@@ -28,7 +28,7 @@ const { apiLimiter } = require('./src/middleware/rateLimiter');
 // ==================================================================
 // Startup Environment Validation
 // ==================================================================
-const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL', 'MONGODB_URI'];
+const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL', 'MONGO_URL'];
 const missingEnv = REQUIRED_ENV.filter(k => !process.env[k]);
 if (missingEnv.length) {
     console.error('FATAL: Missing required environment variables:', missingEnv.join(', '));
