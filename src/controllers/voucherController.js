@@ -46,23 +46,38 @@ exports.redeemVoucher = async (req, res) => {
             return res.status(400).json({ message: "Voucher already redeemed" });
         }
 
-        const updatedUser = await prisma.user.update({
-            where: { id: req.user.id },
-            data: { points: { decrement: voucher.pointsRequired } }
-        });
+        // Atomic MongoDB decrement — prevents overselling under concurrent redemptions
+        const claimed = await Voucher.findOneAndUpdate(
+            { _id: voucher._id, quantity: { $gt: 0 }, isActive: true },
+            { $inc: { quantity: -1, usageCount: 1 } },
+            { new: true }
+        );
+        if (!claimed) {
+            return res.status(400).json({ message: "Voucher no longer available" });
+        }
 
-        await prisma.voucher.create({
-            data: {
-                userId: req.user.id,
-                code: voucher.code,
-                discountAmount: voucher.discountAmount,
-                isUsed: false
-            }
-        });
-
-        voucher.quantity -= 1;
-        voucher.usageCount = (voucher.usageCount || 0) + 1;
-        await voucher.save();
+        let updatedUser;
+        try {
+            updatedUser = await prisma.$transaction(async (tx) => {
+                const u = await tx.user.update({
+                    where: { id: req.user.id },
+                    data: { points: { decrement: voucher.pointsRequired } }
+                });
+                await tx.voucher.create({
+                    data: {
+                        userId: req.user.id,
+                        code: voucher.code,
+                        discountAmount: voucher.discountAmount,
+                        isUsed: false
+                    }
+                });
+                return u;
+            });
+        } catch (txError) {
+            // Rollback MongoDB decrement if Prisma transaction fails
+            await Voucher.updateOne({ _id: voucher._id }, { $inc: { quantity: 1, usageCount: -1 } });
+            return res.status(500).json({ message: txError.message });
+        }
 
         res.status(200).json({
             message: "Voucher redeemed successfully",

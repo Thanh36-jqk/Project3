@@ -26,9 +26,9 @@ exports.vnpayReturn = async (req, res) => {
 
     if (responseCode === '00') {
         try {
-            // Atomic update: only proceeds if IPN hasn't confirmed yet (prevents double-finalization)
+            // Atomic update: only proceeds if IPN hasn't confirmed yet and order not cancelled
             const updated = await prisma.order.updateMany({
-                where: { id: orderId, paymentStatus: { not: 'Paid' } },
+                where: { id: orderId, paymentStatus: { not: 'Paid' }, status: { not: 'Cancelled' } },
                 data: { paymentStatus: 'Paid', status: 'Confirmed' }
             });
             if (updated.count > 0) {
@@ -82,9 +82,9 @@ exports.vnpayIpn = async (req, res) => {
         }
 
         if (responseCode === '00') {
-            // Atomic update: prevents race condition with vnpayReturn fallback
+            // Atomic update: prevents race condition with vnpayReturn fallback and cancelled orders
             const updated = await prisma.order.updateMany({
-                where: { id: orderId, paymentStatus: { not: 'Paid' } },
+                where: { id: orderId, paymentStatus: { not: 'Paid' }, status: { not: 'Cancelled' } },
                 data: {
                     paymentStatus: 'Paid',
                     transactionId: transactionNo,
@@ -165,14 +165,37 @@ exports.sepayWebhook = async (req, res) => {
         return res.json({ success: true, message: 'No matching order' });
     }
 
+    // SePay sends amount in VND directly (not cents — unlike VNPay which uses * 100)
     if (transferAmount < order.finalAmount) {
         console.warn(`SePay webhook: insufficient amount for order ${order.id}: got ${transferAmount}, expected ${order.finalAmount}`);
-        return res.json({ success: false, message: 'Insufficient amount' });
+
+        // Mark as Failed so subsequent webhooks cannot confirm this order
+        await prisma.order.update({
+            where: { id: order.id },
+            data: { paymentStatus: 'Failed', status: 'Cancelled' }
+        });
+
+        // Restore MongoDB stock
+        for (const item of order.items) {
+            if (mongoose.Types.ObjectId.isValid(item.productId)) {
+                await Product.updateOne({ _id: item.productId }, { $inc: { stock: item.qty } });
+            }
+        }
+
+        // Restore voucher
+        if (order.appliedVoucher && order.userId) {
+            await prisma.voucher.updateMany({
+                where: { userId: order.userId, code: order.appliedVoucher, isUsed: true },
+                data: { isUsed: false }
+            });
+        }
+
+        return res.status(400).json({ success: false, message: 'Insufficient amount' });
     }
 
     try {
         const updated = await prisma.order.updateMany({
-            where: { id: order.id, paymentStatus: { not: 'Paid' } },
+            where: { id: order.id, paymentStatus: { not: 'Paid' }, status: { not: 'Cancelled' } },
             data: {
                 paymentStatus: 'Paid',
                 status: 'Confirmed',

@@ -881,10 +881,14 @@
 
         // API category → UI filter category
         const API_CAT_MAP = {
-            'phone':    'iPhone',
-            'laptop':   'Mac',
-            'desktop':  'Mac',
-            'tv & home':'HeadPhone',
+            'phone':     'iPhone',
+            'headphone': 'AirPods',
+            'watch':     'Apple Watch',
+            'tv & home': 'Apple TV',
+            'laptop':    'Mac',
+            'desktop':   'Mac',
+            'mac':       'Mac',
+            'ipad':      'iPad',
         };
 
         function normalizeApiProduct(p) {
@@ -898,9 +902,9 @@
             // Fix image_url only if missing or clearly broken (not a valid path)
             // Note: DB stores "images/foo.jpg" — served via /images Express route, no prefix fix needed.
             // Exception: products whose file is missing (e.g. renamed) fall back to the curated image.
-            if (!p.image_url || !p.image_url.startsWith('assets/') && !p.image_url.startsWith('images/') && !p.image_url.startsWith('http')) {
+            if (!p.image_url || !p.image_url.startsWith('assets/') && !p.image_url.startsWith('images/') && !p.image_url.startsWith('/images/') && !p.image_url.startsWith('http')) {
                 p.image_url = fallbackImageByName[p.name.toLowerCase()] || 'assets/images/apple.webp';
-            } else if (p.image_url.startsWith('assets/') || p.image_url.startsWith('images/')) {
+            } else if (p.image_url.startsWith('assets/') || p.image_url.startsWith('images/') || p.image_url.startsWith('/images/')) {
                 // Prefer curated fallback when available (handles missing files like "16 pro max đen.webp")
                 const curated = fallbackImageByName[p.name.toLowerCase()];
                 if (curated) p.image_url = curated;
