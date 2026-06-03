@@ -356,7 +356,11 @@
                         setTimeout(() => window.location.href = '../../index.html', 1200);
                     }
                 } else if (!response.ok) {
-                    showError(result.message || 'Login failed. Please check your credentials.');
+                    if (result.requiresEmailVerification) {
+                        showVerificationNeeded(email);
+                    } else {
+                        showError(result.message || 'Login failed. Please check your credentials.');
+                    }
                 }
 
             } catch (error) {
@@ -515,6 +519,39 @@
         function hideMessage() {
             const messageDiv = document.getElementById('login-message');
             messageDiv.className = 'hidden mb-5 p-4 rounded-xl text-sm items-center gap-2';
+        }
+
+        // Email chưa xác nhận — hiện lỗi kèm nút gửi lại email xác nhận
+        let pendingVerifyEmail = null;
+
+        function showVerificationNeeded(email) {
+            pendingVerifyEmail = email;
+            const messageDiv = document.getElementById('login-message');
+            messageDiv.className = 'flex mb-5 p-4 rounded-xl text-sm items-center gap-2 bg-red-50 text-red-600 border border-red-200';
+            messageDiv.querySelector('i').className = "fas fa-exclamation-circle";
+            messageDiv.querySelector('span').innerHTML =
+                'Vui lòng xác nhận email trước khi đăng nhập. ' +
+                '<button type="button" id="resend-verification-btn" onclick="resendVerification()" class="underline font-medium hover:text-red-800">Gửi lại email xác nhận</button>';
+        }
+
+        async function resendVerification() {
+            const btn = document.getElementById('resend-verification-btn');
+            if (btn) { btn.disabled = true; btn.innerText = 'Đang gửi...'; }
+            try {
+                const response = await fetch(`${API_URL}/api/auth/resend-verification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: pendingVerifyEmail })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    showSuccess(result.message || 'Đã gửi email xác nhận. Vui lòng kiểm tra hộp thư.');
+                } else {
+                    showError(result.message || 'Không gửi được email xác nhận. Vui lòng thử lại sau.');
+                }
+            } catch (error) {
+                showError('Network error. Please try again later.');
+            }
         }
 
         // OTP box keyboard UX — auto-advance, backspace, paste
