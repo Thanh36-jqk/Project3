@@ -15,7 +15,7 @@
     "dev:full": "concurrently \"npm run server\" \"npm run frontend\"",
     "seed": "node scripts/seed.js",
     "import-products": "node scripts/importProducts.js",
-    "postinstall": "prisma generate && prisma db push --accept-data-loss"
+    "postinstall": "node scripts/postinstall.js"
   },
   "keywords": [
     "ecommerce",
