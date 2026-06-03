@@ -634,171 +634,152 @@
     <div id="buynow-modal" class="fixed inset-0 z-[120] hidden items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/95 backdrop-blur-2xl" onclick="closeBuyNowModal()"></div>
         <div
-            class="relative bg-gradient-to-br from-[#1c1c1e] to-[#2c2c2e] w-full max-w-3xl rounded-3xl overflow-hidden border border-white/20 shadow-2xl max-h-[95vh] overflow-y-auto">
+            class="relative bg-gradient-to-br from-[#1c1c1e] to-[#2c2c2e] w-full max-w-4xl rounded-3xl overflow-hidden border border-white/20 shadow-2xl max-h-[95vh] overflow-y-auto">
             <button onclick="closeBuyNowModal()"
-                class="absolute top-6 right-6 z-20 w-12 h-12 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center group">
+                class="absolute top-5 right-5 z-20 w-11 h-11 bg-white/10 backdrop-blur-md text-white rounded-full hover:bg-white hover:text-black transition-all flex items-center justify-center group">
                 <i class="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
             </button>
 
-            <!-- Header with Gradient -->
-            <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-8 pb-12">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
-                        <i class="fas fa-bolt text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-3xl font-bold text-white">Quick Checkout</h2>
-                        <p class="text-blue-100 text-sm">Fast, secure, and easy</p>
-                    </div>
-                </div>
+            <!-- Header -->
+            <div class="px-8 py-6 border-b border-white/10">
+                <h2 class="text-2xl font-bold text-white">Quick Checkout</h2>
+                <p class="text-gray-400 text-sm mt-1">Fast, secure, and easy</p>
             </div>
 
-            <div class="p-8 -mt-6">
-                <!-- Product Info Card with Glassmorphism -->
-                <div class="bg-white/5 backdrop-blur-xl rounded-2xl p-6 mb-8 border border-white/10 shadow-xl">
-                    <div class="flex gap-6 items-center">
-                        <div
-                            class="w-32 h-32 bg-black/30 rounded-2xl p-4 flex items-center justify-center flex-shrink-0">
-                            <img id="buynow-product-image" src="assets/images/apple.webp" alt="" class="w-full h-full object-contain">
-                        </div>
-                        <div class="flex-1">
+            <form id="buynow-form" class="p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <!-- LEFT COLUMN: Product, Color, Voucher, Order Summary -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Product Info Card with Glassmorphism -->
+                        <div class="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-xl text-center">
+                            <div class="w-40 h-40 mx-auto bg-black/30 rounded-2xl p-4 flex items-center justify-center mb-4">
+                                <img id="buynow-product-image" src="assets/images/apple.webp" alt="" class="w-full h-full object-contain">
+                            </div>
                             <p class="text-xs text-blue-400 uppercase font-bold tracking-wider mb-1"
                                 id="buynow-product-category"></p>
-                            <h3 class="text-2xl font-bold text-white mb-3" id="buynow-product-name"></h3>
-                            <div class="flex items-center gap-3">
-                                <p class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
-                                    id="buynow-product-price"></p>
+                            <h3 class="text-xl font-bold text-white mb-2" id="buynow-product-name"></h3>
+                            <div class="flex items-center justify-center gap-3 flex-wrap">
+                                <p class="text-2xl font-bold text-white" id="buynow-product-price"></p>
                                 <span
-                                    class="px-3 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded-full border border-green-500/30">
-                                    <i class="fas fa-check-circle mr-1"></i>In Stock
-                                </span>
+                                    class="px-3 py-1 bg-white/5 text-gray-300 text-xs font-medium rounded-full border border-white/10">In Stock</span>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Color Selection -->
-                <div id="buynow-color-section" class="mb-8" style="display: none;">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div
-                            class="w-8 h-8 bg-gradient-to-br from-pink-500 to-orange-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-palette text-white text-sm"></i>
+                        <!-- Color Selection -->
+                        <div id="buynow-color-section" style="display: none;">
+                            <h4 class="text-base font-semibold text-white mb-3">Color <span class="text-red-400">*</span></h4>
+                            <div id="buynow-color-options" class="flex gap-3 flex-wrap mb-2"></div>
+                            <p id="buynow-selected-color-name" class="text-sm text-gray-400"></p>
                         </div>
-                        <h4 class="text-lg font-bold text-white">Choose Your Color <span class="text-red-400">*</span>
-                        </h4>
-                    </div>
-                    <div id="buynow-color-options" class="flex gap-3 flex-wrap mb-3"></div>
-                    <p id="buynow-selected-color-name" class="text-sm text-gray-400 ml-10"></p>
-                </div>
 
-                <!-- Shipping Form -->
-                <form id="buynow-form" class="space-y-6">
-                    <div class="flex items-center gap-2 mb-4 pb-4 border-b border-white/10">
-                        <div
-                            class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-shipping-fast text-white text-sm"></i>
+                        <!-- Voucher Picker (logged-in users only) -->
+                        <div id="buynow-voucher-section" class="hidden">
+                            <h4 class="text-base font-semibold text-white mb-3">Your Vouchers</h4>
+                            <div id="buynow-voucher-list" class="space-y-2 max-h-44 overflow-y-auto pr-1"></div>
                         </div>
-                        <h4 class="text-lg font-bold text-white">Shipping Information</h4>
+
+                        <!-- Order Summary -->
+                        <div class="bg-white/5 p-5 rounded-2xl border border-white/10 space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-gray-400">Subtotal</span>
+                                <span id="buynow-subtotal" class="text-white font-medium">0&#8363;</span>
+                            </div>
+                            <div id="buynow-discount-row" class="flex justify-between items-center text-sm hidden">
+                                <span class="text-gray-400">Voucher <span id="buynow-discount-code"
+                                        class="text-blue-400 font-medium"></span></span>
+                                <span id="buynow-discount" class="text-white font-medium">-0&#8363;</span>
+                            </div>
+                            <div class="flex justify-between items-center pt-3 border-t border-white/10">
+                                <span class="text-gray-300 font-medium">Total</span>
+                                <span id="buynow-total" class="text-3xl font-bold text-white">0&#8363;</span>
+                            </div>
+                            <p class="text-xs text-gray-500 pt-1">
+                                Secure payment &bull; Free shipping on orders over 10M
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- RIGHT COLUMN: Shipping Form + Payment -->
+                    <div class="lg:col-span-3 space-y-6">
+                        <h4 class="text-lg font-semibold text-white pb-4 border-b border-white/10">Shipping Information</h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300 font-medium">
+                                    Full Name <span class="text-red-400">*</span>
+                                </label>
+                                <input type="text" id="buynow-name" required placeholder="Enter your full name"
+                                    class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm text-gray-300 font-medium">
+                                    Phone Number <span class="text-red-400">*</span>
+                                </label>
+                                <input type="tel" id="buynow-phone" required placeholder="0123 456 789"
+                                    class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10">
+                            </div>
+                        </div>
+
                         <div class="space-y-2">
-                            <label class="text-sm text-gray-300 font-medium flex items-center gap-2">
-                                <i class="fas fa-user text-blue-400 text-xs"></i>
-                                Full Name <span class="text-red-400">*</span>
+                            <label class="text-sm text-gray-300 font-medium">
+                                Shipping Address <span class="text-red-400">*</span>
                             </label>
-                            <input type="text" id="buynow-name" required placeholder="Enter your full name"
+                            <input type="text" id="buynow-address" required placeholder="Street address, City, Country"
                                 class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10">
                         </div>
+
                         <div class="space-y-2">
-                            <label class="text-sm text-gray-300 font-medium flex items-center gap-2">
-                                <i class="fas fa-phone text-blue-400 text-xs"></i>
-                                Phone Number <span class="text-red-400">*</span>
+                            <label class="text-sm text-gray-300 font-medium">
+                                Order Notes <span class="text-gray-500">(Optional)</span>
                             </label>
-                            <input type="tel" id="buynow-phone" required placeholder="0123 456 789"
+                            <textarea id="buynow-notes" rows="2" placeholder="Any special instructions for your order..."
+                                class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10 resize-none"></textarea>
+                        </div>
+
+                        <!-- Guest Email (chỉ hiện khi chưa đăng nhập) -->
+                        <div id="buynow-guest-email-section" class="space-y-2 hidden">
+                            <label class="text-sm text-gray-300 font-medium">
+                                Email <span class="text-red-400">*</span>
+                            </label>
+                            <input type="email" id="buynow-guest-email" placeholder="your@email.com"
                                 class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10">
                         </div>
-                    </div>
 
-                    <div class="space-y-2">
-                        <label class="text-sm text-gray-300 font-medium flex items-center gap-2">
-                            <i class="fas fa-map-marker-alt text-blue-400 text-xs"></i>
-                            Shipping Address <span class="text-red-400">*</span>
-                        </label>
-                        <input type="text" id="buynow-address" required placeholder="Street address, City, Country"
-                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10">
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-sm text-gray-300 font-medium flex items-center gap-2">
-                            <i class="fas fa-sticky-note text-blue-400 text-xs"></i>
-                            Order Notes <span class="text-gray-500">(Optional)</span>
-                        </label>
-                        <textarea id="buynow-notes" rows="3" placeholder="Any special instructions for your order..."
-                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10 resize-none"></textarea>
-                    </div>
-
-                    <!-- Guest Email (chỉ hiện khi chưa đăng nhập) -->
-                    <div id="buynow-guest-email-section" class="space-y-2 hidden">
-                        <label class="text-sm text-gray-300 font-medium flex items-center gap-2">
-                            <i class="fas fa-envelope text-blue-400 text-xs"></i>
-                            Email <span class="text-red-400">*</span>
-                        </label>
-                        <input type="email" id="buynow-guest-email" placeholder="your@email.com"
-                            class="w-full bg-white/5 border border-white/10 focus:border-blue-500 rounded-xl p-4 text-white outline-none transition-all placeholder-gray-500 hover:bg-white/10">
-                    </div>
-
-                    <!-- Payment Method -->
-                    <div class="space-y-3">
-                        <label class="text-sm text-gray-300 font-medium flex items-center gap-2">
-                            <i class="fas fa-credit-card text-blue-400 text-xs"></i>
-                            Payment Method <span class="text-red-400">*</span>
-                        </label>
-                        <div class="flex gap-3">
-                            <label class="flex-1 flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10">
-                                <input type="radio" name="buynow-payment" value="COD" checked class="accent-blue-500">
-                                <div>
-                                    <p class="text-white text-sm font-medium">Cash on Delivery</p>
-                                    <p class="text-gray-500 text-xs">Pay when you receive</p>
-                                </div>
+                        <!-- Payment Method -->
+                        <div class="space-y-3">
+                            <label class="text-sm text-gray-300 font-medium">
+                                Payment Method <span class="text-red-400">*</span>
                             </label>
-                            <label class="flex-1 flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-all has-[:checked]:border-green-500 has-[:checked]:bg-green-500/10">
-                                <input type="radio" name="buynow-payment" value="SePay" class="accent-green-500">
-                                <div>
-                                    <p class="text-white text-sm font-medium">SePay</p>
-                                    <p class="text-gray-500 text-xs">Chuyển khoản QR</p>
-                                </div>
-                            </label>
+                            <div class="flex gap-3">
+                                <label class="flex-1 flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10">
+                                    <input type="radio" name="buynow-payment" value="COD" checked class="accent-blue-500">
+                                    <div>
+                                        <p class="text-white text-sm font-medium">Cash on Delivery</p>
+                                        <p class="text-gray-500 text-xs">Pay when you receive</p>
+                                    </div>
+                                </label>
+                                <label class="flex-1 flex items-center gap-3 p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-all has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10">
+                                    <input type="radio" name="buynow-payment" value="SePay" class="accent-blue-500">
+                                    <div>
+                                        <p class="text-white text-sm font-medium">SePay</p>
+                                        <p class="text-gray-500 text-xs">Chuyển khoản QR</p>
+                                    </div>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Total Section with Gradient -->
-                    <div
-                        class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-xl p-6 rounded-2xl border border-blue-500/30 shadow-lg">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-gray-300 font-medium">Order Total</span>
-                            <span id="buynow-total"
-                                class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">0&#8363;</span>
-                        </div>
-                        <p class="text-xs text-gray-400 flex items-center gap-1">
-                            <i class="fas fa-shield-alt text-green-400"></i>
-                            Secure payment &bull; Free shipping on orders over 10M
+                        <!-- Submit Button -->
+                        <button type="submit"
+                            class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                            <span class="text-lg">Place Order Now</span>
+                        </button>
+
+                        <p class="text-center text-xs text-gray-500">
+                            By placing this order, you agree to our Terms &amp; Conditions
                         </p>
                     </div>
-
-                    <!-- Submit Button with Animation -->
-                    <button type="submit"
-                        class="w-full py-5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold rounded-2xl shadow-2xl shadow-green-900/50 transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 group">
-                        <i class="fas fa-check-circle text-xl group-hover:rotate-12 transition-transform"></i>
-                        <span class="text-lg">Place Order Now</span>
-                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                    </button>
-
-                    <p class="text-center text-xs text-gray-500 mt-4">
-                        By placing this order, you agree to our Terms &amp; Conditions
-                    </p>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1308,7 +1289,7 @@
                         wishlist = JSON.parse(localStorage.getItem('apple_wishlist')) || [];
                     } else {
                         const data = await res.json();
-                        wishlist = (data.wishlist || []).map(item => item.productId);
+                        wishlist = (data.wishlist || []).map(item => item._id);
                     }
                 } catch (error) {
                     wishlist = JSON.parse(localStorage.getItem('apple_wishlist')) || [];
@@ -1332,7 +1313,7 @@
                             headers: { 'token': `Bearer ${token}` }
                         });
                         const data = await res.json();
-                        wishlist = data.wishlist.map(item => item.productId);
+                        wishlist = data.wishlist.map(item => item._id);
                         showToast('Removed from wishlist', 'success');
                     } catch (error) {
                         console.error('Failed to remove from wishlist:', error);
@@ -1355,7 +1336,7 @@
                             body: JSON.stringify({ productId })
                         });
                         const data = await res.json();
-                        wishlist = data.wishlist.map(item => item.productId);
+                        wishlist = data.wishlist.map(item => item._id);
                         showToast('Added to wishlist â¤ï¸', 'success');
                     } catch (error) {
                         console.error('Failed to add to wishlist:', error);
@@ -2040,6 +2021,8 @@
         // ==================================================================
         let currentBuyNowProduct = null;
         let selectedBuyNowColor = null;
+        let buyNowVouchers = [];
+        let selectedBuyNowVoucher = null;
 
         window.openBuyNowModal = (product) => {
             currentBuyNowProduct = product;
@@ -2050,7 +2033,12 @@
             document.getElementById('buynow-product-name').textContent = product.name;
             document.getElementById('buynow-product-category').textContent = product.category;
             document.getElementById('buynow-product-price').textContent = formatPrice(product.price);
-            document.getElementById('buynow-total').textContent = formatPrice(product.price);
+
+            // Reset voucher state and render totals
+            selectedBuyNowVoucher = null;
+            buyNowVouchers = [];
+            updateBuyNowTotals();
+            loadBuyNowVouchers();
 
             // Render color options for Buy Now modal
             const colorSection = document.getElementById('buynow-color-section');
@@ -2123,7 +2111,71 @@
             modal.classList.remove('flex');
             currentBuyNowProduct = null;
             selectedBuyNowColor = null;
+            selectedBuyNowVoucher = null;
         };
+
+        // Load redeemed, unused vouchers of the logged-in user for the Buy Now modal
+        async function loadBuyNowVouchers() {
+            const section = document.getElementById('buynow-voucher-section');
+            const list = document.getElementById('buynow-voucher-list');
+            section.classList.add('hidden');
+            list.innerHTML = '';
+            const token = getToken();
+            if (!token) return;
+            try {
+                const res = await fetch(`${API_URL}/api/users/profile`, {
+                    headers: { 'token': `Bearer ${token}` }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                buyNowVouchers = ((data.user && data.user.myVouchers) || []).filter(v => !v.isUsed);
+                if (buyNowVouchers.length > 0) {
+                    section.classList.remove('hidden');
+                    renderBuyNowVouchers();
+                }
+            } catch (error) {
+                console.error('Failed to load vouchers:', error);
+            }
+        }
+
+        function renderBuyNowVouchers() {
+            const list = document.getElementById('buynow-voucher-list');
+            list.innerHTML = '';
+            buyNowVouchers.forEach(v => {
+                const isSelected = selectedBuyNowVoucher && selectedBuyNowVoucher.code === v.code;
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = `w-full flex items-center justify-between gap-3 p-3 rounded-xl border transition-all text-left active:scale-[0.98] ${isSelected ? 'border-blue-500 bg-blue-500/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}`;
+                card.innerHTML = `
+                    <div>
+                        <p class="text-sm font-bold text-white">${v.code}</p>
+                        <p class="text-xs text-gray-400">-${formatPrice(v.discountAmount)}</p>
+                    </div>
+                    ${isSelected ? '<i class="fas fa-check text-blue-400"></i>' : ''}`;
+                card.onclick = () => {
+                    selectedBuyNowVoucher = isSelected ? null : v;
+                    renderBuyNowVouchers();
+                    updateBuyNowTotals();
+                };
+                list.appendChild(card);
+            });
+        }
+
+        function updateBuyNowTotals() {
+            if (!currentBuyNowProduct) return;
+            const subtotal = currentBuyNowProduct.price;
+            const discount = selectedBuyNowVoucher ? Math.min(selectedBuyNowVoucher.discountAmount, subtotal) : 0;
+            document.getElementById('buynow-subtotal').textContent = formatPrice(subtotal);
+            const discountRow = document.getElementById('buynow-discount-row');
+            if (discount > 0) {
+                discountRow.classList.remove('hidden');
+                document.getElementById('buynow-discount-code').textContent = selectedBuyNowVoucher.code;
+                document.getElementById('buynow-discount').textContent = `-${formatPrice(discount)}`;
+            } else {
+                discountRow.classList.add('hidden');
+            }
+            document.getElementById('buynow-total').textContent = formatPrice(subtotal - discount);
+        }
 
         document.getElementById('buynow-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -2169,6 +2221,9 @@
             };
             if (!token) {
                 orderData.guestEmail = document.getElementById('buynow-guest-email').value.trim();
+            }
+            if (token && selectedBuyNowVoucher) {
+                orderData.appliedVoucher = selectedBuyNowVoucher.code;
             }
 
             const submitBtn = e.target.querySelector('button[type="submit"]');
