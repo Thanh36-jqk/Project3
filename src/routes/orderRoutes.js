@@ -7,11 +7,11 @@ const { validateOrder } = require('../middleware/validate');
 // Create order (supports both authenticated and guest users) — with input validation
 router.post('/', validateOrder, orderController.createOrder);
 
+// Get user's orders (requires authentication) — must be BEFORE /:id to avoid param conflict
+router.get('/user/all', verifyToken, orderController.getUserOrders);
+
 // Get order by ID — optional auth: guests can track, owners get ownership enforcement
 router.get('/:id', optionalVerifyToken, orderController.getOrderById);
-
-// Get user's orders (requires authentication)
-router.get('/user/all', verifyToken, orderController.getUserOrders);
 
 // Cancel order (authenticated users only)
 router.put('/:id/cancel', verifyToken, orderController.cancelOrder);

@@ -150,6 +150,13 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ message: 'Invalid email or password' });
 
+        if (!user.isEmailVerified) {
+            return res.status(403).json({
+                message: 'Vui lòng xác nhận email trước khi đăng nhập.',
+                requiresEmailVerification: true
+            });
+        }
+
         // Admin accounts skip OTP — issue tokens directly
         if (user.role === 'admin') {
             const accessToken = generateAccessToken(user);
@@ -240,14 +247,31 @@ exports.verifyLoginOtp = async (req, res) => {
             return res.status(401).json({ message: 'Invalid token purpose' });
         }
 
+        const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        // Check account lockout
+        if (user.otpLockedUntil && user.otpLockedUntil > new Date()) {
+            return res.status(429).json({ message: 'Tài khoản bị khóa tạm thời do nhập sai OTP nhiều lần. Vui lòng thử lại sau.' });
+        }
+
         // Verify OTP matches
         const otpHash = crypto.createHash('sha256').update(otp.trim()).digest('hex');
         if (otpHash !== payload.otpHash) {
-            return res.status(401).json({ message: 'Incorrect verification code. Please try again.' });
+            const attempts = (user.otpFailedAttempts || 0) + 1;
+            const locked = attempts >= 3;
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    otpFailedAttempts: locked ? 0 : attempts,
+                    otpLockedUntil: locked ? new Date(Date.now() + 15 * 60 * 1000) : null
+                }
+            });
+            return res.status(401).json({ message: 'Mã xác minh không đúng. Vui lòng thử lại.' });
         }
 
-        const user = await prisma.user.findUnique({ where: { id: payload.userId } });
-        if (!user) return res.status(404).json({ message: 'User not found' });
+        // OTP correct — reset lockout counter
+        await prisma.user.update({ where: { id: user.id }, data: { otpFailedAttempts: 0, otpLockedUntil: null } });
 
         // Issue tokens
         const accessToken = generateAccessToken(user);

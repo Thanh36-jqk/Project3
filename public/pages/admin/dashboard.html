@@ -1066,7 +1066,7 @@
 
     <script>
         const API_URL = '/api';
-        const token = localStorage.getItem('accessToken');
+        let token = localStorage.getItem('accessToken');
         let revenueChart = null;
         let paymentChart = null;
         let rankChart = null;
@@ -1074,6 +1074,34 @@
         let currentDateRange = 7;
 
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        async function apiFetch(url, opts = {}) {
+            token = localStorage.getItem('accessToken');
+            const headers = { ...(opts.headers || {}), 'token': `Bearer ${token}` };
+            delete headers['authorization'];
+            let res = await fetch(url, { ...opts, headers });
+            if (res && (res.status === 401 || res.status === 403)) {
+                try {
+                    const refreshRes = await fetch(`${API_URL}/auth/refresh`, { method: 'POST', credentials: 'include' });
+                    if (refreshRes.ok) {
+                        const { accessToken: newTok } = await refreshRes.json();
+                        token = newTok;
+                        localStorage.setItem('accessToken', newTok);
+                        const retryHeaders = { ...(opts.headers || {}), 'token': `Bearer ${newTok}` };
+                        res = await fetch(url, { ...opts, headers: retryHeaders });
+                    } else {
+                        localStorage.clear();
+                        window.location.href = '../../pages/auth/login.html';
+                        return null;
+                    }
+                } catch(e) {
+                    localStorage.clear();
+                    window.location.href = '../../pages/auth/login.html';
+                    return null;
+                }
+            }
+            return res;
+        }
 
         function init() {
             if (!token) { window.location.href = '../../pages/auth/login.html'; return; }
@@ -1168,9 +1196,7 @@
             adminReviewsCurrentPage = page || 1;
             document.getElementById('reviews-table-body').innerHTML = skeletonRows(5, 5);
             try {
-                const res = await fetch(`${API_URL}/admin/reviews?page=${adminReviewsCurrentPage}&limit=20`, {
-                    headers: { 'token': `Bearer ${token}` }
-                });
+                const res = await apiFetch(`${API_URL}/admin/reviews?page=${adminReviewsCurrentPage}&limit=20`);
                 if (!res.ok) { showToast('Failed to load reviews', 'error'); return; }
                 const data = await res.json();
                 renderReviewsTable(data.reviews || []);
@@ -1225,10 +1251,7 @@
         async function deleteAdminReview(id) {
             if (!confirm('Xóa review này? Hành động không thể hoàn tác.')) return;
             try {
-                const res = await fetch(`${API_URL}/admin/reviews/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'token': `Bearer ${token}` }
-                });
+                const res = await apiFetch(`${API_URL}/admin/reviews/${id}`, { method: 'DELETE' });
                 if (res.ok) {
                     showToast('Review deleted successfully', 'success');
                     loadAdminReviews(adminReviewsCurrentPage);
@@ -1242,7 +1265,7 @@
         async function loadUsers() {
             document.querySelector('#users-table tbody').innerHTML = skeletonRows(5, 6);
             try {
-                const res = await fetch(`${API_URL}/admin/users`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/users`);
                 if (!res.ok) { showToast('Failed to load users', 'error'); return; }
                 renderUsersTable((await res.json()).data || []);
             } catch (e) { showToast('Failed to load users', 'error'); }
@@ -1381,9 +1404,9 @@
             if (!code) { showToast('Nhập mã voucher', 'error'); return; }
             if (!discountAmount || discountAmount <= 0) { showToast('Nhập giá trị giảm giá hợp lệ', 'error'); return; }
             try {
-                const res = await fetch(`${API_URL}/admin/users/${userId}/vouchers`, {
+                const res = await apiFetch(`${API_URL}/admin/users/${userId}/vouchers`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code, discountAmount })
                 });
                 if (!res.ok) { const err = await res.json(); showToast(err.message || 'Lỗi', 'error'); return; }
@@ -1395,9 +1418,9 @@
         async function changeUserRank(userId, selectEl) {
             const rank = selectEl.value;
             try {
-                const res = await fetch(`${API_URL}/admin/users/${userId}/rank`, {
+                const res = await apiFetch(`${API_URL}/admin/users/${userId}/rank`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ rank })
                 });
                 if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to update rank', 'error'); loadUsers(); return; }
@@ -1599,7 +1622,7 @@
         async function loadInventory() {
             try {
                 // Keep calling /api/products which returns all products
-                const res = await fetch(`${API_URL}/products`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/products`);
                 const products = await res.json();
                 allInventoryProducts = products;
 
@@ -1656,9 +1679,9 @@
                     requestBody = { newStock };
                 }
 
-                const res = await fetch(`${API_URL}/products/${productId}/stock`, {
+                const res = await apiFetch(`${API_URL}/products/${productId}/stock`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
                 });
                 const data = await res.json();
@@ -1738,7 +1761,7 @@
             document.querySelector('#orders-table tbody').innerHTML = skeletonRows(5, 7);
             try {
                 // Orders & Revenue
-                const orderRes = await fetch(`${API_URL}/admin/orders?limit=500`, { headers: { 'token': `Bearer ${token}` } });
+                const orderRes = await apiFetch(`${API_URL}/admin/orders?limit=500`);
                 const { data: orders } = await orderRes.json();
                 allOrders = orders || [];
                 const revenue = allOrders.filter(o => ['Confirmed', 'Completed'].includes(o.status)).reduce((sum, o) => sum + (o.finalAmount || 0), 0);
@@ -1750,7 +1773,7 @@
                 renderRecentActivity(allOrders);
 
                 // Vouchers — API now returns { data, total, page, pages }
-                const vouchRes = await fetch(`${API_URL}/admin/vouchers?limit=100`, { headers: { 'token': `Bearer ${token}` } });
+                const vouchRes = await apiFetch(`${API_URL}/admin/vouchers?limit=100`);
                 const vouchJson = await vouchRes.json();
                 const vouchers = vouchJson.data || vouchJson;
                 document.getElementById('stat-vouchers').innerText = vouchers.filter(v => v.isActive).length;
@@ -1901,9 +1924,9 @@
             });
             if (!confirmed) return;
             try {
-                const res = await fetch(`${API_URL}/admin/orders/bulk-status`, {
+                const res = await apiFetch(`${API_URL}/admin/orders/bulk-status`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ids, status })
                 });
                 if (!res.ok) { const err = await res.json(); showToast(err.message || 'Lỗi', 'error'); return; }
@@ -1931,7 +1954,7 @@
             });
             if (!confirmed) return;
             try {
-                const res = await fetch(`${API_URL}/admin/orders/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` }, body: JSON.stringify({ status }) });
+                const res = await apiFetch(`${API_URL}/admin/orders/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
                 if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to update status', 'error'); return; }
                 showToast(`Order marked as ${status}`, status === 'Completed' ? 'success' : 'info');
                 loadAllData();
@@ -1996,7 +2019,7 @@
             };
             if (!data.code) { showToast('Code is required', 'error'); return; }
             try {
-                const res = await fetch(`${API_URL}/admin/vouchers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` }, body: JSON.stringify(data) });
+                const res = await apiFetch(`${API_URL}/admin/vouchers/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                 if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to update voucher', 'error'); return; }
                 showToast('Voucher updated', 'success');
                 closeVoucherModal();
@@ -2008,7 +2031,7 @@
             const confirmed = await showConfirm({ title: 'Delete Voucher', message: `Delete voucher <strong>${code}</strong>? This action cannot be undone.`, okText: 'Delete', cancelText: 'Cancel' });
             if (!confirmed) return;
             try {
-                const res = await fetch(`${API_URL}/admin/vouchers/${id}`, { method: 'DELETE', headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/vouchers/${id}`, { method: 'DELETE' });
                 if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to delete voucher', 'error'); return; }
                 showToast(`Voucher ${code} deleted`, 'success');
                 loadAllData();
@@ -2019,7 +2042,7 @@
             const data = { code: document.getElementById('v-code').value.toUpperCase().trim(), discountAmount: Number(document.getElementById('v-amount').value), pointsRequired: Number(document.getElementById('v-points').value), quantity: Number(document.getElementById('v-qty').value) };
             if (!data.code) { showToast("Code required", 'error'); return; }
             try {
-                const res = await fetch(`${API_URL}/admin/vouchers`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` }, body: JSON.stringify(data) });
+                const res = await apiFetch(`${API_URL}/admin/vouchers`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                 if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to create voucher', 'error'); return; }
                 showToast("Voucher created successfully", 'success');
                 document.getElementById('create-voucher-form').reset();
@@ -2060,7 +2083,7 @@
             const to = new Date().toISOString().split('T')[0];
             const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
             try {
-                const res = await fetch(`${API_URL}/admin/analytics/revenue?from=${from}&to=${to}&groupBy=${groupBy}`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/analytics/revenue?from=${from}&to=${to}&groupBy=${groupBy}`);
                 if (!res.ok) return;
                 const { data } = await res.json();
                 renderRevenueChart(data);
@@ -2100,7 +2123,7 @@
 
         async function loadTopProductsAnalytics() {
             try {
-                const res = await fetch(`${API_URL}/admin/analytics/top-products?limit=5`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/analytics/top-products?limit=5`);
                 if (!res.ok) return;
                 const { data } = await res.json();
                 renderTopProductsList(data);
@@ -2123,7 +2146,7 @@
 
         async function loadPaymentAnalytics() {
             try {
-                const res = await fetch(`${API_URL}/admin/analytics/payment-methods`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/analytics/payment-methods`);
                 if (!res.ok) return;
                 const { data } = await res.json();
                 renderPaymentChart(data);
@@ -2131,7 +2154,10 @@
         }
 
         function renderPaymentChart(data) {
-            if (!data || !data.length) return;
+            if (!data || !data.length) {
+                document.getElementById('paymentChart').closest('.relative').innerHTML = '<p class="text-xs text-gray-400 italic text-center py-8">No payment data.</p>';
+                return;
+            }
             const ctx = document.getElementById('paymentChart').getContext('2d');
             const COLORS = { 'COD': '#0071E3', 'VNPay': '#5AC8FA', 'SePay': '#34C759', 'Banking': '#FF9500' };
             const labels = data.map(d => d.method);
@@ -2154,7 +2180,7 @@
 
         async function loadRankAnalytics() {
             try {
-                const res = await fetch(`${API_URL}/admin/analytics/user-segments`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/analytics/user-segments`);
                 if (!res.ok) return;
                 const { data } = await res.json();
                 renderRankChart(data);
@@ -2162,7 +2188,10 @@
         }
 
         function renderRankChart(data) {
-            if (!data || !data.length) return;
+            if (!data || !data.length) {
+                document.getElementById('rankChart').closest('.relative').innerHTML = '<p class="text-xs text-gray-400 italic text-center py-8">No user data.</p>';
+                return;
+            }
             const ctx = document.getElementById('rankChart').getContext('2d');
             const COLORS = { 'Silver': '#C0C0C0', 'Gold': '#F5A623', 'VIP': '#1D1D1F' };
             const labels = data.map(d => d.rank);
@@ -2185,7 +2214,7 @@
 
         async function loadFunnelAnalytics() {
             try {
-                const res = await fetch(`${API_URL}/admin/analytics/order-funnel`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/analytics/order-funnel`);
                 if (!res.ok) return;
                 const { data } = await res.json();
                 renderFunnel(data);
@@ -2219,7 +2248,7 @@
 
         async function loadCategoryAnalytics() {
             try {
-                const res = await fetch(`${API_URL}/admin/analytics/category-revenue`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/analytics/category-revenue`);
                 if (!res.ok) return;
                 const { data } = await res.json();
                 renderCategoryChart(data);
@@ -2227,7 +2256,10 @@
         }
 
         function renderCategoryChart(data) {
-            if (!data || !data.length) return;
+            if (!data || !data.length) {
+                document.getElementById('categoryChart').closest('.relative').innerHTML = '<p class="text-xs text-gray-400 italic text-center py-8">No category data.</p>';
+                return;
+            }
             const ctx = document.getElementById('categoryChart').getContext('2d');
             const CAT_COLORS = { 'iPhone': '#0071E3', 'iPad': '#5856D6', 'Mac': '#34C759', 'Apple Watch': '#FF9500', 'AirPods': '#FF2D55', 'Apple TV': '#5AC8FA', 'Accessories': '#8E8E93' };
             const sorted = [...data].sort((a, b) => b.revenue - a.revenue);
@@ -2283,7 +2315,7 @@
             const tbody = document.getElementById('products-table-body');
             tbody.innerHTML = skeletonRows(5, 6);
             try {
-                const res = await fetch(`${API_URL}/admin/products?page=${page}&limit=20`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/products?page=${page}&limit=20`);
                 if (!res.ok) { showToast('Failed to load products', 'error'); return; }
                 const json = await res.json();
                 allProducts = json.data || [];
@@ -2472,9 +2504,9 @@
             try {
                 const url = isEdit ? `${API_URL}/products/${id}` : `${API_URL}/products`;
                 const method = isEdit ? 'PUT' : 'POST';
-                const res = await fetch(url, {
+                const res = await apiFetch(url, {
                     method,
-                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to save product', 'error'); return; }
@@ -2500,9 +2532,9 @@
             });
             if (!confirmed) return;
             try {
-                const res = await fetch(`${API_URL}/products/${id}`, {
+                const res = await apiFetch(`${API_URL}/products/${id}`, {
                     method: isCurrentlyActive ? 'DELETE' : 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'token': `Bearer ${token}` },
+                    headers: { 'Content-Type': 'application/json' },
                     body: isCurrentlyActive ? undefined : JSON.stringify({ isActive: true })
                 });
                 if (!res.ok) { const err = await res.json(); showToast(err.message || `Failed to ${action} product`, 'error'); return; }
@@ -2546,8 +2578,8 @@
         async function startOrderPolling() {
             async function poll() {
                 try {
-                    const res = await fetch(`${API_URL}/admin/orders?page=1&limit=1`, { headers: { 'token': `Bearer ${token}` } });
-                    if (!res.ok) return;
+                    const res = await apiFetch(`${API_URL}/admin/orders?page=1&limit=1`);
+                    if (!res || !res.ok) return;
                     const json = await res.json();
                     const total = json.total || 0;
                     if (lastOrderTotal !== null && total > lastOrderTotal) {
@@ -2643,7 +2675,7 @@
                 </div>`
             ).join('');
             try {
-                const res = await fetch(`${API_URL}/admin/audit-logs`, { headers: { 'token': `Bearer ${token}` } });
+                const res = await apiFetch(`${API_URL}/admin/audit-logs`);
                 if (!res.ok) { container.innerHTML = '<p class="text-sm text-gray-400 py-10 text-center">Failed to load audit logs.</p>'; return; }
                 renderAuditTimeline(await res.json());
             } catch(e) {

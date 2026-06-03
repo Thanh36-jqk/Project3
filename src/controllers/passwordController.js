@@ -117,6 +117,9 @@ exports.resetPassword = async (req, res) => {
             }
         });
 
+        // Revoke all refresh tokens — forces re-login on all devices after password reset
+        await prisma.refreshToken.deleteMany({ where: { userId: user.id } });
+
         res.status(200).json({ message: 'Password reset successful. You can now log in with your new password.' });
 
     } catch (error) {

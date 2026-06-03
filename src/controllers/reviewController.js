@@ -103,10 +103,15 @@ exports.createReview = async (req, res) => {
             return res.status(409).json({ message: 'Bạn đã đánh giá sản phẩm này rồi' });
         }
 
+        const reviewer = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            select: { name: true, avatar: true }
+        });
+
         const hasPurchased = await prisma.order.findFirst({
             where: {
                 userId: req.user.id,
-                status: { in: ['Completed', 'Delivered'] },
+                status: { in: ['Confirmed'] },
                 items: { some: { productId: id } }
             }
         });
@@ -118,8 +123,8 @@ exports.createReview = async (req, res) => {
         const review = await Review.create({
             productId: id,
             userId: req.user.id,
-            userName: req.user.name || 'Khách hàng',
-            userAvatar: req.user.avatar || null,
+            userName: reviewer?.name || 'Khách hàng',
+            userAvatar: reviewer?.avatar || null,
             rating: ratingNum,
             comment: comment?.trim() || '',
             isVerifiedPurchase: true

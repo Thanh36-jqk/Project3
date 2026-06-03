@@ -9,6 +9,9 @@ jest.mock('../../../src/config/postgres', () => ({
     findUnique: jest.fn(),
     findFirst: jest.fn(),
     update: jest.fn(),
+  },
+  refreshToken: {
+    deleteMany: jest.fn()
   }
 }));
 jest.mock('../../../src/services/emailService', () => ({
@@ -118,6 +121,7 @@ describe('Password Controller', () => {
       prisma.user.findFirst.mockResolvedValue(mockUser);
       bcrypt.hash.mockResolvedValue('hashedNewPassword');
       prisma.user.update.mockResolvedValue(mockUser);
+      prisma.refreshToken.deleteMany.mockResolvedValue({ count: 1 });
 
       await passwordController.resetPassword(req, res);
 
@@ -130,6 +134,7 @@ describe('Password Controller', () => {
           passwordResetExpires: null
         }
       });
+      expect(prisma.refreshToken.deleteMany).toHaveBeenCalledWith({ where: { userId: mockUser.id } });
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({
         message: 'Password reset successful. You can now log in with your new password.'

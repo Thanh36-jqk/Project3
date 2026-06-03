@@ -6,7 +6,8 @@ const prisma = require('../../../src/config/postgres');
 jest.mock('../../../src/models/Review');
 jest.mock('../../../src/models/Product');
 jest.mock('../../../src/config/postgres', () => ({
-    order: { findFirst: jest.fn() }
+    order: { findFirst: jest.fn() },
+    user: { findUnique: jest.fn() }
 }));
 
 const VALID_PRODUCT_ID = '507f1f77bcf86cd799439011';
@@ -126,6 +127,7 @@ describe('Review Controller - createReview', () => {
     it('should return 403 if user has not purchased the product', async () => {
         Product.findById.mockResolvedValue({ _id: VALID_PRODUCT_ID, isActive: true });
         Review.findOne.mockResolvedValue(null);
+        prisma.user.findUnique.mockResolvedValue({ name: 'Nguyen A', avatar: null });
         prisma.order.findFirst.mockResolvedValue(null);
 
         await createReview(req, res);
@@ -143,6 +145,7 @@ describe('Review Controller - createReview', () => {
                 lean: jest.fn().mockResolvedValue({ ratings: { average: 5, count: 1 } })
             });
         Review.findOne.mockResolvedValue(null);
+        prisma.user.findUnique.mockResolvedValue({ name: 'Nguyen A', avatar: null });
         prisma.order.findFirst.mockResolvedValue({ id: 'order-1' });
 
         const mockReview = { _id: 'rev-1', rating: 5, isVerifiedPurchase: true };

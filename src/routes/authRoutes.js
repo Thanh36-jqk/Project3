@@ -31,7 +31,10 @@ router.post('/api/auth/reset-password', passwordResetLimiter, validateResetPassw
 
 // Google OAuth
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/pages/auth/login.html' }), authController.googleCallback);
+router.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/pages/auth/login.html?error=oauth_failed', failureMessage: true }),
+    authController.googleCallback
+);
 
 // User Profile
 router.get('/api/users/profile', verifyToken, authController.getProfile);

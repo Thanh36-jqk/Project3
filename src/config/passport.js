@@ -31,15 +31,18 @@ const configurePassport = () => {
                 const email = profile.emails[0].value;
                 const googleId = profile.id;
 
-                // Try to find user by googleId first (most reliable), then by email
+                // Find user by googleId only — do NOT auto-link by email
+                // (auto-linking by email allows account takeover if attacker controls Google email)
                 let user = await prisma.user.findUnique({ where: { googleId } });
-                if (!user) {
-                    user = await prisma.user.findUnique({ where: { email } });
-                }
 
                 if (!user) {
-                    // Create new user from Google profile
-                    console.log("Creating new user via Google...");
+                    // Check if email already registered via password — block auto-link
+                    const existingByEmail = await prisma.user.findUnique({ where: { email } });
+                    if (existingByEmail && !existingByEmail.googleId) {
+                        return done(null, false, { message: 'EMAIL_EXISTS_NO_GOOGLE' });
+                    }
+
+                    // Create new Google user
                     const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
                     user = await prisma.user.create({
                         data: {
@@ -51,17 +54,6 @@ const configurePassport = () => {
                             role: 'user',
                             rank: 'Silver',
                             points: 0,
-                            isEmailVerified: true  // Google emails are already verified
-                        }
-                    });
-                } else if (!user.googleId) {
-                    // Link Google account to existing email-based user
-                    user = await prisma.user.update({
-                        where: { id: user.id },
-                        data: {
-                            googleId,
-                            name: user.name || profile.displayName,
-                            avatar: user.avatar || profile.photos?.[0]?.value,
                             isEmailVerified: true
                         }
                     });

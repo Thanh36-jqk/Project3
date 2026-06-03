@@ -3,10 +3,15 @@ const Voucher = require('../../../src/models/Voucher');
 const prisma = require('../../../src/config/postgres');
 
 jest.mock('../../../src/models/Voucher');
-jest.mock('../../../src/config/postgres', () => ({
-    user: { findUnique: jest.fn(), update: jest.fn() },
-    voucher: { findFirst: jest.fn(), create: jest.fn() }
-}));
+jest.mock('../../../src/config/postgres', () => {
+    const user = { findUnique: jest.fn(), update: jest.fn() };
+    const voucher = { findFirst: jest.fn(), create: jest.fn() };
+    return {
+        user,
+        voucher,
+        $transaction: jest.fn(async (fn) => fn({ user, voucher }))
+    };
+});
 
 describe('Voucher Controller', () => {
     let req, res;
@@ -52,17 +57,22 @@ describe('Voucher Controller', () => {
 
             prisma.user.findUnique.mockResolvedValue(mockUser);
             Voucher.findById.mockResolvedValue(mockVoucher);
+            Voucher.findOneAndUpdate.mockResolvedValue({ ...mockVoucher, quantity: 2 });
             prisma.voucher.findFirst.mockResolvedValue(null);
             prisma.user.update.mockResolvedValue({ ...mockUser, points: 300 });
             prisma.voucher.create.mockResolvedValue({});
 
             await voucherController.redeemVoucher(req, res);
 
+            expect(Voucher.findOneAndUpdate).toHaveBeenCalledWith(
+                { _id: 'v1', quantity: { $gt: 0 }, isActive: true },
+                { $inc: { quantity: -1, usageCount: 1 } },
+                { new: true }
+            );
             expect(prisma.user.update).toHaveBeenCalledWith({
                 where: { id: 'user-1' },
                 data: { points: { decrement: 200 } }
             });
-            expect(mockVoucher.save).toHaveBeenCalled();
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
                 message: 'Voucher redeemed successfully',

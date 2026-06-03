@@ -92,16 +92,19 @@ exports.updateProduct = async (req, res) => {
     try {
         const updateData = req.body;
 
-        // Calculate total stock if color variants are provided
+        if (updateData.price !== undefined && (isNaN(updateData.price) || Number(updateData.price) < 0)) {
+            return res.status(400).json({ message: 'Price phải là số không âm' });
+        }
+        if (updateData.stock !== undefined && (isNaN(updateData.stock) || Number(updateData.stock) < 0)) {
+            return res.status(400).json({ message: 'Stock phải là số không âm' });
+        }
+
         if (updateData.colors && updateData.colors.length > 0) {
             updateData.stock = updateData.colors.reduce((total, color) => total + (Number(color.stock) || 0), 0);
         }
 
-        const product = await Product.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            { new: true }
-        );
+        const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
+        if (!product) return res.status(404).json({ message: 'Product not found' });
         res.status(200).json(product);
     } catch (error) {
         res.status(500).json({ message: error.message });

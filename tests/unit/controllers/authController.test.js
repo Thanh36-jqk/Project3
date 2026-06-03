@@ -135,7 +135,8 @@ describe('Auth Controller', () => {
         email: 'user@example.com',
         password: 'hashedPassword',
         role: 'user',
-        name: 'Normal User'
+        name: 'Normal User',
+        isEmailVerified: true
       };
 
       prisma.user.findUnique.mockResolvedValue(mockUser);
@@ -165,7 +166,8 @@ describe('Auth Controller', () => {
         email: 'admin@example.com',
         password: 'hashedAdminPassword',
         role: 'admin',
-        name: 'Admin User'
+        name: 'Admin User',
+        isEmailVerified: true
       };
 
       prisma.user.findUnique.mockResolvedValue(mockAdmin);
@@ -186,6 +188,7 @@ describe('Auth Controller', () => {
         email: 'admin@example.com',
         role: 'admin',
         name: 'Admin User',
+        isEmailVerified: true,
         accessToken: 'mockAdminAccessToken'
       });
     });
@@ -241,7 +244,7 @@ describe('Auth Controller', () => {
     it('should return 500 if OTP email fails to send', async () => {
       req.body = { email: 'user@example.com', password: 'password123' };
 
-      const mockUser = { id: 1, email: 'user@example.com', password: 'hashedPassword', role: 'user' };
+      const mockUser = { id: 1, email: 'user@example.com', password: 'hashedPassword', role: 'user', isEmailVerified: true };
       prisma.user.findUnique.mockResolvedValue(mockUser);
       bcrypt.compare.mockResolvedValue(true);
       jwt.sign.mockReturnValue('mockOtpToken');
@@ -276,9 +279,11 @@ describe('Auth Controller', () => {
 
       const mockUser = {
         id: 1, email: 'user@example.com', role: 'user', name: 'Test',
-        password: 'hashed', passwordResetToken: null, passwordResetExpires: null, emailVerificationToken: null
+        password: 'hashed', passwordResetToken: null, passwordResetExpires: null, emailVerificationToken: null,
+        otpFailedAttempts: 0, otpLockedUntil: null
       };
       prisma.user.findUnique.mockResolvedValue(mockUser);
+      prisma.user.update.mockResolvedValue({});
       jwt.sign.mockReturnValue('newAccessToken');
       prisma.refreshToken.create.mockResolvedValue({ id: 1 });
 
@@ -297,11 +302,13 @@ describe('Auth Controller', () => {
       req.body = { otpToken: 'valid-otp-token', otp: '000000' };
       const realHash = crypto.createHash('sha256').update('123456').digest('hex');
       jwt.verify.mockReturnValue({ userId: 1, otpHash: realHash, purpose: 'login_otp' });
+      prisma.user.findUnique.mockResolvedValue({ id: 1, otpFailedAttempts: 0, otpLockedUntil: null });
+      prisma.user.update.mockResolvedValue({});
 
       await authController.verifyLoginOtp(req, res);
 
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ message: 'Incorrect verification code. Please try again.' });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Mã xác minh không đúng. Vui lòng thử lại.' });
     });
 
     it('should return 401 if OTP token is expired', async () => {

@@ -65,6 +65,11 @@ exports.createOrder = async (req, res) => {
         return res.status(400).json({ message: 'Order must contain at least one item' });
     }
 
+    const supportedMethods = ['VNPay', 'SePay', 'COD'];
+    if (!paymentMethod || !supportedMethods.includes(paymentMethod)) {
+        return res.status(400).json({ message: 'Phương thức thanh toán không hợp lệ' });
+    }
+
     // Guests must provide an email for order confirmation
     if (!userId && !guestEmail) {
         return res.status(400).json({ message: 'Email is required for guest checkout' });

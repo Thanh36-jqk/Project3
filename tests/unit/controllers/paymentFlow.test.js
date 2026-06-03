@@ -261,7 +261,7 @@ describe('💳 PAYMENT ACCEPTANCE TEST — Tính năng thanh toán', () => {
 
             // ✅ Đơn được cập nhật Paid + Confirmed (atomic)
             expect(prisma.order.updateMany).toHaveBeenCalledWith({
-                where: { id: orderId, paymentStatus: { not: 'Paid' } },
+                where: { id: orderId, paymentStatus: { not: 'Paid' }, status: { not: 'Cancelled' } },
                 data: {
                     paymentStatus: 'Paid',
                     transactionId: '14567890',
@@ -484,7 +484,7 @@ describe('💳 PAYMENT ACCEPTANCE TEST — Tính năng thanh toán', () => {
             );
 
             expect(prisma.order.updateMany).toHaveBeenCalledWith({
-                where: { id: 'E2E-VNPAY', paymentStatus: { not: 'Paid' } },
+                where: { id: 'E2E-VNPAY', paymentStatus: { not: 'Paid' }, status: { not: 'Cancelled' } },
                 data: {
                     paymentStatus: 'Paid',
                     transactionId: 'TXN-999',
