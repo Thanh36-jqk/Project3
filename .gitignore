@@ -55,6 +55,13 @@ my-auth-db.products.json
 skills/
 test
 
+# Claude Code / agent tooling artifacts
+skills-lock.json
+.playwright-mcp/
+
+# Ad-hoc verification screenshots at repo root (real assets live in public/)
+/*.png
+
 # Security: never expose backend model files publicly
 public/assets/models/
 
