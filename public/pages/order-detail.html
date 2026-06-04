@@ -179,6 +179,43 @@
     </div>
   </main>
 
+  <!-- Write Review Modal -->
+  <div id="review-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeReviewModal()"></div>
+    <div class="relative bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+      <h3 class="font-bold text-lg mb-0.5">Write a Review</h3>
+      <p class="text-gray-500 text-sm mb-5" id="review-modal-product-name"></p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-apple-dark mb-2">Your Rating <span class="text-red-500">*</span></label>
+          <div id="review-star-row" class="flex gap-2">
+            ${[1,2,3,4,5].map(n => `
+            <button type="button" data-val="${n}" onclick="setReviewStar(${n})"
+              class="review-star-btn w-10 h-10 rounded-xl border-2 border-gray-200 flex items-center justify-center text-lg transition-all hover:border-yellow-400 hover:bg-yellow-50 active:scale-90">
+              <i class="fas fa-star text-gray-300"></i>
+            </button>`).join('')}
+          </div>
+          <p class="text-xs text-gray-400 mt-1.5" id="review-star-label">Tap a star to rate</p>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-apple-dark mb-1.5">Comment <span class="text-gray-400 font-normal">(Optional)</span></label>
+          <textarea id="review-comment-input" rows="3" placeholder="Share your experience with this product..."
+            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-apple-blue/40 focus:border-apple-blue transition-all resize-none"></textarea>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button onclick="closeReviewModal()"
+          class="flex-1 py-3 border border-gray-200 rounded-2xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+          Cancel
+        </button>
+        <button onclick="submitOrderReview()" id="btn-submit-review"
+          class="flex-1 py-3 bg-apple-blue text-white rounded-2xl text-sm font-semibold hover:bg-blue-700 transition-colors active:scale-[0.98]">
+          Submit Review
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Return Request Modal -->
   <div id="return-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeReturnModal()"></div>
@@ -312,8 +349,9 @@
 
       const items = o.items || [];
       document.getElementById('detail-item-count').textContent = `(${items.length} item${items.length !== 1 ? 's' : ''})`;
+      const canReview = (o.status === 'Delivered' || o.status === 'Completed') && !!localStorage.getItem('accessToken');
       document.getElementById('detail-items').innerHTML = items.map(i => `
-        <div class="flex items-center gap-4 py-4">
+        <div class="flex items-start gap-4 py-4">
           <div class="w-16 h-16 bg-apple-gray rounded-2xl flex-shrink-0 overflow-hidden flex items-center justify-center">
             ${i.image
               ? `<img src="${imgUrl(i.image)}" alt="${i.name||''}" class="w-full h-full object-contain p-2" onerror="this.outerHTML='<i class=\\'fas fa-box text-gray-300\\'></i>'">`
@@ -323,6 +361,12 @@
             <p class="text-sm font-semibold">${i.name || 'Product'}</p>
             ${i.color ? `<p class="text-xs text-gray-400 mt-0.5">${i.color}</p>` : ''}
             <p class="text-xs text-gray-400 mt-1">Qty: ${i.qty||1}</p>
+            ${canReview && i.productId ? `
+            <button id="review-btn-${i.productId}"
+              onclick="openReviewModal('${i.productId}', \`${(i.name||'Product').replace(/`/g,"'")}\`)"
+              class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-50 border border-yellow-200 text-yellow-700 text-xs font-semibold rounded-full hover:bg-yellow-100 transition-colors active:scale-95">
+              <i class="fas fa-star text-yellow-400 text-[10px]"></i> Write Review
+            </button>` : ''}
           </div>
           <div class="text-right flex-shrink-0 pl-3">
             <p class="text-sm font-bold">${((i.price||0) * (i.qty||1)).toLocaleString()}&#8363;</p>
@@ -330,6 +374,8 @@
           </div>
         </div>
       `).join('');
+
+      if (canReview) loadReviewStatuses(items);
 
       document.getElementById('detail-name').textContent    = o.recipientName || '-';
       document.getElementById('detail-phone').textContent   = o.recipientPhone || '';
@@ -354,6 +400,100 @@
         document.getElementById('return-section').classList.remove('hidden');
         loadReturnRequest(o.id);
       }
+    }
+
+    // --- REVIEW HELPERS ---
+    let reviewProductId = null;
+    let reviewStarSelected = 0;
+
+    const STAR_LABELS = ['', 'Terrible', 'Poor', 'Average', 'Good', 'Excellent'];
+
+    function setReviewStar(n) {
+      reviewStarSelected = n;
+      document.getElementById('review-star-label').textContent = STAR_LABELS[n] || '';
+      document.querySelectorAll('.review-star-btn').forEach(btn => {
+        const v = +btn.dataset.val;
+        const icon = btn.querySelector('i');
+        if (v <= n) {
+          btn.classList.add('border-yellow-400', 'bg-yellow-50');
+          btn.classList.remove('border-gray-200');
+          icon.className = 'fas fa-star text-yellow-400';
+        } else {
+          btn.classList.remove('border-yellow-400', 'bg-yellow-50');
+          btn.classList.add('border-gray-200');
+          icon.className = 'fas fa-star text-gray-300';
+        }
+      });
+    }
+
+    function openReviewModal(productId, productName) {
+      reviewProductId = productId;
+      reviewStarSelected = 0;
+      document.getElementById('review-modal-product-name').textContent = productName;
+      document.getElementById('review-comment-input').value = '';
+      document.getElementById('review-star-label').textContent = 'Tap a star to rate';
+      document.querySelectorAll('.review-star-btn').forEach(btn => {
+        btn.classList.remove('border-yellow-400', 'bg-yellow-50');
+        btn.classList.add('border-gray-200');
+        btn.querySelector('i').className = 'fas fa-star text-gray-300';
+      });
+      document.getElementById('review-modal').classList.remove('hidden');
+      document.getElementById('review-modal').classList.add('flex');
+    }
+
+    function closeReviewModal() {
+      document.getElementById('review-modal').classList.add('hidden');
+      document.getElementById('review-modal').classList.remove('flex');
+    }
+
+    async function submitOrderReview() {
+      if (!reviewStarSelected) { alert('Please select a star rating.'); return; }
+      const comment = document.getElementById('review-comment-input').value.trim();
+      const btn = document.getElementById('btn-submit-review');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Submitting...';
+      try {
+        const token = localStorage.getItem('accessToken');
+        const res = await fetch(`${API}/api/products/${reviewProductId}/reviews`, {
+          method: 'POST',
+          headers: { 'token': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rating: reviewStarSelected, comment }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          closeReviewModal();
+          markItemReviewed(reviewProductId, reviewStarSelected);
+        } else {
+          alert(data.message || 'Failed to submit review.');
+        }
+      } catch { alert('Connection error. Please try again.'); }
+      finally { btn.disabled = false; btn.innerHTML = 'Submit Review'; }
+    }
+
+    function markItemReviewed(productId, rating) {
+      const btn = document.getElementById('review-btn-' + productId);
+      if (!btn) return;
+      const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+      btn.outerHTML = `<span class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold rounded-full">
+        <i class="fas fa-check-circle text-green-500 text-[10px]"></i> Reviewed ${stars}
+      </span>`;
+    }
+
+    async function loadReviewStatuses(items) {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return;
+      await Promise.all(items.map(async i => {
+        if (!i.productId) return;
+        try {
+          const res = await fetch(`${API}/api/products/${i.productId}/reviews/my`, {
+            headers: { 'token': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const review = await res.json();
+            markItemReviewed(i.productId, review.rating || 5);
+          }
+        } catch {}
+      }));
     }
 
     async function loadReturnRequest(orderId) {
