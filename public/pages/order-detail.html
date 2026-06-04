@@ -145,10 +145,31 @@
             </div>
           </div>
 
-          <div id="actions-section" class="hidden">
+          <div id="actions-section" class="hidden space-y-2">
             <button onclick="openCancelModal()"
               class="w-full py-3.5 border border-red-200 text-red-500 rounded-2xl text-sm font-semibold hover:bg-red-50 transition-colors active:scale-[0.98] flex items-center justify-center gap-2">
               <i class="fas fa-times-circle"></i> Cancel Order
+            </button>
+          </div>
+
+          <!-- Return Request status / button -->
+          <div id="return-section" class="hidden">
+            <!-- Existing return request status -->
+            <div id="return-status-card" class="hidden bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
+              <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-3 flex items-center gap-1.5">
+                <i class="fas fa-undo-alt text-apple-blue text-xs"></i> Return Request
+              </p>
+              <div class="flex items-center justify-between">
+                <span id="return-status-badge" class="px-3 py-1 rounded-full text-xs font-semibold"></span>
+                <span class="text-xs text-gray-400" id="return-date"></span>
+              </div>
+              <p class="text-sm text-gray-600 mt-2" id="return-reason-text"></p>
+              <p class="text-xs text-gray-400 mt-1 italic" id="return-admin-note"></p>
+            </div>
+            <!-- Submit new return -->
+            <button id="btn-request-return" onclick="openReturnModal()"
+              class="w-full py-3.5 border border-orange-200 text-orange-600 rounded-2xl text-sm font-semibold hover:bg-orange-50 transition-colors active:scale-[0.98] flex items-center justify-center gap-2">
+              <i class="fas fa-undo-alt"></i> Request Return
             </button>
           </div>
 
@@ -157,6 +178,47 @@
 
     </div>
   </main>
+
+  <!-- Return Request Modal -->
+  <div id="return-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeReturnModal()"></div>
+    <div class="relative bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+      <h3 class="font-bold text-lg mb-1">Request a Return</h3>
+      <p class="text-gray-500 text-sm mb-5">You have 14 days from delivery to request a return.</p>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-apple-dark mb-1.5">
+            Reason <span class="text-red-500">*</span>
+          </label>
+          <select id="return-reason" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-apple-blue/40 focus:border-apple-blue transition-all">
+            <option value="">Select a reason...</option>
+            <option>Defective / damaged product</option>
+            <option>Wrong item received</option>
+            <option>Item not as described</option>
+            <option>Changed my mind</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-apple-dark mb-1.5">
+            Description <span class="text-gray-400 font-normal">(Optional)</span>
+          </label>
+          <textarea id="return-description" rows="3" placeholder="Describe the issue in more detail..."
+            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-apple-blue/40 focus:border-apple-blue transition-all resize-none"></textarea>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-6">
+        <button onclick="closeReturnModal()"
+          class="flex-1 py-3 border border-gray-200 rounded-2xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+          Cancel
+        </button>
+        <button onclick="submitReturn()" id="btn-submit-return"
+          class="flex-1 py-3 bg-orange-500 text-white rounded-2xl text-sm font-semibold hover:bg-orange-600 transition-colors active:scale-[0.98]">
+          Submit Request
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Cancel Confirm Modal -->
   <div id="cancel-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
@@ -287,6 +349,80 @@
       const token = localStorage.getItem('accessToken');
       if (token && (o.status === 'Pending' || o.status === 'Confirmed')) {
         document.getElementById('actions-section').classList.remove('hidden');
+      }
+      if (token && (o.status === 'Delivered' || o.status === 'Completed')) {
+        document.getElementById('return-section').classList.remove('hidden');
+        loadReturnRequest(o.id);
+      }
+    }
+
+    async function loadReturnRequest(orderId) {
+      try {
+        const res = await fetch(`${API}/api/orders/${orderId}/return`);
+        if (res.status === 404) {
+          document.getElementById('btn-request-return').classList.remove('hidden');
+          return;
+        }
+        if (!res.ok) return;
+        const data = await res.json();
+        showReturnStatus(data);
+      } catch {}
+    }
+
+    function showReturnStatus(r) {
+      document.getElementById('btn-request-return').classList.add('hidden');
+      const card = document.getElementById('return-status-card');
+      card.classList.remove('hidden');
+      const statusStyles = {
+        Pending:  'bg-yellow-100 text-yellow-700',
+        Approved: 'bg-green-100 text-green-700',
+        Rejected: 'bg-red-100 text-red-600',
+      };
+      const badge = document.getElementById('return-status-badge');
+      badge.textContent = r.status;
+      badge.className = `px-3 py-1 rounded-full text-xs font-semibold ${statusStyles[r.status] || 'bg-gray-100 text-gray-600'}`;
+      document.getElementById('return-date').textContent = new Date(r.createdAt).toLocaleDateString();
+      document.getElementById('return-reason-text').textContent = r.reason;
+      if (r.adminNote) document.getElementById('return-admin-note').textContent = 'Admin note: ' + r.adminNote;
+    }
+
+    function openReturnModal() {
+      document.getElementById('return-modal').classList.remove('hidden');
+      document.getElementById('return-modal').classList.add('flex');
+    }
+    function closeReturnModal() {
+      document.getElementById('return-modal').classList.add('hidden');
+      document.getElementById('return-modal').classList.remove('flex');
+    }
+
+    async function submitReturn() {
+      const reason = document.getElementById('return-reason').value;
+      const description = document.getElementById('return-description').value.trim();
+      if (!reason) { alert('Please select a reason.'); return; }
+
+      const btn = document.getElementById('btn-submit-return');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Submitting...';
+
+      try {
+        const token = localStorage.getItem('accessToken');
+        const res = await fetch(`${API}/api/orders/${currentOrderId}/return`, {
+          method: 'POST',
+          headers: { 'token': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason, description }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          closeReturnModal();
+          showReturnStatus(data.returnRequest);
+        } else {
+          alert(data.message || 'Failed to submit return request.');
+        }
+      } catch {
+        alert('Connection error. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Submit Request';
       }
     }
 

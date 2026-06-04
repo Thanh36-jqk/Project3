@@ -40,6 +40,7 @@ model User {
   myVouchers             Voucher[]
   orders                 Order[]
   refreshTokens          RefreshToken[]
+  returnRequests         ReturnRequest[]
 }
 
 model Address {
@@ -86,8 +87,9 @@ model Order {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  user             User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user             User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   items            OrderItem[]
+  returnRequest    ReturnRequest?
 
   @@index([userId])
   @@index([status])
@@ -108,6 +110,24 @@ model OrderItem {
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
+}
+
+model ReturnRequest {
+  id          String   @id @default(uuid())
+  orderId     String   @unique
+  userId      String?
+  reason      String
+  description String?
+  status      String   @default("Pending") // "Pending", "Approved", "Rejected"
+  adminNote   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([createdAt])
 }
 
 model RefreshToken {
