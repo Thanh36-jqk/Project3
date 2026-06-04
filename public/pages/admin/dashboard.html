@@ -1485,7 +1485,21 @@
                         <p class="text-xs text-gray-400">Tổng cộng</p>
                         <p class="text-xl font-bold text-gray-900">${(o.finalAmount || 0).toLocaleString('vi-VN')}₫</p>
                     </div>
-                </div>`;
+                </div>
+                ${STATUS_NEXT[o.status] ? `
+                <div class="pt-3 border-t border-gray-100">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2">Cập nhật trạng thái</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${(STATUS_NEXT[o.status] || []).map(a => `
+                        <button onclick="updateStatus('${o.id}','${a.s}')"
+                            class="flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all active:scale-95 bg-white border-gray-200 text-gray-700 hover:border-gray-400">
+                            <i class="fas ${a.icon} text-xs"></i> ${a.title}
+                        </button>`).join('')}
+                    </div>
+                </div>` : `
+                <div class="pt-3 border-t border-gray-100">
+                    <span class="text-xs text-gray-400 italic">Đơn hàng đã ở trạng thái cuối (${o.status}).</span>
+                </div>`}`;
 
             const modal = document.getElementById('order-detail-modal');
             modal.classList.remove('hidden');
@@ -1974,13 +1988,7 @@
                             <button onclick="openOrderDetail('${o.id}')" class="w-9 h-9 rounded-full bg-white border border-gray-100 text-gray-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 active:scale-95 transition-all flex items-center justify-center shadow-sm" title="View Detail">
                                 <i class="fas fa-eye text-[11px]"></i>
                             </button>
-                            ${o.status === 'Pending' ? `
-                            <button onclick="updateStatus('${o.id}', 'Confirmed')" class="w-9 h-9 rounded-full bg-white border border-gray-100 text-gray-400 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 active:scale-95 transition-all flex items-center justify-center shadow-sm" title="Confirm Order">
-                                <i class="fas fa-check text-[11px]"></i>
-                            </button>
-                            <button onclick="updateStatus('${o.id}', 'Cancelled')" class="w-9 h-9 rounded-full bg-white border border-gray-100 text-gray-400 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 active:scale-95 transition-all flex items-center justify-center shadow-sm" title="Cancel Order">
-                                <i class="fas fa-times text-[11px]"></i>
-                            </button>` : ''}
+                            ${getOrderActions(o.id, o.status)}
                         </div>
                     </td>
                 </tr>`;
@@ -2063,20 +2071,45 @@
             window.location.href = `${API_URL}/admin/users/export?format=csv`;
         }
 
+        const STATUS_NEXT = {
+            Pending:   [{ s: 'Confirmed', icon: 'fa-check',         cls: 'hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50', title: 'Confirm' },
+                        { s: 'Cancelled', icon: 'fa-times',         cls: 'hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50',         title: 'Cancel' }],
+            Confirmed: [{ s: 'Shipped',   icon: 'fa-shipping-fast', cls: 'hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50',         title: 'Mark Shipped' },
+                        { s: 'Cancelled', icon: 'fa-times',         cls: 'hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50',         title: 'Cancel' }],
+            Shipped:   [{ s: 'Delivered', icon: 'fa-home',          cls: 'hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50', title: 'Mark Delivered' }],
+            Delivered: [{ s: 'Completed', icon: 'fa-check-double',  cls: 'hover:text-purple-600 hover:border-purple-200 hover:bg-purple-50',   title: 'Complete' }],
+        };
+
+        function getOrderActions(id, status) {
+            return (STATUS_NEXT[status] || []).map(a =>
+                `<button onclick="updateStatus('${id}','${a.s}')"
+                    class="w-9 h-9 rounded-full bg-white border border-gray-100 text-gray-400 ${a.cls} active:scale-95 transition-all flex items-center justify-center shadow-sm" title="${a.title}">
+                    <i class="fas ${a.icon} text-[11px]"></i>
+                </button>`
+            ).join('');
+        }
+
         async function updateStatus(id, status) {
+            const LABELS = { Confirmed:'Confirm Order', Shipped:'Mark as Shipped', Delivered:'Mark as Delivered', Completed:'Complete Order', Cancelled:'Cancel Order' };
             const confirmed = await showConfirm({
-                title: 'Update Order Status',
-                message: `Change status to "${status}"?`,
-                okText: 'Update',
-                cancelText: 'Cancel'
+                title: LABELS[status] || 'Update Status',
+                message: `Change order status to <strong>${status}</strong>?`,
+                okText: LABELS[status] || 'Update',
+                cancelText: 'Go Back'
             });
             if (!confirmed) return;
             try {
-                const res = await apiFetch(`${API_URL}/admin/orders/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) });
-                if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed to update status', 'error'); return; }
-                showToast(`Order marked as ${status}`, status === 'Completed' ? 'success' : 'info');
+                const res = await apiFetch(`${API_URL}/admin/orders/${id}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                if (!res.ok) { const err = await res.json(); showToast(err.message || 'Failed', 'error'); return; }
+                const COLORS = { Confirmed:'info', Shipped:'info', Delivered:'success', Completed:'success', Cancelled:'error' };
+                showToast(`Order ${status.toLowerCase()}`, COLORS[status] || 'success');
+                closeOrderDetail();
                 loadAllData();
-            } catch (e) { showToast("Error updating status", 'error'); }
+            } catch { showToast('Error updating status', 'error'); }
         }
 
         function renderTopProducts(orders) {
