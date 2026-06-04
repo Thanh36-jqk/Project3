@@ -882,7 +882,7 @@
                             <div class="border-t border-white/[0.06] pt-4 space-y-2.5">
                                 ${data.items.map(i => `
                                 <div class="flex items-center gap-3">
-                                    ${i.image ? `<img src="${i.image}" alt="${i.name||''}" onerror="this.style.display='none'"
+                                    ${i.image ? `<img src="${encodeURI(i.image)}" alt="${i.name||''}" onerror="this.style.background='rgba(255,255,255,0.05)';this.removeAttribute('src')"
                                          class="w-10 h-10 rounded-xl object-cover flex-shrink-0 bg-white/5">` :
                                         `<div class="w-10 h-10 rounded-xl bg-white/5 flex-shrink-0"></div>`}
                                     <div class="flex-1 min-w-0">

@@ -391,7 +391,7 @@
                     orderBody.innerHTML = orders.map(o => {
                         const items = o.items || [];
                         const preview = items.slice(0, 3).map(i =>
-                            `<img src="${i.image || ''}" alt="${i.name || ''}" onerror="this.style.display='none'"
+                            `<img src="${encodeURI(i.image || '')}" alt="${i.name || ''}" onerror="this.style.display='none'"
                              class="w-8 h-8 rounded-lg object-cover border border-gray-100 flex-shrink-0">`
                         ).join('');
                         const moreCount = items.length > 3 ? `<span class="text-[10px] text-[#86868b] font-medium">+${items.length - 3}</span>` : '';
@@ -399,11 +399,8 @@
                             o.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
                         const itemRows = items.length ? items.map(i => `
                             <div class="flex items-center gap-3 py-2.5">
-                                <img src="${i.image || ''}" alt="${i.name || ''}" onerror="this.parentElement.querySelector('.img-fallback').style.display='flex';this.style.display='none'"
+                                <img src="${encodeURI(i.image || '')}" alt="${i.name || ''}" onerror="this.style.background='#f5f5f7';this.style.padding='8px';this.removeAttribute('src')"
                                      class="w-12 h-12 rounded-xl object-cover border border-gray-100 flex-shrink-0">
-                                <div class="img-fallback w-12 h-12 rounded-xl bg-[#f5f5f7] border border-gray-100 flex-shrink-0 items-center justify-center" style="display:none">
-                                    <i class="fas fa-box text-gray-300 text-sm"></i>
-                                </div>
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium text-[#1d1d1f] truncate">${i.name || 'Product'}</p>
                                     ${i.color ? `<p class="text-xs text-[#86868b] mt-0.5">${i.color}</p>` : ''}
