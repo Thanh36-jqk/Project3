@@ -378,7 +378,7 @@
                                         <div class="rank-fill" id="u-progress-bar" style="width:0%"></div>
                                     </div>
                                     <div class="flex justify-between text-[10px] text-zinc-500">
-                                        <span>Member</span><span>Silver</span><span>Gold</span><span>Platinum</span>
+                                        <span>Silver</span><span>Gold</span><span>VIP</span>
                                     </div>
                                 </div>
                             </div>
@@ -763,24 +763,24 @@
                 document.getElementById('u-name').textContent = username;
                 document.getElementById('u-avatar').textContent = username[0].toUpperCase();
 
-                setRankProgress(u.points || 0, u.rank || 'Member');
+                setRankProgress(u.totalSpending || 0, u.rank || 'Silver');
                 renderVouchers(u.myVouchers || []);
                 renderOrders(data.orders || []);
             } catch (e) { console.error(e); }
         }
 
-        function setRankProgress(pts, rank) {
+        function setRankProgress(spending, rank) {
             const tiers = [
-                { name: 'Member',   min: 0 },
-                { name: 'Silver',   min: 1000 },
-                { name: 'Gold',     min: 5000 },
-                { name: 'Platinum', min: 15000 },
+                { name: 'Silver', min: 0 },
+                { name: 'Gold',   min: 20000000 },
+                { name: 'VIP',    min: 50000000 },
             ];
-            document.getElementById('u-progress-bar').style.width = Math.min((pts / 15000) * 100, 100) + '%';
             const cur = tiers.find(t => t.name === rank) || tiers[0];
             const next = tiers[tiers.indexOf(cur) + 1];
+            const max = tiers[tiers.length - 1].min;
+            document.getElementById('u-progress-bar').style.width = Math.min((spending / max) * 100, 100) + '%';
             document.getElementById('u-progress-label').textContent = next
-                ? `${pts.toLocaleString()} / ${next.min.toLocaleString()} pts to ${next.name}`
+                ? `${spending.toLocaleString()}₫ / ${next.min.toLocaleString()}₫ to ${next.name}`
                 : 'Max rank achieved';
         }
 
