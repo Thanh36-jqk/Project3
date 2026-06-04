@@ -703,6 +703,16 @@
                     <div class="lg:col-span-3 space-y-6">
                         <h4 class="text-lg font-semibold text-white pb-4 border-b border-white/10">Shipping Information</h4>
 
+                        <!-- Saved Addresses (logged-in users only) -->
+                        <div id="buynow-addresses-section" class="hidden space-y-2">
+                            <p class="text-sm font-medium text-gray-300">Saved Addresses</p>
+                            <div id="buynow-addresses-list" class="space-y-2 max-h-44 overflow-y-auto pr-1"></div>
+                            <button type="button" id="buynow-btn-new-address"
+                                class="text-sm text-blue-400 hover:underline flex items-center gap-1.5">
+                                <i class="fas fa-plus-circle text-xs"></i> Enter a different address
+                            </button>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="space-y-2">
                                 <label class="text-sm text-gray-300 font-medium">
@@ -2112,7 +2122,94 @@
             currentBuyNowProduct = null;
             selectedBuyNowColor = null;
             selectedBuyNowVoucher = null;
+            buyNowAddrListenerAdded = false;
+            document.getElementById('buynow-addresses-section').classList.add('hidden');
+            document.getElementById('buynow-addresses-list').innerHTML = '';
         };
+
+        // --- BUY NOW ADDRESS HELPERS ---
+        let buyNowAddrListenerAdded = false;
+
+        function escBuyNowAttr(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        function fillBuyNowFields(name, phone, address) {
+            if (name)    document.getElementById('buynow-name').value    = name;
+            if (phone)   document.getElementById('buynow-phone').value   = phone;
+            if (address) document.getElementById('buynow-address').value = address;
+        }
+
+        function renderBuyNowAddresses(addresses) {
+            const section = document.getElementById('buynow-addresses-section');
+            const list    = document.getElementById('buynow-addresses-list');
+            section.classList.remove('hidden');
+
+            list.innerHTML = addresses.map((a, i) => {
+                const icon = a.label === 'Work' ? 'briefcase' : a.label === 'Other' ? 'map-marker-alt' : 'home';
+                const sel  = a.isDefault || i === 0;
+                return `
+                <div class="buynow-addr-card flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all
+                     ${sel ? 'border-blue-500 bg-blue-500/10' : 'border-white/10 bg-white/5 hover:bg-white/10'}"
+                     data-name="${escBuyNowAttr(a.fullName||'')}"
+                     data-phone="${escBuyNowAttr(a.phone||'')}"
+                     data-address="${escBuyNowAttr(a.address||'')}">
+                    <i class="fas fa-${icon} text-blue-400 text-sm w-4 flex-shrink-0"></i>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-1.5 mb-0.5">
+                            <span class="text-xs font-semibold text-white">${escBuyNowAttr(a.label||'Home')}</span>
+                            ${a.isDefault ? '<span class="text-[10px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded font-medium">Default</span>' : ''}
+                        </div>
+                        <p class="text-sm text-gray-300 truncate">${escBuyNowAttr(a.fullName||'')}</p>
+                        <p class="text-xs text-gray-500 truncate">${escBuyNowAttr([a.phone, a.address].filter(Boolean).join(' · '))}</p>
+                    </div>
+                    <div class="buynow-addr-radio w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all
+                         ${sel ? 'border-blue-500 bg-blue-500' : 'border-white/30'}">
+                        ${sel ? '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>' : ''}
+                    </div>
+                </div>`;
+            }).join('');
+
+            if (!buyNowAddrListenerAdded) {
+                list.addEventListener('click', e => {
+                    const card = e.target.closest('.buynow-addr-card');
+                    if (!card) return;
+                    list.querySelectorAll('.buynow-addr-card').forEach(c => {
+                        c.classList.remove('border-blue-500','bg-blue-500/10');
+                        c.classList.add('border-white/10','bg-white/5');
+                        const dot = c.querySelector('.buynow-addr-radio');
+                        dot.classList.remove('border-blue-500','bg-blue-500');
+                        dot.classList.add('border-white/30');
+                        dot.innerHTML = '';
+                    });
+                    card.classList.add('border-blue-500','bg-blue-500/10');
+                    card.classList.remove('border-white/10','bg-white/5');
+                    const dot = card.querySelector('.buynow-addr-radio');
+                    dot.classList.add('border-blue-500','bg-blue-500');
+                    dot.classList.remove('border-white/30');
+                    dot.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>';
+                    fillBuyNowFields(card.dataset.name, card.dataset.phone, card.dataset.address);
+                });
+                document.getElementById('buynow-btn-new-address').addEventListener('click', () => {
+                    list.querySelectorAll('.buynow-addr-card').forEach(c => {
+                        c.classList.remove('border-blue-500','bg-blue-500/10');
+                        c.classList.add('border-white/10','bg-white/5');
+                        const dot = c.querySelector('.buynow-addr-radio');
+                        dot.classList.remove('border-blue-500','bg-blue-500');
+                        dot.classList.add('border-white/30');
+                        dot.innerHTML = '';
+                    });
+                    ['buynow-name','buynow-phone','buynow-address'].forEach(id => {
+                        document.getElementById(id).value = '';
+                    });
+                    document.getElementById('buynow-name').focus();
+                });
+                buyNowAddrListenerAdded = true;
+            }
+
+            const def = addresses.find(a => a.isDefault) || addresses[0];
+            if (def) fillBuyNowFields(def.fullName||'', def.phone||'', def.address||'');
+        }
 
         // Load redeemed, unused vouchers of the logged-in user for the Buy Now modal
         async function loadBuyNowVouchers() {
@@ -2133,6 +2230,8 @@
                     section.classList.remove('hidden');
                     renderBuyNowVouchers();
                 }
+                const addresses = (data.user && data.user.addresses) || [];
+                if (addresses.length > 0) renderBuyNowAddresses(addresses);
             } catch (error) {
                 console.error('Failed to load vouchers:', error);
             }
