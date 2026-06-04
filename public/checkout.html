@@ -297,7 +297,8 @@
           serverCartItems = [item];
           renderCartItems();
           localStorage.removeItem('buyNowItem');
-          if (token) fetchUserVouchers(token);
+          if (token) await fetchUserVouchers(token);
+          else document.getElementById('guest-checkout-fields').classList.remove('hidden');
           return;
         } catch (error) {
           console.error("Error parsing buyNowItem:", error);
