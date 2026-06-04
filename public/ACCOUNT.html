@@ -231,6 +231,7 @@
                             <thead class="bg-[#f5f5f7] text-[#86868b] font-medium border-b border-[#d2d2d7]">
                                 <tr>
                                     <th class="py-4 px-6">Order ID</th>
+                                    <th class="py-4 px-6">Products</th>
                                     <th class="py-4 px-6">Date</th>
                                     <th class="py-4 px-6">Total</th>
                                     <th class="py-4 px-6 text-right">Status</th>
@@ -238,7 +239,7 @@
                             </thead>
                             <tbody class="divide-y divide-gray-100" id="order-history-body">
                                 <tr>
-                                    <td colspan="4" class="py-8 text-center text-gray-400">Loading orders...</td>
+                                    <td colspan="5" class="py-8 text-center text-gray-400">Loading orders...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -336,6 +337,11 @@
         if (!token) window.location.href = 'pages/auth/login.html';
 
         // --- UI FUNCTIONS ---
+        function toggleOrderDetail(orderId) {
+            const row = document.getElementById('order-detail-' + orderId);
+            if (row) row.classList.toggle('hidden');
+        }
+
         function switchTab(tabName) {
             ['orders', 'rewards', 'addresses', 'settings'].forEach(t => {
                 document.getElementById(`content-${t}`).classList.add('hidden');
@@ -380,22 +386,61 @@
                 // 3. Render Orders
                 const orderBody = document.getElementById('order-history-body');
                 if (orders.length === 0) {
-                    orderBody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-gray-400 italic">You haven\'t placed any orders yet.</td></tr>';
+                    orderBody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-gray-400 italic">You haven\'t placed any orders yet.</td></tr>';
                 } else {
-                    orderBody.innerHTML = orders.map(o => `
-                        <tr class="hover:bg-gray-50 transition-colors">
+                    orderBody.innerHTML = orders.map(o => {
+                        const items = o.items || [];
+                        const preview = items.slice(0, 3).map(i =>
+                            `<img src="${i.image || ''}" alt="${i.name || ''}" onerror="this.style.display='none'"
+                             class="w-8 h-8 rounded-lg object-cover border border-gray-100 flex-shrink-0">`
+                        ).join('');
+                        const moreCount = items.length > 3 ? `<span class="text-[10px] text-[#86868b] font-medium">+${items.length - 3}</span>` : '';
+                        const statusClass = o.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                            o.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+                        const itemRows = items.length ? items.map(i => `
+                            <div class="flex items-center gap-3 py-2.5">
+                                <img src="${i.image || ''}" alt="${i.name || ''}" onerror="this.parentElement.querySelector('.img-fallback').style.display='flex';this.style.display='none'"
+                                     class="w-12 h-12 rounded-xl object-cover border border-gray-100 flex-shrink-0">
+                                <div class="img-fallback w-12 h-12 rounded-xl bg-[#f5f5f7] border border-gray-100 flex-shrink-0 items-center justify-center" style="display:none">
+                                    <i class="fas fa-box text-gray-300 text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-[#1d1d1f] truncate">${i.name || 'Product'}</p>
+                                    ${i.color ? `<p class="text-xs text-[#86868b] mt-0.5">${i.color}</p>` : ''}
+                                </div>
+                                <div class="text-right flex-shrink-0 pl-4">
+                                    <p class="text-sm font-medium text-[#1d1d1f]">x${i.qty}</p>
+                                    <p class="text-xs text-[#86868b] mt-0.5">${(i.price || 0).toLocaleString()}₫</p>
+                                </div>
+                            </div>
+                        `).join('') : '<p class="text-xs text-[#86868b] py-3 italic">No item details.</p>';
+
+                        return `
+                        <tr class="hover:bg-gray-50 transition-colors cursor-pointer select-none" onclick="toggleOrderDetail('${o.id}')">
                             <td class="py-4 px-6 font-mono text-xs text-[#0071e3]">#${o.id.slice(-6).toUpperCase()}</td>
+                            <td class="py-4 px-6">
+                                <div class="flex items-center gap-1.5">
+                                    ${preview}
+                                    ${moreCount}
+                                    ${!items.length ? '<span class="text-xs text-[#86868b]">-</span>' : ''}
+                                </div>
+                            </td>
                             <td class="py-4 px-6 text-[#1d1d1f]">${new Date(o.createdAt).toLocaleDateString()}</td>
                             <td class="py-4 px-6 font-medium">${(o.finalAmount || 0).toLocaleString()}₫</td>
                             <td class="py-4 px-6 text-right">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                ${o.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                            o.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
                                     ${o.status}
                                 </span>
                             </td>
                         </tr>
-                    `).join('');
+                        <tr id="order-detail-${o.id}" class="hidden bg-[#fafafa]">
+                            <td colspan="5" class="px-6 pb-4 pt-1">
+                                <div class="divide-y divide-gray-100 border-t border-gray-100">
+                                    ${itemRows}
+                                </div>
+                            </td>
+                        </tr>`;
+                    }).join('');
                 }
 
                 // 4. Render My Vouchers (Wallet)

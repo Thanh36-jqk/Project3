@@ -382,7 +382,8 @@ exports.getProfile = async (req, res) => {
 
         const orders = await prisma.order.findMany({
             where: { userId: req.user.id },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            include: { items: true }
         });
         
         res.status(200).json({ user, orders });
