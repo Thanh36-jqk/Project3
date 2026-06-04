@@ -63,6 +63,16 @@
             <h2 class="text-xl font-semibold">Shipping Information</h2>
           </div>
 
+          <!-- Saved Addresses (logged-in users only) -->
+          <div id="saved-addresses-section" class="hidden mb-6">
+            <p class="text-sm font-medium text-gray-700 mb-2.5">Saved Addresses</p>
+            <div id="saved-addresses-list" class="space-y-2"></div>
+            <button type="button" id="btn-new-address"
+              class="mt-2.5 text-sm text-apple-blue hover:underline flex items-center gap-1.5">
+              <i class="fas fa-plus-circle text-xs"></i> Enter a different address
+            </button>
+          </div>
+
           <div class="grid grid-cols-1 gap-5">
             <div>
               <label for="recipient-name-checkout" class="block text-sm font-medium text-gray-700 mb-1.5">Full Name
@@ -287,6 +297,7 @@
           serverCartItems = [item];
           renderCartItems();
           localStorage.removeItem('buyNowItem');
+          if (token) fetchUserVouchers(token);
           return;
         } catch (error) {
           console.error("Error parsing buyNowItem:", error);
@@ -337,12 +348,6 @@
         const profileRes = await fetch(`${API_BASE_URL}/api/users/profile`, { headers: { 'token': `Bearer ${token}` } });
         const profileData = await profileRes.json();
         if (profileData.user) {
-          // Pre-fill name from profile if field is empty
-          const nameField = document.getElementById('recipient-name-checkout');
-          if (!nameField.value && profileData.user.name) {
-            nameField.value = profileData.user.name;
-          }
-          // Show account email so user knows where confirmation goes
           if (profileData.user.email) {
             document.getElementById('user-email-text').textContent = profileData.user.email;
             document.getElementById('user-email-display').classList.remove('hidden');
@@ -350,6 +355,11 @@
           if (profileData.user.myVouchers) {
             userVouchers = profileData.user.myVouchers.filter(v => !v.isUsed);
             populateVoucherSelect();
+          }
+          if (profileData.user.addresses && profileData.user.addresses.length) {
+            renderSavedAddresses(profileData.user.addresses);
+          } else if (profileData.user.name) {
+            document.getElementById('recipient-name-checkout').value = profileData.user.name;
           }
         }
       } catch (e) { console.error("Error fetching vouchers:", e); }
@@ -585,6 +595,89 @@
 
     function closeSuccessModal() {
       window.location.href = 'index.html';
+    }
+
+    // --- SAVED ADDRESS HELPERS ---
+    function escAttr(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function fillAddressFields(name, phone, address) {
+      if (name)    document.getElementById('recipient-name-checkout').value    = name;
+      if (phone)   document.getElementById('recipient-phone-checkout').value   = phone;
+      if (address) document.getElementById('recipient-address-checkout').value = address;
+    }
+
+    function renderSavedAddresses(addresses) {
+      const section = document.getElementById('saved-addresses-section');
+      const list    = document.getElementById('saved-addresses-list');
+      section.classList.remove('hidden');
+
+      list.innerHTML = addresses.map((a, i) => {
+        const icon = a.label === 'Work' ? 'briefcase' : a.label === 'Other' ? 'map-marker-alt' : 'home';
+        const sel  = a.isDefault || i === 0;
+        return `
+        <div class="address-card flex items-center gap-3 p-3 border rounded-2xl cursor-pointer transition-all
+             ${sel ? 'border-apple-blue bg-blue-50/30' : 'border-gray-200 bg-gray-50 hover:border-apple-blue/40'}"
+             data-name="${escAttr(a.fullName||'')}"
+             data-phone="${escAttr(a.phone||'')}"
+             data-address="${escAttr(a.address||'')}">
+          <i class="fas fa-${icon} text-apple-blue text-sm w-4 flex-shrink-0"></i>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="text-xs font-semibold text-apple-dark">${escAttr(a.label||'Home')}</span>
+              ${a.isDefault ? '<span class="text-[10px] bg-blue-100 text-apple-blue px-1.5 py-0.5 rounded font-medium">Default</span>' : ''}
+            </div>
+            <p class="text-sm text-gray-700 truncate">${escAttr(a.fullName||'')}</p>
+            <p class="text-xs text-gray-500 truncate">${escAttr([a.phone, a.address].filter(Boolean).join(' · '))}</p>
+          </div>
+          <div class="addr-radio w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all
+               ${sel ? 'border-apple-blue bg-apple-blue' : 'border-gray-300'}">
+            ${sel ? '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>' : ''}
+          </div>
+        </div>`;
+      }).join('');
+
+      list.addEventListener('click', e => {
+        const card = e.target.closest('.address-card');
+        if (!card) return;
+        list.querySelectorAll('.address-card').forEach(c => {
+          c.classList.replace('border-apple-blue','border-gray-200');
+          c.classList.remove('bg-blue-50/30');
+          c.classList.add('bg-gray-50');
+          const dot = c.querySelector('.addr-radio');
+          dot.classList.remove('border-apple-blue','bg-apple-blue');
+          dot.classList.add('border-gray-300');
+          dot.innerHTML = '';
+        });
+        card.classList.replace('border-gray-200','border-apple-blue');
+        card.classList.add('bg-blue-50/30');
+        card.classList.remove('bg-gray-50');
+        const dot = card.querySelector('.addr-radio');
+        dot.classList.add('border-apple-blue','bg-apple-blue');
+        dot.classList.remove('border-gray-300');
+        dot.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-white"></div>';
+        fillAddressFields(card.dataset.name, card.dataset.phone, card.dataset.address);
+      });
+
+      document.getElementById('btn-new-address').addEventListener('click', () => {
+        list.querySelectorAll('.address-card').forEach(c => {
+          c.classList.replace('border-apple-blue','border-gray-200');
+          c.classList.remove('bg-blue-50/30');
+          c.classList.add('bg-gray-50');
+          const dot = c.querySelector('.addr-radio');
+          dot.classList.remove('border-apple-blue','bg-apple-blue');
+          dot.classList.add('border-gray-300');
+          dot.innerHTML = '';
+        });
+        ['recipient-name-checkout','recipient-phone-checkout','recipient-address-checkout']
+          .forEach(id => { document.getElementById(id).value = ''; });
+        document.getElementById('recipient-name-checkout').focus();
+      });
+
+      // Auto-fill default (or first)
+      const def = addresses.find(a => a.isDefault) || addresses[0];
+      if (def) fillAddressFields(def.fullName||'', def.phone||'', def.address||'');
     }
 
     // Initialize
