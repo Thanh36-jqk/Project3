@@ -164,6 +164,24 @@ describe('Review Controller - createReview', () => {
         expect(response.updatedRatings).toBeDefined();
     });
 
+    it('should query findFirst with all valid statuses (not just Confirmed)', async () => {
+        Product.findById.mockResolvedValue({ _id: VALID_PRODUCT_ID, isActive: true });
+        Review.findOne.mockResolvedValue(null);
+        prisma.user.findUnique.mockResolvedValue({ name: 'Test', avatar: null });
+        prisma.order.findFirst.mockResolvedValue(null);
+
+        await createReview(req, res);
+
+        const callArgs = prisma.order.findFirst.mock.calls[0][0];
+        const statuses = callArgs.where.status.in;
+        expect(statuses).toContain('Confirmed');
+        expect(statuses).toContain('Shipped');
+        expect(statuses).toContain('Delivered');
+        expect(statuses).toContain('Completed');
+        expect(statuses).not.toContain('Pending');
+        expect(statuses).not.toContain('Cancelled');
+    });
+
     it('should return 409 if user already reviewed this product', async () => {
         Product.findById.mockResolvedValue({ _id: VALID_PRODUCT_ID, isActive: true });
         Review.findOne.mockResolvedValue({ _id: 'existing-review' });

@@ -111,7 +111,7 @@ exports.createReview = async (req, res) => {
         const hasPurchased = await prisma.order.findFirst({
             where: {
                 userId: req.user.id,
-                status: { in: ['Confirmed'] },
+                status: { in: ['Confirmed', 'Shipped', 'Delivered', 'Completed'] },
                 items: { some: { productId: id } }
             }
         });
