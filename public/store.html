@@ -2358,7 +2358,7 @@
                     });
                     window.location.href = `/pages/sepay-payment.html?${params}`;
                 } else {
-                    showToast(`Order placed! #${(data.order?.id || '').slice(-8).toUpperCase()}`);
+                    window.location.href = `/pages/order-confirmation.html?id=${data.order?.id || ''}`;
                 }
 
             } catch (error) {

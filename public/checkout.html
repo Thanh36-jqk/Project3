@@ -595,7 +595,8 @@
     }
 
     function closeSuccessModal() {
-      window.location.href = 'index.html';
+      const id = document.getElementById('success-order-id').textContent;
+      window.location.href = `pages/order-confirmation.html?id=${id}`;
     }
 
     // --- SAVED ADDRESS HELPERS ---

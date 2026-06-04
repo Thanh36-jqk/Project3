@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Details - Apple Store</title>
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: { 'apple-blue': '#0071e3', 'apple-dark': '#1d1d1f', 'apple-gray': '#f5f5f7' },
+          keyframes: {
+            fadeUp: { '0%': { transform: 'translateY(16px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
+          },
+          animation: { 'fade-up': 'fadeUp 0.4s ease both' }
+        }
+      }
+    }
+  </script>
+  <style>
+    .s1 { animation: fadeUp 0.4s 0.05s ease both; }
+    .s2 { animation: fadeUp 0.4s 0.12s ease both; }
+    .s3 { animation: fadeUp 0.4s 0.20s ease both; }
+    #timeline-progress { transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+  </style>
+</head>
+<body class="bg-apple-gray text-apple-dark antialiased font-sans min-h-screen">
+
+  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+      <button onclick="history.back()"
+        class="flex items-center gap-2 text-sm text-apple-blue hover:text-blue-700 font-medium transition-colors">
+        <i class="fas fa-arrow-left text-xs"></i> Back
+      </button>
+      <a href="../index.html"><img src="../assets/images/logo.png" class="h-7" alt="Apple Store"></a>
+      <a href="../ACCOUNT.html" class="text-sm text-gray-500 hover:text-apple-dark transition-colors flex items-center gap-1">
+        <i class="fas fa-user text-xs"></i> Account
+      </a>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-4 py-10 md:py-14">
+
+    <div id="loading-state" class="text-center py-24">
+      <div class="w-10 h-10 border-2 border-apple-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-gray-400 text-sm">Loading order details...</p>
+    </div>
+
+    <div id="error-state" class="hidden bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100">
+      <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
+      </div>
+      <h2 class="text-xl font-semibold mb-2">Order not found</h2>
+      <p class="text-gray-500 text-sm mb-6">Double-check the order ID and try again.</p>
+      <a href="../ACCOUNT.html" class="inline-flex items-center gap-2 bg-apple-blue text-white px-6 py-3 rounded-2xl font-medium text-sm hover:bg-blue-700 transition-colors">
+        My Orders
+      </a>
+    </div>
+
+    <div id="order-content" class="hidden">
+
+      <!-- Header -->
+      <div class="flex flex-wrap items-start gap-4 mb-8 s1">
+        <div class="flex-1 min-w-0">
+          <p class="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">Order</p>
+          <h1 class="text-2xl font-bold font-mono" id="detail-order-id">#--------</h1>
+          <p class="text-sm text-gray-400 mt-1" id="detail-date"></p>
+        </div>
+        <span id="detail-status-badge" class="flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold mt-1"></span>
+      </div>
+
+      <!-- Timeline -->
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 mb-6 s1" id="timeline-card">
+        <div class="flex items-start justify-between relative">
+          <div class="absolute top-5 left-[10%] right-[10%] h-0.5 bg-gray-100"></div>
+          <div class="absolute top-5 left-[10%] h-0.5 bg-apple-blue" id="timeline-progress" style="width:0%;max-width:80%"></div>
+          <div id="timeline-steps" class="w-full flex items-start justify-between relative z-10"></div>
+        </div>
+      </div>
+
+      <!-- Cancelled Banner -->
+      <div id="cancelled-banner" class="hidden bg-red-50 border border-red-200 rounded-3xl p-5 mb-6 flex items-center gap-4">
+        <div class="w-11 h-11 bg-red-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-times-circle text-red-500 text-lg"></i>
+        </div>
+        <div>
+          <p class="font-semibold text-red-700 text-sm">Order Cancelled</p>
+          <p class="text-sm text-red-400 mt-0.5" id="detail-cancel-reason"></p>
+        </div>
+      </div>
+
+      <!-- Main grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-7 gap-5 s2">
+
+        <!-- Items (left) -->
+        <div class="lg:col-span-4 bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+          <h2 class="font-semibold text-base mb-1 flex items-center gap-2">
+            <i class="fas fa-box text-apple-blue text-sm"></i> Items Ordered
+            <span class="text-gray-400 font-normal text-sm" id="detail-item-count"></span>
+          </h2>
+          <div id="detail-items" class="divide-y divide-gray-50 mt-4"></div>
+        </div>
+
+        <!-- Info (right) -->
+        <div class="lg:col-span-3 space-y-4 s3">
+
+          <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
+            <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-3 flex items-center gap-1.5">
+              <i class="fas fa-map-marker-alt text-apple-blue text-xs"></i> Shipping Information
+            </p>
+            <div class="space-y-1.5">
+              <p class="text-sm font-semibold" id="detail-name"></p>
+              <p class="text-sm text-gray-500" id="detail-phone"></p>
+              <p class="text-sm text-gray-500 leading-relaxed" id="detail-address"></p>
+              <p class="text-sm text-gray-400 italic" id="detail-notes"></p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
+            <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-3 flex items-center gap-1.5">
+              <i class="fas fa-receipt text-apple-blue text-xs"></i> Order Summary
+            </p>
+            <div class="space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">Payment</span>
+                <span class="font-medium" id="detail-payment"></span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-500">Subtotal</span>
+                <span id="detail-subtotal"></span>
+              </div>
+              <div id="detail-discount-row" class="hidden flex justify-between text-sm">
+                <span class="text-gray-500">Discount</span>
+                <span id="detail-discount" class="text-green-600"></span>
+              </div>
+              <div class="flex justify-between text-sm font-bold pt-2 border-t border-gray-100">
+                <span>Total</span>
+                <span id="detail-total" class="text-apple-blue text-base"></span>
+              </div>
+            </div>
+          </div>
+
+          <div id="actions-section" class="hidden">
+            <button onclick="openCancelModal()"
+              class="w-full py-3.5 border border-red-200 text-red-500 rounded-2xl text-sm font-semibold hover:bg-red-50 transition-colors active:scale-[0.98] flex items-center justify-center gap-2">
+              <i class="fas fa-times-circle"></i> Cancel Order
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Cancel Confirm Modal -->
+  <div id="cancel-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/30 backdrop-blur-sm" onclick="closeCancelModal()"></div>
+    <div class="relative bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl">
+      <h3 class="font-bold text-lg mb-2">Cancel this order?</h3>
+      <p class="text-gray-500 text-sm mb-6">This cannot be undone. Your order will be cancelled immediately.</p>
+      <div class="flex gap-3">
+        <button onclick="closeCancelModal()"
+          class="flex-1 py-3 border border-gray-200 rounded-2xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+          Keep Order
+        </button>
+        <button onclick="confirmCancel()" id="btn-confirm-cancel"
+          class="flex-1 py-3 bg-red-500 text-white rounded-2xl text-sm font-semibold hover:bg-red-600 transition-colors active:scale-[0.98]">
+          Yes, Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '';
+    const imgUrl = p => encodeURI((p || '').replace(/^\/images\//, '/assets/images/'));
+    let currentOrderId = null;
+
+    const STEPS = [
+      { label: 'Order Placed', icon: 'fas fa-check',          match: ['Pending'] },
+      { label: 'Processing',   icon: 'fas fa-cog',            match: ['Confirmed'] },
+      { label: 'Shipped',      icon: 'fas fa-shipping-fast',  match: ['Shipped'] },
+      { label: 'Delivered',    icon: 'fas fa-home',           match: ['Delivered','Completed'] },
+    ];
+
+    function getActiveStep(status) {
+      return STEPS.findIndex(s => s.match.includes(status));
+    }
+
+    function renderTimeline(status) {
+      if (status === 'Cancelled') {
+        document.getElementById('timeline-card').classList.add('hidden');
+        document.getElementById('cancelled-banner').classList.remove('hidden');
+        document.getElementById('cancelled-banner').classList.add('flex');
+        return;
+      }
+      const activeIdx = getActiveStep(status);
+      const container = document.getElementById('timeline-steps');
+      container.innerHTML = STEPS.map((s, i) => {
+        const done   = i <= activeIdx;
+        const active = i === activeIdx;
+        return `
+        <div class="flex flex-col items-center flex-1 text-center">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center ${done ? 'bg-apple-blue' : 'bg-gray-100'} ${active ? 'ring-4 ring-blue-100' : ''}">
+            <i class="${s.icon} text-sm ${done ? 'text-white' : 'text-gray-400'}"></i>
+          </div>
+          <p class="text-xs font-semibold mt-2 ${done ? 'text-apple-dark' : 'text-gray-400'}">${s.label}</p>
+        </div>`;
+      }).join('');
+
+      setTimeout(() => {
+        const pct = activeIdx <= 0 ? 0 : (activeIdx / (STEPS.length - 1)) * 100;
+        document.getElementById('timeline-progress').style.width = pct + '%';
+      }, 120);
+    }
+
+    const STATUS_STYLES = {
+      Pending:   'bg-yellow-100 text-yellow-700',
+      Confirmed: 'bg-blue-100 text-blue-700',
+      Shipped:   'bg-indigo-100 text-indigo-700',
+      Delivered: 'bg-green-100 text-green-700',
+      Completed: 'bg-green-100 text-green-700',
+      Cancelled: 'bg-red-100 text-red-600',
+    };
+
+    function renderOrder(o) {
+      currentOrderId = o.id;
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('order-content').classList.remove('hidden');
+
+      const shortId = '#' + o.id.slice(-8).toUpperCase();
+      document.getElementById('detail-order-id').textContent = shortId;
+      document.title = `Order ${shortId} - Apple Store`;
+      document.getElementById('detail-date').textContent = new Date(o.createdAt).toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+
+      const badge = document.getElementById('detail-status-badge');
+      badge.textContent = o.status;
+      badge.className = `flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold mt-1 ${STATUS_STYLES[o.status] || 'bg-gray-100 text-gray-600'}`;
+
+      renderTimeline(o.status);
+      if (o.cancelReason) document.getElementById('detail-cancel-reason').textContent = o.cancelReason;
+
+      const items = o.items || [];
+      document.getElementById('detail-item-count').textContent = `(${items.length} item${items.length !== 1 ? 's' : ''})`;
+      document.getElementById('detail-items').innerHTML = items.map(i => `
+        <div class="flex items-center gap-4 py-4">
+          <div class="w-16 h-16 bg-apple-gray rounded-2xl flex-shrink-0 overflow-hidden flex items-center justify-center">
+            ${i.image
+              ? `<img src="${imgUrl(i.image)}" alt="${i.name||''}" class="w-full h-full object-contain p-2" onerror="this.outerHTML='<i class=\\'fas fa-box text-gray-300\\'></i>'">`
+              : '<i class="fas fa-box text-gray-300 text-lg"></i>'}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold">${i.name || 'Product'}</p>
+            ${i.color ? `<p class="text-xs text-gray-400 mt-0.5">${i.color}</p>` : ''}
+            <p class="text-xs text-gray-400 mt-1">Qty: ${i.qty||1}</p>
+          </div>
+          <div class="text-right flex-shrink-0 pl-3">
+            <p class="text-sm font-bold">${((i.price||0) * (i.qty||1)).toLocaleString()}&#8363;</p>
+            <p class="text-xs text-gray-400 mt-0.5">${(i.price||0).toLocaleString()}&#8363; each</p>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('detail-name').textContent    = o.recipientName || '-';
+      document.getElementById('detail-phone').textContent   = o.recipientPhone || '';
+      document.getElementById('detail-address').textContent = o.recipientAddress || '';
+      if (o.recipientNotes) document.getElementById('detail-notes').textContent = o.recipientNotes;
+
+      const payLabels = { COD: 'Cash on Delivery', SePay: 'Bank Transfer', VNPay: 'VNPay' };
+      document.getElementById('detail-payment').textContent  = payLabels[o.paymentMethod] || o.paymentMethod;
+      document.getElementById('detail-subtotal').textContent = (o.subtotal || o.finalAmount || 0).toLocaleString() + '&#8363;';
+      if ((o.discountAmount || 0) > 0) {
+        document.getElementById('detail-discount-row').classList.remove('hidden');
+        document.getElementById('detail-discount-row').classList.add('flex');
+        document.getElementById('detail-discount').textContent = '-' + o.discountAmount.toLocaleString() + '&#8363;';
+      }
+      document.getElementById('detail-total').textContent = (o.finalAmount || 0).toLocaleString() + '&#8363;';
+
+      const token = localStorage.getItem('accessToken');
+      if (token && (o.status === 'Pending' || o.status === 'Confirmed')) {
+        document.getElementById('actions-section').classList.remove('hidden');
+      }
+    }
+
+    function openCancelModal() {
+      document.getElementById('cancel-modal').classList.remove('hidden');
+      document.getElementById('cancel-modal').classList.add('flex');
+    }
+    function closeCancelModal() {
+      document.getElementById('cancel-modal').classList.add('hidden');
+      document.getElementById('cancel-modal').classList.remove('flex');
+    }
+
+    async function confirmCancel() {
+      const btn = document.getElementById('btn-confirm-cancel');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Cancelling...';
+      try {
+        const token = localStorage.getItem('accessToken');
+        const res = await fetch(`${API}/api/orders/${currentOrderId}/cancel`, {
+          method: 'PUT',
+          headers: { 'token': `Bearer ${token}`, 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          closeCancelModal();
+          loadOrder();
+        } else {
+          alert(data.message || 'Failed to cancel order.');
+          btn.disabled = false;
+          btn.textContent = 'Yes, Cancel';
+        }
+      } catch {
+        alert('Connection error. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Yes, Cancel';
+      }
+    }
+
+    function showError() {
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('error-state').classList.remove('hidden');
+    }
+
+    async function loadOrder() {
+      const id = new URLSearchParams(window.location.search).get('id');
+      if (!id) { showError(); return; }
+      try {
+        const res = await fetch(`${API}/api/orders/${id}`);
+        const data = await res.json();
+        if (!res.ok) { showError(); return; }
+        renderOrder(data);
+      } catch { showError(); }
+    }
+
+    loadOrder();
+  </script>
+</body>
+</html>

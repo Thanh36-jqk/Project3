@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed - Apple Store</title>
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: { 'apple-blue': '#0071e3', 'apple-dark': '#1d1d1f', 'apple-gray': '#f5f5f7' },
+          keyframes: {
+            checkPop: { '0%': { transform: 'scale(0)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } },
+            fadeUp:   { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
+          },
+          animation: {
+            'check-pop': 'checkPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards',
+            'fade-up':   'fadeUp 0.45s ease forwards'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .s1 { animation: fadeUp 0.45s 0.05s ease both; }
+    .s2 { animation: fadeUp 0.45s 0.15s ease both; }
+    .s3 { animation: fadeUp 0.45s 0.25s ease both; }
+    .s4 { animation: fadeUp 0.45s 0.35s ease both; }
+    .s5 { animation: fadeUp 0.45s 0.45s ease both; }
+  </style>
+</head>
+<body class="bg-apple-gray text-apple-dark antialiased font-sans min-h-screen">
+
+  <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="../index.html"><img src="../assets/images/logo.png" class="h-7" alt="Apple Store"></a>
+      <a href="../store.html" class="text-sm text-apple-blue hover:text-blue-700 font-medium flex items-center gap-1.5 transition-colors">
+        <i class="fas fa-store text-xs"></i> Back to Store
+      </a>
+    </div>
+  </nav>
+
+  <main class="max-w-2xl mx-auto px-4 py-10 md:py-16">
+
+    <div id="loading-state" class="text-center py-24">
+      <div class="w-10 h-10 border-2 border-apple-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p class="text-gray-400 text-sm">Loading your order...</p>
+    </div>
+
+    <div id="error-state" class="hidden bg-white rounded-3xl p-12 text-center shadow-sm border border-gray-100">
+      <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-exclamation-triangle text-red-400 text-xl"></i>
+      </div>
+      <h2 class="text-xl font-semibold mb-2">Order not found</h2>
+      <p class="text-gray-500 text-sm mb-6">We couldn't load your order details.</p>
+      <a href="../store.html" class="inline-flex items-center gap-2 bg-apple-blue text-white px-6 py-3 rounded-2xl font-medium text-sm hover:bg-blue-700 transition-colors">
+        Continue Shopping
+      </a>
+    </div>
+
+    <div id="success-content" class="hidden space-y-4">
+
+      <!-- Hero -->
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-12 text-center s1">
+        <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-5 animate-check-pop">
+          <svg class="w-10 h-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <h1 class="text-2xl md:text-3xl font-bold mb-2">Order Confirmed!</h1>
+        <p class="text-gray-500 text-sm mb-6">Thank you. We'll start preparing your order right away.</p>
+        <div class="inline-flex items-center gap-3 bg-apple-gray rounded-2xl px-5 py-3">
+          <div class="text-left">
+            <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium">Order ID</p>
+            <p class="font-mono font-bold text-apple-blue text-base" id="conf-order-id">#------</p>
+          </div>
+          <button onclick="copyOrderId()" title="Copy order ID"
+            class="w-7 h-7 bg-white rounded-lg flex items-center justify-center hover:bg-gray-100 transition-colors border border-gray-200 active:scale-95">
+            <i id="copy-icon" class="fas fa-copy text-gray-400 text-xs"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Items -->
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 s2">
+        <h2 class="font-semibold text-base mb-4 flex items-center gap-2">
+          <i class="fas fa-box text-apple-blue text-sm"></i>
+          Items Ordered <span class="text-gray-400 font-normal text-sm" id="conf-item-count"></span>
+        </h2>
+        <div id="conf-items" class="divide-y divide-gray-50"></div>
+      </div>
+
+      <!-- Shipping + Payment -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 s3">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
+          <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-3 flex items-center gap-1.5">
+            <i class="fas fa-map-marker-alt text-apple-blue text-xs"></i> Shipping To
+          </p>
+          <p class="font-semibold text-sm" id="conf-name"></p>
+          <p class="text-gray-500 text-sm mt-0.5" id="conf-phone"></p>
+          <p class="text-gray-500 text-sm mt-0.5 leading-relaxed" id="conf-address"></p>
+        </div>
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
+          <p class="text-[10px] text-gray-400 uppercase tracking-wider font-medium mb-3 flex items-center gap-1.5">
+            <i class="fas fa-credit-card text-apple-blue text-xs"></i> Payment
+          </p>
+          <p class="font-semibold text-sm mb-3" id="conf-payment"></p>
+          <div class="space-y-1.5 border-t border-gray-100 pt-3">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500">Subtotal</span>
+              <span id="conf-subtotal"></span>
+            </div>
+            <div id="conf-discount-row" class="hidden flex justify-between text-sm">
+              <span class="text-gray-500">Discount</span>
+              <span id="conf-discount" class="text-green-600"></span>
+            </div>
+            <div class="flex justify-between text-sm font-bold pt-1">
+              <span>Total</span>
+              <span id="conf-total" class="text-apple-blue"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- What's Next -->
+      <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 s4">
+        <h2 class="font-semibold text-base mb-5">What happens next?</h2>
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div>
+            <div class="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <i class="fas fa-clipboard-check text-apple-blue"></i>
+            </div>
+            <p class="text-xs font-semibold mb-1">Processing</p>
+            <p class="text-[11px] text-gray-400 leading-relaxed">We verify and prepare your order within 1-2 business days</p>
+          </div>
+          <div>
+            <div class="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <i class="fas fa-shipping-fast text-apple-blue"></i>
+            </div>
+            <p class="text-xs font-semibold mb-1">Shipped</p>
+            <p class="text-[11px] text-gray-400 leading-relaxed">You'll get a tracking update when your order ships</p>
+          </div>
+          <div>
+            <div class="w-11 h-11 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <i class="fas fa-home text-apple-blue"></i>
+            </div>
+            <p class="text-xs font-semibold mb-1">Delivered</p>
+            <p class="text-[11px] text-gray-400 leading-relaxed">3-5 business days to your door after shipping</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTAs -->
+      <div class="flex flex-col sm:flex-row gap-3 s5">
+        <a id="btn-track" href="#"
+          class="flex-1 bg-apple-blue text-white py-4 rounded-2xl font-semibold text-sm text-center hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]">
+          <i class="fas fa-search-location"></i> Track Order
+        </a>
+        <a href="../store.html"
+          class="flex-1 bg-white border border-gray-200 text-apple-dark py-4 rounded-2xl font-semibold text-sm text-center hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 active:scale-[0.98]">
+          <i class="fas fa-store text-gray-400"></i> Continue Shopping
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const API = '';
+    const imgUrl = p => encodeURI((p || '').replace(/^\/images\//, '/assets/images/'));
+    let _orderId = null;
+
+    function getOrderId() { return new URLSearchParams(window.location.search).get('id'); }
+
+    function copyOrderId() {
+      if (_orderId) {
+        navigator.clipboard.writeText(_orderId).then(() => {
+          const icon = document.getElementById('copy-icon');
+          icon.className = 'fas fa-check text-green-500 text-xs';
+          setTimeout(() => icon.className = 'fas fa-copy text-gray-400 text-xs', 1600);
+        });
+      }
+    }
+
+    function showError() {
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('error-state').classList.remove('hidden');
+    }
+
+    function renderOrder(o) {
+      _orderId = o.id;
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('success-content').classList.remove('hidden');
+
+      const shortId = '#' + o.id.slice(-8).toUpperCase();
+      document.getElementById('conf-order-id').textContent = shortId;
+      document.title = `Order ${shortId} Confirmed - Apple Store`;
+
+      const items = o.items || [];
+      document.getElementById('conf-item-count').textContent = `(${items.length})`;
+      document.getElementById('conf-items').innerHTML = items.map(i => `
+        <div class="flex items-center gap-4 py-3.5">
+          <div class="w-14 h-14 bg-apple-gray rounded-2xl flex-shrink-0 overflow-hidden flex items-center justify-center">
+            ${i.image
+              ? `<img src="${imgUrl(i.image)}" alt="${i.name||''}" class="w-full h-full object-contain p-1.5" onerror="this.outerHTML='<i class=\\'fas fa-box text-gray-300\\'></i>'">`
+              : '<i class="fas fa-box text-gray-300"></i>'}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate">${i.name || 'Product'}</p>
+            ${i.color ? `<p class="text-xs text-gray-400 mt-0.5">${i.color}</p>` : ''}
+          </div>
+          <div class="text-right flex-shrink-0 pl-2">
+            <p class="text-sm font-semibold">${((i.price||0) * (i.qty||1)).toLocaleString()}&#8363;</p>
+            <p class="text-xs text-gray-400 mt-0.5">x${i.qty||1}</p>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('conf-name').textContent    = o.recipientName || '-';
+      document.getElementById('conf-phone').textContent   = o.recipientPhone || '';
+      document.getElementById('conf-address').textContent = o.recipientAddress || '';
+
+      const payLabels = { COD: 'Cash on Delivery', SePay: 'Bank Transfer (SePay)', VNPay: 'VNPay' };
+      document.getElementById('conf-payment').textContent  = payLabels[o.paymentMethod] || o.paymentMethod;
+      document.getElementById('conf-subtotal').textContent = (o.subtotal || o.finalAmount || 0).toLocaleString() + '&#8363;';
+      if ((o.discountAmount || 0) > 0) {
+        document.getElementById('conf-discount-row').classList.remove('hidden');
+        document.getElementById('conf-discount-row').classList.add('flex');
+        document.getElementById('conf-discount').textContent = '-' + o.discountAmount.toLocaleString() + '&#8363;';
+      }
+      document.getElementById('conf-total').textContent = (o.finalAmount || 0).toLocaleString() + '&#8363;';
+      document.getElementById('btn-track').href = `order-detail.html?id=${o.id}`;
+    }
+
+    async function loadOrder() {
+      const id = getOrderId();
+      if (!id) { showError(); return; }
+      try {
+        const res = await fetch(`${API}/api/orders/${id}`);
+        const data = await res.json();
+        if (!res.ok) { showError(); return; }
+        renderOrder(data);
+      } catch { showError(); }
+    }
+
+    loadOrder();
+  </script>
+</body>
+</html>

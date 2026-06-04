@@ -415,7 +415,9 @@
 
                         return `
                         <tr class="hover:bg-gray-50 transition-colors cursor-pointer select-none" onclick="toggleOrderDetail('${o.id}')">
-                            <td class="py-4 px-6 font-mono text-xs text-[#0071e3]">#${o.id.slice(-6).toUpperCase()}</td>
+                            <td class="py-4 px-6 font-mono text-xs text-[#0071e3]">
+                                <a href="/pages/order-detail.html?id=${o.id}" onclick="event.stopPropagation()" class="hover:underline">#${o.id.slice(-6).toUpperCase()}</a>
+                            </td>
                             <td class="py-4 px-6">
                                 <div class="flex items-center gap-1.5">
                                     ${preview}
