@@ -1067,6 +1067,7 @@
             mobileMenu.setAttribute('aria-hidden', 'false');
             toggleIcon.className = 'fas fa-times text-sm';
             navToggle.setAttribute('aria-expanded', 'true');
+            mainHeader.style.zIndex = '9999';
             document.body.style.overflow = 'hidden';
             gsap.to('.mobile-nav-link', { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: 'power2.out' });
         }
@@ -1081,6 +1082,7 @@
                 onComplete: () => {
                     mobileMenu.style.pointerEvents = 'none';
                     mobileMenu.setAttribute('aria-hidden', 'true');
+                    mainHeader.style.zIndex = '';
                 }
             });
         }
