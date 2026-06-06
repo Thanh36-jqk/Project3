@@ -221,6 +221,20 @@
         }
         .cta-btn-wrap > a:hover { background: #0071e3; }
 
+        /* ===================== HEADER SCROLLED ===================== */
+        header[data-scrolled="true"] {
+            background: rgba(0,0,0,0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom-color: rgba(255,255,255,0.1);
+        }
+
+        /* ===================== MOBILE MENU ===================== */
+        #mobile-menu {
+            transition: opacity 0.3s ease;
+        }
+        .mobile-nav-link { opacity: 0; transform: translateY(20px); }
+
         /* ===================== GALLERY ===================== */
         #gallery-section {
             position: relative; background: #050505;
@@ -309,6 +323,9 @@
                         class="absolute -top-2 -right-2 bg-blue-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center opacity-0 cart-count">0</span>
                 </a>
                 <a href="ACCOUNT.html" class="text-gray-300 hover:text-white text-xs"><i class="fas fa-user"></i></a>
+                <button id="nav-toggle" class="md:hidden text-white z-[9999] relative ml-1" aria-label="Toggle navigation" aria-expanded="false">
+                    <i id="nav-toggle-icon" class="fas fa-bars text-sm"></i>
+                </button>
             </div>
         </div>
     </header>
@@ -546,6 +563,23 @@
         </section>
 
     </main>
+
+    <!-- ===================== MOBILE MENU OVERLAY ===================== -->
+    <div id="mobile-menu"
+         class="fixed inset-0 z-[9998] flex items-center justify-center md:hidden"
+         style="background:rgba(0,0,0,0.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);opacity:0;pointer-events:none"
+         aria-hidden="true">
+        <nav class="flex flex-col items-center gap-8 text-center">
+            <a href="store.html"                    class="mobile-nav-link text-[1.85rem] font-light text-white hover:text-gray-500 transition-colors tracking-wide">Store</a>
+            <a href="pages/products/mac.html"       class="mobile-nav-link text-[1.85rem] font-light text-white hover:text-gray-500 transition-colors tracking-wide">Mac</a>
+            <a href="pages/products/ipad.html"      class="mobile-nav-link text-[1.85rem] font-light text-white hover:text-gray-500 transition-colors tracking-wide">iPad</a>
+            <a href="pages/products/iphone.html"    class="mobile-nav-link text-[1.85rem] font-light text-white hover:text-gray-500 transition-colors tracking-wide">iPhone</a>
+            <a href="watch.html"                    class="mobile-nav-link text-[1.85rem] font-light text-white hover:text-gray-500 transition-colors tracking-wide">Watch &amp; AirPods</a>
+            <a href="ACCOUNT.html"                  class="mobile-nav-link text-[1.85rem] font-light text-white hover:text-gray-500 transition-colors tracking-wide">Member</a>
+            <a href="support.html"                  class="mobile-nav-link text-[1.85rem] font-light text-white hover:text-gray-500 transition-colors tracking-wide">Support</a>
+        </nav>
+    </div>
+
     <script type="module">
         import * as THREE from 'three';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -992,6 +1026,69 @@
             gsap.from('.gallery-card', {
                 y: 50, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out',
                 scrollTrigger: { trigger: '#gallery-section', start: 'top 80%' }
+            });
+
+            // Touch / swipe support
+            let touchStartX = 0;
+            gallerySection.addEventListener('touchstart', e => {
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+            gallerySection.addEventListener('touchmove', e => {
+                const delta = e.touches[0].clientX - touchStartX;
+                touchStartX = e.touches[0].clientX;
+                gTargetX = Math.max(-maxScroll(), Math.min(0, gTargetX + delta));
+            }, { passive: true });
+        }
+
+        // ─── 5. HEADER SCROLL DETECTION ──────────────────────────────
+        const mainHeader = document.querySelector('header');
+        const heroSection = document.querySelector('.section-hero');
+        if (heroSection && mainHeader) {
+            new IntersectionObserver(([entry]) => {
+                if (!entry.isIntersecting) {
+                    mainHeader.setAttribute('data-scrolled', 'true');
+                } else {
+                    mainHeader.removeAttribute('data-scrolled');
+                }
+            }, { threshold: 0.1 }).observe(heroSection);
+        }
+
+        // ─── 6. MOBILE MENU ──────────────────────────────────────────
+        const navToggle  = document.getElementById('nav-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const toggleIcon = document.getElementById('nav-toggle-icon');
+        let menuOpen = false;
+
+        function openMenu() {
+            menuOpen = true;
+            gsap.set('.mobile-nav-link', { opacity: 0, y: 20 });
+            mobileMenu.style.opacity = '1';
+            mobileMenu.style.pointerEvents = 'auto';
+            mobileMenu.setAttribute('aria-hidden', 'false');
+            toggleIcon.className = 'fas fa-times text-sm';
+            navToggle.setAttribute('aria-expanded', 'true');
+            document.body.style.overflow = 'hidden';
+            gsap.to('.mobile-nav-link', { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: 'power2.out' });
+        }
+
+        function closeMenu() {
+            menuOpen = false;
+            toggleIcon.className = 'fas fa-bars text-sm';
+            navToggle.setAttribute('aria-expanded', 'false');
+            document.body.style.overflow = '';
+            gsap.to(mobileMenu, {
+                opacity: 0, duration: 0.35, ease: 'power2.in',
+                onComplete: () => {
+                    mobileMenu.style.pointerEvents = 'none';
+                    mobileMenu.setAttribute('aria-hidden', 'true');
+                }
+            });
+        }
+
+        if (navToggle) {
+            navToggle.addEventListener('click', () => menuOpen ? closeMenu() : openMenu());
+            document.querySelectorAll('.mobile-nav-link').forEach(link => {
+                link.addEventListener('click', closeMenu);
             });
         }
 
