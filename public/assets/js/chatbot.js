@@ -122,9 +122,17 @@
         ],
     };
 
+    // ── Session ID (persists across page loads in same tab session) ─────────
+    function getSessionId() { return sessionStorage.getItem('chatbot-sid') || null; }
+    function saveSessionId(id) { sessionStorage.setItem('chatbot-sid', id); }
+
     // ── HTML injection ───────────────────────────────────────────────────────
     function inject() {
         if (document.getElementById('chat-bubble')) return; // already present
+        // Cursor blink animation for streaming
+        const style = document.createElement('style');
+        style.textContent = '@keyframes _cb-blink{0%,100%{opacity:1}50%{opacity:0}}._cb-cursor{animation:_cb-blink .6s infinite;display:inline-block;margin-left:1px;line-height:1}';
+        document.head.appendChild(style);
 
         const wrapper = document.createElement('div');
         wrapper.id = 'chatbox-proto-wrapper';
@@ -339,15 +347,41 @@
         window.location.href = '/store.html';
     }
 
+    // ── Streaming bubble ─────────────────────────────────────────────────────
+    function appendStreamingBubble() {
+        const container = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = 'flex gap-2 items-end';
+        const bubble = document.createElement('div');
+        bubble.className = 'bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5 leading-relaxed shadow-sm';
+        bubble.innerHTML = '<span class="_cb-cursor">▋</span>';
+        div.innerHTML = `<div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center flex-shrink-0"><i class="fas fa-sparkles text-[10px] text-white"></i></div>`;
+        div.appendChild(bubble);
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+        return {
+            write(text) {
+                bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') + '<span class="_cb-cursor">▋</span>';
+                container.scrollTop = container.scrollHeight;
+            },
+            finish(text) {
+                bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                container.scrollTop = container.scrollHeight;
+            }
+        };
+    }
+
     // ── Submit handler ───────────────────────────────────────────────────────
     function onSubmit(e) {
         e.preventDefault();
         const input = document.getElementById('chat-input');
+        const submitBtn = document.querySelector('#chat-form button[type="submit"]');
         const msg = input.value.trim();
         if (!msg) return;
 
         appendMessage(msg, 'user');
         input.value = '';
+        if (submitBtn) submitBtn.disabled = true;
 
         const loadingId = 'ai-loading-' + Date.now();
         appendLoading(loadingId);
@@ -359,36 +393,85 @@
         fetch(`${API}/api/chat/message`, {
             method: 'POST',
             headers,
-            body: JSON.stringify({ message: msg }),
+            body: JSON.stringify({ message: msg, sessionId: getSessionId() }),
         })
-        .then(res => {
+        .then(response => {
             const loadingEl = document.getElementById(loadingId);
             if (loadingEl) loadingEl.remove();
 
-            if (!res.ok) {
+            if (!response.ok) {
+                if (submitBtn) submitBtn.disabled = false;
                 const msgs = {
                     401: '⚠️ Please login for better experience. Chatbot also works as guest.',
                     503: '🔧 AI system under maintenance. Contact: 0962923329',
                 };
-                appendMessage(msgs[res.status] || '❌ Connection error. Please try again later.', 'ai');
-                return null;
+                appendMessage(msgs[response.status] || '❌ Connection error. Please try again later.', 'ai');
+                return;
             }
-            return res.json();
-        })
-        .then(data => {
-            if (!data) return;
-            if (data.type === 'product_card') {
-                appendMessage(data, 'ai');
-            } else if (data.reply && data.reply.trim()) {
-                appendMessage(data.reply, 'ai');
-            } else {
-                appendMessage('❓ I didn\'t understand. Try asking about product prices or order status.', 'ai');
+
+            const contentType = response.headers.get('content-type') || '';
+
+            // ── SSE streaming path ──────────────────────────────────────────
+            if (contentType.includes('text/event-stream')) {
+                const stream = appendStreamingBubble();
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let accumulated = '';
+
+                function read() {
+                    reader.read().then(({ done, value }) => {
+                        if (done) {
+                            stream.finish(accumulated);
+                            if (submitBtn) submitBtn.disabled = false;
+                            return;
+                        }
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop();
+
+                        for (const line of lines) {
+                            if (!line.startsWith('data: ')) continue;
+                            const payload = line.slice(6).trim();
+                            if (payload === '[DONE]') {
+                                stream.finish(accumulated);
+                                if (submitBtn) submitBtn.disabled = false;
+                                return;
+                            }
+                            try {
+                                const json = JSON.parse(payload);
+                                if (json.sessionId) saveSessionId(json.sessionId);
+                                if (json.text) { accumulated += json.text; stream.write(accumulated); }
+                                if (json.error) { stream.finish('❌ ' + json.error); if (submitBtn) submitBtn.disabled = false; return; }
+                            } catch (_) {}
+                        }
+                        read();
+                    }).catch(() => {
+                        stream.finish(accumulated || '❌ Stream interrupted.');
+                        if (submitBtn) submitBtn.disabled = false;
+                    });
+                }
+                read();
+                return;
             }
+
+            // ── JSON path (product cards / error fallback) ──────────────────
+            return response.json().then(data => {
+                if (!data) return;
+                if (data.type === 'product_card') {
+                    appendMessage(data, 'ai');
+                } else if (data.reply && data.reply.trim()) {
+                    appendMessage(data.reply, 'ai');
+                } else {
+                    appendMessage('❓ I didn\'t understand. Try asking about product prices or order status.', 'ai');
+                }
+            }).finally(() => { if (submitBtn) submitBtn.disabled = false; });
         })
         .catch(() => {
             const loadingEl = document.getElementById(loadingId);
             if (loadingEl) loadingEl.remove();
             appendMessage('📌 Cannot connect to AI. Please check your connection.', 'ai');
+            if (submitBtn) submitBtn.disabled = false;
         });
     }
 

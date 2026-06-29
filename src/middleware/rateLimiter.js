@@ -30,18 +30,27 @@ const apiLimiter = rateLimit({
     }
 });
 
-/**
- * Rate limiter for AI chatbot endpoint
- * Moderate: 20 requests per minute per IP (API calls are expensive)
- */
+// Per-minute guard: prevents burst flooding (5 req/min per IP)
 const chatLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 20,
+    max: 5,
     standardHeaders: true,
     legacyHeaders: false,
     message: {
-        message: 'Chatbot rate limit reached. Please wait a moment.',
-        retryAfter: 60
+        type: 'text',
+        reply: '⚠️ Bạn đang gửi tin quá nhanh. Vui lòng chờ 1 phút.'
+    }
+});
+
+// Per-day guard: protects shared Gemini quota (30 req/day per IP)
+const chatDailyLimiter = rateLimit({
+    windowMs: 24 * 60 * 60 * 1000,
+    max: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        type: 'text',
+        reply: '⚠️ Bạn đã dùng hết lượt chat hôm nay. Vui lòng quay lại ngày mai hoặc gọi hotline: 0962 923 329.'
     }
 });
 
@@ -75,4 +84,4 @@ const otpLimiter = rateLimit({
     }
 });
 
-module.exports = { authLimiter, apiLimiter, chatLimiter, passwordResetLimiter, otpLimiter };
+module.exports = { authLimiter, apiLimiter, chatLimiter, chatDailyLimiter, passwordResetLimiter, otpLimiter };

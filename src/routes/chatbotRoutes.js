@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const chatbotController = require('../controllers/chatbotController');
-const { chatLimiter } = require('../middleware/rateLimiter');
+const { chatLimiter, chatDailyLimiter } = require('../middleware/rateLimiter');
 
-// Chat endpoint with rate limiting (20 requests/min — AI calls are expensive)
-router.post('/message', chatLimiter, chatbotController.handleChat);
+// chatDailyLimiter: 30 req/day per IP (protect shared Gemini quota)
+// chatLimiter: 5 req/min per IP (prevent burst flooding)
+router.post('/message', chatDailyLimiter, chatLimiter, chatbotController.handleChat);
 
 module.exports = router;
