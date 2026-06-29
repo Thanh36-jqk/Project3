@@ -34,7 +34,7 @@ function matchFAQ(msg) {
         return '📞 **Hotline:** 0962 923 329 (8h–22h hàng ngày). Hoặc chat trực tiếp tại đây!';
     if (/(giờ làm việc|gio lam viec|mở cửa|mo cua|giờ mở|working hours|open)/.test(msg))
         return '🕗 **Giờ hoạt động:** 8h–22h mỗi ngày (kể cả thứ 7, CN và ngày lễ).';
-    if (/(xin chào|chào|hello|hi\b|hey)/.test(msg))
+    if (/(xin chào|chào|hello|\bhi\b|hey)/.test(msg))
         return '👋 Xin chào! Tôi là trợ lý AI của Apple Store Việt Nam. Tôi có thể giúp bạn tìm sản phẩm, tra cứu đơn hàng, hoặc giải đáp chính sách cửa hàng.';
     return null;
 }
@@ -64,6 +64,11 @@ exports.handleChat = async (req, res) => {
     if (!userMessage || typeof userMessage !== 'string' || userMessage.trim() === '') {
         return res.status(400).json({ reply: "⚠️ Please enter a message." });
     }
+
+    // ── Fast-path: FAQ — works even when Gemini is down ─────────────────────
+    const userMessageLower = userMessage.toLowerCase();
+    const faqMatch = matchFAQ(userMessageLower);
+    if (faqMatch) return res.json({ type: 'text', reply: faqMatch });
 
     const genAI = getGenAI();
     if (!genAI) {
@@ -107,11 +112,6 @@ exports.handleChat = async (req, res) => {
             price: p.price.toLocaleString('vi-VN') + 'đ',
             category: p.category
         }));
-
-        // ── Fast-path: FAQ rule-based (no Gemini quota used) ────────────────
-        const userMessageLower = userMessage.toLowerCase();
-        const faqMatch = matchFAQ(userMessageLower);
-        if (faqMatch) return res.json({ type: 'text', reply: faqMatch });
 
         // ── Fast-path: product card ──────────────────────────────────────────
         const priceKeywords = ['giá', 'bao nhiêu', 'tiền', 'price', 'cost', 'giá cả', 'giá tiền', 'mức giá', 'mua', 'đặt', 'order', 'buy', 'cần'];

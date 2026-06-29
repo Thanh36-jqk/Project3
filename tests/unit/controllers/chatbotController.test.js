@@ -1,14 +1,14 @@
 const jwt = require('jsonwebtoken');
 const { handleChat } = require('../../../src/controllers/chatbotController');
-const { getModel } = require('../../../src/config/gemini');
+const { getGenAI } = require('../../../src/config/gemini');
 const prisma = require('../../../src/config/postgres');
 const Product = require('../../../src/models/Product');
 
 jest.mock('jsonwebtoken');
-jest.mock('../../../src/config/gemini', () => ({ getModel: jest.fn() }));
+jest.mock('../../../src/config/gemini', () => ({ getModel: jest.fn(), getGenAI: jest.fn() }));
 jest.mock('../../../src/config/postgres', () => ({
     user: { findUnique: jest.fn() },
-    order: { findMany: jest.fn() },
+    order: { findMany: jest.fn(), findFirst: jest.fn() },
 }));
 jest.mock('../../../src/models/Product');
 
@@ -27,6 +27,25 @@ function mockProductFind(contextProducts = [], searchProducts = []) {
         });
 }
 
+// Build a mock genAI that streams a single text chunk
+function makeMockGenAI(streamText = 'AI reply text', rejectWith = null) {
+    const streamChunks = rejectWith
+        ? null
+        : (async function* () { yield { text: () => streamText }; })();
+
+    const mockSendMessageStream = rejectWith
+        ? jest.fn().mockRejectedValue(rejectWith)
+        : jest.fn().mockResolvedValue({ stream: streamChunks });
+
+    const mockChat = { sendMessageStream: mockSendMessageStream };
+    const mockChatModel = { startChat: jest.fn().mockReturnValue(mockChat) };
+    return {
+        genAI: { getGenerativeModel: jest.fn().mockReturnValue(mockChatModel) },
+        mockSendMessageStream,
+        mockChat,
+    };
+}
+
 const SAMPLE_PRODUCT = {
     _id: { toString: () => 'prod001' },
     name: 'iPhone 15',
@@ -37,29 +56,35 @@ const SAMPLE_PRODUCT = {
 };
 
 describe('Chatbot Controller — handleChat', () => {
-    let req, res, mockModel;
+    let req, res;
 
     beforeEach(() => {
-        jest.clearAllMocks();
+        jest.resetAllMocks();
 
         req = { headers: {}, body: { message: 'xin chào' } };
-        res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
-
-        mockModel = {
-            generateContent: jest.fn().mockResolvedValue({
-                response: { text: jest.fn().mockReturnValue('AI reply text') },
-            }),
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            setHeader: jest.fn(),
+            flushHeaders: jest.fn(),
+            write: jest.fn(),
+            end: jest.fn(),
+            headersSent: false,
         };
-        getModel.mockReturnValue(mockModel);
+
+        // Default genAI mock — streaming "AI reply text"
+        const { genAI } = makeMockGenAI('AI reply text');
+        getGenAI.mockReturnValue(genAI);
+
+        prisma.user.findUnique.mockResolvedValue(null);
+        prisma.order.findMany.mockResolvedValue([]);
+        prisma.order.findFirst.mockResolvedValue(null);
 
         // Default: single Product.find returning empty (non-price-intent path uses 1 call)
         Product.find.mockReturnValue({
             select: jest.fn().mockReturnValue({ limit: jest.fn().mockResolvedValue([]) }),
             limit: jest.fn().mockResolvedValue([]),
         });
-
-        prisma.user.findUnique.mockResolvedValue(null);
-        prisma.order.findMany.mockResolvedValue([]);
     });
 
     // ─── 1. Input Validation ──────────────────────────────────────────────────
@@ -85,18 +110,60 @@ describe('Chatbot Controller — handleChat', () => {
         });
     });
 
-    // ─── 2. Gemini Model Unavailable ─────────────────────────────────────────
+    // ─── 2. FAQ Shortcuts (rule-based, no Gemini) ─────────────────────────────
+
+    describe('FAQ Shortcuts', () => {
+        it('returns warranty info without calling Gemini', async () => {
+            req.body.message = 'chính sách bảo hành như thế nào?';
+            await handleChat(req, res);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'text', reply: expect.stringContaining('Bảo hành') })
+            );
+            expect(getGenAI).not.toHaveBeenCalled();
+        });
+
+        it('returns return-policy info without calling Gemini', async () => {
+            req.body.message = 'doi tra nhu the nao';
+            await handleChat(req, res);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'text', reply: expect.stringContaining('Đổi trả') })
+            );
+            expect(getGenAI).not.toHaveBeenCalled();
+        });
+
+        it('returns hotline info without calling Gemini', async () => {
+            req.body.message = 'hotline la bao nhieu';
+            await handleChat(req, res);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'text', reply: expect.stringContaining('0962') })
+            );
+            expect(getGenAI).not.toHaveBeenCalled();
+        });
+
+        it('returns FAQ even when Gemini is unavailable', async () => {
+            getGenAI.mockReturnValue(null);
+            req.body.message = 'bao hanh may nhieu nam';
+            await handleChat(req, res);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'text', reply: expect.stringContaining('Bảo hành') })
+            );
+            expect(res.status).not.toHaveBeenCalledWith(503);
+        });
+    });
+
+    // ─── 3. Gemini Model Unavailable ─────────────────────────────────────────
 
     describe('Gemini Model Unavailable', () => {
-        it('returns 503 when Gemini model is not initialised', async () => {
-            getModel.mockReturnValue(null);
+        it('returns 503 when Gemini is not initialised', async () => {
+            getGenAI.mockReturnValue(null);
+            req.body.message = 'tai sao iphone dat'; // not an FAQ
             await handleChat(req, res);
             expect(res.status).toHaveBeenCalledWith(503);
             expect(res.json).toHaveBeenCalledWith({ reply: expect.stringContaining('maintenance') });
         });
     });
 
-    // ─── 3. Authentication ────────────────────────────────────────────────────
+    // ─── 4. Authentication ────────────────────────────────────────────────────
 
     describe('Authentication', () => {
         it('treats request as guest when no Authorization header is provided', async () => {
@@ -104,12 +171,12 @@ describe('Chatbot Controller — handleChat', () => {
             await handleChat(req, res);
             expect(jwt.verify).not.toHaveBeenCalled();
             expect(prisma.user.findUnique).not.toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalled();
         });
 
         it('loads user data and orders when a valid Bearer token is provided', async () => {
             jwt.verify.mockReturnValue({ id: 'user-abc' });
             req.headers.authorization = 'Bearer valid.jwt.token';
+            req.body.message = 'tai sao iphone dat'; // non-FAQ to reach DB path
             prisma.user.findUnique.mockResolvedValue({
                 id: 'user-abc', email: 'buyer@example.com', rank: 'Gold', points: 800,
             });
@@ -123,14 +190,15 @@ describe('Chatbot Controller — handleChat', () => {
         it('falls back to guest when JWT verification throws', async () => {
             jwt.verify.mockImplementation(() => { throw new Error('jwt malformed'); });
             req.headers.authorization = 'Bearer bad-token';
+            req.body.message = 'tai sao iphone dat';
             await handleChat(req, res);
             expect(prisma.user.findUnique).not.toHaveBeenCalled();
-            expect(res.json).toHaveBeenCalled();
         });
 
         it('reads token from the token header as well as Authorization', async () => {
             jwt.verify.mockReturnValue({ id: 'user-xyz' });
             req.headers.token = 'Bearer another.valid.token';
+            req.body.message = 'tai sao iphone dat';
             prisma.user.findUnique.mockResolvedValue({
                 id: 'user-xyz', email: 'alt@example.com', rank: 'Silver', points: 0,
             });
@@ -141,7 +209,7 @@ describe('Chatbot Controller — handleChat', () => {
         });
     });
 
-    // ─── 4. Product Price Intent (Regex Path) ─────────────────────────────────
+    // ─── 5. Product Price Intent (Regex Path) ─────────────────────────────────
 
     describe('Product Price Intent — Regex Path', () => {
         it('returns product_card with formatted data when iPhone is found in DB', async () => {
@@ -156,7 +224,6 @@ describe('Chatbot Controller — handleChat', () => {
                     ]),
                 })
             );
-            expect(mockModel.generateContent).not.toHaveBeenCalled();
         });
 
         it('returns not-found text reply when no matching product is in stock', async () => {
@@ -202,78 +269,70 @@ describe('Chatbot Controller — handleChat', () => {
         });
     });
 
-    // ─── 5. Gemini AI Path ────────────────────────────────────────────────────
+    // ─── 6. Gemini AI Path (SSE streaming) ───────────────────────────────────
 
     describe('Gemini AI Path', () => {
-        it('returns type:text reply for a general question', async () => {
-            req.body.message = 'chính sách bảo hành như thế nào?';
-            mockModel.generateContent.mockResolvedValue({
-                response: { text: jest.fn().mockReturnValue('Bảo hành 12 tháng.') },
-            });
+        it('streams reply via SSE for a general question', async () => {
+            req.body.message = 'tai sao iphone dat the';
+            const { genAI } = makeMockGenAI('iPhone đắt vì linh kiện cao cấp.');
+            getGenAI.mockReturnValue(genAI);
             await handleChat(req, res);
-            expect(res.json).toHaveBeenCalledWith({ type: 'text', reply: 'Bảo hành 12 tháng.' });
+            expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/event-stream');
+            expect(res.write).toHaveBeenCalledWith(
+                expect.stringContaining('"text":"iPhone đắt vì linh kiện cao cấp."')
+            );
+            expect(res.write).toHaveBeenCalledWith('data: [DONE]\n\n');
+            expect(res.end).toHaveBeenCalled();
         });
 
-        it('returns fallback message when Gemini responds with empty text', async () => {
-            req.body.message = 'hỏi bất kỳ';
-            mockModel.generateContent.mockResolvedValue({
-                response: { text: jest.fn().mockReturnValue('') },
-            });
+        it('sends sessionId as first SSE event', async () => {
+            req.body.message = 'tai sao iphone dat the';
             await handleChat(req, res);
-            expect(res.json).toHaveBeenCalledWith({
-                reply: expect.stringContaining("couldn't generate"),
-            });
+            expect(res.write).toHaveBeenCalledWith(expect.stringContaining('"sessionId"'));
         });
 
-        it('returns "overloaded" message when Gemini hits quota limit', async () => {
-            req.body.message = 'xin chào';
-            mockModel.generateContent.mockRejectedValue(new Error('quota exceeded resource_exhausted'));
+        it('returns 503 JSON when all models hit quota limit', async () => {
+            req.body.message = 'tai sao iphone dat the';
+            const quotaError = new Error('quota exceeded resource_exhausted 429');
+            const { genAI } = makeMockGenAI('', quotaError);
+            getGenAI.mockReturnValue(genAI);
             await handleChat(req, res);
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ reply: expect.stringContaining('overloaded') });
+            expect(res.status).toHaveBeenCalledWith(503);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ reply: expect.stringContaining('quá tải') })
+            );
         });
 
-        it('returns "connection interrupted" message on network / timeout error', async () => {
-            req.body.message = 'xin chào';
-            mockModel.generateContent.mockRejectedValue(new Error('network timeout ECONNREFUSED'));
+        it('returns 503 JSON with generic message on non-quota error', async () => {
+            req.body.message = 'tai sao iphone dat the';
+            const netError = new Error('network timeout ECONNREFUSED');
+            const { genAI } = makeMockGenAI('', netError);
+            getGenAI.mockReturnValue(genAI);
             await handleChat(req, res);
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ reply: expect.stringContaining('connection') });
-        });
-
-        it('returns "configuration issue" message on invalid API key error', async () => {
-            req.body.message = 'xin chào';
-            mockModel.generateContent.mockRejectedValue(new Error('invalid api key'));
-            await handleChat(req, res);
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ reply: expect.stringContaining('configuration') });
-        });
-
-        it('returns generic "technical issues" fallback for unknown errors', async () => {
-            req.body.message = 'xin chào';
-            mockModel.generateContent.mockRejectedValue(new Error('some unexpected failure'));
-            await handleChat(req, res);
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({ reply: expect.stringContaining('technical issues') });
+            expect(res.status).toHaveBeenCalledWith(503);
+            expect(res.json).toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'text' })
+            );
         });
     });
 
-    // ─── 6. Database Errors ───────────────────────────────────────────────────
+    // ─── 7. Database Errors ───────────────────────────────────────────────────
 
     describe('Database Errors', () => {
         it('continues as guest (does not return 500) when user DB lookup throws', async () => {
             jwt.verify.mockReturnValue({ id: 'user-db-fail' });
             req.headers.authorization = 'Bearer some.token';
+            req.body.message = 'tai sao iphone dat';
             prisma.user.findUnique.mockRejectedValue(new Error('DB connection lost'));
             await handleChat(req, res);
             expect(res.status).not.toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalled();
         });
 
-        it('returns 500 when Product.find throws', async () => {
+        it('returns 503 when Product.find throws', async () => {
+            req.body.message = 'tai sao iphone dat';
             Product.find.mockImplementation(() => { throw new Error('MongoDB connection error'); });
             await handleChat(req, res);
-            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.status).toHaveBeenCalledWith(503);
         });
     });
 });
