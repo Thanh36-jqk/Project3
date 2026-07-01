@@ -1,12 +1,12 @@
 const https = require('https');
 
 const sendEmail = async (options) => {
-    const apiKey = process.env.SENDGRID_API_KEY;
+    const apiKey = (process.env.SENDGRID_API_KEY || '').trim();
     if (!apiKey) throw new Error('SENDGRID_API_KEY is not configured');
 
     const payload = JSON.stringify({
         personalizations: [{ to: [{ email: options.to }] }],
-        from: { email: process.env.EMAIL_FROM, name: 'Apple Store' },
+        from: { email: (process.env.EMAIL_FROM || '').trim(), name: 'Apple Store' },
         subject: options.subject,
         content: [{ type: 'text/html', value: options.html }]
     });

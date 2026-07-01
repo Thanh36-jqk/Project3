@@ -126,6 +126,15 @@
     function getSessionId() { return sessionStorage.getItem('chatbot-sid') || null; }
     function saveSessionId(id) { sessionStorage.setItem('chatbot-sid', id); }
 
+    // ── Markdown formatter ───────────────────────────────────────────────────
+    function formatMarkdown(text) {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+            .replace(/^[-*]\s+(.+)$/gm, '• $1')
+            .replace(/\n\n+/g, '<br><br>')
+            .replace(/\n/g, '<br>');
+    }
+
     // ── HTML injection ───────────────────────────────────────────────────────
     function inject() {
         if (document.getElementById('chat-bubble')) return; // already present
@@ -168,8 +177,14 @@
                 <i class="fas fa-robot text-xs text-white"></i>
             </div>
             <div class="bg-[#2c2c2e] text-gray-200 text-sm p-3 rounded-2xl rounded-bl-none max-w-[80%] border border-white/5">
-                Hello! I'm Apple Store's AI Assistant. How can I help you today?
+                Xin chào! Tôi là trợ lý AI của Apple Store. Tôi có thể giúp gì cho bạn? 👋
             </div>
+        </div>
+        <div id="chat-quick-replies" class="flex flex-wrap gap-1.5 pl-8 pt-2">
+            <button onclick="window._chatbot.quickReply('Giá iPhone 16')" class="text-xs bg-white/10 hover:bg-white/20 text-gray-200 px-3 py-1.5 rounded-full border border-white/10 hover:border-blue-500/50 transition-all active:scale-95">📱 Giá iPhone 16</button>
+            <button onclick="window._chatbot.quickReply('Đơn hàng của tôi')" class="text-xs bg-white/10 hover:bg-white/20 text-gray-200 px-3 py-1.5 rounded-full border border-white/10 hover:border-blue-500/50 transition-all active:scale-95">📦 Đơn hàng</button>
+            <button onclick="window._chatbot.quickReply('Chính sách bảo hành')" class="text-xs bg-white/10 hover:bg-white/20 text-gray-200 px-3 py-1.5 rounded-full border border-white/10 hover:border-blue-500/50 transition-all active:scale-95">🛡️ Bảo hành</button>
+            <button onclick="window._chatbot.quickReply('Thanh toán')" class="text-xs bg-white/10 hover:bg-white/20 text-gray-200 px-3 py-1.5 rounded-full border border-white/10 hover:border-blue-500/50 transition-all active:scale-95">💳 Thanh toán</button>
         </div>
     </div>
 
@@ -210,7 +225,10 @@
         if (sender === 'user') {
             div.className = 'flex gap-2 items-end justify-end';
             const text = typeof data === 'string' ? data : (data.reply || data);
-            div.innerHTML = `<div class="bg-blue-600 text-white text-sm p-3 rounded-2xl rounded-br-none max-w-[80%]">${text}</div>`;
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'bg-blue-600 text-white text-sm p-3 rounded-2xl rounded-br-none max-w-[80%] whitespace-pre-wrap break-words';
+            msgDiv.textContent = text;
+            div.appendChild(msgDiv);
         } else {
             if (typeof data === 'object' && data.type === 'product_card') {
                 div.className = 'flex flex-col gap-2 w-full';
@@ -218,7 +236,7 @@
             } else {
                 div.className = 'flex gap-2 items-end';
                 const text = typeof data === 'string' ? data : (data.reply || '');
-                const formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+                const formatted = formatMarkdown(text);
                 div.innerHTML = `
                     <div class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-sparkles text-[10px] text-white"></i>
@@ -361,19 +379,33 @@
         container.scrollTop = container.scrollHeight;
         return {
             write(text) {
-                bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') + '<span class="_cb-cursor">▋</span>';
+                bubble.innerHTML = formatMarkdown(text) + '<span class="_cb-cursor">▋</span>';
                 container.scrollTop = container.scrollHeight;
             },
             finish(text) {
-                bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+                bubble.innerHTML = formatMarkdown(text);
                 container.scrollTop = container.scrollHeight;
             }
         };
     }
 
+    // ── Quick reply chips ────────────────────────────────────────────────────
+    function quickReply(msg) {
+        const chips = document.getElementById('chat-quick-replies');
+        if (chips) chips.remove();
+        const input = document.getElementById('chat-input');
+        const form = document.getElementById('chat-form');
+        if (input && form) {
+            input.value = msg;
+            form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+    }
+
     // ── Submit handler ───────────────────────────────────────────────────────
     function onSubmit(e) {
         e.preventDefault();
+        const chips = document.getElementById('chat-quick-replies');
+        if (chips) chips.remove();
         const input = document.getElementById('chat-input');
         const submitBtn = document.querySelector('#chat-form button[type="submit"]');
         const msg = input.value.trim();
@@ -483,7 +515,7 @@
     }
 
     // Expose for onclick handlers in injected HTML
-    window._chatbot = { toggle, buy, view, selectColor };
+    window._chatbot = { toggle, buy, view, selectColor, quickReply };
     // Also expose legacy names used by store.html's existing code
     window.toggleChatWindow = toggle;
     window.handleBuyNowFromChat = buy;
