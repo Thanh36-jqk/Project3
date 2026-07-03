@@ -134,8 +134,8 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     {
       name: "iPad Air",
-      desc: "Serious performance in a thin and light design with M2 chip.",
-      price: "15,000,000₫",
+      desc: "Serious performance in a thin and light design with M4 chip.",
+      price: "16,000,000₫",
       img: "../images/ipad air m2/ipad air m2 gold.png"
     },
     {
