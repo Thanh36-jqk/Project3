@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { getGenAI } = require('../config/gemini');
+const { classify } = require('../services/intentClassifier');
+const chatHistoryService = require('../services/chatHistoryService');
 const prisma = require('../config/postgres');
 const Product = require('../models/Product');
 
@@ -16,27 +18,34 @@ setInterval(() => {
     }
 }, 10 * 60 * 1000);
 
-// ── FAQ rule-based matcher (zero quota cost) ─────────────────────────────────
-function matchFAQ(msg) {
-    if (/(bảo hành|bao hanh|warranty)/.test(msg))
-        return '🛡️ **Bảo hành:** 12 tháng chính hãng Apple. Đổi máy mới trong 30 ngày nếu lỗi nhà sản xuất.';
-    if (/(đổi trả|doi tra|hoàn trả|hoan tra|return|refund)/.test(msg))
-        return '🔄 **Đổi trả:** 7 ngày nếu sản phẩm lỗi, còn nguyên hộp và phụ kiện đầy đủ.';
-    if (/(vận chuyển|van chuyen|giao hàng|giao hang|ship|delivery)/.test(msg))
-        return '🚚 **Vận chuyển:** Miễn phí toàn quốc đơn từ 500.000₫. Thời gian giao: 2–3 ngày làm việc.';
-    if (/(thanh toán|thanh toan|payment|cod|vnpay|sepay|qr)/.test(msg))
-        return '💳 **Thanh toán:** COD (tiền mặt khi nhận), VNPay (thẻ/ví điện tử), SePay (QR chuyển khoản).';
-    if (/(trả góp|tra gop|installment|góp|gop|fe credit|hd saison)/.test(msg))
-        return '💰 **Trả góp 0%:** Đơn từ 3 triệu. Hợp tác FE Credit và HD Saison.';
-    if (/(tích điểm|tich diem|điểm thưởng|diem thuong|loyalty|voucher)/.test(msg))
-        return '⭐ **Tích điểm:** 1 điểm / 100.000₫. Đổi điểm lấy voucher giảm giá.';
-    if (/(hotline|liên hệ|lien he|số điện thoại|so dien thoai|contact|\bphone\b|hỗ trợ|ho tro)/.test(msg))
-        return '📞 **Hotline:** 0962 923 329 (8h–22h hàng ngày). Hoặc chat trực tiếp tại đây!';
-    if (/(giờ làm việc|gio lam viec|mở cửa|mo cua|giờ mở|working hours|open)/.test(msg))
-        return '🕗 **Giờ hoạt động:** 8h–22h mỗi ngày (kể cả thứ 7, CN và ngày lễ).';
-    if (/(xin chào|chào|hello|\bhi\b|hey)/.test(msg))
-        return '👋 Xin chào! Tôi là trợ lý AI của Apple Store Việt Nam. Tôi có thể giúp bạn tìm sản phẩm, tra cứu đơn hàng, hoặc giải đáp chính sách cửa hàng.';
-    return null;
+// ── FAQ intent matcher (Naive Bayes classifier, zero quota cost) ─────────────
+const FAQ_CONFIDENCE_THRESHOLD = 0.5;
+
+const FAQ_REPLIES = {
+    bao_hanh: '🛡️ **Bảo hành:** 12 tháng chính hãng Apple. Đổi máy mới trong 30 ngày nếu lỗi nhà sản xuất.',
+    doi_tra: '🔄 **Đổi trả:** 7 ngày nếu sản phẩm lỗi, còn nguyên hộp và phụ kiện đầy đủ.',
+    van_chuyen: '🚚 **Vận chuyển:** Miễn phí toàn quốc đơn từ 500.000₫. Thời gian giao: 2–3 ngày làm việc.',
+    thanh_toan: '💳 **Thanh toán:** COD (tiền mặt khi nhận), VNPay (thẻ/ví điện tử), SePay (QR chuyển khoản).',
+    tra_gop: '💰 **Trả góp 0%:** Đơn từ 3 triệu. Hợp tác FE Credit và HD Saison.',
+    tich_diem: '⭐ **Tích điểm:** 1 điểm / 100.000₫. Đổi điểm lấy voucher giảm giá.',
+    hotline: '📞 **Hotline:** 0962 923 329 (8h–22h hàng ngày). Hoặc chat trực tiếp tại đây!',
+    gio_lam_viec: '🕗 **Giờ hoạt động:** 8h–22h mỗi ngày (kể cả thứ 7, CN và ngày lễ).',
+    chao_hoi: '👋 Xin chào! Tôi là trợ lý AI của Apple Store Việt Nam. Tôi có thể giúp bạn tìm sản phẩm, tra cứu đơn hàng, hoặc giải đáp chính sách cửa hàng.',
+};
+
+function getFaqReply(intent, confidence) {
+    if (intent === 'khac' || confidence < FAQ_CONFIDENCE_THRESHOLD) return null;
+    return FAQ_REPLIES[intent] || null;
+}
+
+// Persisting chat history must never break the user-facing reply — a DB
+// hiccup here should degrade to "no history saved this turn", not a 500.
+async function safeSaveMessage(data) {
+    try {
+        await chatHistoryService.saveMessage(data);
+    } catch (err) {
+        console.error('⚠️ Failed to persist chat message:', err.message);
+    }
 }
 
 // ── Main handler ─────────────────────────────────────────────────────────────
@@ -65,10 +74,21 @@ exports.handleChat = async (req, res) => {
         return res.status(400).json({ reply: "⚠️ Please enter a message." });
     }
 
-    // ── Fast-path: FAQ — works even when Gemini is down ─────────────────────
+    // Reuse the client's sessionId whenever present so history/context survive
+    // in-memory session eviction (TTL, server restart) — only mint a new one
+    // for a genuinely new conversation.
+    const activeSessionId = clientSessionId || crypto.randomUUID();
+
     const userMessageLower = userMessage.toLowerCase();
-    const faqMatch = matchFAQ(userMessageLower);
-    if (faqMatch) return res.json({ type: 'text', reply: faqMatch });
+    const { intent, confidence } = classify(userMessageLower);
+
+    // ── Fast-path: FAQ — works even when Gemini is down ─────────────────────
+    const faqMatch = getFaqReply(intent, confidence);
+    if (faqMatch) {
+        await safeSaveMessage({ sessionId: activeSessionId, userId, role: 'user', content: userMessage, intent, confidence });
+        await safeSaveMessage({ sessionId: activeSessionId, userId, role: 'model', content: faqMatch });
+        return res.json({ type: 'text', reply: faqMatch, sessionId: activeSessionId });
+    }
 
     const genAI = getGenAI();
     if (!genAI) {
@@ -106,18 +126,36 @@ exports.handleChat = async (req, res) => {
             }
         }
 
-        const products = await Product.find({ stock: { $gt: 0 } }).select('name price category').limit(50);
-        contextData.available_products = products.map(p => ({
-            name: p.name,
-            price: p.price.toLocaleString('vi-VN') + 'đ',
-            category: p.category
-        }));
+        const products = await Product.find({ stock: { $gt: 0 } }).select('name price category spec short_description').limit(50);
+        contextData.available_products = products.map(p => {
+            const entry = {
+                name: p.name,
+                price: p.price.toLocaleString('vi-VN') + 'đ',
+                category: p.category
+            };
+            if (p.short_description) entry.short_description = p.short_description;
+            if (p.spec) entry.spec = p.spec;
+            return entry;
+        });
 
         // ── Fast-path: product card ──────────────────────────────────────────
-        const priceKeywords = ['giá', 'bao nhiêu', 'tiền', 'price', 'cost', 'giá cả', 'giá tiền', 'mức giá', 'mua', 'đặt', 'order', 'buy', 'cần'];
+        // Bare short words (gia/tien) use \b boundaries so they don't false-positive
+        // as substrings of unrelated words (e.g. "gia" inside "giao hàng").
+        // NOTE: "đặt" and "cần" are NOT added as bare unaccented forms ("dat"/"can") —
+        // "dat" collides with "đắt" (expensive, as in "iphone dat qua" = complaint,
+        // not a price lookup) and "can" collides with "cẩn"/"cận". "mua" already
+        // covers the vast majority of real no-diacritic purchase-intent phrasing.
+        const priceKeywords = [
+            'giá', 'gia', 'bao nhiêu', 'bao nhieu', 'tiền', 'tien', 'price', 'cost',
+            'giá cả', 'gia ca', 'giá tiền', 'gia tien', 'mức giá', 'muc gia',
+            'mua', 'đặt', 'order', 'buy', 'cần'
+        ];
+        const priceKeywordPattern = new RegExp(
+            '\\b(' + priceKeywords.map(kw => kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\b'
+        );
         const productKeywords = ['iphone', 'ip', 'macbook', 'mac', 'ipad', 'watch', 'airpods', 'airpod'];
 
-        const hasPriceIntent = priceKeywords.some(kw => userMessageLower.includes(kw));
+        const hasPriceIntent = priceKeywordPattern.test(userMessageLower);
         const hasProductMention = productKeywords.some(kw => userMessageLower.includes(kw));
 
         if (hasPriceIntent && hasProductMention) {
@@ -150,18 +188,22 @@ exports.handleChat = async (req, res) => {
                         category: p.category,
                         stock: p.stock
                     }));
+                    const cardMessage = matched.length === 1
+                        ? `Here is information about ${matched[0].name}:`
+                        : `I found ${matched.length} matching products:`;
+                    await safeSaveMessage({ sessionId: activeSessionId, userId, role: 'user', content: userMessage, intent, confidence });
+                    await safeSaveMessage({ sessionId: activeSessionId, userId, role: 'model', content: `${cardMessage} ${formattedProducts.map(p => p.name).join(', ')}` });
                     return res.json({
                         type: 'product_card',
                         products: formattedProducts,
-                        message: matched.length === 1
-                            ? `Here is information about ${matched[0].name}:`
-                            : `I found ${matched.length} matching products:`
+                        message: cardMessage,
+                        sessionId: activeSessionId
                     });
                 } else {
-                    return res.json({
-                        type: 'text',
-                        reply: `❓ Sorry, I couldn't find any product matching "${productName}". Try: "iPhone 16", "MacBook Pro", or visit /store.html`
-                    });
+                    const notFoundReply = `❓ Sorry, I couldn't find any product matching "${productName}". Try: "iPhone 16", "MacBook Pro", or visit /store.html`;
+                    await safeSaveMessage({ sessionId: activeSessionId, userId, role: 'user', content: userMessage, intent, confidence });
+                    await safeSaveMessage({ sessionId: activeSessionId, userId, role: 'model', content: notFoundReply });
+                    return res.json({ type: 'text', reply: notFoundReply, sessionId: activeSessionId });
                 }
             }
         }
@@ -189,10 +231,22 @@ exports.handleChat = async (req, res) => {
         }
 
         // ── General query: streaming with conversation memory ────────────────
-        const activeSessionId = clientSessionId && sessions.has(clientSessionId)
-            ? clientSessionId
-            : crypto.randomUUID();
-        const session = sessions.get(activeSessionId) || { history: [], lastActive: Date.now() };
+        let session = sessions.get(activeSessionId);
+        if (!session) {
+            // Session evicted (TTL) or server restarted — rehydrate Gemini
+            // history from persisted messages so context isn't lost.
+            let rehydratedHistory = [];
+            try {
+                const rows = await chatHistoryService.getHistory(activeSessionId);
+                rehydratedHistory = rows.map(r => ({ role: r.role, parts: [{ text: r.content }] }));
+                if (rehydratedHistory.length > MAX_HISTORY_TURNS * 2) {
+                    rehydratedHistory = rehydratedHistory.slice(-MAX_HISTORY_TURNS * 2);
+                }
+            } catch (_) {}
+            session = { history: rehydratedHistory, lastActive: Date.now() };
+        }
+
+        await safeSaveMessage({ sessionId: activeSessionId, userId, role: 'user', content: userMessage, intent, confidence });
 
         const STORE_POLICIES = `CHÍNH SÁCH CỬA HÀNG:
 - Bảo hành: 12 tháng chính hãng Apple, đổi máy mới trong 30 ngày nếu lỗi nhà sản xuất
@@ -266,6 +320,8 @@ Câu hỏi của khách: `;
         res.write('data: [DONE]\n\n');
         res.end();
 
+        await safeSaveMessage({ sessionId: activeSessionId, userId, role: 'model', content: fullResponse });
+
         // Save plain userMessage to history (not the context-wrapped version)
         session.history.push(
             { role: 'user', parts: [{ text: userMessage }] },
@@ -300,5 +356,21 @@ Câu hỏi của khách: `;
             res.write('data: [DONE]\n\n');
             res.end();
         } catch (_) {}
+    }
+};
+
+// ── History — lets the frontend re-render past messages after a page reload ──
+exports.getChatHistory = async (req, res) => {
+    const { sessionId } = req.params;
+    if (!sessionId) {
+        return res.status(400).json({ messages: [] });
+    }
+    try {
+        const rows = await chatHistoryService.getHistory(sessionId);
+        const messages = rows.map(r => ({ role: r.role, content: r.content, createdAt: r.createdAt }));
+        return res.json({ messages });
+    } catch (error) {
+        console.error('❌ CHAT HISTORY ERROR:', error.message);
+        return res.status(503).json({ messages: [] });
     }
 };

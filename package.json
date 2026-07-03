@@ -14,6 +14,8 @@
     "frontend": "live-server . --open=public/index.html",
     "dev:full": "concurrently \"npm run server\" \"npm run frontend\"",
     "seed": "node scripts/seed.js",
+    "evaluate:intent": "node scripts/evaluate-intent-classifier.js",
+    "export:intent-dataset": "node scripts/export-intent-dataset.js",
     "import-products": "node scripts/importProducts.js",
     "postinstall": "node scripts/postinstall.js"
   },

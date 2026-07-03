@@ -41,6 +41,7 @@ model User {
   orders                 Order[]
   refreshTokens          RefreshToken[]
   returnRequests         ReturnRequest[]
+  chatMessages           ChatMessage[]
 }
 
 model Address {
@@ -128,6 +129,22 @@ model ReturnRequest {
 
   @@index([status])
   @@index([createdAt])
+}
+
+model ChatMessage {
+  id         String   @id @default(uuid())
+  sessionId  String
+  userId     String?
+  role       String   // "user" | "model"
+  content    String
+  intent     String?  // classifier result, only set on "user" messages
+  confidence Float?
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId])
+  @@index([userId])
 }
 
 model RefreshToken {

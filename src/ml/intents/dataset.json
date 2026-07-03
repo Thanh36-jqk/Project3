@@ -1,0 +1,626 @@
+[
+  {
+    "text": "xin chào",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "chào bạn",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "hello",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "hi",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "chào shop",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "cho hoi shop oi",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "alo",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "chào buổi sáng",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "hey shop",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "chao ban",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "chào cửa hàng",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "helo shop",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "shop oi cho hoi",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "chào admin",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "xin chao ad",
+    "intent": "chao_hoi"
+  },
+  {
+    "text": "chính sách bảo hành như thế nào",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "bảo hành máy được bao lâu",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "sản phẩm có bảo hành không",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "bao hanh bao nhieu thang",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "che do bao hanh the nao",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "mua o day co bao hanh khong",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "thời gian bảo hành là bao lâu",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "bảo hành chính hãng apple không",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "máy hỏng có được đổi mới không",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "bao hanh may nhieu nam",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "đổi máy mới trong bao lâu nếu lỗi",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "có bảo hành điện thoại không",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "quy định bảo hành ra sao",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "bảo hành như thế nào vậy shop",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "warranty policy la gi",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "hư tự nhiên trong lúc sử dụng bình thường có bảo hành không",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "máy tự nhiên hỏng thì xử lý bảo hành thế nào",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "màn hình tự nhiên bị lỗi có được bảo hành sửa miễn phí không",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "pin phồng có nằm trong diện bảo hành không",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "sạc không vào pin có được bảo hành không",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "máy tự dưng bị đơ có được bảo hành sửa chữa không",
+    "intent": "bao_hanh"
+  },
+  {
+    "text": "chính sách đổi trả như thế nào",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "doi tra nhu the nao",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "muốn trả hàng có được không",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "đổi trả trong bao lâu",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "hoàn trả sản phẩm lỗi",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "hoan tra don hang duoc khong",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "có được đổi trả không",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "return policy la gi",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "trả hàng cần điều kiện gì",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "sản phẩm lỗi có đổi được không",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "refund như thế nào",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "muốn hoàn tiền được không",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "đổi hàng khác được không",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "chính sách return la gi",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "doi tra san pham loi",
+    "intent": "doi_tra"
+  },
+  {
+    "text": "phí vận chuyển bao nhiêu",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "giao hàng mất bao lâu",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "van chuyen toan quoc khong",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "ship đến tỉnh khác được không",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "thời gian giao hàng",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "giao hang nhanh khong",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "miễn phí ship khi nào",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "phí ship là bao nhiêu",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "delivery time la bao lau",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "giao hàng tận nơi không",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "shop có giao hàng hỏa tốc không",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "van chuyen mat phi khong",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "khi nào nhận được hàng",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "giao hàng có nhanh không",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "ship COD được không",
+    "intent": "van_chuyen"
+  },
+  {
+    "text": "có những hình thức thanh toán nào",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "thanh toan bang gi duoc",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "trả bằng thẻ được không",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "có hỗ trợ vnpay không",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "thanh toán qua sepay như thế nào",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "cod là gì",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "co the quet ma qr khong",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "payment method la gi",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "thanh toán khi nhận hàng được không",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "có ví điện tử không",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "chuyển khoản được không",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "thanh toan the tin dung duoc khong",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "hỗ trợ những phương thức thanh toán gì",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "quét mã qr thanh toán được không",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "thanh toan qua vi dien tu duoc khong",
+    "intent": "thanh_toan"
+  },
+  {
+    "text": "có trả góp không",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "tra gop 0 phan tram the nao",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "mua trả góp cần điều kiện gì",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "trả góp qua fe credit được không",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "installment options la gi",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "góp bao nhiêu tháng",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "trả góp lãi suất bao nhiêu",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "mua tra gop can giay to gi",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "hd saison ho tro tra gop khong",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "có hỗ trợ trả góp 0% không",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "muốn mua trả góp thì sao",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "tra gop duoc khong shop",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "điều kiện trả góp là gì",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "trả góp cho sinh viên được không",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "installment 0 percent available",
+    "intent": "tra_gop"
+  },
+  {
+    "text": "tích điểm như thế nào",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "diem thuong doi duoc gi",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "1 điểm bằng bao nhiêu tiền",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "loyalty points la gi",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "làm sao để tích điểm",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "đổi điểm lấy voucher được không",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "diem tich luy dung the nao",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "chương trình khách hàng thân thiết",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "tích điểm mua hàng có không",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "voucher đổi điểm như thế nào",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "cách tích điểm ra sao",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "diem thuong la gi",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "rank vip co uu dai gi khong",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "hạng thành viên có ưu đãi gì",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "tich diem the nao vay shop",
+    "intent": "tich_diem"
+  },
+  {
+    "text": "số hotline là gì",
+    "intent": "hotline"
+  },
+  {
+    "text": "so dien thoai lien he",
+    "intent": "hotline"
+  },
+  {
+    "text": "liên hệ shop qua đâu",
+    "intent": "hotline"
+  },
+  {
+    "text": "hotline lam viec may gio",
+    "intent": "hotline"
+  },
+  {
+    "text": "contact number la gi",
+    "intent": "hotline"
+  },
+  {
+    "text": "gọi điện tư vấn ở đâu",
+    "intent": "hotline"
+  },
+  {
+    "text": "so hotline bao nhieu",
+    "intent": "hotline"
+  },
+  {
+    "text": "muốn liên hệ trực tiếp thì sao",
+    "intent": "hotline"
+  },
+  {
+    "text": "có số điện thoại hỗ trợ không",
+    "intent": "hotline"
+  },
+  {
+    "text": "hotline la bao nhieu",
+    "intent": "hotline"
+  },
+  {
+    "text": "lien he ho tro the nao",
+    "intent": "hotline"
+  },
+  {
+    "text": "cho em xin hotline voi",
+    "intent": "hotline"
+  },
+  {
+    "text": "số điện thoại cửa hàng",
+    "intent": "hotline"
+  },
+  {
+    "text": "liên hệ như thế nào",
+    "intent": "hotline"
+  },
+  {
+    "text": "phone number to contact",
+    "intent": "hotline"
+  },
+  {
+    "text": "giờ làm việc của shop",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "mo cua luc may gio",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "shop mở cửa mấy giờ",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "làm việc cả cuối tuần không",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "gio hoat dong the nao",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "mở cửa ngày lễ không",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "working hours la gi",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "shop đóng cửa lúc mấy giờ",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "gio lam viec tu may gio den may gio",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "có làm việc chủ nhật không",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "cửa hàng mở cửa khi nào",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "giờ mở cửa hàng ngày",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "làm việc giờ nào vậy shop",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "open hours please",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "mấy giờ thì shop mở",
+    "intent": "gio_lam_viec"
+  },
+  {
+    "text": "tại sao iphone đắt vậy",
+    "intent": "khac"
+  },
+  {
+    "text": "so sánh iphone 15 và 16",
+    "intent": "khac"
+  },
+  {
+    "text": "macbook nào tốt cho sinh viên",
+    "intent": "khac"
+  },
+  {
+    "text": "pin airpods dùng được bao lâu",
+    "intent": "khac"
+  },
+  {
+    "text": "hôm nay thời tiết thế nào",
+    "intent": "khac"
+  },
+  {
+    "text": "kể chuyện cười đi",
+    "intent": "khac"
+  },
+  {
+    "text": "1 cộng 1 bằng mấy",
+    "intent": "khac"
+  },
+  {
+    "text": "ipad co ve duoc khong",
+    "intent": "khac"
+  },
+  {
+    "text": "nên mua iphone hay samsung",
+    "intent": "khac"
+  },
+  {
+    "text": "apple watch co do nhip tim khong",
+    "intent": "khac"
+  },
+  {
+    "text": "macbook air va macbook pro khac gi nhau",
+    "intent": "khac"
+  },
+  {
+    "text": "iphone 16 co gi moi",
+    "intent": "khac"
+  },
+  {
+    "text": "tư vấn giúp em nên mua máy nào",
+    "intent": "khac"
+  },
+  {
+    "text": "airpods pro co chong on khong",
+    "intent": "khac"
+  },
+  {
+    "text": "cấu hình macbook pro ra sao",
+    "intent": "khac"
+  }
+]

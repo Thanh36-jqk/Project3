@@ -9,6 +9,7 @@ jest.mock('../../../src/config/gemini', () => ({ getModel: jest.fn(), getGenAI: 
 jest.mock('../../../src/config/postgres', () => ({
     user: { findUnique: jest.fn() },
     order: { findMany: jest.fn(), findFirst: jest.fn() },
+    chatMessage: { create: jest.fn(), findMany: jest.fn() },
 }));
 jest.mock('../../../src/models/Product');
 
@@ -79,6 +80,8 @@ describe('Chatbot Controller — handleChat', () => {
         prisma.user.findUnique.mockResolvedValue(null);
         prisma.order.findMany.mockResolvedValue([]);
         prisma.order.findFirst.mockResolvedValue(null);
+        prisma.chatMessage.create.mockResolvedValue({});
+        prisma.chatMessage.findMany.mockResolvedValue([]);
 
         // Default: single Product.find returning empty (non-price-intent path uses 1 call)
         Product.find.mockReturnValue({
@@ -148,6 +151,20 @@ describe('Chatbot Controller — handleChat', () => {
                 expect.objectContaining({ type: 'text', reply: expect.stringContaining('Bảo hành') })
             );
             expect(res.status).not.toHaveBeenCalledWith(503);
+        });
+
+        it('persists the user question and the FAQ reply, and returns a sessionId', async () => {
+            req.body.message = 'chính sách bảo hành như thế nào?';
+            await handleChat(req, res);
+
+            expect(prisma.chatMessage.create).toHaveBeenCalledWith(
+                expect.objectContaining({ data: expect.objectContaining({ role: 'user', content: req.body.message, intent: 'bao_hanh' }) })
+            );
+            expect(prisma.chatMessage.create).toHaveBeenCalledWith(
+                expect.objectContaining({ data: expect.objectContaining({ role: 'model' }) })
+            );
+            const payload = res.json.mock.calls[0][0];
+            expect(payload.sessionId).toEqual(expect.any(String));
         });
     });
 
@@ -267,11 +284,41 @@ describe('Chatbot Controller — handleChat', () => {
             const payload = res.json.mock.calls[0][0];
             expect(payload.message).toMatch(/I found 2/i);
         });
+
+        it('returns product_card for a non-diacritic price question ("gia iphone 16 bao nhieu")', async () => {
+            req.body.message = 'gia iphone 16 bao nhieu';
+            mockProductFind([], [SAMPLE_PRODUCT]);
+            await handleChat(req, res);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ type: 'product_card' }));
+        });
+
+        it('does not misfire on "gia" as a substring of "giao" (shipping question, no price intent)', async () => {
+            req.body.message = 'giao iphone toi luc nao';
+            mockProductFind([]);
+            const { genAI } = makeMockGenAI('Giao hàng trong 2-3 ngày.');
+            getGenAI.mockReturnValue(genAI);
+            await handleChat(req, res);
+            expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/event-stream');
+        });
     });
 
     // ─── 6. Gemini AI Path (SSE streaming) ───────────────────────────────────
 
     describe('Gemini AI Path', () => {
+        it('includes product spec/description in the prompt sent to Gemini for richer consultation', async () => {
+            req.body.message = 'tai sao iphone dat the';
+            mockProductFind([{
+                name: 'iPhone 16 Pro Max', price: 31000000, category: 'Phone',
+                spec: 'Chip A18 Pro, camera chính 48MP, RAM 8GB', short_description: 'Flagship camera đỉnh cao',
+            }], []);
+            const { genAI, mockSendMessageStream } = makeMockGenAI('OK');
+            getGenAI.mockReturnValue(genAI);
+
+            await handleChat(req, res);
+
+            expect(mockSendMessageStream).toHaveBeenCalledWith(expect.stringContaining('Chip A18 Pro'));
+        });
+
         it('streams reply via SSE for a general question', async () => {
             req.body.message = 'tai sao iphone dat the';
             const { genAI } = makeMockGenAI('iPhone đắt vì linh kiện cao cấp.');
@@ -300,6 +347,23 @@ describe('Chatbot Controller — handleChat', () => {
             expect(res.status).toHaveBeenCalledWith(503);
             expect(res.json).toHaveBeenCalledWith(
                 expect.objectContaining({ reply: expect.stringContaining('quá tải') })
+            );
+        });
+
+        it('reuses a client-provided sessionId not held in memory, rehydrating history from the DB', async () => {
+            req.body.message = 'tai sao iphone dat the';
+            req.body.sessionId = 'session-from-earlier-server-instance';
+            prisma.chatMessage.findMany.mockResolvedValue([
+                { role: 'user', content: 'câu hỏi cũ', createdAt: new Date() },
+                { role: 'model', content: 'câu trả lời cũ', createdAt: new Date() },
+            ]);
+            await handleChat(req, res);
+
+            expect(prisma.chatMessage.findMany).toHaveBeenCalledWith(
+                expect.objectContaining({ where: { sessionId: 'session-from-earlier-server-instance' } })
+            );
+            expect(res.write).toHaveBeenCalledWith(
+                expect.stringContaining('"sessionId":"session-from-earlier-server-instance"')
             );
         });
 

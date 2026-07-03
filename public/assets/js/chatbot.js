@@ -122,9 +122,9 @@
         ],
     };
 
-    // ── Session ID (persists across page loads in same tab session) ─────────
-    function getSessionId() { return sessionStorage.getItem('chatbot-sid') || null; }
-    function saveSessionId(id) { sessionStorage.setItem('chatbot-sid', id); }
+    // ── Session ID (persists across browser restarts — history is loaded from the server) ─
+    function getSessionId() { return localStorage.getItem('chatbot-sid') || null; }
+    function saveSessionId(id) { localStorage.setItem('chatbot-sid', id); }
 
     // ── Markdown formatter ───────────────────────────────────────────────────
     function formatMarkdown(text) {
@@ -507,9 +507,34 @@
         });
     }
 
+    // ── Restore chat history (survives page reload + browser restart) ───────
+    function loadHistory() {
+        const sessionId = getSessionId();
+        if (!sessionId) return;
+
+        fetch(`${API}/api/chat/history/${sessionId}`)
+            .then(res => (res.ok ? res.json() : null))
+            .then(data => {
+                const messages = data && Array.isArray(data.messages) ? data.messages : [];
+                if (messages.length === 0) return; // keep default greeting
+
+                const container = document.getElementById('chat-messages');
+                if (!container) return;
+                container.innerHTML = ''; // clear default greeting + quick-reply chips
+
+                messages.slice(-40).forEach(m => {
+                    appendMessage(m.content, m.role === 'user' ? 'user' : 'ai');
+                });
+            })
+            .catch(() => {
+                // History unavailable (offline/server down) — default greeting stays, chat still usable
+            });
+    }
+
     // ── Init ─────────────────────────────────────────────────────────────────
     function init() {
         inject();
+        loadHistory();
         const form = document.getElementById('chat-form');
         if (form) form.addEventListener('submit', onSubmit);
     }
