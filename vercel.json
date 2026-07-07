@@ -20,7 +20,7 @@
     },
     {
       "src": "/images/(.*)",
-      "dest": "/assets/images/$1"
+      "dest": "public/assets/images/$1"
     },
     {
       "src": "/auth/(.*)",
